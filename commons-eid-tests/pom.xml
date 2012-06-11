@@ -8,4 +8,26 @@
 	<name>Commons eID Integration Tests</name>
 	<groupId>be.fedict</groupId>
 	<artifactId>commons-eid-tests</artifactId>
+	<dependencies>
+	    <dependency>
+	        <groupId>be.fedict</groupId>
+			<artifactId>commons-eid-client</artifactId>
+			<version>${project.version}</version>
+	    </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>
