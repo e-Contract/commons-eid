@@ -53,6 +53,7 @@ public class CardManager {
 	private final Logger logger;
 
 	public CardManager(Logger logger) {
+		LibJ2PCSCLinuxFix.fixLinuxNativeLibrary();
 		this.terminalFactory = TerminalFactory.getDefault();
 		this.cardTerminals = this.terminalFactory.terminals();
 		this.logger = logger;
