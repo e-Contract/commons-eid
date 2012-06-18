@@ -70,16 +70,17 @@ public class TerminalManager implements Runnable
 	
 	public TerminalManager(int delay, Logger logger)
 	{
+		// work around implementation bug in some GNU/Linux JRE's that causes libpcsc not to be found.
 		LibJ2PCSCLinuxFix.fixLinuxNativeLibrary();
+		
 		this.listeners					=new HashSet<TerminalManagerListener>();
 		this.delay						=delay;
 		this.logger						=logger;
 		this.running					=false;
 		this.initialized				=false;
 		this.autoconnect				=true;
-		this.terminalFactory=TerminalFactory.getDefault();
-		this.cardTerminals=terminalFactory.terminals();
-		clear();	
+		this.terminalFactory			=TerminalFactory.getDefault();
+		this.cardTerminals				=terminalFactory.terminals();
 	}
 	
 	// add a TerminalManagerListener
@@ -92,6 +93,7 @@ public class TerminalManager implements Runnable
 	// start this TerminalManager in the background as a Thread
 	public TerminalManager start()
 	{
+		logger.debug("TerminalManager worker thread start requested.");
 		thread=new Thread(this,"TerminalManager");
 		thread.setDaemon(true);
 		thread.start();
@@ -110,8 +112,8 @@ public class TerminalManager implements Runnable
 	// to wait for potentially long <delay> settings
 	public TerminalManager stop()
 	{
+		logger.debug("TerminalManager worker thread stop requested.");
 		running=false;
-		thread.interrupt();
 		return this;
 	}
 	
@@ -119,6 +121,7 @@ public class TerminalManager implements Runnable
 	public void run()
 	{
 		running=true;
+		logger.debug("TerminalManager worker thread started.");
 		
 		try
 		{
@@ -128,13 +131,15 @@ public class TerminalManager implements Runnable
 		catch (InterruptedException ie)
 		{
 			if(running)
-				logger.error("Event Loop Unexpectedly Interrupted: " + ie.getLocalizedMessage());		
+				logger.error("TerminalManager worker thread unexpectedly interrupted: " + ie.getLocalizedMessage());		
 		}
+		
+		logger.debug("TerminalManager worker thread ended.");
 	}
 
 	private void handlePCSCEvents() throws InterruptedException
 	{
-		if(terminalsPresent==null || terminalsWithCards==null)
+		if(!initialized)
 		{
 			try
 			{
@@ -147,13 +152,14 @@ public class TerminalManager implements Runnable
 			}
 			catch(CardException cex)
 			{
-				logger.debug("Cannot enumerate card terminals [1] (No Card Readers Connected?): " + cex.getLocalizedMessage());
+				logCardException(cex, "Cannot enumerate card terminals [1] (No Card Readers Connected?)");
 				clear();
 				listenersException(cex);
+				sleepForDelay();
 				return;
 			}
 		}
-		
+
 		try
 		{
 			// can't use waitForChange properly, that is in blocking mode, without delay argument, 
@@ -166,7 +172,7 @@ public class TerminalManager implements Runnable
 		catch(CardException cex)
 		{
 			// waitForChange fails (e.g. PCSC is there but no readers)
-			logger.debug("Cannot wait for card terminal events [2] (No Card Readers Connected?): " + cex.getLocalizedMessage());
+			logCardException(cex, "Cannot wait for card terminal events [2] (No Card Readers Connected?)");
 			listenersException(cex);
 			clear();
 			sleepForDelay();
@@ -182,7 +188,7 @@ public class TerminalManager implements Runnable
 			return;
 		}
 		
-		// get here when even has occured or delay time has passed
+		// get here when event has occured or delay time has passed
 		
 		try
 		{
@@ -217,7 +223,8 @@ public class TerminalManager implements Runnable
 		{
 			// if a CardException occurs, assume we're out of readers (only CardTerminals.list throws that here) 
 			// CardTerminal fails in that case, instead of simply seeing zero CardTerminals.
-			logger.debug("Cannot enumerate card terminals [3] (No Card Readers Connected?): " + cex.getLocalizedMessage());
+			logCardException(cex, "Cannot wait for card terminal changes (no PCSC subsystem?)");
+			listenersException(cex);
 			clear();
 			sleepForDelay();
 		}
@@ -425,5 +432,16 @@ public class TerminalManager implements Runnable
 	private void sleepForDelay() throws InterruptedException
 	{
 		Thread.sleep(delay);
+	}
+	
+	private void logCardException(CardException cex, String where)
+	{
+		this.logger.debug(where + ": " + cex.getMessage());
+		this.logger.debug("no card readers connected?");
+		Throwable cause=cex.getCause();
+		if(cause==null)
+			return;
+		this.logger.debug("cause: " + cause.getMessage());
+		this.logger.debug("cause type: " + cause.getClass().getName());
 	}
 }

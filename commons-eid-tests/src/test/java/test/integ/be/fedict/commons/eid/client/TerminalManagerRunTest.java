@@ -64,6 +64,8 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 			System.out.println("\t" + StringUtils.getShortTerminalname(terminal.getName()));
 	}
 	
+	//---------------------------------------------------------------------------------------------
+	
 	/*
 	 * Exercises asynchronous run with callbacks:
 	 * instantiate, register listeners, call start().
@@ -88,16 +90,11 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 		
 		TerminalManagerListener dummy=new TerminalManagerListener()
 		{
-			@Override
-			public void terminalException(Throwable throwable) 				{}
-			@Override
-			public void terminalDetached(CardTerminal cardTerminal) 		{}
-			@Override
-			public void terminalAttached(CardTerminal cardTerminal) 		{}
-			@Override
-			public void cardRemoved(CardTerminal cardTerminal) 				{}
-			@Override
-			public void cardInserted(CardTerminal cardTerminal, Card card) 	{}
+			@Override public void terminalException(Throwable throwable) 				{}
+			@Override public void terminalDetached(CardTerminal cardTerminal) 			{}
+			@Override public void terminalAttached(CardTerminal cardTerminal) 			{}
+			@Override public void cardRemoved(CardTerminal cardTerminal) 				{}
+			@Override public void cardInserted(CardTerminal cardTerminal, Card card) 	{}
 		};
 		
 		System.err.println("main thread running.. do some card tricks..");
@@ -112,6 +109,35 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 			Thread.sleep(random.nextInt(100));
 		}
 	}
+	
+	//---------------------------------------------------------------------------------------------
+	
+	/*
+	 * Exercise TerminalManager's start() stop() semantics, with regards to its
+	 * worker thread. This test starts and stops a TerminalManager randomly.
+	 * It should remain in a consistent state at all times and detect terminal
+	 * attaches/detaches and card inserts/removals as usual (while running, of course..)
+	 */
+	@Test
+	public void testStartStop() throws Exception
+	{
+		Random random=new Random(0);
+		terminalManager=new TerminalManager(new TestLogger());
+		terminalManager.addListener(this);
+		terminalManager.start();
+		
+		for(;;)
+		{
+			System.err.print("+");
+			terminalManager.start();
+			Thread.sleep(random.nextInt(2000));
+			System.err.print("-");
+			terminalManager.stop();
+			Thread.sleep(random.nextInt(2000));
+		}
+	}
+	
+	//----------------------------- callbacks that just print to stderr -------------------
 	
 	@Override
 	public void terminalAttached(CardTerminal terminalAttached)
@@ -149,6 +175,4 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 	{
 		System.err.println("Exception: " + throwable.getLocalizedMessage());
 	}
-	
-	//---------------------------------------------------------------------------------------------
 }
