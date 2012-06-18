@@ -18,9 +18,13 @@
 
 package test.integ.be.fedict.commons.eid.client;
 
+import java.util.Map;
+
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 
+import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.TerminalManager;
 
 
@@ -78,6 +82,23 @@ public class StringUtils {
 		catch (CardException e)
 		{
 			System.err.println("FAILED TO READ LIST OF TERMINALS");
+		}
+		
+		System.out.println(overviewLine.toString());
+	}
+	
+	public static void printTerminalOverviewLine(BeIDCardManager cardManager)
+	{
+		StringBuilder overviewLine=new StringBuilder();
+		
+		for(Map.Entry<CardTerminal,BeIDCard> TnC : cardManager.getTerminalsWithBeIDCards().entrySet())
+		{
+			CardTerminal cardTerminal=TnC.getKey();
+			BeIDCard	 beIDCard	 =TnC.getValue();
+			
+			overviewLine.append("[");
+			overviewLine.append(StringUtils.getShortTerminalname(cardTerminal.getName()));
+			overviewLine.append("] ");
 		}
 		
 		System.out.println(overviewLine.toString());
