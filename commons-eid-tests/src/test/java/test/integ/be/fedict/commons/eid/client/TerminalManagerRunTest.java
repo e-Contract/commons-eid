@@ -27,6 +27,7 @@
  */
 
 package test.integ.be.fedict.commons.eid.client;
+import java.util.Random;
 import java.util.Set;
 
 import javax.smartcardio.Card;
@@ -64,36 +65,51 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 	}
 	
 	/*
-	 * Exercises synchronous run with callbacks:
-	 * instantiate, register listeners, call run() (which blocks)
-	 */
-	@Test
-	public void testSyncRun() throws Exception
-	{
-		terminalManager=new TerminalManager(new TestLogger());
-		terminalManager.addListener(this);
-		terminalManager.run();
-	}
-	
-	/*
 	 * Exercises asynchronous run with callbacks:
 	 * instantiate, register listeners, call start().
-	 * The test then loops and prints some messages to avoid
-	 * the terminalManager going out of scope when the test ends
-	 * (TerminalManagers are Daemon Threads when used like this.. The test would end
-	 * before anything was detected otherwise)
+	 * The test then loops and adds/removes a listener in some pseudo-random timing pattern.
+	 * This is to ensure that the list of listeners remains properly synchronized
+	 * in relation to it being iterated whenever events are being sent to listeners
+	 * this test never returns.. since it requires someone to attach/detach readers and
+	 * insert/remove cards this is no problem until we automate those using e.g.
+	 * http://www.lynxmotion.com/p-816-al5d-robotic-arm-combo-kit-free-software.aspx
+	 * 
+	 * While running this test, the operator should attach and detach at least 2 card terminals,
+	 * insert and remove cards from them, in all possible permutations. The state displayed should,
+	 * at all times, reflect the state of the readers and their cards within 250-400 ms.
 	 */
 	@Test
-	public void testASyncRun() throws Exception
+	public void testAsynchronous() throws Exception
 	{
+		Random random=new Random(0);
 		terminalManager=new TerminalManager(new TestLogger());
 		terminalManager.addListener(this);
 		terminalManager.start();
 		
-		for(int i=0;i<20;i++)
+		TerminalManagerListener dummy=new TerminalManagerListener()
 		{
-			System.err.println("main thread spending time.. do some card tricks..");
-			Thread.sleep(2000);
+			@Override
+			public void terminalException(Throwable throwable) 				{}
+			@Override
+			public void terminalDetached(CardTerminal cardTerminal) 		{}
+			@Override
+			public void terminalAttached(CardTerminal cardTerminal) 		{}
+			@Override
+			public void cardRemoved(CardTerminal cardTerminal) 				{}
+			@Override
+			public void cardInserted(CardTerminal cardTerminal, Card card) 	{}
+		};
+		
+		System.err.println("main thread running.. do some card tricks..");
+		
+		for(;;)
+		{
+			System.err.print("+");
+			terminalManager.addListener(dummy);
+			Thread.sleep(random.nextInt(100));
+			System.err.print("-");
+			terminalManager.removeListener(dummy);
+			Thread.sleep(random.nextInt(100));
 		}
 	}
 	
@@ -114,7 +130,10 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 	@Override
 	public void cardInserted(CardTerminal cardTerminal, Card card)
 	{
-		System.err.println("Card [" + new String(StringUtils.byteArrayToHexString(card.getATR().getBytes())) + "] Inserted Into Terminal [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
+		if(card!=null)
+			System.err.println("Card [" + new String(StringUtils.byteArrayToHexString(card.getATR().getBytes())) + "] Inserted Into Terminal [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
+		else
+			System.err.println("Card present but failed to connect()");
 		StringUtils.printTerminalOverviewLine(terminalManager);
 	}
 	
