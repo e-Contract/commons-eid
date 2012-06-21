@@ -143,7 +143,7 @@ public class BeIDCardManager implements TerminalManagerListener
 	{
 		if(card!=null && matchesEidAtr(card.getATR()))
 		{
-			BeIDCard beIDCard=new BeIDCard(card);
+			BeIDCard beIDCard=new BeIDCard(card,logger);
 			
 			synchronized(terminalsAndCards)
 			{
