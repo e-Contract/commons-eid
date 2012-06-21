@@ -26,6 +26,9 @@
  */
 
 package test.integ.be.fedict.commons.eid.client;
+import java.io.IOException;
+
+import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 
 import org.junit.Test;
@@ -33,6 +36,9 @@ import org.junit.Test;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.BeIDCardManagerListener;
+import be.fedict.commons.eid.client.BeIDFileType;
+import be.fedict.commons.eid.server.Identity;
+import be.fedict.commons.eid.server.tlv.TlvParser;
 
 
 public class BeIDManagerRunTest implements BeIDCardManagerListener
@@ -63,6 +69,23 @@ public class BeIDManagerRunTest implements BeIDCardManagerListener
 	@Override
 	public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card)
 	{
+		try
+		{
+			byte[] identityFile=card.readFile(BeIDFileType.Identity);
+			Identity identity=TlvParser.parse(identityFile, Identity.class);
+			System.out.println(identity.firstName + " " + identity.name);
+		}
+		catch (CardException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		System.err.println("eID Card Inserted Into [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
 		StringUtils.printTerminalOverviewLine(beIDCardManager);
 	}

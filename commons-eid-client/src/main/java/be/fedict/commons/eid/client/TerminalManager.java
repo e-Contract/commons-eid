@@ -71,7 +71,7 @@ public class TerminalManager implements Runnable
 	public TerminalManager(int delay, Logger logger)
 	{
 		// work around implementation bug in some GNU/Linux JRE's that causes libpcsc not to be found.
-		LibJ2PCSCLinuxFix.fixLinuxNativeLibrary();
+		LibJ2PCSCGNULinuxFix.fixNativeLibrary();
 		
 		this.listeners					=new HashSet<TerminalManagerListener>();
 		this.delay						=delay;
