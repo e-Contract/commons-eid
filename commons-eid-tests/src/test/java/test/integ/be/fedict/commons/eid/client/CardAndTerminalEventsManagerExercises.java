@@ -17,7 +17,7 @@
  */
 
 /**
- * Manual exercise for TerminalManager.
+ * Manual exercise for CardAndTerminalEventsManager.
  * Prints events and list of readers with cards.
  * [short readername] ... 
  * readers with cards inserted have a "*" behind their short name
@@ -35,31 +35,32 @@ import javax.smartcardio.CardTerminal;
 
 import org.junit.Test;
 
-import be.fedict.commons.eid.client.TerminalManager;
-import be.fedict.commons.eid.client.TerminalManagerListener;
+import be.fedict.commons.eid.client.CardTerminalEventsListener;
+import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
+import be.fedict.commons.eid.client.CardEventsListener;
 
 
-public class TerminalManagerRunTest implements TerminalManagerListener
+public class CardAndTerminalEventsManagerExercises implements CardTerminalEventsListener,CardEventsListener
 {
-	private TerminalManager terminalManager;
+	private CardAndTerminalEventsManager cardAndTerminalEventsManager;
 	
 	/*
-	 * Exercises terminalManager procedural call:
+	 * Exercises cardAndTerminalEventsManager procedural call:
 	 * instantiate, then call getTerminalsPresent and/or getTerminalsWithCards
 	 */
 	@Test
 	public void testProcedural() throws Exception
 	{
-		TerminalManager terminalManager=new TerminalManager(new TestLogger());
+		CardAndTerminalEventsManager cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
 		
 		System.out.println("Terminals Connected:");
-		Set<CardTerminal> terminals=terminalManager.getTerminalsPresent();
+		Set<CardTerminal> terminals=cardAndTerminalEventsManager.getTerminalsPresent();
 		for(CardTerminal terminal : terminals)
 			System.out.println("\t" + StringUtils.getShortTerminalname(terminal.getName()));
 		System.out.println();
 		
 		System.out.println("Terminals With Cards:");
-		Set<CardTerminal> terminalsWithCards=terminalManager.getTerminalsWithCards();
+		Set<CardTerminal> terminalsWithCards=cardAndTerminalEventsManager.getTerminalsWithCards();
 		for(CardTerminal terminal : terminalsWithCards)
 			System.out.println("\t" + StringUtils.getShortTerminalname(terminal.getName()));
 	}
@@ -84,15 +85,24 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 	public void testAsynchronous() throws Exception
 	{
 		Random random=new Random(0);
-		terminalManager=new TerminalManager(new TestLogger());
-		terminalManager.addListener(this);
-		terminalManager.start();
+		cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
+		cardAndTerminalEventsManager.addCardTerminalListener(this);
+		cardAndTerminalEventsManager.addCardListener(this);
 		
-		TerminalManagerListener dummy=new TerminalManagerListener()
+		cardAndTerminalEventsManager.ignoreCardEventsFor("VASCO DP905");
+		
+		cardAndTerminalEventsManager.start();
+		
+		CardTerminalEventsListener dummyCTL=new CardTerminalEventsListener()
 		{
 			@Override public void terminalException(Throwable throwable) 				{}
 			@Override public void terminalDetached(CardTerminal cardTerminal) 			{}
 			@Override public void terminalAttached(CardTerminal cardTerminal) 			{}
+		};
+		
+		CardEventsListener dummyCL=new CardEventsListener()
+		{
+			
 			@Override public void cardRemoved(CardTerminal cardTerminal) 				{}
 			@Override public void cardInserted(CardTerminal cardTerminal, Card card) 	{}
 		};
@@ -102,10 +112,12 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 		for(;;)
 		{
 			System.err.print("+");
-			terminalManager.addListener(dummy);
+			cardAndTerminalEventsManager.addCardTerminalListener(dummyCTL);
+			cardAndTerminalEventsManager.addCardListener(dummyCL);
 			Thread.sleep(random.nextInt(100));
 			System.err.print("-");
-			terminalManager.removeListener(dummy);
+			cardAndTerminalEventsManager.removeCardTerminalListener(dummyCTL);
+			cardAndTerminalEventsManager.removeCardListener(dummyCL);
 			Thread.sleep(random.nextInt(100));
 		}
 	}
@@ -113,8 +125,8 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 	//---------------------------------------------------------------------------------------------
 	
 	/*
-	 * Exercise TerminalManager's start() stop() semantics, with regards to its
-	 * worker thread. This test starts and stops a TerminalManager randomly.
+	 * Exercise CardAndTerminalEventsManager's start() stop() semantics, with regards to its
+	 * worker thread. This test starts and stops a CardAndTerminalEventsManager randomly.
 	 * It should remain in a consistent state at all times and detect terminal
 	 * attaches/detaches and card inserts/removals as usual (while running, of course..)
 	 */
@@ -122,17 +134,18 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 	public void testStartStop() throws Exception
 	{
 		Random random=new Random(0);
-		terminalManager=new TerminalManager(new TestLogger());
-		terminalManager.addListener(this);
-		terminalManager.start();
+		cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
+		cardAndTerminalEventsManager.addCardTerminalListener(this);
+		cardAndTerminalEventsManager.addCardListener(this);
+		cardAndTerminalEventsManager.start();
 		
 		for(;;)
 		{
 			System.err.print("+");
-			terminalManager.start();
+			cardAndTerminalEventsManager.start();
 			Thread.sleep(random.nextInt(2000));
 			System.err.print("-");
-			terminalManager.stop();
+			cardAndTerminalEventsManager.stop();
 			Thread.sleep(random.nextInt(2000));
 		}
 	}
@@ -142,32 +155,32 @@ public class TerminalManagerRunTest implements TerminalManagerListener
 	@Override
 	public void terminalAttached(CardTerminal terminalAttached)
 	{
-		System.err.println("Terminal Attached [" + StringUtils.getShortTerminalname(terminalAttached.getName()) + "]");
-		StringUtils.printTerminalOverviewLine(terminalManager);
+		System.err.println("Terminal Attached [" + terminalAttached.getName() + "]");
+		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
 	}
 	
 	@Override
 	public void terminalDetached(CardTerminal terminalDetached)
 	{
-		System.err.println("Terminal Detached [" + StringUtils.getShortTerminalname(terminalDetached.getName()) + "]");
-		StringUtils.printTerminalOverviewLine(terminalManager);
+		System.err.println("Terminal Detached [" + terminalDetached.getName() + "]");
+		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
 	}
 
 	@Override
 	public void cardInserted(CardTerminal cardTerminal, Card card)
 	{
 		if(card!=null)
-			System.err.println("Card [" + new String(StringUtils.byteArrayToHexString(card.getATR().getBytes())) + "] Inserted Into Terminal [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
+			System.err.println("Card [" + new String(StringUtils.byteArrayToHexString(card.getATR().getBytes())) + "] Inserted Into Terminal [" + cardTerminal.getName() + "]");
 		else
 			System.err.println("Card present but failed to connect()");
-		StringUtils.printTerminalOverviewLine(terminalManager);
+		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
 	}
 	
 	@Override
 	public void cardRemoved(CardTerminal terminalWithCardRemoved)
 	{
-		System.err.println("Card Removed From [" + StringUtils.getShortTerminalname(terminalWithCardRemoved.getName()) + "]");
-		StringUtils.printTerminalOverviewLine(terminalManager);
+		System.err.println("Card Removed From [" + terminalWithCardRemoved.getName() + "]");
+		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
 	}
 
 	@Override
