@@ -41,7 +41,7 @@ import be.fedict.commons.eid.server.Identity;
 import be.fedict.commons.eid.server.tlv.TlvParser;
 
 
-public class BeIDManagerRunTest implements BeIDCardManagerListener
+public class BeIDCardEventsManagerExercise implements BeIDCardManagerListener
 {
 	private BeIDCardManager beIDCardManager;
 	
@@ -87,14 +87,14 @@ public class BeIDManagerRunTest implements BeIDCardManagerListener
 		}
 		
 		System.err.println("eID Card Inserted Into [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
-		StringUtils.printTerminalOverviewLine(beIDCardManager);
+		//StringUtils.printTerminalOverviewLine(beIDCardManager);
 	}
 
 	@Override
 	public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card)
 	{
 		System.err.println("eID Card Removed From [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
-		StringUtils.printTerminalOverviewLine(beIDCardManager);
+		//StringUtils.printTerminalOverviewLine(beIDCardManager);
 
 		
 	}

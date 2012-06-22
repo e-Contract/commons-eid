@@ -24,8 +24,8 @@ import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDCardManager;
-import be.fedict.commons.eid.client.TerminalManager;
+import be.fedict.commons.eid.client.BeIDCardEventsManager;
+import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
 
 
 public class StringUtils {
@@ -57,13 +57,13 @@ public class StringUtils {
 		return shortName.toString();
 	}
 
-	public static void printTerminalOverviewLine(TerminalManager terminalManager)
+	public static void printTerminalOverviewLine(CardAndTerminalEventsManager cardAndTerminalEventsManager)
 	{
 		StringBuilder overviewLine=new StringBuilder();
 		
 		try 
 		{
-			for(CardTerminal terminal : terminalManager.getTerminalsPresent())
+			for(CardTerminal terminal : cardAndTerminalEventsManager.getTerminalsPresent())
 			{
 				overviewLine.append("[");
 				overviewLine.append(StringUtils.getShortTerminalname(terminal.getName()));
@@ -87,15 +87,13 @@ public class StringUtils {
 		System.out.println(overviewLine.toString());
 	}
 	
-	public static void printTerminalOverviewLine(BeIDCardManager cardManager)
+	public static void printTerminalOverviewLine(BeIDCardEventsManager cardManager)
 	{
 		StringBuilder overviewLine=new StringBuilder();
 		
 		for(Map.Entry<CardTerminal,BeIDCard> TnC : cardManager.getTerminalsWithBeIDCards().entrySet())
 		{
 			CardTerminal cardTerminal=TnC.getKey();
-			BeIDCard	 beIDCard	 =TnC.getValue();
-			
 			overviewLine.append("[");
 			overviewLine.append(StringUtils.getShortTerminalname(cardTerminal.getName()));
 			overviewLine.append("] ");
