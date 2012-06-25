@@ -29,15 +29,12 @@
 package test.integ.be.fedict.commons.eid.client;
 import java.util.Random;
 import java.util.Set;
-
 import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
-
 import org.junit.Test;
-
-import be.fedict.commons.eid.client.CardTerminalEventsListener;
 import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
 import be.fedict.commons.eid.client.CardEventsListener;
+import be.fedict.commons.eid.client.CardTerminalEventsListener;
 
 
 public class CardAndTerminalEventsManagerExercises implements CardTerminalEventsListener,CardEventsListener
@@ -89,7 +86,7 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 		cardAndTerminalEventsManager.addCardTerminalListener(this);
 		cardAndTerminalEventsManager.addCardListener(this);
 		
-		cardAndTerminalEventsManager.ignoreCardEventsFor("VASCO DP905");
+		//cardAndTerminalEventsManager.ignoreCardEventsFor("VASCO DP905");
 		
 		cardAndTerminalEventsManager.start();
 		

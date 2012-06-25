@@ -5,9 +5,9 @@
 	    <artifactId>commons-eid</artifactId>
 	    <version>1.0.0-SNAPSHOT</version>
 	</parent>
-	<name>Commons eID Integration Tests</name>
+	<name>Commons eID Examples</name>
 	<groupId>be.fedict</groupId>
-	<artifactId>commons-eid-tests</artifactId>
+	<artifactId>commons-eid-examples</artifactId>
 	<build>
 		<plugins>
 		    <plugin>
@@ -30,20 +30,5 @@
 			<artifactId>commons-eid-consumer</artifactId>
 			<version>${project.version}</version>
 	    </dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 </project>

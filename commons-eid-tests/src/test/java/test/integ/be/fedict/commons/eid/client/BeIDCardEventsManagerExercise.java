@@ -37,8 +37,8 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.BeIDCardManagerListener;
 import be.fedict.commons.eid.client.BeIDFileType;
-import be.fedict.commons.eid.server.Identity;
-import be.fedict.commons.eid.server.tlv.TlvParser;
+import be.fedict.commons.eid.consumer.Identity;
+import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
 
 public class BeIDCardEventsManagerExercise implements BeIDCardManagerListener
