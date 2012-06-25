@@ -5,34 +5,26 @@
 	    <artifactId>commons-eid</artifactId>
 	    <version>1.0.0-SNAPSHOT</version>
 	</parent>
-	<name>Commons eID Integration Tests</name>
+	<name>Commons eID Consumer</name>
 	<groupId>be.fedict</groupId>
-	<artifactId>commons-eid-tests</artifactId>
-	<build>
-		<plugins>
-		    <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-			</plugin>
-		</plugins>	    
-	</build>
+	<artifactId>commons-eid-consumer</artifactId>
 	<dependencies>
-	    <dependency>
-	        <groupId>be.fedict</groupId>
-			<artifactId>commons-eid-client</artifactId>
-			<version>${project.version}</version>
-	    </dependency>
-	    <dependency>
-	        <groupId>be.fedict</groupId>
-			<artifactId>commons-eid-consumer</artifactId>
-			<version>${project.version}</version>
-	    </dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

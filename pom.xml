@@ -26,8 +26,9 @@
 	</developers>
 	<modules>
 		<module>commons-eid-client</module>
-		<module>commons-eid-server</module>
+		<module>commons-eid-consumer</module>
 		<module>commons-eid-tests</module>
+		<module>commons-eid-examples</module>
 	</modules>
 	<dependencyManagement>
 	    <dependencies>

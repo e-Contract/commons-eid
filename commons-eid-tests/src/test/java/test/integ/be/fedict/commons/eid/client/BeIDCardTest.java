@@ -33,8 +33,8 @@ import org.junit.Test;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.CardManager;
-import be.fedict.commons.eid.server.BeIDIntegrity;
-import be.fedict.commons.eid.server.Identity;
+import be.fedict.commons.eid.consumer.BeIDIntegrity;
+import be.fedict.commons.eid.consumer.Identity;
 
 public class BeIDCardTest {
 
