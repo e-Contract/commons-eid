@@ -46,7 +46,7 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 	 * instantiate, then call getTerminalsPresent and/or getTerminalsWithCards
 	 */
 	@Test
-	public void testProcedural() throws Exception
+	public void testSynchronous() throws Exception
 	{
 		CardAndTerminalEventsManager cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
 		
@@ -64,6 +64,18 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 	
 	//---------------------------------------------------------------------------------------------
 	
+	@Test
+	public void testAsynchronousWithoutArtificialEvents() throws Exception
+	{
+		_testAsynchronous(false);
+	}
+	
+	@Test
+	public void testAsynchronousWithArtificialEvents() throws Exception
+	{
+		_testAsynchronous(true);
+	}
+	
 	/*
 	 * Exercises asynchronous run with callbacks:
 	 * instantiate, register listeners, call start().
@@ -78,13 +90,14 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 	 * insert and remove cards from them, in all possible permutations. The state displayed should,
 	 * at all times, reflect the state of the readers and their cards within 250-400 ms.
 	 */
-	@Test
-	public void testAsynchronous() throws Exception
+
+	public void _testAsynchronous(boolean articifialEvents) throws Exception
 	{
 		Random random=new Random(0);
 		cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
 		cardAndTerminalEventsManager.addCardTerminalListener(this);
 		cardAndTerminalEventsManager.addCardListener(this);
+		cardAndTerminalEventsManager.setArtificialEvents(articifialEvents);
 		
 		//cardAndTerminalEventsManager.ignoreCardEventsFor("VASCO DP905");
 		
@@ -144,6 +157,35 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 			System.err.print("-");
 			cardAndTerminalEventsManager.stop();
 			Thread.sleep(random.nextInt(2000));
+		}
+	}
+	
+	/*
+	 * Exercise CardAndTerminalEventsManager's consistency with synchronous and asynchronous
+	 * operations mixed. Async test with random synchronous calls mixed in
+	 */
+	@Test
+	public void testSyncAsyncMix() throws Exception
+	{
+		Random random=new Random(0);
+		cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
+		cardAndTerminalEventsManager.addCardTerminalListener(this);
+		cardAndTerminalEventsManager.addCardListener(this);
+		cardAndTerminalEventsManager.start();
+		
+		for(;;)
+		{
+			if(random.nextBoolean())
+			{
+				System.err.print("T");
+				cardAndTerminalEventsManager.getTerminalsPresent();
+			}
+			else
+			{
+				System.err.print("C");
+				cardAndTerminalEventsManager.getTerminalsWithCards();
+			}
+			Thread.sleep(random.nextInt(10));
 		}
 	}
 	

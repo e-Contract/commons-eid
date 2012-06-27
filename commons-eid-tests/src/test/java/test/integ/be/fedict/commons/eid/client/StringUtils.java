@@ -18,12 +18,8 @@
 
 package test.integ.be.fedict.commons.eid.client;
 
-import java.util.Map;
-
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
-
-import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardEventsManager;
 import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
 
@@ -91,11 +87,10 @@ public class StringUtils {
 	{
 		StringBuilder overviewLine=new StringBuilder();
 		
-		for(Map.Entry<CardTerminal,BeIDCard> TnC : cardManager.getTerminalsWithBeIDCards().entrySet())
+		for(CardTerminal terminal : cardManager.getTerminalsWithBeIDCardsPresent())
 		{
-			CardTerminal cardTerminal=TnC.getKey();
 			overviewLine.append("[");
-			overviewLine.append(StringUtils.getShortTerminalname(cardTerminal.getName()));
+			overviewLine.append(StringUtils.getShortTerminalname(terminal.getName()));
 			overviewLine.append("] ");
 		}
 		

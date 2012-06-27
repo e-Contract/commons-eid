@@ -3,10 +3,12 @@ package be.fedict.commons.eid.client;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
+import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 
 public class BeIDCardEventsManager implements CardEventsListener
@@ -64,6 +66,7 @@ public class BeIDCardEventsManager implements CardEventsListener
 		this.terminalsAndCards=new HashMap<CardTerminal,BeIDCard>();
 		this.cardAndTerminalEventsManager=cardAndTerminalEventsManager;
 		this.cardAndTerminalEventsManager.addCardListener(this);
+		updateTerminalsAndCards();
 	}
 
 	public BeIDCardEventsManager start()
@@ -100,26 +103,89 @@ public class BeIDCardEventsManager implements CardEventsListener
 		return this;
 	}
 
-	public Map<CardTerminal,BeIDCard> getTerminalsWithBeIDCards()
+	public Map<CardTerminal,BeIDCard> getTerminalsAndBeIDCardsPresent()
 	{
+		updateTerminalsAndCards();
 		Map<CardTerminal,BeIDCard> copyOfTerminalsAndCards;
-
-		synchronized(terminalsAndCards)
-		{
-			copyOfTerminalsAndCards=new HashMap<CardTerminal,BeIDCard>(terminalsAndCards);
-		}
-
+		synchronized(terminalsAndCards){ copyOfTerminalsAndCards=new HashMap<CardTerminal,BeIDCard>(terminalsAndCards); }
 		return copyOfTerminalsAndCards;
 	}
 
-	// public CardTerminal findFirstBeIDCardTerminal() throws CardException
-	// {
-	// for(CardTerminal terminalWithCard :
-	// cardAndTerminalEventsManager.getTerminalsWithCards())
-	// {
-	// Card card=terminalWithCard.connect("*");
-	// }
-	// }
+	public Set<CardTerminal> getTerminalsWithBeIDCardsPresent()
+	{
+		updateTerminalsAndCards();
+		Set<CardTerminal> terminals;
+		synchronized(terminalsAndCards){ terminals=new HashSet<CardTerminal>(terminalsAndCards.keySet()); }
+		return terminals;
+	}
+
+	public Set<BeIDCard> getBeIDCardsPresent()
+	{
+		updateTerminalsAndCards();
+		Set<BeIDCard> cards;
+		synchronized(terminalsAndCards) { cards=new HashSet<BeIDCard>(terminalsAndCards.values()); }
+		return cards;
+	}
+
+	public CardTerminal getFirstBeIDCardTerminal()
+	{
+		Set<CardTerminal> terminalsWithCards=getTerminalsWithBeIDCardsPresent();
+		Iterator<CardTerminal> terminalsWithCardsIterator=terminalsWithCards.iterator();
+		if(!terminalsWithCardsIterator.hasNext())
+			return null;
+		return terminalsWithCardsIterator.next();
+	}
+	
+	public BeIDCard getFirstBeIDCard()
+	{
+		Set<BeIDCard> cards=getBeIDCardsPresent();
+		Iterator<BeIDCard> cardsIterator=cards.iterator();
+		if(!cardsIterator.hasNext())
+			return null;
+		return cardsIterator.next();
+	}
+	
+	public Map.Entry<CardTerminal,BeIDCard> getFirstBeIDTerminalAndCard()
+	{
+		Map<CardTerminal,BeIDCard> terminalsAndCards=getTerminalsAndBeIDCardsPresent();
+		Iterator<Map.Entry<CardTerminal,BeIDCard>> terminalsAndCardsIterator=terminalsAndCards.entrySet().iterator();
+		if(!terminalsAndCardsIterator.hasNext())
+			return null;
+		return terminalsAndCardsIterator.next();
+	}
+	
+	private void updateTerminalsAndCards()
+	{
+		// if our CardAndTerminalEventsManager is running, terminalsAndCards will get updated 
+		// asynchronously, don't replace it here
+		if(cardAndTerminalEventsManager.isRunning())
+			return;
+
+		Map<CardTerminal,BeIDCard> newTerminalsAndCards=new HashMap<CardTerminal,BeIDCard>();
+		
+		try
+		{
+			for(CardTerminal terminal : cardAndTerminalEventsManager.getTerminalsWithCards())
+			{
+				try
+				{
+					Card card=terminal.connect("*");
+					if(card!=null&&matchesEidAtr(card.getATR()))
+						newTerminalsAndCards.put(terminal,new BeIDCard(card,logger));
+				}
+				catch(CardException cex)
+				{
+					logger.error("Can't Connect to Card in Terminal " + terminal.getName());
+				}
+			}
+		}
+		catch(CardException cex)
+		{
+			logger.error("Can't Obtain List Of Terminals With Cards");
+		}	
+		
+		terminalsAndCards=newTerminalsAndCards;
+	}
 
 	private boolean matchesEidAtr(ATR atr)
 	{

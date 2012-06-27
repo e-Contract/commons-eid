@@ -27,6 +27,7 @@
  */
 package be.fedict.commons.eid.client;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.smartcardio.Card;
@@ -39,7 +40,7 @@ import javax.smartcardio.TerminalFactory;
 public class CardAndTerminalEventsManager implements Runnable
 {
 	private static final int				DEFAULT_DELAY	=250;
-	private boolean							running,initialized,autoconnect;
+	private boolean							running,initialized,autoconnect,artificialEvents;
 	private Thread							thread;
 	private TerminalFactory					terminalFactory;
 	private Set<CardTerminal>				terminalsPresent,terminalsWithCards;
@@ -81,8 +82,20 @@ public class CardAndTerminalEventsManager implements Runnable
 		this.running=false;
 		this.initialized=false;
 		this.autoconnect=true;
+		this.artificialEvents=false;
 		this.terminalFactory=TerminalFactory.getDefault();
 		this.cardTerminals=terminalFactory.terminals();
+		
+		try
+		{
+			// initial update, so that the first getters called will have results
+			// regardless of running state
+			updateTerminalsPresent();
+		}
+		catch(CardException cex)
+		{
+			logCardException(cex,"Cannot enumerate card terminals [0] (No Card Readers Connected?)");
+		}
 	}
 
 	// --------------------------------------------------------------------------------------------------
@@ -161,10 +174,7 @@ public class CardAndTerminalEventsManager implements Runnable
 	
 	// -----------------------------------------------------------------------
 
-	// stop this Terminalmanager running in the background as a Thread
-	// interrupts any Thread.sleep() or CardTerminal.waitForChange() calls in
-	// progress to avoid having
-	// to wait for potentially long <delay> settings
+	// stop this Terminalmanager's worked thread.
 	public CardAndTerminalEventsManager stop()
 	{
 		logger.debug("CardAndTerminalEventsManager worker thread stop requested.");
@@ -204,7 +214,8 @@ public class CardAndTerminalEventsManager implements Runnable
 				if(terminalsPresent==null || terminalsWithCards==null)
 					updateTerminalsPresent();
 				
-				listenersTerminalsAttachedCardsInserted(terminalsPresent,terminalsWithCards);
+				if(artificialEvents)
+					listenersTerminalsAttachedCardsInserted(terminalsPresent,terminalsWithCards);
 				initialized=true;
 			}
 			catch(CardException cex)
@@ -274,7 +285,7 @@ public class CardAndTerminalEventsManager implements Runnable
 			Set<CardTerminal> terminalsDetached=new HashSet<CardTerminal>(this.terminalsPresent);
 			terminalsDetached.removeAll(currentTerminals);
 
-			// keep fresh state to compare to next time
+			// keep fresh state to compare to next time (and to return to synchronous callers)
 			this.terminalsPresent=currentTerminals;
 			this.terminalsWithCards=currentTerminalsWithCards;
 
@@ -370,7 +381,7 @@ public class CardAndTerminalEventsManager implements Runnable
 	{
 		if(!running)
 			updateTerminalsPresent();
-		return new HashSet<CardTerminal>(this.terminalsPresent);
+		return Collections.unmodifiableSet(terminalsPresent);
 	}
 
 	/*
@@ -382,12 +393,32 @@ public class CardAndTerminalEventsManager implements Runnable
 	{
 		if(!running)
 			updateTerminalsPresent();
-		return new HashSet<CardTerminal>(this.terminalsWithCards);
+		return Collections.unmodifiableSet(terminalsWithCards);
+	}
+	
+	/*
+	 * return whether this instance is running, and will update itself
+	 */
+	public boolean isRunning()
+	{
+		return running;
+	}
+	
+	public boolean sendsArtificialEvents()
+	{
+		return artificialEvents;
+	}
+
+	public void setArtificialEvents(boolean artificialEvents)
+	{
+		this.artificialEvents=artificialEvents;
 	}
 
 	// -------------------------------------------------
 	// --------- private convenience methods -----------
 	// -------------------------------------------------
+
+	
 
 	// return to the uninitialized state
 	private void clear()
@@ -395,7 +426,7 @@ public class CardAndTerminalEventsManager implements Runnable
 		// if we were already intialized, we may have sent attached and insert
 		// events we now pretend to remove and detach all that we know of, for
 		// consistency
-		if(initialized)
+		if(artificialEvents && initialized)
 			listenersCardsRemovedTerminalsDetached(terminalsWithCards,terminalsPresent);
 		terminalsPresent=null;
 		terminalsWithCards=null;
