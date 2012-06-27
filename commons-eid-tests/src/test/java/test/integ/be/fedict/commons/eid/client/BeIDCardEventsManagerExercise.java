@@ -88,14 +88,14 @@ public class BeIDCardEventsManagerExercise implements BeIDCardEventsListener
 			e.printStackTrace();
 		}
 		
-		System.err.println("eID Card Inserted Into [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
+		System.err.println("eID SimulatedCard Inserted Into [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
 		//StringUtils.printTerminalOverviewLine(beIDCardManager);
 	}
 
 	@Override
 	public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card)
 	{
-		System.err.println("eID Card Removed From [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
+		System.err.println("eID SimulatedCard Removed From [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
 		//StringUtils.printTerminalOverviewLine(beIDCardManager);
 
 		

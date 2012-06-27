@@ -42,7 +42,6 @@ public class CardAndTerminalEventsManager implements Runnable
 	private static final int				DEFAULT_DELAY	=250;
 	private boolean							running,initialized,autoconnect,artificialEvents;
 	private Thread							thread;
-	private TerminalFactory					terminalFactory;
 	private Set<CardTerminal>				terminalsPresent,terminalsWithCards;
 	private CardTerminals					cardTerminals;
 	private Set<String>						terminalsToIgnoreCardEventsFor;
@@ -55,20 +54,20 @@ public class CardAndTerminalEventsManager implements Runnable
 
 	public CardAndTerminalEventsManager()
 	{
-		this(DEFAULT_DELAY,new VoidLogger());
+		this(new VoidLogger());
 	}
 
 	public CardAndTerminalEventsManager(Logger logger)
 	{
-		this(DEFAULT_DELAY,logger);
+		this(logger,null);
 	}
 
-	public CardAndTerminalEventsManager(int delay)
+	public CardAndTerminalEventsManager(CardTerminals cardTerminals)
 	{
-		this(delay,new VoidLogger());
+		this(new VoidLogger(),cardTerminals);
 	}
 
-	public CardAndTerminalEventsManager(int delay,Logger logger)
+	public CardAndTerminalEventsManager(Logger logger, CardTerminals cardTerminals)
 	{
 		// work around implementation bug in some GNU/Linux JRE's that causes
 		// libpcsc not to be found.
@@ -77,14 +76,22 @@ public class CardAndTerminalEventsManager implements Runnable
 		this.cardTerminalEventsListeners=new HashSet<CardTerminalEventsListener>();
 		this.cardEventsListeners=new HashSet<CardEventsListener>();
 		this.terminalsToIgnoreCardEventsFor=new HashSet<String>();
-		this.delay=delay;
+		this.delay=DEFAULT_DELAY;
 		this.logger=logger;
 		this.running=false;
 		this.initialized=false;
 		this.autoconnect=true;
 		this.artificialEvents=false;
-		this.terminalFactory=TerminalFactory.getDefault();
-		this.cardTerminals=terminalFactory.terminals();
+		
+		if(cardTerminals==null)
+		{
+			TerminalFactory terminalFactory=TerminalFactory.getDefault();
+			this.cardTerminals=terminalFactory.terminals();
+		}
+		else
+		{
+			this.cardTerminals=cardTerminals;
+		}
 		
 		try
 		{

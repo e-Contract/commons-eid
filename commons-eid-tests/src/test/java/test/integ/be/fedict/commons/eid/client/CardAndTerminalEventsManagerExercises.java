@@ -209,16 +209,16 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 	public void cardInserted(CardTerminal cardTerminal, Card card)
 	{
 		if(card!=null)
-			System.err.println("Card [" + new String(StringUtils.byteArrayToHexString(card.getATR().getBytes())) + "] Inserted Into Terminal [" + cardTerminal.getName() + "]");
+			System.err.println("SimulatedCard [" + new String(StringUtils.byteArrayToHexString(card.getATR().getBytes())) + "] Inserted Into Terminal [" + cardTerminal.getName() + "]");
 		else
-			System.err.println("Card present but failed to connect()");
+			System.err.println("SimulatedCard present but failed to connect()");
 		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
 	}
 	
 	@Override
 	public void cardRemoved(CardTerminal terminalWithCardRemoved)
 	{
-		System.err.println("Card Removed From [" + terminalWithCardRemoved.getName() + "]");
+		System.err.println("SimulatedCard Removed From [" + terminalWithCardRemoved.getName() + "]");
 		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
 	}
 
