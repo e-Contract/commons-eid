@@ -34,16 +34,16 @@ import javax.smartcardio.CardTerminal;
 import org.junit.Test;
 
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDCardManager;
-import be.fedict.commons.eid.client.BeIDCardManagerListener;
+import be.fedict.commons.eid.client.BeIDCardEventsListener;
+import be.fedict.commons.eid.client.BeIDCardEventsManager;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
 
-public class BeIDCardEventsManagerExercise implements BeIDCardManagerListener
+public class BeIDCardEventsManagerExercise implements BeIDCardEventsListener
 {
-	private BeIDCardManager beIDCardManager;
+	private BeIDCardEventsManager beIDCardManager;
 	
 	
 	//---------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ public class BeIDCardEventsManagerExercise implements BeIDCardManagerListener
 	@Test
 	public void testAsynchronous() throws Exception
 	{
-		beIDCardManager=new BeIDCardManager(new TestLogger());
+		beIDCardManager=new BeIDCardEventsManager(new TestLogger());
 		beIDCardManager.addListener(this);
 		beIDCardManager.start();
 		
@@ -59,8 +59,10 @@ public class BeIDCardEventsManagerExercise implements BeIDCardManagerListener
 		
 		for(;;)
 		{
-			Thread.sleep(2000);
-			System.err.print(".");
+			for(CardTerminal terminal : beIDCardManager.getTerminalsWithBeIDCardsPresent())
+				System.out.print("[" + terminal.getName() + "]");
+			System.out.println(".");
+			Thread.sleep(500);
 		}
 	}
 	
