@@ -27,7 +27,12 @@
  */
 
 package test.integ.be.fedict.commons.eid.client;
+import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import javax.smartcardio.ATR;
@@ -41,24 +46,28 @@ import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.SimulatedCardTer
 import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
 import be.fedict.commons.eid.client.CardEventsListener;
 import be.fedict.commons.eid.client.CardTerminalEventsListener;
-import static org.junit.Assert.*;
 
 
-public class CardAndTerminalEventsManagerTests implements CardTerminalEventsListener,CardEventsListener
+public class CardAndTerminalEventsManagerTests
 {
-	private SimulatedCard[] 		simulatedCard;
-	private SimulatedCardTerminal[]	simulatedCardTerminal;
-	private SimulatedCardTerminals	simulatedCardTerminals;
+	private static final int			numberOfTerminals	=16;
+	private static final int			numberOfCards		=16;
+	
+	private List<SimulatedCard> 			simulatedCard;
+	private List<SimulatedCardTerminal>		simulatedCardTerminal;
+	private SimulatedCardTerminals			simulatedCardTerminals;
 	
 	@Before
 	public void setUp()
 	{
-		simulatedCard=new SimulatedCard[8];
-		for(int i=0;i<simulatedCard.length;i++)
-			simulatedCard[i]=new SimulatedCard(new ATR(new byte[]{0x3b,(byte)0x98,(byte)i,0x40,(byte)i,(byte)i,(byte)i,(byte)i,0x01,0x01,(byte)0xad,0x13,0x10}));
-		simulatedCardTerminal=new SimulatedCardTerminal[8];
-		for(int i=0;i<simulatedCardTerminal.length;i++)
-			simulatedCardTerminal[i]=new SimulatedCardTerminal("Fedix SCR " + i);
+		simulatedCard=new ArrayList<SimulatedCard>(numberOfCards);
+		for(int i=0;i<numberOfCards;i++)
+			simulatedCard.add(new SimulatedCard(new ATR(new byte[]{0x3b,(byte)0x98,(byte)i,0x40,(byte)i,(byte)i,(byte)i,(byte)i,0x01,0x01,(byte)0xad,0x13,0x10})));
+
+		simulatedCardTerminal=new ArrayList<SimulatedCardTerminal>(numberOfTerminals);
+		for(int i=0;i<numberOfTerminals;i++)
+			simulatedCardTerminal.add(new SimulatedCardTerminal("Fedix SCR " + i));
+		
 		simulatedCardTerminals=new SimulatedCardTerminals();
 	}
 	
@@ -71,18 +80,18 @@ public class CardAndTerminalEventsManagerTests implements CardTerminalEventsList
 	{
 		CardAndTerminalEventsManager cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger(),simulatedCardTerminals);
 
-		for(int terminal=0;terminal<simulatedCardTerminal.length;terminal++)
+		for(SimulatedCardTerminal terminal : simulatedCardTerminal)
 		{
-			simulatedCardTerminals.attachCardTerminal(simulatedCardTerminal[terminal]);
+			simulatedCardTerminals.attachCardTerminal(terminal);
 						
-			for(int card=0;card<simulatedCard.length;card++)
+			for(SimulatedCard card : simulatedCard)
 			{
-				simulatedCardTerminal[terminal].insertCard(simulatedCard[card]);
+				terminal.insertCard(card);
 				StringUtils.printTerminalAndCardOverviewLine(cardAndTerminalEventsManager);
-				simulatedCardTerminal[terminal].removeCard();
+				terminal.removeCard();
 			}
 			
-			simulatedCardTerminals.detachCardTerminal(simulatedCardTerminal[terminal]);
+			simulatedCardTerminals.detachCardTerminal(terminal);
 		}
 	}
 	
@@ -99,14 +108,14 @@ public class CardAndTerminalEventsManagerTests implements CardTerminalEventsList
 		}
 
 		@Override
-		public void terminalAttached(CardTerminal cardTerminal)
+		public synchronized void terminalAttached(CardTerminal cardTerminal)
 		{
 			recordedState.add(cardTerminal);
 			
 		}
 
 		@Override
-		public void terminalDetached(CardTerminal cardTerminal)
+		public synchronized void terminalDetached(CardTerminal cardTerminal)
 		{
 			recordedState.remove(cardTerminal);
 			
@@ -117,7 +126,39 @@ public class CardAndTerminalEventsManagerTests implements CardTerminalEventsList
 		{
 		}
 
-		public Set<CardTerminal> getRecordedState()
+		public synchronized Set<CardTerminal> getRecordedState()
+		{
+			return new HashSet<CardTerminal>(recordedState);
+		}
+	}
+	
+	private class RecordKeepingCardEventsListener implements CardEventsListener
+	{
+		private Map<CardTerminal,Card> recordedState;
+		
+		public RecordKeepingCardEventsListener()
+		{
+			super();
+			this.recordedState=new HashMap<CardTerminal,Card>();
+		}
+
+		@Override
+		public void cardInserted(CardTerminal cardTerminal,Card card)
+		{
+			if(recordedState.containsKey(cardTerminal))
+				throw new IllegalStateException("Cannot Insert 2 Cards in 1 CardTerminal");
+			recordedState.put(cardTerminal,card);	
+		}
+
+		@Override
+		public void cardRemoved(CardTerminal cardTerminal)
+		{
+			if(!recordedState.containsKey(cardTerminal))
+				throw new IllegalStateException("Cannot Remove Card That is not There");
+			recordedState.remove(cardTerminal);
+		}
+
+		public Map<CardTerminal,Card> getRecordedState()
 		{
 			return recordedState;
 		}
@@ -135,106 +176,111 @@ public class CardAndTerminalEventsManagerTests implements CardTerminalEventsList
 		
 		System.err.println("attaching and detaching some simulated cardterminals");
 		
-		boolean[] attached=new boolean[simulatedCardTerminal.length];
+		ArrayList<SimulatedCardTerminal> terminalsToExercise=new ArrayList<SimulatedCardTerminal>(simulatedCardTerminal);
+		Set<SimulatedCardTerminal> detachedTerminalSet=new HashSet<SimulatedCardTerminal>(terminalsToExercise);
+		Set<SimulatedCardTerminal> attachedTerminalSet=new HashSet<SimulatedCardTerminal>();
+		
+		for(int i=0;i<10000;i++)
+		{
+			for(int j=0;j<random.nextInt(numberOfTerminals);j++)
+			{
+				SimulatedCardTerminal terminalToAttach=terminalsToExercise.get(random.nextInt(numberOfTerminals));
+				if(detachedTerminalSet.contains(terminalToAttach))
+				{
+					expectedState.add(terminalToAttach);
+					simulatedCardTerminals.attachCardTerminal(terminalToAttach);
+					detachedTerminalSet.remove(terminalToAttach);
+					attachedTerminalSet.add(terminalToAttach);
+					System.out.println("attached [" + terminalToAttach.getName() + "]");
+					StringUtils.printTerminalSet(expectedState);
+					StringUtils.printTerminalSet(recorder.getRecordedState());
+				}
+			}
+			
+			for(int j=0;j<random.nextInt(numberOfTerminals);j++)
+			{
+				SimulatedCardTerminal terminalToDetach=terminalsToExercise.get(random.nextInt(numberOfTerminals));
+				if(attachedTerminalSet.contains(terminalToDetach))
+				{
+					expectedState.remove(terminalToDetach);
+					simulatedCardTerminals.detachCardTerminal(terminalToDetach);
+					detachedTerminalSet.add(terminalToDetach);
+					attachedTerminalSet.remove(terminalToDetach);
+					System.out.println("detached [" + terminalToDetach.getName() + "]");
+					StringUtils.printTerminalSet(expectedState);
+					StringUtils.printTerminalSet(recorder.getRecordedState());
+				}
+			}
+		}
+		
+		assertEquals(expectedState,recorder.getRecordedState());
+	}
+	
+	@Test
+	public void testCardInsertRemoveDetection() throws Exception
+	{
+		Random random=new Random(0);
+		Map<SimulatedCardTerminal,SimulatedCard> expectedState=new HashMap<SimulatedCardTerminal,SimulatedCard>();
+		CardAndTerminalEventsManager cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger(),simulatedCardTerminals);
+		RecordKeepingCardEventsListener recorder=new RecordKeepingCardEventsListener();
+		cardAndTerminalEventsManager.addCardListener(recorder);
+		cardAndTerminalEventsManager.start();
+
+		ArrayList<SimulatedCardTerminal> terminalsToExercise=new ArrayList<SimulatedCardTerminal>(simulatedCardTerminal);
+		Set<SimulatedCardTerminal> emptyTerminalSet=new HashSet<SimulatedCardTerminal>(terminalsToExercise);
+		Set<SimulatedCardTerminal> fullTerminalSet=new HashSet<SimulatedCardTerminal>();
+		
+		ArrayList<SimulatedCard> cardsToExercise=new ArrayList<SimulatedCard>(simulatedCard);
+		Set<SimulatedCard> 	unusedCardSet=new HashSet<SimulatedCard>(cardsToExercise);
+		Set<SimulatedCard> 	usedCardSet=new HashSet<SimulatedCard>();
+		
+		
+		System.err.println("attaching some simulated card readers");
+		
+		// attach all simulated CardTerminals
+		for(SimulatedCardTerminal terminal : emptyTerminalSet)
+			simulatedCardTerminals.attachCardTerminal(terminal);
+		
+		System.err.println("inserting and removing some simulated cards");
 		
 		for(int i=0;i<100000;i++)
 		{
-			int terminalToAttach=random.nextInt(simulatedCardTerminal.length);
-			if(!attached[terminalToAttach])
+			for(int j=0;j<random.nextInt(numberOfCards);j++)
 			{
-				System.out.println("attached [" + simulatedCardTerminal[terminalToAttach].getName() + "]");
-				expectedState.add(simulatedCardTerminal[terminalToAttach]);
-				simulatedCardTerminals.attachCardTerminal(simulatedCardTerminal[terminalToAttach]);
-				attached[terminalToAttach]=true;
+				SimulatedCardTerminal terminalToInsertCardInto=terminalsToExercise.get(random.nextInt(numberOfTerminals));
+				SimulatedCard 		  cardToInsert			  =cardsToExercise.get(random.nextInt(numberOfCards));
+				
+				if(emptyTerminalSet.contains(terminalToInsertCardInto) && unusedCardSet.contains(cardToInsert))
+				{
+					expectedState.put(terminalToInsertCardInto,cardToInsert);
+					terminalToInsertCardInto.insertCard(cardToInsert);
+					emptyTerminalSet.remove(terminalToInsertCardInto);
+					fullTerminalSet.add(terminalToInsertCardInto);
+					unusedCardSet.remove(cardToInsert);
+					usedCardSet.add(cardToInsert);
+					System.out.println("inserted [" + StringUtils.byteArrayToHexString(cardToInsert.getATR().getBytes()) + "] into [" + terminalToInsertCardInto.getName() + "]");
+				}
 			}
 			
-			int terminalToDetach=random.nextInt(simulatedCardTerminal.length);
-			if(attached[terminalToDetach])
+			for(int j=0;j<random.nextInt(numberOfCards);j++)
 			{
-				System.out.println("detached [" + simulatedCardTerminal[terminalToDetach].getName() + "]");
-				expectedState.remove(simulatedCardTerminal[terminalToDetach]);
-				simulatedCardTerminals.detachCardTerminal(simulatedCardTerminal[terminalToDetach]);
-				attached[terminalToAttach]=false;
+				SimulatedCardTerminal terminalToRemoveCardFrom=terminalsToExercise.get(random.nextInt(numberOfTerminals));
+				SimulatedCard 		  cardToRemove			  =expectedState.get(terminalToRemoveCardFrom);
+				
+				if(fullTerminalSet.contains(terminalToRemoveCardFrom) && usedCardSet.contains(cardToRemove))
+				{
+					expectedState.remove(terminalToRemoveCardFrom);
+					terminalToRemoveCardFrom.removeCard();
+					emptyTerminalSet.add(terminalToRemoveCardFrom);
+					fullTerminalSet.remove(terminalToRemoveCardFrom);
+					usedCardSet.remove(cardToRemove);
+					unusedCardSet.add(cardToRemove);
+					System.out.println("removed [" + StringUtils.byteArrayToHexString(cardToRemove.getATR().getBytes()) + "] from [" + terminalToRemoveCardFrom.getName() + "]");
+				}
 			}
 		}
 		
 		
 		assertEquals(expectedState,recorder.getRecordedState());
-	}
-	
-//	@Test
-//	public void testCardInsertRemoveDetection() throws Exception
-//	{
-//		Random random=new Random(0);
-//		Set<Card> expectedState=new HashSet<Card>();
-//		CardAndTerminalEventsManager cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger(),simulatedCardTerminals);
-//		RecordKeepingCardTerminalEventsListener recorder=new RecordKeepingCardTerminalEventsListener();
-//		cardAndTerminalEventsManager.addCardTerminalListener(recorder);
-//		cardAndTerminalEventsManager.start();
-//		
-//		simulatedCardTerminals.attachCardTerminal(simulatedCardTerminal[0]);
-//		
-//		System.err.println("attaching and detaching some simulated cardterminals");
-//		
-//		boolean[] inserted=new boolean[simulatedCard.length];
-//		
-//		for(int i=0;i<100000;i++)
-//		{
-//			int cardToInsert=random.nextInt(simulatedCard.length);
-//			if(!inserted[cardToInsert])
-//			{
-//				System.out.println("inserted [" + StringUtils.byteArrayToHexString(simulatedCard[cardToInsert].getATR().getBytes()) + "]");
-//				expectedState.add(simulatedCard[cardToInsert]);
-//				simulatedCardTerminal[0].insertCard(simulatedCard[cardToInsert]);
-//				inserted[cardToInsert]=true;
-//			}
-//			
-//			int cardToRemove=random.nextInt(simulatedCard.length);
-//			if(inserted[cardToRemove])
-//			{
-//				System.out.println("removed [" + StringUtils.byteArrayToHexString(simulatedCard[cardToInsert].getATR().getBytes()) + "]");
-//				expectedState.remove(simulatedCardTerminal[cardToRemove]);
-//				simulatedCardTerminal[0].removeCard(simulatedCard[cardToRemove]);
-//				inserted[cardToRemove]=false;
-//			}
-//		}
-//		
-//		
-//		assertEquals(expectedState,recorder.getRecordedState());
-//	}
-	
-	//----------------------------- callbacks that just print to stderr -------------------
-	
-	@Override
-	public void terminalAttached(CardTerminal terminalAttached)
-	{
-		System.err.println("Terminal Attached [" + terminalAttached.getName() + "]");
-	}
-	
-	@Override
-	public void terminalDetached(CardTerminal terminalDetached)
-	{
-		System.err.println("Terminal Detached [" + terminalDetached.getName() + "]");
-	}
-
-	@Override
-	public void cardInserted(CardTerminal cardTerminal, Card card)
-	{
-		if(card!=null)
-			System.err.println("Card [" + new String(StringUtils.byteArrayToHexString(card.getATR().getBytes())) + "] Inserted Into Terminal [" + cardTerminal.getName() + "]");
-		else
-			System.err.println("Card present but failed to connect()");
-	}
-	
-	@Override
-	public void cardRemoved(CardTerminal terminalWithCardRemoved)
-	{
-		System.err.println("Card Removed From [" + terminalWithCardRemoved.getName() + "]");
-	}
-
-	@Override
-	public void terminalException(Throwable throwable)
-	{
-		System.err.println("Exception: " + throwable.getLocalizedMessage());
 	}
 }
