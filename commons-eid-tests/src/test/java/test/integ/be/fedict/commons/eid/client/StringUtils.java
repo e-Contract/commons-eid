@@ -18,6 +18,7 @@
 
 package test.integ.be.fedict.commons.eid.client;
 
+import java.util.Set;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
@@ -126,6 +127,20 @@ public class StringUtils {
 		{
 			overviewLine.append("[");
 			overviewLine.append(StringUtils.getShortTerminalname(terminal.getName()));
+			overviewLine.append("] ");
+		}
+		
+		System.out.println(overviewLine.toString());
+	}
+	
+	public static void printTerminalSet(Set<CardTerminal> set)
+	{
+		StringBuilder overviewLine=new StringBuilder();
+		
+		for(CardTerminal terminal : set)
+		{
+			overviewLine.append("[");
+			overviewLine.append(terminal.getName());
 			overviewLine.append("] ");
 		}
 		
