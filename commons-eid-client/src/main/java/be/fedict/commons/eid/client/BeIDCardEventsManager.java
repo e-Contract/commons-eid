@@ -19,8 +19,10 @@ public class BeIDCardEventsManager implements CardEventsListener
 	private CardAndTerminalEventsManager	cardAndTerminalEventsManager;
 	private boolean							terminalManagerIsPrivate;
 	private Map<CardTerminal,BeIDCard>		terminalsAndCards;
-	private Set<BeIDCardEventsListener>		listeners;
+	private Set<BeIDCardEventsListener>		beIdListeners;
+	private Set<CardEventsListener>			otherCardListeners;
 	private final Logger					logger;
+	
 
 	/*
 	 * a BeIDCardEventsManager with a default (void) logger and a private
@@ -62,7 +64,8 @@ public class BeIDCardEventsManager implements CardEventsListener
 	public BeIDCardEventsManager(Logger logger,CardAndTerminalEventsManager cardAndTerminalEventsManager)
 	{
 		this.logger=logger;
-		this.listeners=new HashSet<BeIDCardEventsListener>();
+		this.beIdListeners=new HashSet<BeIDCardEventsListener>();
+		this.otherCardListeners=new HashSet<CardEventsListener>();
 		this.terminalsAndCards=new HashMap<CardTerminal,BeIDCard>();
 		this.cardAndTerminalEventsManager=cardAndTerminalEventsManager;
 		this.cardAndTerminalEventsManager.addCardListener(this);
@@ -76,22 +79,42 @@ public class BeIDCardEventsManager implements CardEventsListener
 		return this;
 	}
 
-	// add a BeIDCardEventsListener
-	public BeIDCardEventsManager addListener(BeIDCardEventsListener listener)
+	// add a BeIDCardEventsListener to be notified of BeID cards being inserted
+	public BeIDCardEventsManager addBeIDCardEventListener(BeIDCardEventsListener listener)
 	{
-		synchronized(listeners)
+		synchronized(beIdListeners)
 		{
-			listeners.add(listener);
+			beIdListeners.add(listener);
 		}
 		return this;
 	}
 
 	// remove a BeIDCardEventsListener
-	public BeIDCardEventsManager removeListener(BeIDCardEventsListener listener)
+	public BeIDCardEventsManager removeBeIDCardListener(BeIDCardEventsListener listener)
 	{
-		synchronized(listeners)
+		synchronized(beIdListeners)
 		{
-			listeners.remove(listener);
+			beIdListeners.remove(listener);
+		}
+		return this;
+	}
+	
+	// add a CardEventsListener to get notified of other cards being inserted/removed
+	public BeIDCardEventsManager addOtherCardEventListener(CardEventsListener listener)
+	{
+		synchronized(otherCardListeners)
+		{
+			otherCardListeners.add(listener);
+		}
+		return this;
+	}
+
+	// remove a CardEventsListener
+	public BeIDCardEventsManager removeOtherCardEventListener(BeIDCardEventsListener listener)
+	{
+		synchronized(otherCardListeners)
+		{
+			otherCardListeners.remove(listener);
 		}
 		return this;
 	}
@@ -211,10 +234,18 @@ public class BeIDCardEventsManager implements CardEventsListener
 				terminalsAndCards.put(cardTerminal,beIDCard);
 			}
 
-			synchronized(listeners)
+			synchronized(beIdListeners)
 			{
-				for(BeIDCardEventsListener listener:listeners)
+				for(BeIDCardEventsListener listener:beIdListeners)
 					listener.eIDCardInserted(cardTerminal,beIDCard);
+			}
+		}
+		else
+		{
+			synchronized(otherCardListeners)
+			{
+				for(CardEventsListener listener:otherCardListeners)
+					listener.cardInserted(cardTerminal,card);
 			}
 		}
 	}
@@ -230,10 +261,18 @@ public class BeIDCardEventsManager implements CardEventsListener
 				terminalsAndCards.remove(cardTerminal);
 			}
 
-			synchronized(listeners)
+			synchronized(beIdListeners)
 			{
-				for(BeIDCardEventsListener listener:listeners)
+				for(BeIDCardEventsListener listener:beIdListeners)
 					listener.eIDCardRemoved(cardTerminal,beIDCard);
+			}
+		}
+		else
+		{
+			synchronized(otherCardListeners)
+			{
+				for(CardEventsListener listener:otherCardListeners)
+					listener.cardRemoved(cardTerminal);
 			}
 		}
 	}

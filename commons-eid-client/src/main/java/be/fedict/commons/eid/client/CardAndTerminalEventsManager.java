@@ -40,7 +40,7 @@ import javax.smartcardio.TerminalFactory;
 public class CardAndTerminalEventsManager implements Runnable
 {
 	private static final int				DEFAULT_DELAY	=250;
-	private boolean							running,initialized,autoconnect,artificialEvents;
+	private boolean							running,subSystemInitialized,autoconnect;
 	private Thread							thread;
 	private Set<CardTerminal>				terminalsPresent,terminalsWithCards;
 	private CardTerminals					cardTerminals;
@@ -79,9 +79,8 @@ public class CardAndTerminalEventsManager implements Runnable
 		this.delay=DEFAULT_DELAY;
 		this.logger=logger;
 		this.running=false;
-		this.initialized=false;
+		this.subSystemInitialized=false;
 		this.autoconnect=true;
-		this.artificialEvents=false;
 		
 		if(cardTerminals==null)
 		{
@@ -213,17 +212,16 @@ public class CardAndTerminalEventsManager implements Runnable
 
 	private void handlePCSCEvents() throws InterruptedException
 	{
-		if(!initialized)
+		if(!subSystemInitialized)
 		{
-			logger.debug("not initialized");
+			logger.debug("subsystem not initialized");
 			try
 			{
 				if(terminalsPresent==null || terminalsWithCards==null)
 					updateTerminalsPresent();
 				
-				if(artificialEvents)
-					listenersTerminalsAttachedCardsInserted(terminalsPresent,terminalsWithCards);
-				initialized=true;
+				listenersTerminalsAttachedCardsInserted(terminalsPresent,terminalsWithCards);
+				subSystemInitialized=true;
 			}
 			catch(CardException cex)
 			{
@@ -410,16 +408,6 @@ public class CardAndTerminalEventsManager implements Runnable
 	{
 		return running;
 	}
-	
-	public boolean sendsArtificialEvents()
-	{
-		return artificialEvents;
-	}
-
-	public void setArtificialEvents(boolean artificialEvents)
-	{
-		this.artificialEvents=artificialEvents;
-	}
 
 	// -------------------------------------------------
 	// --------- private convenience methods -----------
@@ -433,11 +421,11 @@ public class CardAndTerminalEventsManager implements Runnable
 		// if we were already intialized, we may have sent attached and insert
 		// events we now pretend to remove and detach all that we know of, for
 		// consistency
-		if(artificialEvents && initialized)
+		if(subSystemInitialized)
 			listenersCardsRemovedTerminalsDetached(terminalsWithCards,terminalsPresent);
 		terminalsPresent=null;
 		terminalsWithCards=null;
-		initialized=false;
+		subSystemInitialized=false;
 		logger.debug("cleared");
 	}
 
@@ -536,6 +524,9 @@ public class CardAndTerminalEventsManager implements Runnable
 	 */
 	private void listenersException(Throwable throwable)
 	{
+		if(throwable.getMessage()!=null && throwable.getMessage().equals("list() failed"))
+			return;
+		
 		synchronized(cardTerminalEventsListeners)
 		{
 			for(CardTerminalEventsListener listener:cardTerminalEventsListeners)

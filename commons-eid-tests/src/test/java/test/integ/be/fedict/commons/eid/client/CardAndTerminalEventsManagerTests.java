@@ -258,7 +258,7 @@ public class CardAndTerminalEventsManagerTests
 					fullTerminalSet.add(terminalToInsertCardInto);
 					unusedCardSet.remove(cardToInsert);
 					usedCardSet.add(cardToInsert);
-					System.out.println("inserted [" + StringUtils.byteArrayToHexString(cardToInsert.getATR().getBytes()) + "] into [" + terminalToInsertCardInto.getName() + "]");
+					System.out.println("inserted [" + StringUtils.atrToString(cardToInsert.getATR()) + "] into [" + terminalToInsertCardInto.getName() + "]");
 				}
 			}
 			
@@ -275,7 +275,7 @@ public class CardAndTerminalEventsManagerTests
 					fullTerminalSet.remove(terminalToRemoveCardFrom);
 					usedCardSet.remove(cardToRemove);
 					unusedCardSet.add(cardToRemove);
-					System.out.println("removed [" + StringUtils.byteArrayToHexString(cardToRemove.getATR().getBytes()) + "] from [" + terminalToRemoveCardFrom.getName() + "]");
+					System.out.println("removed [" + StringUtils.atrToString(cardToRemove.getATR()) + "] from [" + terminalToRemoveCardFrom.getName() + "]");
 				}
 			}
 		}

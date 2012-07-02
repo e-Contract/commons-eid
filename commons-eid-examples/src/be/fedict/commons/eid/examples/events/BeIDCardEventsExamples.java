@@ -1,4 +1,4 @@
-package be.fedict.commons.eid.examples;
+package be.fedict.commons.eid.examples.events;
 
 import java.util.Set;
 import javax.smartcardio.CardTerminal;
@@ -6,7 +6,7 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.BeIDCardEventsManager;
 
-public class BeIDCardEventsManagerBasicExamples
+public class BeIDCardEventsExamples
 {
 	/*
 	 * get information about BeID cards currently inserted, from the current thread:
@@ -44,7 +44,7 @@ public class BeIDCardEventsManagerBasicExamples
 	/*
 	 * get information about BeID cards being inserted and removed, while doing something else:
 	 */
-	public BeIDCardEventsManagerBasicExamples demonstrate_basic_asynchronous_usage() throws InterruptedException
+	public BeIDCardEventsExamples demonstrate_basic_asynchronous_usage() throws InterruptedException
 	{
 		//-------------------------------------------------------------------------------------------------------
 		// instantiate a BeIDCardManager with default settings (no logging, private CardAndTerminalEventsManager)
@@ -54,7 +54,7 @@ public class BeIDCardEventsManagerBasicExamples
 		//-------------------------------------------------------------------------------------------------------	
 		// register a BeIDCardManagerListener
 		//-------------------------------------------------------------------------------------------------------
-		beIDCardManager.addListener(new BeIDCardEventsListener()
+		beIDCardManager.addBeIDCardEventListener(new BeIDCardEventsListener()
 		{
 			@Override
 			public void eIDCardRemoved(CardTerminal cardTerminal,BeIDCard card)
@@ -86,7 +86,7 @@ public class BeIDCardEventsManagerBasicExamples
 	
 	public static void main(String[] args) throws InterruptedException
 	{
-		BeIDCardEventsManagerBasicExamples examples=new BeIDCardEventsManagerBasicExamples();
+		BeIDCardEventsExamples examples=new BeIDCardEventsExamples();
 		examples.demonstrate_basic_synchronous_usage();
 		examples.demonstrate_basic_asynchronous_usage();
 	}
