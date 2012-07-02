@@ -18,7 +18,9 @@
 
 package test.integ.be.fedict.commons.eid.client;
 
+import java.math.BigInteger;
 import java.util.Set;
+import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
@@ -26,17 +28,11 @@ import be.fedict.commons.eid.client.BeIDCardEventsManager;
 import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
 
 
-public class StringUtils {
-	static final String HEXDIGITS = "0123456789ABCDEF";
-
-	public static String byteArrayToHexString(byte[] bytes) {
-		if (bytes == null)
-			return null;
-		StringBuilder hexBuilder = new StringBuilder(2 * bytes.length);
-		for (byte thisbyte : bytes)
-			hexBuilder.append(HEXDIGITS.charAt((thisbyte & 0xf0) >> 4)).append(
-					HEXDIGITS.charAt((thisbyte & 0x0f)));
-		return hexBuilder.toString();
+public class StringUtils
+{
+	public static String atrToString(ATR atr)
+	{
+		return String.format("%x",new BigInteger(1,atr.getBytes()));
 	}
 	
 	public static String getShortTerminalname(String terminalName)
@@ -101,7 +97,7 @@ public class StringUtils {
 					{
 						overviewLine.append(":");
 						Card card=terminal.connect("*");
-						overviewLine.append(StringUtils.byteArrayToHexString(card.getATR().getBytes()));
+						overviewLine.append(StringUtils.atrToString(card.getATR()));
 					}
 				}
 				catch(CardException cex)

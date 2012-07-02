@@ -64,18 +64,6 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 	
 	//---------------------------------------------------------------------------------------------
 	
-	@Test
-	public void testAsynchronousWithoutArtificialEvents() throws Exception
-	{
-		_testAsynchronous(false);
-	}
-	
-	@Test
-	public void testAsynchronousWithArtificialEvents() throws Exception
-	{
-		_testAsynchronous(true);
-	}
-	
 	/*
 	 * Exercises asynchronous run with callbacks:
 	 * instantiate, register listeners, call start().
@@ -91,13 +79,13 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 	 * at all times, reflect the state of the readers and their cards within 250-400 ms.
 	 */
 
-	public void _testAsynchronous(boolean articifialEvents) throws Exception
+	@Test
+	public void testAsynchronous() throws Exception
 	{
 		Random random=new Random(0);
 		cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
 		cardAndTerminalEventsManager.addCardTerminalListener(this);
 		cardAndTerminalEventsManager.addCardListener(this);
-		cardAndTerminalEventsManager.setArtificialEvents(articifialEvents);
 		
 		//cardAndTerminalEventsManager.ignoreCardEventsFor("VASCO DP905");
 		
@@ -209,7 +197,7 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 	public void cardInserted(CardTerminal cardTerminal, Card card)
 	{
 		if(card!=null)
-			System.err.println("Card [" + new String(StringUtils.byteArrayToHexString(card.getATR().getBytes())) + "] Inserted Into Terminal [" + cardTerminal.getName() + "]");
+			System.err.println("Card [" + StringUtils.atrToString(card.getATR()) + "] Inserted Into Terminal [" + cardTerminal.getName() + "]");
 		else
 			System.err.println("Card present but failed to connect()");
 		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
