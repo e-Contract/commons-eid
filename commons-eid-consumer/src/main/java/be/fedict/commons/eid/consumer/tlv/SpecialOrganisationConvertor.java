@@ -31,8 +31,9 @@ import be.fedict.commons.eid.consumer.SpecialOrganisation;
  * @author Frank Cornelis
  * 
  */
-public class SpecialOrganisationConvertor implements
-		DataConvertor<SpecialOrganisation> {
+public class SpecialOrganisationConvertor
+		implements
+			DataConvertor<SpecialOrganisation> {
 
 	private static final Log LOG = LogFactory
 			.getLog(SpecialOrganisationConvertor.class);

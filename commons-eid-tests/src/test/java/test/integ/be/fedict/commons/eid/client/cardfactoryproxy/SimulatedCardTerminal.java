@@ -4,86 +4,77 @@ import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 
-public class SimulatedCardTerminal extends CardTerminal
-{
-	private String					name;
-	private SimulatedCard			card;
-	private SimulatedCardTerminals	terminals;
-	private Sleeper					sleeper;
+public class SimulatedCardTerminal extends CardTerminal {
+	private String name;
+	private SimulatedCard card;
+	private SimulatedCardTerminals terminals;
+	private Sleeper sleeper;
 
 	// ---------------------------------------------------------
 
-	public SimulatedCardTerminal(String name)
-	{
+	public SimulatedCardTerminal(String name) {
 		super();
-		this.name=name;
-		sleeper=new Sleeper();
+		this.name = name;
+		sleeper = new Sleeper();
 	}
 
-	public void insertCard(SimulatedCard card)
-	{
-		if(this.card!=null)
-			throw new RuntimeException("Can't Insert 2 Cards in one Card Reader");
-		this.card=card;
+	public void insertCard(SimulatedCard card) {
+		if (this.card != null)
+			throw new RuntimeException(
+					"Can't Insert 2 Cards in one Card Reader");
+		this.card = card;
 		sleeper.awaken();
-		if(terminals!=null)
+		if (terminals != null)
 			terminals.propagateCardEvent();
 	}
 
-	public void removeCard()
-	{
-		if(this.card==null)
+	public void removeCard() {
+		if (this.card == null)
 			throw new RuntimeException("Can't Remove Card From Empty Reader");
-		this.card=null;
+		this.card = null;
 		sleeper.awaken();
-		if(terminals!=null)
+		if (terminals != null)
 			terminals.propagateCardEvent();
 	}
 
 	// -----------------------------------------------------------
 
 	@Override
-	public Card connect(String protocol) throws CardException
-	{
-		if(!isCardPresent())
+	public Card connect(String protocol) throws CardException {
+		if (!isCardPresent())
 			throw new CardException("No Card Present");
 		return card;
 	}
 
 	@Override
-	public String getName()
-	{
+	public String getName() {
 		return name;
 	}
 
 	@Override
-	public boolean isCardPresent() throws CardException
-	{
-		return card!=null;
+	public boolean isCardPresent() throws CardException {
+		return card != null;
 	}
 
 	@Override
-	public boolean waitForCardAbsent(long timeout) throws CardException
-	{
-		return waitForCardState(false,timeout);
+	public boolean waitForCardAbsent(long timeout) throws CardException {
+		return waitForCardState(false, timeout);
 	}
 
 	@Override
-	public boolean waitForCardPresent(long timeout) throws CardException
-	{
-		return waitForCardState(true,timeout);
+	public boolean waitForCardPresent(long timeout) throws CardException {
+		return waitForCardState(true, timeout);
 	}
 
-	private boolean waitForCardState(boolean state,long timeout) throws CardException
-	{
-		if(isCardPresent()==state)
+	private boolean waitForCardState(boolean state, long timeout)
+			throws CardException {
+		if (isCardPresent() == state)
 			return true;
 		sleeper.sleepUntilAwakened(timeout);
 		return true;
 	}
 
-	public void setTerminals(SimulatedCardTerminals terminals)
-	{
-		this.terminals=terminals;
+	public void setTerminals(SimulatedCardTerminals terminals) {
+		this.terminals = terminals;
 	}
 }

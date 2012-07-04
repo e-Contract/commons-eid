@@ -39,26 +39,26 @@ import javax.smartcardio.ResponseAPDU;
  */
 public class BeIDCard {
 
-	public static final byte[] ADDRESS_FILE_ID = new byte[] { 0x3F, 0x00,
-			(byte) 0xDF, 0x01, 0x40, 0x33 };
+	public static final byte[] ADDRESS_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x01, 0x40, 0x33};
 
-	public static final byte[] ADDRESS_SIGN_FILE_ID = new byte[] { 0x3F, 0x00,
-			(byte) 0xDF, 0x01, 0x40, 0x34 };
+	public static final byte[] ADDRESS_SIGN_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x01, 0x40, 0x34};
 
-	public static final byte[] PHOTO_FILE_ID = new byte[] { 0x3F, 0x00,
-			(byte) 0xDF, 0x01, 0x40, 0x35 };
+	public static final byte[] PHOTO_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x01, 0x40, 0x35};
 
-	public static final byte[] AUTHN_CERT_FILE_ID = new byte[] { 0x3F, 0x00,
-			(byte) 0xDF, 0x00, 0x50, 0x38 };
+	public static final byte[] AUTHN_CERT_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x00, 0x50, 0x38};
 
-	public static final byte[] SIGN_CERT_FILE_ID = new byte[] { 0x3F, 0x00,
-			(byte) 0xDF, 0x00, 0x50, 0x39 };
+	public static final byte[] SIGN_CERT_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x00, 0x50, 0x39};
 
-	public static final byte[] CA_CERT_FILE_ID = new byte[] { 0x3F, 0x00,
-			(byte) 0xDF, 0x00, 0x50, 0x3A };
+	public static final byte[] CA_CERT_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x00, 0x50, 0x3A};
 
-	public static final byte[] ROOT_CERT_FILE_ID = new byte[] { 0x3F, 0x00,
-			(byte) 0xDF, 0x00, 0x50, 0x3B };
+	public static final byte[] ROOT_CERT_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x00, 0x50, 0x3B};
 
 	private final Card card;
 
@@ -104,7 +104,7 @@ public class BeIDCard {
 		ResponseAPDU responseApdu = this.cardChannel.transmit(commandApdu);
 		if (0x6c == responseApdu.getSW1()) {
 			/*
-			 * A minimum delay of 10 msec between the answer ‘6C xx’ and the
+			 * A minimum delay of 10 msec between the answer ?????????6C xx????????? and the
 			 * next APDU is mandatory for eID v1.0 and v1.1 cards.
 			 */
 			this.logger.debug("sleeping...");

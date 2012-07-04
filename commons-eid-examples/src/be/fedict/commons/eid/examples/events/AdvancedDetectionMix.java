@@ -60,7 +60,7 @@ public class AdvancedDetectionMix implements BeIDCardEventsListener, CardEventsL
 		//-------------------------------------------------------------------------------------------------------
 		// the main thread goes off and does other things (for this example, just loop and sleep)
 		//-------------------------------------------------------------------------------------------------------
-		System.out.println("Now.. attach, detach, insert cards of all kinds..");
+		System.out.println("Now.. attach, detach terminals, insert cards of all kinds..");
 		for(;;)
 			Thread.sleep(2000);
 	}

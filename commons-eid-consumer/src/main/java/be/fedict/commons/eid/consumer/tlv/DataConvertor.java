@@ -18,7 +18,6 @@
 
 package be.fedict.commons.eid.consumer.tlv;
 
-
 /**
  * Interface for a data convertor component.
  * 

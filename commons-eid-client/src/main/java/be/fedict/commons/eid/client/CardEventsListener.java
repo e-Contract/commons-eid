@@ -27,9 +27,7 @@ package be.fedict.commons.eid.client;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
 
-
-public interface CardEventsListener
-{
+public interface CardEventsListener {
 	void cardInserted(CardTerminal cardTerminal, Card card);
 	void cardRemoved(CardTerminal cardTerminal);
 }

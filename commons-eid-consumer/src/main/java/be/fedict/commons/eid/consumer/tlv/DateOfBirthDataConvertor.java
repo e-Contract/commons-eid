@@ -30,8 +30,9 @@ import org.apache.commons.logging.LogFactory;
  * @author Frank Cornelis
  * 
  */
-public class DateOfBirthDataConvertor implements
-		DataConvertor<GregorianCalendar> {
+public class DateOfBirthDataConvertor
+		implements
+			DataConvertor<GregorianCalendar> {
 
 	private static final Log LOG = LogFactory
 			.getLog(DateOfBirthDataConvertor.class);
@@ -86,14 +87,13 @@ public class DateOfBirthDataConvertor implements
 				+ dateOfBirthStr + "]");
 	}
 
-	private static final String[][] MONTHS = new String[][] {
-			new String[] { "JAN" }, new String[] { "FEV", "FEB" },
-			new String[] { "MARS", "MAAR", "M??R" },
-			new String[] { "AVR", "APR" }, new String[] { "MAI", "MEI" },
-			new String[] { "JUIN", "JUN" }, new String[] { "JUIL", "JUL" },
-			new String[] { "AOUT", "AUG" }, new String[] { "SEPT", "SEP" },
-			new String[] { "OCT", "OKT" }, new String[] { "NOV" },
-			new String[] { "DEC", "DEZ" } };
+	private static final String[][] MONTHS = new String[][]{
+			new String[]{"JAN"}, new String[]{"FEV", "FEB"},
+			new String[]{"MARS", "MAAR", "M??R"}, new String[]{"AVR", "APR"},
+			new String[]{"MAI", "MEI"}, new String[]{"JUIN", "JUN"},
+			new String[]{"JUIL", "JUL"}, new String[]{"AOUT", "AUG"},
+			new String[]{"SEPT", "SEP"}, new String[]{"OCT", "OKT"},
+			new String[]{"NOV"}, new String[]{"DEC", "DEZ"}};
 
 	private int toMonth(String monthStr) throws DataConvertorException {
 		monthStr = monthStr.trim();
