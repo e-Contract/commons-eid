@@ -64,4 +64,13 @@
 	        </dependency>
 	    </dependencies>
 	</dependencyManagement>
+	<build>
+	<plugins>
+      <plugin>
+        <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+        <artifactId>maven-java-formatter-plugin</artifactId>
+        <version>0.3.1</version>
+      </plugin>
+    </plugins>
+	</build>
 </project>

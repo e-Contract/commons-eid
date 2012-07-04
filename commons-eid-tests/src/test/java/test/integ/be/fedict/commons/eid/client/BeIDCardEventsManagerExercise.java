@@ -43,77 +43,76 @@ import be.fedict.commons.eid.client.CardEventsListener;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
-
-public class BeIDCardEventsManagerExercise implements BeIDCardEventsListener, CardEventsListener
-{
+public class BeIDCardEventsManagerExercise
+		implements
+			BeIDCardEventsListener,
+			CardEventsListener {
 	private BeIDCardEventsManager beIDCardManager;
-	
-	
+
 	//---------------------------------------------------------------------------------------------
-	
+
 	@Test
-	public void testAsynchronous() throws Exception
-	{
-		beIDCardManager=new BeIDCardEventsManager(new TestLogger());
+	public void testAsynchronous() throws Exception {
+		beIDCardManager = new BeIDCardEventsManager(new TestLogger());
 		beIDCardManager.addBeIDCardEventListener(this);
 		beIDCardManager.addOtherCardEventListener(this);
 		beIDCardManager.start();
-		
+
 		System.err.println("main thread running.. do some card tricks..");
-		
-		for(;;)
-		{
-			for(CardTerminal terminal : beIDCardManager.getTerminalsWithBeIDCardsPresent())
+
+		for (;;) {
+			for (CardTerminal terminal : beIDCardManager
+					.getTerminalsWithBeIDCardsPresent())
 				System.out.print("[" + terminal.getName() + "]");
 			System.out.println(".");
 			Thread.sleep(500);
 		}
 	}
-	
+
 	//----------------------------- callbacks that just print to stderr -------------------
-	
+
 	@Override
-	public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card)
-	{
-		try
-		{
-			byte[] identityFile=card.readFile(BeIDFileType.Identity);
-			Identity identity=TlvParser.parse(identityFile, Identity.class);
+	public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
+		try {
+			byte[] identityFile = card.readFile(BeIDFileType.Identity);
+			Identity identity = TlvParser.parse(identityFile, Identity.class);
 			System.out.println(identity.firstName + " " + identity.name);
-		}
-		catch (CardException e)
-		{
+		} catch (CardException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		System.err.println("eID Card Inserted Into [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");
+
+		System.err.println("eID Card Inserted Into ["
+				+ StringUtils.getShortTerminalname(cardTerminal.getName())
+				+ "]");
 		//StringUtils.printTerminalOverviewLine(beIDCardManager);
 	}
 
 	@Override
-	public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card)
-	{
-		System.err.println("eID Card Removed From [" + StringUtils.getShortTerminalname(cardTerminal.getName()) + "]");	
+	public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card) {
+		System.err.println("eID Card Removed From ["
+				+ StringUtils.getShortTerminalname(cardTerminal.getName())
+				+ "]");
 	}
 
 	@Override
-	public void cardInserted(CardTerminal cardTerminal,Card card)
-	{
-		if(card!=null)
-			System.out.println("Other Card [" + String.format("%x",new BigInteger(1,card.getATR().getBytes())) + "] Inserted Into Terminal [" + cardTerminal.getName() + "]");
+	public void cardInserted(CardTerminal cardTerminal, Card card) {
+		if (card != null)
+			System.out.println("Other Card ["
+					+ String.format("%x", new BigInteger(1, card.getATR()
+							.getBytes())) + "] Inserted Into Terminal ["
+					+ cardTerminal.getName() + "]");
 		else
-			System.out.println("Other Card Inserted Into Terminal [" + cardTerminal.getName() + "] but failed to connect()");
+			System.out.println("Other Card Inserted Into Terminal ["
+					+ cardTerminal.getName() + "] but failed to connect()");
 	}
 
 	@Override
-	public void cardRemoved(CardTerminal cardTerminal)
-	{
-		System.out.println("Other Card Removed From [" + cardTerminal.getName() + "]");	
+	public void cardRemoved(CardTerminal cardTerminal) {
+		System.out.println("Other Card Removed From [" + cardTerminal.getName()
+				+ "]");
 	}
 }

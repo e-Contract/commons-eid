@@ -5,62 +5,53 @@ import javax.smartcardio.Card;
 import javax.smartcardio.CardChannel;
 import javax.smartcardio.CardException;
 
-public class SimulatedCard extends Card
-{
-	private ATR 					atr;
-	private String 					protocol;
-	
-	public SimulatedCard(ATR atr)
-	{
+public class SimulatedCard extends Card {
+	private ATR atr;
+	private String protocol;
+
+	public SimulatedCard(ATR atr) {
 		super();
-		this.atr=atr;
+		this.atr = atr;
 	}
 
 	@Override
-	public void beginExclusive() throws CardException
-	{
+	public void beginExclusive() throws CardException {
 		throw new RuntimeException("Not Implemented In SimulatedCard");
 	}
 
 	@Override
-	public void disconnect(boolean arg0) throws CardException
-	{
+	public void disconnect(boolean arg0) throws CardException {
 		throw new RuntimeException("Not Implemented In SimulatedCard");
 	}
 
 	@Override
-	public void endExclusive() throws CardException
-	{
+	public void endExclusive() throws CardException {
 		throw new RuntimeException("Not Implemented In SimulatedCard");
 	}
 
 	@Override
-	public ATR getATR()
-	{
+	public ATR getATR() {
 		return atr;
 	}
 
 	@Override
-	public CardChannel getBasicChannel()
-	{
+	public CardChannel getBasicChannel() {
 		throw new RuntimeException("Not Implemented In SimulatedCard");
 	}
 
 	@Override
-	public String getProtocol()
-	{
+	public String getProtocol() {
 		return protocol;
 	}
 
 	@Override
-	public CardChannel openLogicalChannel() throws CardException
-	{
+	public CardChannel openLogicalChannel() throws CardException {
 		throw new RuntimeException("Not Implemented In SimulatedCard");
 	}
 
 	@Override
-	public byte[] transmitControlCommand(int arg0,byte[] arg1) throws CardException
-	{
+	public byte[] transmitControlCommand(int arg0, byte[] arg1)
+			throws CardException {
 		throw new RuntimeException("Not Implemented In SimulatedCard");
 	}
 }

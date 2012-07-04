@@ -26,8 +26,9 @@ import java.util.GregorianCalendar;
  * @author Frank Cornelis
  * 
  */
-public class ValidityDateDataConvertor implements
-		DataConvertor<GregorianCalendar> {
+public class ValidityDateDataConvertor
+		implements
+			DataConvertor<GregorianCalendar> {
 
 	public GregorianCalendar convert(byte[] value)
 			throws DataConvertorException {

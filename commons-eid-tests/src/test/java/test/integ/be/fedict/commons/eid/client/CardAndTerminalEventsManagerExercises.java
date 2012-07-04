@@ -36,34 +36,39 @@ import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
 import be.fedict.commons.eid.client.CardEventsListener;
 import be.fedict.commons.eid.client.CardTerminalEventsListener;
 
-
-public class CardAndTerminalEventsManagerExercises implements CardTerminalEventsListener,CardEventsListener
-{
+public class CardAndTerminalEventsManagerExercises
+		implements
+			CardTerminalEventsListener,
+			CardEventsListener {
 	private CardAndTerminalEventsManager cardAndTerminalEventsManager;
-	
+
 	/*
 	 * Exercises cardAndTerminalEventsManager procedural call:
 	 * instantiate, then call getTerminalsPresent and/or getTerminalsWithCards
 	 */
 	@Test
-	public void testSynchronous() throws Exception
-	{
-		CardAndTerminalEventsManager cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
-		
+	public void testSynchronous() throws Exception {
+		CardAndTerminalEventsManager cardAndTerminalEventsManager = new CardAndTerminalEventsManager(
+				new TestLogger());
+
 		System.out.println("Terminals Connected:");
-		Set<CardTerminal> terminals=cardAndTerminalEventsManager.getTerminalsPresent();
-		for(CardTerminal terminal : terminals)
-			System.out.println("\t" + StringUtils.getShortTerminalname(terminal.getName()));
+		Set<CardTerminal> terminals = cardAndTerminalEventsManager
+				.getTerminalsPresent();
+		for (CardTerminal terminal : terminals)
+			System.out.println("\t"
+					+ StringUtils.getShortTerminalname(terminal.getName()));
 		System.out.println();
-		
+
 		System.out.println("Terminals With Cards:");
-		Set<CardTerminal> terminalsWithCards=cardAndTerminalEventsManager.getTerminalsWithCards();
-		for(CardTerminal terminal : terminalsWithCards)
-			System.out.println("\t" + StringUtils.getShortTerminalname(terminal.getName()));
+		Set<CardTerminal> terminalsWithCards = cardAndTerminalEventsManager
+				.getTerminalsWithCards();
+		for (CardTerminal terminal : terminalsWithCards)
+			System.out.println("\t"
+					+ StringUtils.getShortTerminalname(terminal.getName()));
 	}
-	
+
 	//---------------------------------------------------------------------------------------------
-	
+
 	/*
 	 * Exercises asynchronous run with callbacks:
 	 * instantiate, register listeners, call start().
@@ -80,35 +85,42 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 	 */
 
 	@Test
-	public void testAsynchronous() throws Exception
-	{
-		Random random=new Random(0);
-		cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
+	public void testAsynchronous() throws Exception {
+		Random random = new Random(0);
+		cardAndTerminalEventsManager = new CardAndTerminalEventsManager(
+				new TestLogger());
 		cardAndTerminalEventsManager.addCardTerminalListener(this);
 		cardAndTerminalEventsManager.addCardListener(this);
-		
+
 		//cardAndTerminalEventsManager.ignoreCardEventsFor("VASCO DP905");
-		
+
 		cardAndTerminalEventsManager.start();
-		
-		CardTerminalEventsListener dummyCTL=new CardTerminalEventsListener()
-		{
-			@Override public void terminalException(Throwable throwable) 				{}
-			@Override public void terminalDetached(CardTerminal cardTerminal) 			{}
-			@Override public void terminalAttached(CardTerminal cardTerminal) 			{}
+
+		CardTerminalEventsListener dummyCTL = new CardTerminalEventsListener() {
+			@Override
+			public void terminalException(Throwable throwable) {
+			}
+			@Override
+			public void terminalDetached(CardTerminal cardTerminal) {
+			}
+			@Override
+			public void terminalAttached(CardTerminal cardTerminal) {
+			}
 		};
-		
-		CardEventsListener dummyCL=new CardEventsListener()
-		{
-			
-			@Override public void cardRemoved(CardTerminal cardTerminal) 				{}
-			@Override public void cardInserted(CardTerminal cardTerminal, Card card) 	{}
+
+		CardEventsListener dummyCL = new CardEventsListener() {
+
+			@Override
+			public void cardRemoved(CardTerminal cardTerminal) {
+			}
+			@Override
+			public void cardInserted(CardTerminal cardTerminal, Card card) {
+			}
 		};
-		
+
 		System.err.println("main thread running.. do some card tricks..");
-		
-		for(;;)
-		{
+
+		for (;;) {
 			System.err.print("+");
 			cardAndTerminalEventsManager.addCardTerminalListener(dummyCTL);
 			cardAndTerminalEventsManager.addCardListener(dummyCL);
@@ -119,9 +131,9 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 			Thread.sleep(random.nextInt(100));
 		}
 	}
-	
+
 	//---------------------------------------------------------------------------------------------
-	
+
 	/*
 	 * Exercise CardAndTerminalEventsManager's start() stop() semantics, with regards to its
 	 * worker thread. This test starts and stops a CardAndTerminalEventsManager randomly.
@@ -129,16 +141,15 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 	 * attaches/detaches and card inserts/removals as usual (while running, of course..)
 	 */
 	@Test
-	public void testStartStop() throws Exception
-	{
-		Random random=new Random(0);
-		cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
+	public void testStartStop() throws Exception {
+		Random random = new Random(0);
+		cardAndTerminalEventsManager = new CardAndTerminalEventsManager(
+				new TestLogger());
 		cardAndTerminalEventsManager.addCardTerminalListener(this);
 		cardAndTerminalEventsManager.addCardListener(this);
 		cardAndTerminalEventsManager.start();
-		
-		for(;;)
-		{
+
+		for (;;) {
 			System.err.print("+");
 			cardAndTerminalEventsManager.start();
 			Thread.sleep(random.nextInt(2000));
@@ -147,72 +158,69 @@ public class CardAndTerminalEventsManagerExercises implements CardTerminalEvents
 			Thread.sleep(random.nextInt(2000));
 		}
 	}
-	
+
 	/*
 	 * Exercise CardAndTerminalEventsManager's consistency with synchronous and asynchronous
 	 * operations mixed. Async test with random synchronous calls mixed in
 	 */
 	@Test
-	public void testSyncAsyncMix() throws Exception
-	{
-		Random random=new Random(0);
-		cardAndTerminalEventsManager=new CardAndTerminalEventsManager(new TestLogger());
+	public void testSyncAsyncMix() throws Exception {
+		Random random = new Random(0);
+		cardAndTerminalEventsManager = new CardAndTerminalEventsManager(
+				new TestLogger());
 		cardAndTerminalEventsManager.addCardTerminalListener(this);
 		cardAndTerminalEventsManager.addCardListener(this);
 		cardAndTerminalEventsManager.start();
-		
-		for(;;)
-		{
-			if(random.nextBoolean())
-			{
+
+		for (;;) {
+			if (random.nextBoolean()) {
 				System.err.print("T");
 				cardAndTerminalEventsManager.getTerminalsPresent();
-			}
-			else
-			{
+			} else {
 				System.err.print("C");
 				cardAndTerminalEventsManager.getTerminalsWithCards();
 			}
 			Thread.sleep(random.nextInt(10));
 		}
 	}
-	
+
 	//----------------------------- callbacks that just print to stderr -------------------
-	
+
 	@Override
-	public void terminalAttached(CardTerminal terminalAttached)
-	{
-		System.err.println("Terminal Attached [" + terminalAttached.getName() + "]");
-		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
-	}
-	
-	@Override
-	public void terminalDetached(CardTerminal terminalDetached)
-	{
-		System.err.println("Terminal Detached [" + terminalDetached.getName() + "]");
+	public void terminalAttached(CardTerminal terminalAttached) {
+		System.err.println("Terminal Attached [" + terminalAttached.getName()
+				+ "]");
 		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
 	}
 
 	@Override
-	public void cardInserted(CardTerminal cardTerminal, Card card)
-	{
-		if(card!=null)
-			System.err.println("Card [" + StringUtils.atrToString(card.getATR()) + "] Inserted Into Terminal [" + cardTerminal.getName() + "]");
+	public void terminalDetached(CardTerminal terminalDetached) {
+		System.err.println("Terminal Detached [" + terminalDetached.getName()
+				+ "]");
+		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
+	}
+
+	@Override
+	public void cardInserted(CardTerminal cardTerminal, Card card) {
+		if (card != null)
+			System.err.println("Card ["
+					+ StringUtils.atrToString(card.getATR())
+					+ "] Inserted Into Terminal [" + cardTerminal.getName()
+					+ "]");
 		else
 			System.err.println("Card present but failed to connect()");
 		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
 	}
-	
+
 	@Override
-	public void cardRemoved(CardTerminal terminalWithCardRemoved)
-	{
-		System.err.println("Card Removed From [" + terminalWithCardRemoved.getName() + "]");
+	public void cardRemoved(CardTerminal terminalWithCardRemoved) {
+		System.err.println("Card Removed From ["
+				+ terminalWithCardRemoved.getName() + "]");
 		StringUtils.printTerminalOverviewLine(cardAndTerminalEventsManager);
 	}
 
 	@Override
-	public void terminalException(Throwable throwable)
-	{
+	public void terminalException(Throwable throwable) {
 		System.err.println("Exception: " + throwable.getLocalizedMessage());
 	}
 }
