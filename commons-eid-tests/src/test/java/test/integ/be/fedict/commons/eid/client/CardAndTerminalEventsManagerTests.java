@@ -51,15 +51,15 @@ public class CardAndTerminalEventsManagerTests {
 	private static final int numberOfTerminals = 16;
 	private static final int numberOfCards = 16;
 
-	private List<SimulatedCard> simulatedCard;
+	private List<SimulatedCard> simulatedBeIDCard;
 	private List<SimulatedCardTerminal> simulatedCardTerminal;
 	private SimulatedCardTerminals simulatedCardTerminals;
 
 	@Before
 	public void setUp() {
-		simulatedCard = new ArrayList<SimulatedCard>(numberOfCards);
+		simulatedBeIDCard = new ArrayList<SimulatedCard>(numberOfCards);
 		for (int i = 0; i < numberOfCards; i++)
-			simulatedCard.add(new SimulatedCard(new ATR(new byte[]{0x3b,
+			simulatedBeIDCard.add(new SimulatedCard(new ATR(new byte[]{0x3b,
 					(byte) 0x98, (byte) i, 0x40, (byte) i, (byte) i, (byte) i,
 					(byte) i, 0x01, 0x01, (byte) 0xad, 0x13, 0x10})));
 
@@ -73,8 +73,8 @@ public class CardAndTerminalEventsManagerTests {
 	}
 
 	/*
-	 * Tests cardAndTerminalEventsManager procedural call:
-	 * instantiate, then call getTerminalsPresent and/or getTerminalsWithCards
+	 * Tests cardAndTerminalEventsManager procedural call: instantiate, then
+	 * call getTerminalsPresent and/or getTerminalsWithCards
 	 */
 	@Test
 	public void testSynchronous() throws Exception {
@@ -84,7 +84,7 @@ public class CardAndTerminalEventsManagerTests {
 		for (SimulatedCardTerminal terminal : simulatedCardTerminal) {
 			simulatedCardTerminals.attachCardTerminal(terminal);
 
-			for (SimulatedCard card : simulatedCard) {
+			for (SimulatedCard card : simulatedBeIDCard) {
 				terminal.insertCard(card);
 				StringUtils
 						.printTerminalAndCardOverviewLine(cardAndTerminalEventsManager);
@@ -95,7 +95,7 @@ public class CardAndTerminalEventsManagerTests {
 		}
 	}
 
-	//---------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
 
 	private class RecordKeepingCardTerminalEventsListener
 			implements
@@ -228,7 +228,7 @@ public class CardAndTerminalEventsManagerTests {
 		Set<SimulatedCardTerminal> fullTerminalSet = new HashSet<SimulatedCardTerminal>();
 
 		ArrayList<SimulatedCard> cardsToExercise = new ArrayList<SimulatedCard>(
-				simulatedCard);
+				simulatedBeIDCard);
 		Set<SimulatedCard> unusedCardSet = new HashSet<SimulatedCard>(
 				cardsToExercise);
 		Set<SimulatedCard> usedCardSet = new HashSet<SimulatedCard>();
