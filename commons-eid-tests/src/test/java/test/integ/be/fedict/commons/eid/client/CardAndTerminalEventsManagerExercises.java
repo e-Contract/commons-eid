@@ -43,8 +43,8 @@ public class CardAndTerminalEventsManagerExercises
 	private CardAndTerminalEventsManager cardAndTerminalEventsManager;
 
 	/*
-	 * Exercises cardAndTerminalEventsManager procedural call:
-	 * instantiate, then call getTerminalsPresent and/or getTerminalsWithCards
+	 * Exercises cardAndTerminalEventsManager procedural call: instantiate, then
+	 * call getTerminalsPresent and/or getTerminalsWithCards
 	 */
 	@Test
 	public void testSynchronous() throws Exception {
@@ -67,21 +67,23 @@ public class CardAndTerminalEventsManagerExercises
 					+ StringUtils.getShortTerminalname(terminal.getName()));
 	}
 
-	//---------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
 
 	/*
-	 * Exercises asynchronous run with callbacks:
-	 * instantiate, register listeners, call start().
-	 * The test then loops and adds/removes a listener in some pseudo-random timing pattern.
-	 * This is to ensure that the list of listeners remains properly synchronized
-	 * in relation to it being iterated whenever events are being sent to listeners
-	 * this test never returns.. since it requires someone to attach/detach readers and
-	 * insert/remove cards this is no problem until we automate those using e.g.
-	 * http://www.lynxmotion.com/p-816-al5d-robotic-arm-combo-kit-free-software.aspx
+	 * Exercises asynchronous run with callbacks: instantiate, register
+	 * listeners, call start(). The test then loops and adds/removes a listener
+	 * in some pseudo-random timing pattern. This is to ensure that the list of
+	 * listeners remains properly synchronized in relation to it being iterated
+	 * whenever events are being sent to listeners this test never returns..
+	 * since it requires someone to attach/detach readers and insert/remove
+	 * cards this is no problem until we automate those using e.g.
+	 * http://www.lynxmotion
+	 * .com/p-816-al5d-robotic-arm-combo-kit-free-software.aspx
 	 * 
-	 * While running this test, the operator should attach and detach at least 2 card terminals,
-	 * insert and remove cards from them, in all possible permutations. The state displayed should,
-	 * at all times, reflect the state of the readers and their cards within 250-400 ms.
+	 * While running this test, the operator should attach and detach at least 2
+	 * card terminals, insert and remove cards from them, in all possible
+	 * permutations. The state displayed should, at all times, reflect the state
+	 * of the readers and their cards within 250-400 ms.
 	 */
 
 	@Test
@@ -92,7 +94,7 @@ public class CardAndTerminalEventsManagerExercises
 		cardAndTerminalEventsManager.addCardTerminalListener(this);
 		cardAndTerminalEventsManager.addCardListener(this);
 
-		//cardAndTerminalEventsManager.ignoreCardEventsFor("VASCO DP905");
+		// cardAndTerminalEventsManager.ignoreCardEventsFor("VASCO DP905");
 
 		cardAndTerminalEventsManager.start();
 
@@ -100,9 +102,11 @@ public class CardAndTerminalEventsManagerExercises
 			@Override
 			public void terminalException(Throwable throwable) {
 			}
+
 			@Override
 			public void terminalDetached(CardTerminal cardTerminal) {
 			}
+
 			@Override
 			public void terminalAttached(CardTerminal cardTerminal) {
 			}
@@ -113,6 +117,7 @@ public class CardAndTerminalEventsManagerExercises
 			@Override
 			public void cardRemoved(CardTerminal cardTerminal) {
 			}
+
 			@Override
 			public void cardInserted(CardTerminal cardTerminal, Card card) {
 			}
@@ -132,13 +137,14 @@ public class CardAndTerminalEventsManagerExercises
 		}
 	}
 
-	//---------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
 
 	/*
-	 * Exercise CardAndTerminalEventsManager's start() stop() semantics, with regards to its
-	 * worker thread. This test starts and stops a CardAndTerminalEventsManager randomly.
-	 * It should remain in a consistent state at all times and detect terminal
-	 * attaches/detaches and card inserts/removals as usual (while running, of course..)
+	 * Exercise CardAndTerminalEventsManager's start() stop() semantics, with
+	 * regards to its worker thread. This test starts and stops a
+	 * CardAndTerminalEventsManager randomly. It should remain in a consistent
+	 * state at all times and detect terminal attaches/detaches and card
+	 * inserts/removals as usual (while running, of course..)
 	 */
 	@Test
 	public void testStartStop() throws Exception {
@@ -160,8 +166,9 @@ public class CardAndTerminalEventsManagerExercises
 	}
 
 	/*
-	 * Exercise CardAndTerminalEventsManager's consistency with synchronous and asynchronous
-	 * operations mixed. Async test with random synchronous calls mixed in
+	 * Exercise CardAndTerminalEventsManager's consistency with synchronous and
+	 * asynchronous operations mixed. Async test with random synchronous calls
+	 * mixed in
 	 */
 	@Test
 	public void testSyncAsyncMix() throws Exception {
@@ -184,7 +191,8 @@ public class CardAndTerminalEventsManagerExercises
 		}
 	}
 
-	//----------------------------- callbacks that just print to stderr -------------------
+	// ----------------------------- callbacks that just print to stderr
+	// -------------------
 
 	@Override
 	public void terminalAttached(CardTerminal terminalAttached) {

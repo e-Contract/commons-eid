@@ -26,20 +26,21 @@
  */
 
 package test.integ.be.fedict.commons.eid.client;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
-
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
-
 import org.junit.Test;
-
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.BeIDCardEventsManager;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.CardEventsListener;
+import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
@@ -49,7 +50,7 @@ public class BeIDCardEventsManagerExercise
 			CardEventsListener {
 	private BeIDCardEventsManager beIDCardManager;
 
-	//---------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
 
 	@Test
 	public void testAsynchronous() throws Exception {
@@ -69,14 +70,34 @@ public class BeIDCardEventsManagerExercise
 		}
 	}
 
-	//----------------------------- callbacks that just print to stderr -------------------
+	// ----------------------------- callbacks that just print to stderr
+	// -------------------
 
 	@Override
 	public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
 		try {
-			byte[] identityFile = card.readFile(BeIDFileType.Identity);
-			Identity identity = TlvParser.parse(identityFile, Identity.class);
+			byte[] identityTLV = card.readFile(BeIDFileType.Identity);
+			byte[] addressTLV = card.readFile(BeIDFileType.Address);
+
+			Identity identity = TlvParser.parse(identityTLV, Identity.class);
 			System.out.println(identity.firstName + " " + identity.name);
+
+			Address address = TlvParser.parse(addressTLV, Address.class);
+			System.out.println(address.streetAndNumber);
+
+			File atrFile = new File("/tmp/Alice_ATR.bin");
+			OutputStream os = new FileOutputStream(atrFile);
+			os.write(card.getCard().getATR().getBytes());
+
+			for (BeIDFileType fileType : BeIDFileType.values()) {
+				byte[] tlvData = card.readFile(fileType);
+				System.err.println("Read [" + fileType + "] -> "
+						+ tlvData.length + " bytes.");
+				File file = new File("/tmp/Alice_" + fileType + ".tlv");
+				OutputStream stream = new FileOutputStream(file);
+				stream.write(tlvData);
+			}
+
 		} catch (CardException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -88,7 +109,7 @@ public class BeIDCardEventsManagerExercise
 		System.err.println("eID Card Inserted Into ["
 				+ StringUtils.getShortTerminalname(cardTerminal.getName())
 				+ "]");
-		//StringUtils.printTerminalOverviewLine(beIDCardManager);
+		// StringUtils.printTerminalOverviewLine(beIDCardManager);
 	}
 
 	@Override

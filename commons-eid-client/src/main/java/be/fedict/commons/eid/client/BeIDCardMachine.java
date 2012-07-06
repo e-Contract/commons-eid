@@ -36,13 +36,184 @@ import javax.smartcardio.ResponseAPDU;
  * @author Frank Cornelis
  * 
  */
-public class BeIDCard {
+public class BeIDCardMachine {
+	public static final byte[] ADDRESS_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x01, 0x40, 0x33};
+	public static final byte[] ADDRESS_SIGN_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x01, 0x40, 0x34};
+	public static final byte[] PHOTO_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x01, 0x40, 0x35};
+	public static final byte[] AUTHN_CERT_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x00, 0x50, 0x38};
+	public static final byte[] SIGN_CERT_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x00, 0x50, 0x39};
+	public static final byte[] CA_CERT_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x00, 0x50, 0x3A};
+	public static final byte[] ROOT_CERT_FILE_ID = new byte[]{0x3F, 0x00,
+			(byte) 0xDF, 0x00, 0x50, 0x3B};
+
 	private final Card card;
 	private final CardChannel cardChannel;
 	private final Logger logger;
 	private final List<BeIDCardListener> cardListeners;
 
-	public BeIDCard(Card card, Logger logger) {
+	private enum State {
+		IDLE, SELECT_APPLET_SENT, SELECT_FILE_SENT, READ_BINARY_SENT;
+	}
+
+	private enum EventType {
+		OK, EXCEPTION;
+	}
+
+	private class Event {
+		private final EventType eventType;
+		private final Exception exception;
+
+		private Event(EventType eventType) {
+			if (this.eventType == EventType.EXCEPTION)
+				throw new IllegalArgumentException(
+						"Exception Events Require an Exception.");
+			this.eventType = eventType;
+			this.exception = null;
+		}
+
+		private Event(Exception exception) {
+			this.eventType = EventType.EXCEPTION;
+			this.exception = exception;
+		}
+
+		public EventType getEventType() {
+			return this.eventType;
+		}
+
+		public Exception getException() {
+			return this.exception;
+		}
+	}
+
+	public byte[] getIdentity() {
+		State state = State.IDLE;
+		Event event = new Event(EventType.OK);
+		boolean running = true;
+		int patience = 10;
+
+		while (running) {
+			if (patience < 10)
+				logger.debug("retrying..");
+
+			if (patience <= 0) {
+				logger.debug("giving up..");
+				return null;
+			}
+
+			switch (event.getEventType()) {
+				case OK : {
+					switch (state) {
+						case IDLE : {
+							logger.debug("idle, selecting file");
+
+							try {
+								selectFile(BeIDFileType.Identity.getFileId());
+								state = State.SELECT_FILE_SENT;
+								logger.debug("file selected");
+							} catch (FileNotFoundException fnfex) {
+								logger.debug("file not found. aborting.");
+								return null;
+							} catch (CardException cex) {
+								logger.debug("cardexception selecting file..");
+								patience--;
+							}
+						}
+							break;
+
+						case SELECT_FILE_SENT : {
+							logger.debug("reading binary data");
+
+							try {
+								return readBinary(BeIDFileType.Identity
+										.getEstimatedMaxSize());
+							} catch (IOException iox) {
+								logger
+										.debug("i/o exception reading binary data..");
+								state = State.IDLE;
+								patience--;
+							} catch (CardException cex) {
+								logger.debug("cardexception selecting file..");
+								patience--;
+							}
+						}
+							break;
+					}
+				}
+					break;
+			}
+		}
+
+		return null;
+	}
+
+	public byte[] getAddress() {
+		State state = State.IDLE;
+		Event event = new Event(EventType.OK);
+		boolean running = true;
+		int patience = 10;
+
+		while (running) {
+			if (patience < 10)
+				logger.debug("retrying..");
+
+			if (patience <= 0) {
+				logger.debug("giving up..");
+				return null;
+			}
+
+			switch (event.getEventType()) {
+				case OK : {
+					switch (state) {
+						case IDLE : {
+							logger.debug("idle, selecting file");
+
+							try {
+								selectFile(BeIDFileType.Address.getFileId());
+								state = State.SELECT_FILE_SENT;
+								logger.debug("file selected");
+							} catch (FileNotFoundException fnfex) {
+								logger.debug("file not found. aborting.");
+								return null;
+							} catch (CardException cex) {
+								logger.debug("cardexception selecting file..");
+								patience--;
+							}
+						}
+							break;
+
+						case SELECT_FILE_SENT : {
+							logger.debug("reading binary data");
+
+							try {
+								return readBinary(BeIDFileType.Address
+										.getEstimatedMaxSize());
+							} catch (IOException iox) {
+								logger
+										.debug("i/o exception reading binary data..");
+								state = State.IDLE;
+								patience--;
+							} catch (CardException cex) {
+								logger.debug("cardexception selecting file..");
+								patience--;
+							}
+						}
+							break;
+					}
+				}
+					break;
+			}
+		}
+
+		return null;
+	}
+
+	public BeIDCardMachine(Card card, Logger logger) {
 		this.card = card;
 		this.cardChannel = card.getBasicChannel();
 		if (null == logger) {
@@ -52,16 +223,16 @@ public class BeIDCard {
 		this.cardListeners = new LinkedList<BeIDCardListener>();
 	}
 
-	public BeIDCard(Card card) {
+	public BeIDCardMachine(Card card) {
 		this(card, new VoidLogger());
 	}
 
-	public BeIDCard(CardTerminal cardTerminal, Logger logger)
+	public BeIDCardMachine(CardTerminal cardTerminal, Logger logger)
 			throws CardException {
 		this(cardTerminal.connect("T=0"), logger);
 	}
 
-	public BeIDCard(CardTerminal cardTerminal) throws CardException {
+	public BeIDCardMachine(CardTerminal cardTerminal) throws CardException {
 		this(cardTerminal.connect("T=0"));
 	}
 
@@ -93,16 +264,18 @@ public class BeIDCard {
 		return responseApdu;
 	}
 
-	private static final int BLOCK_SIZE = 0xff;
+	private static int BLOCK_SIZE = 0xff;
 
 	private byte[] readBinary(int estimatedMaxSize) throws CardException,
 			IOException {
 		int offset = 0;
+
 		this.logger.debug("read binary");
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] data;
 		do {
 			notifyReadProgress(offset, estimatedMaxSize);
+
 			CommandAPDU readBinaryApdu = new CommandAPDU(0x00, 0xB0,
 					offset >> 8, offset & 0xFF, BLOCK_SIZE);
 			ResponseAPDU responseApdu = transmit(readBinaryApdu);
@@ -176,9 +349,5 @@ public class BeIDCard {
 			this.logger.error("could not disconnect the card: "
 					+ e.getMessage());
 		}
-	}
-
-	public Card getCard() {
-		return card;
 	}
 }
