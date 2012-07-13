@@ -37,6 +37,7 @@ import javax.smartcardio.ResponseAPDU;
  * 
  */
 public class BeIDCard {
+	private static final int BLOCK_SIZE = 0xff;
 	private final Card card;
 	private final CardChannel cardChannel;
 	private final Logger logger;
@@ -65,13 +66,120 @@ public class BeIDCard {
 		this(cardTerminal.connect("T=0"));
 	}
 
-	public synchronized void addCardListener(BeIDCardListener beIDCardListener) {
-		this.cardListeners.add(beIDCardListener);
+	//--------------------------------------------------------------------------------------------------------------------------------
+
+	public BeIDCard addCardListener(BeIDCardListener beIDCardListener) {
+		synchronized (this.cardListeners) {
+			this.cardListeners.add(beIDCardListener);
+		}
+
+		return this;
 	}
 
-	public synchronized void removeCardListener(
-			BeIDCardListener beIDCardListener) {
-		this.cardListeners.remove(beIDCardListener);
+	public BeIDCard removeCardListener(BeIDCardListener beIDCardListener) {
+		synchronized (this.cardListeners) {
+			this.cardListeners.remove(beIDCardListener);
+		}
+
+		return this;
+	}
+
+	//--------------------------------------------------------------------------------------------------------------------------------
+
+	public byte[] readBinary(int estimatedMaxSize) throws CardException,
+			IOException {
+		int offset = 0;
+		this.logger.debug("read binary");
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] data;
+		do {
+			notifyReadProgress(offset, estimatedMaxSize);
+			ResponseAPDU responseApdu = transmitCommand(
+					BeIDCommandAPDU.READ_BINARY, offset >> 8, offset & 0xFF,
+					BLOCK_SIZE);
+			int sw = responseApdu.getSW();
+			if (0x6B00 == sw) {
+				/*
+				 * Wrong parameters (offset outside the EF) End of file reached.
+				 * Can happen in case the file size is a multiple of 0xff bytes.
+				 */
+				break;
+			}
+
+			if (0x9000 != sw) {
+				IOException ioEx = new IOException(
+						"BeIDCommandAPDU response error: "
+								+ responseApdu.getSW());
+				ioEx.initCause(new ResponseAPDUException(responseApdu));
+				throw ioEx;
+			}
+
+			data = responseApdu.getData();
+			baos.write(data);
+			offset += data.length;
+		} while (BLOCK_SIZE == data.length);
+		notifyReadProgress(offset, offset);
+		return baos.toByteArray();
+	}
+
+	public BeIDCard selectFile(byte[] fileId) throws CardException,
+			FileNotFoundException {
+		this.logger.debug("selecting file");
+		ResponseAPDU responseApdu = transmitCommand(
+				BeIDCommandAPDU.SELECT_FILE, fileId);
+		if (0x9000 != responseApdu.getSW()) {
+			FileNotFoundException fnfEx = new FileNotFoundException(
+					"wrong status word after selecting file: "
+							+ Integer.toHexString(responseApdu.getSW()));
+			fnfEx.initCause(new ResponseAPDUException(responseApdu));
+			throw fnfEx;
+		}
+
+		try {
+			// SCARD_E_SHARING_VIOLATION fix
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			throw new RuntimeException("sleep error: " + e.getMessage());
+		}
+
+		return this;
+	}
+
+	public byte[] readFile(BeIDFileType beIDFile) throws CardException,
+			IOException {
+		selectFile(beIDFile.getFileId());
+		return readBinary(beIDFile.getEstimatedMaxSize());
+	}
+
+	public BeIDCard close() {
+		this.logger.debug("closing eID card");
+
+		try {
+			this.card.disconnect(true);
+		} catch (CardException e) {
+			this.logger.error("could not disconnect the card: "
+					+ e.getMessage());
+		}
+
+		return this;
+	}
+
+	public Card getCard() {
+		return card;
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------------------------
+
+	private ResponseAPDU transmitCommand(BeIDCommandAPDU apdu, int p1, int p2,
+			int le) throws CardException {
+		return transmit(new CommandAPDU(apdu.getCla(), apdu.getIns(), p1, p2,
+				le));
+	}
+
+	private ResponseAPDU transmitCommand(BeIDCommandAPDU apdu, byte[] data)
+			throws CardException {
+		return transmit(new CommandAPDU(apdu.getCla(), apdu.getIns(), apdu
+				.getP1(), apdu.getP2(), data));
 	}
 
 	private ResponseAPDU transmit(CommandAPDU commandApdu) throws CardException {
@@ -79,7 +187,7 @@ public class BeIDCard {
 		if (0x6c == responseApdu.getSW1()) {
 			/*
 			 * A minimum delay of 10 msec between the answer ?????????6C
-			 * xx????????? and the next APDU is mandatory for eID v1.0 and v1.1
+			 * xx????????? and the next BeIDCommandAPDU is mandatory for eID v1.0 and v1.1
 			 * cards.
 			 */
 			this.logger.debug("sleeping...");
@@ -93,92 +201,17 @@ public class BeIDCard {
 		return responseApdu;
 	}
 
-	private static final int BLOCK_SIZE = 0xff;
-
-	private byte[] readBinary(int estimatedMaxSize) throws CardException,
-			IOException {
-		int offset = 0;
-		this.logger.debug("read binary");
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		byte[] data;
-		do {
-			notifyReadProgress(offset, estimatedMaxSize);
-			CommandAPDU readBinaryApdu = new CommandAPDU(0x00, 0xB0,
-					offset >> 8, offset & 0xFF, BLOCK_SIZE);
-			ResponseAPDU responseApdu = transmit(readBinaryApdu);
-			int sw = responseApdu.getSW();
-			if (0x6B00 == sw) {
-				/*
-				 * Wrong parameters (offset outside the EF) End of file reached.
-				 * Can happen in case the file size is a multiple of 0xff bytes.
-				 */
-				break;
-			}
-			if (0x9000 != sw) {
-				throw new IOException("APDU response error: "
-						+ responseApdu.getSW());
-			}
-
-			data = responseApdu.getData();
-			baos.write(data);
-			offset += data.length;
-		} while (BLOCK_SIZE == data.length);
-		notifyReadProgress(offset, offset);
-		return baos.toByteArray();
-	}
+	// ----------------------------------------------------------------------------------------------------------------------------------
 
 	private void notifyReadProgress(int offset, int estimatedMaxOffset) {
 		if (offset > estimatedMaxOffset) {
 			estimatedMaxOffset = offset;
 		}
-		List<BeIDCardListener> listeners;
-		synchronized (this) {
-			listeners = new LinkedList<BeIDCardListener>(this.cardListeners);
-		}
-		for (BeIDCardListener listener : listeners) {
-			listener.notifyReadProgress(offset, estimatedMaxOffset);
-		}
-	}
 
-	private void selectFile(byte[] fileId) throws CardException,
-			FileNotFoundException {
-		this.logger.debug("selecting file");
-		CommandAPDU selectFileApdu = new CommandAPDU(0x00, 0xA4, 0x08, 0x0C,
-				fileId);
-		ResponseAPDU responseApdu = transmit(selectFileApdu);
-		if (0x9000 != responseApdu.getSW()) {
-			throw new FileNotFoundException(
-					"wrong status word after selecting file: "
-							+ Integer.toHexString(responseApdu.getSW()));
+		synchronized (this.cardListeners) {
+			for (BeIDCardListener listener : this.cardListeners) {
+				listener.notifyReadProgress(offset, estimatedMaxOffset);
+			}
 		}
-		try {
-			// SCARD_E_SHARING_VIOLATION fix
-			Thread.sleep(20);
-		} catch (InterruptedException e) {
-			throw new RuntimeException("sleep error: " + e.getMessage());
-		}
-	}
-
-	public byte[] readFile(BeIDFileType beIDFile) throws CardException,
-			IOException {
-		byte[] fileId = beIDFile.getFileId();
-		int estimatedMaxSize = beIDFile.getEstimatedMaxSize();
-		selectFile(fileId);
-		byte[] data = readBinary(estimatedMaxSize);
-		return data;
-	}
-
-	public void close() {
-		this.logger.debug("closing eID card");
-		try {
-			this.card.disconnect(true);
-		} catch (CardException e) {
-			this.logger.error("could not disconnect the card: "
-					+ e.getMessage());
-		}
-	}
-
-	public Card getCard() {
-		return card;
 	}
 }

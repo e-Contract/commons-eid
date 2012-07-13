@@ -112,7 +112,7 @@ public class SimulatedCard extends Card {
 		response[lengthToReturn] = (byte) 0x90;
 		response[lengthToReturn + 1] = 0x00;
 
-		// return as an APDU..
+		// return as an BeIDCommandAPDU..
 		return new ResponseAPDU(response);
 	}
 
