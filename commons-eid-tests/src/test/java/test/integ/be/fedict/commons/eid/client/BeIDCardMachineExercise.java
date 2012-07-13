@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.math.BigInteger;
 import org.junit.Test;
 import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.ErrorCapableBeIdCard;
+import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardMachine;
+import be.fedict.commons.eid.client.Logger;
 import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
@@ -18,21 +20,24 @@ public class BeIDCardMachineExercise {
 		System.err.println("Card ["
 				+ String.format("%x", new BigInteger(1, card.getATR()
 						.getBytes())) + "]");
-		machine = new BeIDCardMachine(card, new TestLogger());
+		Logger logger = new TestLogger();
+		machine = new BeIDCardMachine(new BeIDCard(card, logger), logger);
 
 		card.introduceRandomResponse();
 
-		byte[] idData = machine.getIdentity();
-		if (idData != null) {
-			Identity identity = TlvParser.parse(idData, Identity.class);
-			System.out.println(identity.firstName + " " + identity.name);
-		}
-		card.introduceCardException();
-
-		byte[] addrData = machine.getAddress();
-		if (addrData != null) {
-			Address address = TlvParser.parse(addrData, Address.class);
-			System.out.println(address.streetAndNumber);
-		}
+		//		byte[] idData=machine.getIdentity();
+		//		if(idData!=null)
+		//		{
+		//			Identity identity=TlvParser.parse(idData,Identity.class);
+		//			System.out.println(identity.firstName+" "+identity.name);
+		//		}
+		//		card.introduceCardException();
+		//
+		//		byte[] addrData=machine.getAddress();
+		//		if(addrData!=null)
+		//		{
+		//			Address address=TlvParser.parse(addrData,Address.class);
+		//			System.out.println(address.streetAndNumber);
+		//		}
 	}
 }

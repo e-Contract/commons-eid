@@ -23,6 +23,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.LinkedBlockingQueue;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardChannel;
 import javax.smartcardio.CardException;
@@ -31,55 +34,138 @@ import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 /**
- * Low-level eID methods.
  * 
- * @author Frank Cornelis
+ * @author Frank Marien
  * 
  */
 public class BeIDCardMachine {
-	public static final byte[] ADDRESS_FILE_ID = new byte[]{0x3F, 0x00,
-			(byte) 0xDF, 0x01, 0x40, 0x33};
-	public static final byte[] ADDRESS_SIGN_FILE_ID = new byte[]{0x3F, 0x00,
-			(byte) 0xDF, 0x01, 0x40, 0x34};
-	public static final byte[] PHOTO_FILE_ID = new byte[]{0x3F, 0x00,
-			(byte) 0xDF, 0x01, 0x40, 0x35};
-	public static final byte[] AUTHN_CERT_FILE_ID = new byte[]{0x3F, 0x00,
-			(byte) 0xDF, 0x00, 0x50, 0x38};
-	public static final byte[] SIGN_CERT_FILE_ID = new byte[]{0x3F, 0x00,
-			(byte) 0xDF, 0x00, 0x50, 0x39};
-	public static final byte[] CA_CERT_FILE_ID = new byte[]{0x3F, 0x00,
-			(byte) 0xDF, 0x00, 0x50, 0x3A};
-	public static final byte[] ROOT_CERT_FILE_ID = new byte[]{0x3F, 0x00,
-			(byte) 0xDF, 0x00, 0x50, 0x3B};
-
-	private final Card card;
-	private final CardChannel cardChannel;
 	private final Logger logger;
-	private final List<BeIDCardListener> cardListeners;
+	private State state = State.READY;
+	private Timer timePassesEventClock;
+	private BeIDCard card;
+	private LinkedBlockingQueue<Mission> missionQueue;
+
+	public BeIDCardMachine(BeIDCard card, Logger logger) {
+		this.card = card;
+		this.logger = logger;
+		this.missionQueue = new LinkedBlockingQueue<Mission>();
+	}
+
+	public BeIDCardMachine(BeIDCard card) {
+		this(card, new VoidLogger());
+	}
+
+	public BeIDCardMachine addMission(Mission mission) {
+		missionQueue.add(mission);
+		return this;
+	}
 
 	private enum State {
-		IDLE, SELECT_APPLET_SENT, SELECT_FILE_SENT, READ_BINARY_SENT;
+		READY, APPLET_SELECTED, ACCESS_EXCLUSIVE, FILE_SELECTED, DATA_READ_SUCCESS, ACCESS_SHARED;
 	}
 
 	private enum EventType {
-		OK, EXCEPTION;
+		START, OK, EXCEPTION, TIME_PASSES, DATA, APDU;
+	}
+
+	private synchronized BeIDCardMachine event(Event event) {
+		switch (event.getEventType()) {
+			case START :
+				setState(State.READY);
+				break;
+
+			case MISSION :
+				logger.debug("new mission received");
+				switch (event.getMission().getType()) {
+					case RETRIEVE_FILE :
+						break;
+				}
+				break;
+
+		}
+		return this;
+	}
+
+	private synchronized BeIDCardMachine setState(State newState) {
+		State oldState = this.state;
+		state_will_change(oldState, newState);
+		this.state = newState;
+		state_has_changed(oldState, newState);
+		return this;
+	}
+
+	private void state_has_changed(State oldState, State newState) {
+		logger.debug("state changed from [" + oldState + "] to [" + newState
+				+ "]");
+
+		switch (newState) {
+
+			case READY :
+				// entered READY state, block until next mission arrives.
+				try {
+					if (missionQueue.isEmpty())
+						logger.debug("waiting for next mission..");
+					event(new Event(missionQueue.take()));
+				} catch (InterruptedException e) {
+					logger.debug("interrupted waiting for next mission");
+				}
+				break;
+		}
+	}
+
+	private void state_will_change(State oldState, State newState) {
+		logger.debug("changing state from [" + oldState + "] to [" + newState
+				+ "]");
+
+		switch (oldState) {
+
+			case IDLE :
+				// leaving IDLE state, enable time passing events
+				enableTimePassingEvents();
+				break;
+		}
+
+		switch (newState) {
+
+			case IDLE :
+				// entering IDLE state, disable time passing events
+				disableTimePassingEvents();
+				break;
+		}
 	}
 
 	private class Event {
 		private final EventType eventType;
+		private final byte[] data;
 		private final Exception exception;
+		private final ResponseAPDU apdu;
 
 		private Event(EventType eventType) {
-			if (this.eventType == EventType.EXCEPTION)
-				throw new IllegalArgumentException(
-						"Exception Events Require an Exception.");
 			this.eventType = eventType;
+			this.data = null;
 			this.exception = null;
+			this.apdu = null;
+		}
+
+		private Event(byte[] data) {
+			this.eventType = EventType.MISSION;
+			this.data = data;
+			this.exception = null;
+			this.apdu = null;
 		}
 
 		private Event(Exception exception) {
 			this.eventType = EventType.EXCEPTION;
+			this.data = null;
 			this.exception = exception;
+			this.apdu = null;
+		}
+
+		private Event(ResponseAPDU apdu) {
+			this.eventType = EventType.APDU;
+			this.data = null;
+			this.exception = null;
+			this.apdu = apdu;
 		}
 
 		public EventType getEventType() {
@@ -89,265 +175,35 @@ public class BeIDCardMachine {
 		public Exception getException() {
 			return this.exception;
 		}
+
+		public ResponseAPDU getResponseAPDU() {
+			return this.apdu;
+		}
+
+		public byte[] getData() {
+			return this.data;
+		}
+
+		public String toString() {
+			return eventType.toString();
+		}
 	}
 
-	public byte[] getIdentity() {
-		State state = State.IDLE;
-		Event event = new Event(EventType.OK);
-		boolean running = true;
-		int patience = 10;
+	private void disableTimePassingEvents() {
+		logger.debug("Cancelling TIME_PASSES events");
+		timePassesEventClock.cancel();
+	}
 
-		while (running) {
-			if (patience < 10)
-				logger.debug("retrying..");
-
-			if (patience <= 0) {
-				logger.debug("giving up..");
-				return null;
+	private void enableTimePassingEvents() {
+		logger.debug("Enabling TIME_PASSES events");
+		timePassesEventClock = new Timer("timePassesEventClock", true);
+		timePassesEventClock.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				logger.debug("Scheduling TIME_PASSES event every second");
+				BeIDCardMachine.this.event(new Event(EventType.TIME_PASSES));
 			}
 
-			switch (event.getEventType()) {
-				case OK : {
-					switch (state) {
-						case IDLE : {
-							logger.debug("idle, selecting file");
-
-							try {
-								selectFile(BeIDFileType.Identity.getFileId());
-								state = State.SELECT_FILE_SENT;
-								logger.debug("file selected");
-							} catch (FileNotFoundException fnfex) {
-								logger.debug("file not found. aborting.");
-								return null;
-							} catch (CardException cex) {
-								logger.debug("cardexception selecting file..");
-								patience--;
-							}
-						}
-							break;
-
-						case SELECT_FILE_SENT : {
-							logger.debug("reading binary data");
-
-							try {
-								return readBinary(BeIDFileType.Identity
-										.getEstimatedMaxSize());
-							} catch (IOException iox) {
-								logger
-										.debug("i/o exception reading binary data..");
-								state = State.IDLE;
-								patience--;
-							} catch (CardException cex) {
-								logger.debug("cardexception selecting file..");
-								patience--;
-							}
-						}
-							break;
-					}
-				}
-					break;
-			}
-		}
-
-		return null;
-	}
-
-	public byte[] getAddress() {
-		State state = State.IDLE;
-		Event event = new Event(EventType.OK);
-		boolean running = true;
-		int patience = 10;
-
-		while (running) {
-			if (patience < 10)
-				logger.debug("retrying..");
-
-			if (patience <= 0) {
-				logger.debug("giving up..");
-				return null;
-			}
-
-			switch (event.getEventType()) {
-				case OK : {
-					switch (state) {
-						case IDLE : {
-							logger.debug("idle, selecting file");
-
-							try {
-								selectFile(BeIDFileType.Address.getFileId());
-								state = State.SELECT_FILE_SENT;
-								logger.debug("file selected");
-							} catch (FileNotFoundException fnfex) {
-								logger.debug("file not found. aborting.");
-								return null;
-							} catch (CardException cex) {
-								logger.debug("cardexception selecting file..");
-								patience--;
-							}
-						}
-							break;
-
-						case SELECT_FILE_SENT : {
-							logger.debug("reading binary data");
-
-							try {
-								return readBinary(BeIDFileType.Address
-										.getEstimatedMaxSize());
-							} catch (IOException iox) {
-								logger
-										.debug("i/o exception reading binary data..");
-								state = State.IDLE;
-								patience--;
-							} catch (CardException cex) {
-								logger.debug("cardexception selecting file..");
-								patience--;
-							}
-						}
-							break;
-					}
-				}
-					break;
-			}
-		}
-
-		return null;
-	}
-
-	public BeIDCardMachine(Card card, Logger logger) {
-		this.card = card;
-		this.cardChannel = card.getBasicChannel();
-		if (null == logger) {
-			throw new IllegalArgumentException("logger expected");
-		}
-		this.logger = logger;
-		this.cardListeners = new LinkedList<BeIDCardListener>();
-	}
-
-	public BeIDCardMachine(Card card) {
-		this(card, new VoidLogger());
-	}
-
-	public BeIDCardMachine(CardTerminal cardTerminal, Logger logger)
-			throws CardException {
-		this(cardTerminal.connect("T=0"), logger);
-	}
-
-	public BeIDCardMachine(CardTerminal cardTerminal) throws CardException {
-		this(cardTerminal.connect("T=0"));
-	}
-
-	public synchronized void addCardListener(BeIDCardListener beIDCardListener) {
-		this.cardListeners.add(beIDCardListener);
-	}
-
-	public synchronized void removeCardListener(
-			BeIDCardListener beIDCardListener) {
-		this.cardListeners.remove(beIDCardListener);
-	}
-
-	private ResponseAPDU transmit(CommandAPDU commandApdu) throws CardException {
-		ResponseAPDU responseApdu = this.cardChannel.transmit(commandApdu);
-		if (0x6c == responseApdu.getSW1()) {
-			/*
-			 * A minimum delay of 10 msec between the answer ?????????6C
-			 * xx????????? and the next APDU is mandatory for eID v1.0 and v1.1
-			 * cards.
-			 */
-			this.logger.debug("sleeping...");
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				throw new RuntimeException("cannot sleep");
-			}
-			responseApdu = this.cardChannel.transmit(commandApdu);
-		}
-		return responseApdu;
-	}
-
-	private static int BLOCK_SIZE = 0xff;
-
-	private byte[] readBinary(int estimatedMaxSize) throws CardException,
-			IOException {
-		int offset = 0;
-
-		this.logger.debug("read binary");
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		byte[] data;
-		do {
-			notifyReadProgress(offset, estimatedMaxSize);
-
-			CommandAPDU readBinaryApdu = new CommandAPDU(0x00, 0xB0,
-					offset >> 8, offset & 0xFF, BLOCK_SIZE);
-			ResponseAPDU responseApdu = transmit(readBinaryApdu);
-			int sw = responseApdu.getSW();
-			if (0x6B00 == sw) {
-				/*
-				 * Wrong parameters (offset outside the EF) End of file reached.
-				 * Can happen in case the file size is a multiple of 0xff bytes.
-				 */
-				break;
-			}
-			if (0x9000 != sw) {
-				throw new IOException("APDU response error: "
-						+ responseApdu.getSW());
-			}
-
-			data = responseApdu.getData();
-			baos.write(data);
-			offset += data.length;
-		} while (BLOCK_SIZE == data.length);
-		notifyReadProgress(offset, offset);
-		return baos.toByteArray();
-	}
-
-	private void notifyReadProgress(int offset, int estimatedMaxOffset) {
-		if (offset > estimatedMaxOffset) {
-			estimatedMaxOffset = offset;
-		}
-		List<BeIDCardListener> listeners;
-		synchronized (this) {
-			listeners = new LinkedList<BeIDCardListener>(this.cardListeners);
-		}
-		for (BeIDCardListener listener : listeners) {
-			listener.notifyReadProgress(offset, estimatedMaxOffset);
-		}
-	}
-
-	private void selectFile(byte[] fileId) throws CardException,
-			FileNotFoundException {
-		this.logger.debug("selecting file");
-		CommandAPDU selectFileApdu = new CommandAPDU(0x00, 0xA4, 0x08, 0x0C,
-				fileId);
-		ResponseAPDU responseApdu = transmit(selectFileApdu);
-		if (0x9000 != responseApdu.getSW()) {
-			throw new FileNotFoundException(
-					"wrong status word after selecting file: "
-							+ Integer.toHexString(responseApdu.getSW()));
-		}
-		try {
-			// SCARD_E_SHARING_VIOLATION fix
-			Thread.sleep(20);
-		} catch (InterruptedException e) {
-			throw new RuntimeException("sleep error: " + e.getMessage());
-		}
-	}
-
-	public byte[] readFile(BeIDFileType beIDFile) throws CardException,
-			IOException {
-		byte[] fileId = beIDFile.getFileId();
-		int estimatedMaxSize = beIDFile.getEstimatedMaxSize();
-		selectFile(fileId);
-		byte[] data = readBinary(estimatedMaxSize);
-		return data;
-	}
-
-	public void close() {
-		this.logger.debug("closing eID card");
-		try {
-			this.card.disconnect(true);
-		} catch (CardException e) {
-			this.logger.error("could not disconnect the card: "
-					+ e.getMessage());
-		}
+		}, 0, 1000);
 	}
 }

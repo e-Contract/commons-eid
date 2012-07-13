@@ -6,13 +6,16 @@ import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
-	protected static final ResponseAPDU TOOFAST = new ResponseAPDU(new byte[]{
-			0x6c, (byte) 0x00});
+	protected static final ResponseAPDU WAITWAITWAIT = new ResponseAPDU(
+			new byte[]{0x6c, (byte) 0x00});
+	protected static final ResponseAPDU WHO_AM_I = new ResponseAPDU(new byte[]{
+			(byte) 0x6d, (byte) 0x00});
 
 	private boolean nextTooFast;
 	private boolean nextBitError;
 	private boolean nextRandomResponse;
 	private boolean nextCardException;
+	private boolean nextConfused;
 	private int delay;
 	private Random random;
 
@@ -46,6 +49,11 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 		return this;
 	}
 
+	public ErrorCapableBeIdCard introduceConfusion() {
+		this.nextConfused = true;
+		return this;
+	}
+
 	public int getDelay() {
 		return delay;
 	}
@@ -56,6 +64,15 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 
 	@Override
 	protected ResponseAPDU transmit(CommandAPDU apdu) throws CardException {
+		if (nextConfused) {
+			nextConfused = false;
+			try {
+				Thread.sleep(40000);
+			} catch (InterruptedException e) {
+			}
+			return WHO_AM_I;
+		}
+
 		if (nextCardException) {
 			nextCardException = false;
 			throw new CardException("Fake CardException Introduced By "
@@ -64,7 +81,7 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 
 		if (nextTooFast) {
 			nextTooFast = false;
-			return TOOFAST;
+			return WAITWAITWAIT;
 		}
 
 		if (nextRandomResponse) {
