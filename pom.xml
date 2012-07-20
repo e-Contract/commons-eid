@@ -27,6 +27,7 @@
 	<modules>
 		<module>commons-eid-client</module>
 		<module>commons-eid-consumer</module>
+		<module>commons-eid-dialogs</module>
 		<module>commons-eid-tests</module>
 		<module>commons-eid-examples</module>
 	</modules>
