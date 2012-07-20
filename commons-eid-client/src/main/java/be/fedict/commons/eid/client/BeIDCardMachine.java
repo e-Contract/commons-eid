@@ -18,19 +18,9 @@
 
 package be.fedict.commons.eid.client;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
-import javax.smartcardio.Card;
-import javax.smartcardio.CardChannel;
-import javax.smartcardio.CardException;
-import javax.smartcardio.CardTerminal;
-import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 /**
@@ -38,20 +28,21 @@ import javax.smartcardio.ResponseAPDU;
  * @author Frank Marien
  * 
  */
-public class BeIDCardMachine {
+public class BeIDCardMachine implements Runnable {
 	private final Logger logger;
 	private State state = State.READY;
 	private Timer timePassesEventClock;
-	private BeIDCard card;
+	private BELPICCard card;
 	private LinkedBlockingQueue<Mission> missionQueue;
+	private Mission mission;
 
-	public BeIDCardMachine(BeIDCard card, Logger logger) {
+	public BeIDCardMachine(BELPICCard card, Logger logger) {
 		this.card = card;
 		this.logger = logger;
 		this.missionQueue = new LinkedBlockingQueue<Mission>();
 	}
 
-	public BeIDCardMachine(BeIDCard card) {
+	public BeIDCardMachine(BELPICCard card) {
 		this(card, new VoidLogger());
 	}
 
@@ -61,76 +52,81 @@ public class BeIDCardMachine {
 	}
 
 	private enum State {
-		READY, APPLET_SELECTED, ACCESS_EXCLUSIVE, FILE_SELECTED, DATA_READ_SUCCESS, ACCESS_SHARED;
+		READY, ACCESS_EXCLUSIVE, FILE_SELECTED, DATA_READ_SUCCESS, SHARED;
 	}
 
 	private enum EventType {
 		START, OK, EXCEPTION, TIME_PASSES, DATA, APDU;
 	}
 
-	private synchronized BeIDCardMachine event(Event event) {
-		switch (event.getEventType()) {
-			case START :
-				setState(State.READY);
-				break;
-
-			case MISSION :
-				logger.debug("new mission received");
-				switch (event.getMission().getType()) {
-					case RETRIEVE_FILE :
-						break;
-				}
-				break;
-
-		}
-		return this;
+	enum ActionType {
+		BEGINEXCLUSIVE, SELECTFILE, READBINARY, ENDEXCLUSIVE;
 	}
 
-	private synchronized BeIDCardMachine setState(State newState) {
-		State oldState = this.state;
-		state_will_change(oldState, newState);
+	private void onTIMEPASSESEvent() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void onEXCEPTIONEvent() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void onAPDUEvent() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void onDATAEvent() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void onOKEvent() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void onStartEvent() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void setState(State newState) {
+		leavingState(this.state);
 		this.state = newState;
-		state_has_changed(oldState, newState);
-		return this;
+		enteredState(newState);
 	}
 
-	private void state_has_changed(State oldState, State newState) {
-		logger.debug("state changed from [" + oldState + "] to [" + newState
-				+ "]");
+	private void leavingState(State oldState) {
+		logger.debug("leaving State [" + oldState + "]");
+
+		switch (oldState) {
+			// leaving READY state, enable time passing events
+			case READY :
+				enableTimePassingEvents();
+				break;
+		}
+	}
+
+	private void enteredState(State newState) {
+		logger.debug("entering State [" + newState + "]");
 
 		switch (newState) {
+			// entered READY state, disable time passing events, and wait for new orders
+			case READY : {
 
-			case READY :
-				// entered READY state, block until next mission arrives.
+				disableTimePassingEvents();
 				try {
 					if (missionQueue.isEmpty())
 						logger.debug("waiting for next mission..");
-					event(new Event(missionQueue.take()));
+					this.mission = missionQueue.take();
 				} catch (InterruptedException e) {
 					logger.debug("interrupted waiting for next mission");
 				}
 				break;
-		}
-	}
-
-	private void state_will_change(State oldState, State newState) {
-		logger.debug("changing state from [" + oldState + "] to [" + newState
-				+ "]");
-
-		switch (oldState) {
-
-			case IDLE :
-				// leaving IDLE state, enable time passing events
-				enableTimePassingEvents();
-				break;
-		}
-
-		switch (newState) {
-
-			case IDLE :
-				// entering IDLE state, disable time passing events
-				disableTimePassingEvents();
-				break;
+			}
 		}
 	}
 
@@ -143,13 +139,6 @@ public class BeIDCardMachine {
 		private Event(EventType eventType) {
 			this.eventType = eventType;
 			this.data = null;
-			this.exception = null;
-			this.apdu = null;
-		}
-
-		private Event(byte[] data) {
-			this.eventType = EventType.MISSION;
-			this.data = data;
 			this.exception = null;
 			this.apdu = null;
 		}
@@ -205,5 +194,35 @@ public class BeIDCardMachine {
 			}
 
 		}, 0, 1000);
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private synchronized BeIDCardMachine event(Event event) {
+		switch (event.getEventType()) {
+			case START :
+				onStartEvent();
+				break;
+			case OK :
+				onOKEvent();
+				break;
+			case DATA :
+				onDATAEvent();
+				break;
+			case APDU :
+				onAPDUEvent();
+				break;
+			case EXCEPTION :
+				onEXCEPTIONEvent();
+				break;
+			case TIME_PASSES :
+				onTIMEPASSESEvent();
+				break;
+		}
+		return this;
 	}
 }
