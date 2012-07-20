@@ -12,7 +12,7 @@ public class ResponseAPDUException extends RuntimeException {
 	}
 
 	public ResponseAPDUException(String message, ResponseAPDU apdu) {
-		super(message);
+		super(message + " [" + Integer.toHexString(apdu.getSW()) + "]");
 		this.apdu = apdu;
 	}
 

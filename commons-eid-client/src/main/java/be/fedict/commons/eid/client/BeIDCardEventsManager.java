@@ -21,7 +21,7 @@ public class BeIDCardEventsManager implements CardEventsListener {
 
 	private CardAndTerminalEventsManager cardAndTerminalEventsManager;
 	private boolean terminalManagerIsPrivate;
-	private Map<CardTerminal, BeIDCard> terminalsAndCards;
+	private Map<CardTerminal, BELPICCard> terminalsAndCards;
 	private Set<BeIDCardEventsListener> beIdListeners;
 	private Set<CardEventsListener> otherCardListeners;
 	private final Logger logger;
@@ -66,7 +66,7 @@ public class BeIDCardEventsManager implements CardEventsListener {
 		this.logger = logger;
 		this.beIdListeners = new HashSet<BeIDCardEventsListener>();
 		this.otherCardListeners = new HashSet<CardEventsListener>();
-		this.terminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
+		this.terminalsAndCards = new HashMap<CardTerminal, BELPICCard>();
 		this.cardAndTerminalEventsManager = cardAndTerminalEventsManager;
 		this.cardAndTerminalEventsManager.addCardListener(this);
 		updateTerminalsAndCards();
@@ -121,11 +121,11 @@ public class BeIDCardEventsManager implements CardEventsListener {
 		return this;
 	}
 
-	public Map<CardTerminal, BeIDCard> getTerminalsAndBeIDCardsPresent() {
+	public Map<CardTerminal, BELPICCard> getTerminalsAndBeIDCardsPresent() {
 		updateTerminalsAndCards();
-		Map<CardTerminal, BeIDCard> copyOfTerminalsAndCards;
+		Map<CardTerminal, BELPICCard> copyOfTerminalsAndCards;
 		synchronized (terminalsAndCards) {
-			copyOfTerminalsAndCards = new HashMap<CardTerminal, BeIDCard>(
+			copyOfTerminalsAndCards = new HashMap<CardTerminal, BELPICCard>(
 					terminalsAndCards);
 		}
 		return copyOfTerminalsAndCards;
@@ -140,11 +140,11 @@ public class BeIDCardEventsManager implements CardEventsListener {
 		return terminals;
 	}
 
-	public Set<BeIDCard> getBeIDCardsPresent() {
+	public Set<BELPICCard> getBeIDCardsPresent() {
 		updateTerminalsAndCards();
-		Set<BeIDCard> cards;
+		Set<BELPICCard> cards;
 		synchronized (terminalsAndCards) {
-			cards = new HashSet<BeIDCard>(terminalsAndCards.values());
+			cards = new HashSet<BELPICCard>(terminalsAndCards.values());
 		}
 		return cards;
 	}
@@ -158,17 +158,17 @@ public class BeIDCardEventsManager implements CardEventsListener {
 		return terminalsWithCardsIterator.next();
 	}
 
-	public BeIDCard getFirstBeIDCard() {
-		Set<BeIDCard> cards = getBeIDCardsPresent();
-		Iterator<BeIDCard> cardsIterator = cards.iterator();
+	public BELPICCard getFirstBeIDCard() {
+		Set<BELPICCard> cards = getBeIDCardsPresent();
+		Iterator<BELPICCard> cardsIterator = cards.iterator();
 		if (!cardsIterator.hasNext())
 			return null;
 		return cardsIterator.next();
 	}
 
-	public Map.Entry<CardTerminal, BeIDCard> getFirstBeIDTerminalAndCard() {
-		Map<CardTerminal, BeIDCard> terminalsAndCards = getTerminalsAndBeIDCardsPresent();
-		Iterator<Map.Entry<CardTerminal, BeIDCard>> terminalsAndCardsIterator = terminalsAndCards
+	public Map.Entry<CardTerminal, BELPICCard> getFirstBeIDTerminalAndCard() {
+		Map<CardTerminal, BELPICCard> terminalsAndCards = getTerminalsAndBeIDCardsPresent();
+		Iterator<Map.Entry<CardTerminal, BELPICCard>> terminalsAndCardsIterator = terminalsAndCards
 				.entrySet().iterator();
 		if (!terminalsAndCardsIterator.hasNext())
 			return null;
@@ -182,7 +182,7 @@ public class BeIDCardEventsManager implements CardEventsListener {
 		if (cardAndTerminalEventsManager.isRunning())
 			return;
 
-		Map<CardTerminal, BeIDCard> newTerminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
+		Map<CardTerminal, BELPICCard> newTerminalsAndCards = new HashMap<CardTerminal, BELPICCard>();
 
 		try {
 			for (CardTerminal terminal : cardAndTerminalEventsManager
@@ -190,7 +190,7 @@ public class BeIDCardEventsManager implements CardEventsListener {
 				try {
 					Card card = terminal.connect("*");
 					if (card != null && matchesEidAtr(card.getATR()))
-						newTerminalsAndCards.put(terminal, new BeIDCard(card,
+						newTerminalsAndCards.put(terminal, new BELPICCard(card,
 								logger));
 				} catch (CardException cex) {
 					logger.error("Can't Connect to Card in Terminal "
@@ -218,7 +218,7 @@ public class BeIDCardEventsManager implements CardEventsListener {
 	@Override
 	public void cardInserted(CardTerminal cardTerminal, Card card) {
 		if (card != null && matchesEidAtr(card.getATR())) {
-			BeIDCard beIDCard = new BeIDCard(card, logger);
+			BELPICCard beIDCard = new BELPICCard(card, logger);
 
 			synchronized (terminalsAndCards) {
 				terminalsAndCards.put(cardTerminal, beIDCard);
@@ -238,7 +238,7 @@ public class BeIDCardEventsManager implements CardEventsListener {
 
 	@Override
 	public void cardRemoved(CardTerminal cardTerminal) {
-		BeIDCard beIDCard = terminalsAndCards.get(cardTerminal);
+		BELPICCard beIDCard = terminalsAndCards.get(cardTerminal);
 		if (beIDCard != null) {
 			synchronized (terminalsAndCards) {
 				terminalsAndCards.remove(cardTerminal);

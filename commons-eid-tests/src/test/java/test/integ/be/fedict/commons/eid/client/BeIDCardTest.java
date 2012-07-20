@@ -30,7 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
-import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.BELPICCard;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.CardManager;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
@@ -48,7 +48,7 @@ public class BeIDCardTest {
 
 		assertNotNull(cardTerminal);
 
-		BeIDCard beIDCard = new BeIDCard(cardTerminal, logger);
+		BELPICCard beIDCard = new BELPICCard(cardTerminal, logger);
 
 		beIDCard.addCardListener(new TestBeIDCardListener());
 

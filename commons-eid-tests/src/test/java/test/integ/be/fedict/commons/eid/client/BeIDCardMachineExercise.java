@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import org.junit.Test;
 import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.ErrorCapableBeIdCard;
-import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.BELPICCard;
 import be.fedict.commons.eid.client.BeIDCardMachine;
 import be.fedict.commons.eid.client.Logger;
 import be.fedict.commons.eid.consumer.Address;
@@ -21,7 +21,7 @@ public class BeIDCardMachineExercise {
 				+ String.format("%x", new BigInteger(1, card.getATR()
 						.getBytes())) + "]");
 		Logger logger = new TestLogger();
-		machine = new BeIDCardMachine(new BeIDCard(card, logger), logger);
+		machine = new BeIDCardMachine(new BELPICCard(card, logger), logger);
 
 		card.introduceRandomResponse();
 
