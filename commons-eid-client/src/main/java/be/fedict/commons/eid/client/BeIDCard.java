@@ -15,6 +15,7 @@ import java.util.Locale;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
+import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 public class BeIDCard extends BELPICCard {
@@ -153,8 +154,11 @@ public class BeIDCard extends BELPICCard {
 
 		ResponseAPDU responseApdu = transmitCommand(
 				BeIDCommandAPDU.SELECT_ALGORITHM_AND_PRIVATE_KEY, new byte[]{
-						(byte) 0x04, // length of following data
-						(byte) 0x80, digest.getAlgorithmReference(), // algorithm reference 
+						(byte) 0x04, // length
+						// of
+						// following
+						// data
+						(byte) 0x80, digest.getAlgorithmReference(), // algorithm reference
 						(byte) 0x84, keyId}); // private key reference
 
 		if (0x9000 != responseApdu.getSW()) {
@@ -291,7 +295,8 @@ public class BeIDCard extends BELPICCard {
 	}
 
 	/*
-	 * various techniques and modes of verifying PIN codes. Called by verifyPin() as appropriate
+	 * various techniques and modes of verifying PIN codes. Called by
+	 * verifyPin() as appropriate
 	 */
 
 	private void verifyPin(Integer directPinVerifyFeature,
@@ -518,6 +523,108 @@ public class BeIDCard extends BELPICCard {
 		} finally {
 			Arrays.fill(changePinData, (byte) 0);
 		}
+	}
+
+	/*
+	 * Unblocking PIN using PUKs
+	 */
+
+	public void unblockPin(boolean requireSecureReader) throws Exception {
+		Integer directPinVerifyFeature = CCID.getFeature(getCard(),
+				CCID.FEATURE_VERIFY_PIN_DIRECT_TAG);
+
+		if (requireSecureReader && null == directPinVerifyFeature) {
+			throw new SecurityException("not a secure reader");
+		}
+
+		ResponseAPDU responseApdu;
+		int retriesLeft = -1;
+		do {
+			if (null != directPinVerifyFeature) {
+				getLogger().debug("could use direct PIN verify here...");
+				responseApdu = verifyPukDirect(retriesLeft,
+						directPinVerifyFeature);
+			} else {
+				responseApdu = doUnblockPin(retriesLeft);
+			}
+
+			if (0x9000 != responseApdu.getSW()) {
+				getLogger().debug("PIN unblock error");
+				getLogger().debug(
+						"SW: " + Integer.toHexString(responseApdu.getSW()));
+				if (0x6983 == responseApdu.getSW()) {
+					this.dialogs.advisePINBlocked();
+					throw new ResponseAPDUException("eID card blocked!",
+							responseApdu);
+				}
+				if (0x63 != responseApdu.getSW1()) {
+					getLogger().debug("PIN unblock error.");
+					throw new ResponseAPDUException("PIN unblock error",
+							responseApdu);
+				}
+				retriesLeft = responseApdu.getSW2() & 0xf;
+				getLogger().debug("retries left: " + retriesLeft);
+			}
+		} while (0x9000 != responseApdu.getSW());
+		this.dialogs.advisePINUnblocked();
+	}
+
+	private ResponseAPDU doUnblockPin(int retriesLeft) throws CardException {
+		char[][] puks = this.dialogs.obtainPUKCodes(retriesLeft);
+		char[] puk1 = puks[0];
+		char[] puk2 = puks[1];
+
+		char[] fullPuk = new char[puks.length];
+		System.arraycopy(puk2, 0, fullPuk, 0, puk2.length);
+		Arrays.fill(puk2, (char) 0);
+		System.arraycopy(puk1, 0, fullPuk, puk2.length, puk1.length);
+		Arrays.fill(puk1, (char) 0);
+
+		byte[] unblockPinData = new byte[]{
+				(byte) (0x20 | ((byte) (puks.length))), (byte) 0xFF,
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+				(byte) 0xFF, (byte) 0xFF};
+
+		for (int idx = 0; idx < fullPuk.length; idx += 2) {
+			char digit1 = fullPuk[idx];
+			char digit2 = fullPuk[idx + 1];
+			byte value = (byte) (byte) ((digit1 - '0' << 4) + (digit2 - '0'));
+			unblockPinData[idx / 2 + 1] = value;
+		}
+		Arrays.fill(fullPuk, (char) 0); // minimize exposure
+
+		try {
+			return transmitCommand(BeIDCommandAPDU.RESET_PIN, unblockPinData);
+		} finally {
+			Arrays.fill(unblockPinData, (byte) 0);
+		}
+	}
+
+	private ResponseAPDU verifyPukDirect(int retriesLeft,
+			Integer directPinVerifyFeature) throws IOException, CardException {
+		getLogger().debug("direct PUK verification...");
+		byte[] verifyCommandData = CCID.createPINVerificationDataStructure(
+				getLocale(), 0x2C);
+		this.dialogs.advisePINPadPUKEntry(retriesLeft);
+		byte[] result;
+		try {
+			result = transmitControlCommand(directPinVerifyFeature,
+					verifyCommandData);
+		} finally {
+			this.dialogs.advisePINPadOperationEnd();
+		}
+		ResponseAPDU responseApdu = new ResponseAPDU(result);
+		if (0x6401 == responseApdu.getSW()) {
+			getLogger().debug("canceled by user");
+			SecurityException securityException = new SecurityException(
+					"canceled by user");
+			securityException
+					.initCause(new ResponseAPDUException(responseApdu));
+			throw securityException;
+		} else if (0x6400 == responseApdu.getSW()) {
+			getLogger().debug("PIN pad timeout");
+		}
+		return responseApdu;
 	}
 
 	public Locale getLocale() {
