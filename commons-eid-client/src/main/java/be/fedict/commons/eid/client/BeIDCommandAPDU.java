@@ -5,7 +5,8 @@ public enum BeIDCommandAPDU {
 			0x0C), SELECT_FILE(0x00, 0xA4, 0x08, 0x0C), READ_BINARY(0x00, 0xB0), VERIFY_PIN(
 			0x00, 0x20, 0x00, 0x01), CHANGE_PIN(0x00, 0x24, 0x00, 0x01), // 0x0024=change reference data 0x0001=user password change
 	SELECT_ALGORITHM_AND_PRIVATE_KEY(0x00, 0x22, 0x41, 0xB6), // ISO 7816-8 SET COMMAND (select algorithm and key for signature)
-	COMPUTE_DIGITAL_SIGNATURE(0x00, 0x2A, 0x9E, 0x9A); // ISO 7816-8 COMPUTE DIGITAL SIGNATURE COMMAND 
+	COMPUTE_DIGITAL_SIGNATURE(0x00, 0x2A, 0x9E, 0x9A), // ISO 7816-8 COMPUTE DIGITAL SIGNATURE COMMAND 
+	RESET_PIN(0x00, 0x2C, 0x00, 0x01);
 
 	private final int cla;
 	private final int ins;
