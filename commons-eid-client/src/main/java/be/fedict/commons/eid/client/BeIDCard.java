@@ -1,3 +1,21 @@
+/*
+ * Commons eID Project.
+ * Copyright (C) 2008-2012 FedICT.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License version
+ * 3.0 as published by the Free Software Foundation.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, see 
+ * http://www.gnu.org/licenses/.
+ */
+
 package be.fedict.commons.eid.client;
 
 import java.io.ByteArrayInputStream;
@@ -15,7 +33,6 @@ import java.util.Locale;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
-import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 public class BeIDCard extends BELPICCard {
@@ -80,16 +97,15 @@ public class BeIDCard extends BELPICCard {
 	 * Getting Certificate Chains(by BeIDFileType of Leaf Certificate)
 	 */
 
-	public List<X509Certificate> getCertificateChain(BeIDFileType fileType,
-			boolean includeCitizenCA) throws CertificateException,
-			CardException, IOException {
+	public List<X509Certificate> getCertificateChain(BeIDFileType fileType)
+			throws CertificateException, CardException, IOException {
 		CertificateFactory certificateFactory = CertificateFactory
 				.getInstance("X.509");
 		List<X509Certificate> chain = new LinkedList<X509Certificate>();
 		chain.add((X509Certificate) certificateFactory
 				.generateCertificate(new ByteArrayInputStream(
 						readFile(fileType))));
-		if (includeCitizenCA)
+		if (fileType.chainIncludesCitizenCA())
 			chain.add((X509Certificate) certificateFactory
 					.generateCertificate(new ByteArrayInputStream(
 							readFile(BeIDFileType.CACertificate))));
@@ -105,23 +121,22 @@ public class BeIDCard extends BELPICCard {
 
 	public List<X509Certificate> getAuthenticationCertificateChain()
 			throws CardException, IOException, CertificateException {
-		return getCertificateChain(BeIDFileType.AuthentificationCertificate,
-				true);
+		return getCertificateChain(BeIDFileType.AuthentificationCertificate);
 	}
 
 	public List<X509Certificate> getSigningCertificateChain()
 			throws CardException, IOException, CertificateException {
-		return getCertificateChain(BeIDFileType.SigningCertificate, true);
+		return getCertificateChain(BeIDFileType.SigningCertificate);
 	}
 
 	public List<X509Certificate> getCACertificateChain() throws CardException,
 			IOException, CertificateException {
-		return getCertificateChain(BeIDFileType.CACertificate, false);
+		return getCertificateChain(BeIDFileType.CACertificate);
 	}
 
 	public List<X509Certificate> getRRNCertificateChain() throws CardException,
 			IOException, CertificateException {
-		return getCertificateChain(BeIDFileType.RRNCertificate, false);
+		return getCertificateChain(BeIDFileType.RRNCertificate);
 	}
 
 	/*

@@ -19,7 +19,6 @@
 package be.fedict.commons.eid.client;
 
 public enum BeIDFileType {
-
 	Identity(new byte[]{0x3F, 0x00, (byte) 0xDF, 0x01, 0x40, 0x31}, 179), IdentitySignature(
 			new byte[]{0x3F, 0x00, (byte) 0xDF, 0x01, 0x40, 0x32}, 128), Address(
 			new byte[]{0x3F, 0x00, (byte) 0xDF, 0x01, 0x40, 0x33}, 121), AddressSignature(
@@ -34,16 +33,19 @@ public enum BeIDFileType {
 	private final byte[] fileId;
 	private final byte keyId;
 	private final int estimatedMaxSize;
+	private final boolean chainIncludesCitizenCA;
 
 	private BeIDFileType(byte[] fileId, int estimatedMaxSize) {
 		this.fileId = fileId;
 		this.keyId = -1;
+		this.chainIncludesCitizenCA = false;
 		this.estimatedMaxSize = estimatedMaxSize;
 	}
 
 	private BeIDFileType(byte[] fileId, int keyId, int estimatedMaxSize) {
 		this.fileId = fileId;
 		this.keyId = (byte) keyId;
+		this.chainIncludesCitizenCA = true;
 		this.estimatedMaxSize = estimatedMaxSize;
 	}
 
@@ -53,6 +55,10 @@ public enum BeIDFileType {
 
 	public byte getKeyId() {
 		return this.keyId;
+	}
+
+	public boolean chainIncludesCitizenCA() {
+		return chainIncludesCitizenCA;
 	}
 
 	public int getEstimatedMaxSize() {
