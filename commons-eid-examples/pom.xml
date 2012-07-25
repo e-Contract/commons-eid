@@ -1,34 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-	    <groupId>be.fedict</groupId>
-	    <artifactId>commons-eid</artifactId>
-	    <version>1.0.0-SNAPSHOT</version>
+		<groupId>be.fedict</groupId>
+		<artifactId>commons-eid</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<name>Commons eID Examples</name>
-	<groupId>be.fedict</groupId>
 	<artifactId>commons-eid-examples</artifactId>
 	<build>
 		<plugins>
-		    <plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<skip>true</skip>
 				</configuration>
 			</plugin>
-		</plugins>	    
+		</plugins>
 	</build>
 	<dependencies>
-	    <dependency>
-	        <groupId>be.fedict</groupId>
+		<dependency>
+			<groupId>be.fedict</groupId>
 			<artifactId>commons-eid-client</artifactId>
 			<version>${project.version}</version>
-	    </dependency>
-	    <dependency>
-	        <groupId>be.fedict</groupId>
+		</dependency>
+		<dependency>
+			<groupId>be.fedict</groupId>
 			<artifactId>commons-eid-consumer</artifactId>
 			<version>${project.version}</version>
-	    </dependency>
+		</dependency>
 	</dependencies>
 </project>
