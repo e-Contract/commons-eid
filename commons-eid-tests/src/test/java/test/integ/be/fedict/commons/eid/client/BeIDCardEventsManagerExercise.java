@@ -35,7 +35,7 @@ import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import org.junit.Test;
-import be.fedict.commons.eid.client.BELPICCard;
+import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.BeIDCardEventsManager;
 import be.fedict.commons.eid.client.BeIDFileType;
@@ -74,7 +74,7 @@ public class BeIDCardEventsManagerExercise
 	// -------------------
 
 	@Override
-	public void eIDCardInserted(CardTerminal cardTerminal, BELPICCard card) {
+	public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
 		try {
 			byte[] identityTLV = card.readFile(BeIDFileType.Identity);
 			byte[] addressTLV = card.readFile(BeIDFileType.Address);
@@ -113,7 +113,7 @@ public class BeIDCardEventsManagerExercise
 	}
 
 	@Override
-	public void eIDCardRemoved(CardTerminal cardTerminal, BELPICCard card) {
+	public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card) {
 		System.err.println("eID Card Removed From ["
 				+ StringUtils.getShortTerminalname(cardTerminal.getName())
 				+ "]");
