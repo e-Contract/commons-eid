@@ -24,7 +24,7 @@ import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
-import be.fedict.commons.eid.client.CardEventsListener;
+import be.fedict.commons.eid.client.event.CardEventsListener;
 
 public class CardEventsExamples {
 	/*

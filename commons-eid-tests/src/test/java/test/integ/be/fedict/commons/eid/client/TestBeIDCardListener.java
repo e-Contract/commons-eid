@@ -21,7 +21,7 @@ package test.integ.be.fedict.commons.eid.client;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import be.fedict.commons.eid.client.BeIDCardListener;
+import be.fedict.commons.eid.client.event.BeIDCardListener;
 
 public class TestBeIDCardListener implements BeIDCardListener {
 

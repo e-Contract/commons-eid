@@ -29,6 +29,10 @@ import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 
+import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
+import be.fedict.commons.eid.client.event.CardEventsListener;
+import be.fedict.commons.eid.client.spi.Logger;
+
 public class BeIDCardEventsManager implements CardEventsListener {
 	private final static byte[] ATR_PATTERN = new byte[]{0x3b, (byte) 0x98,
 			0x00, 0x40, 0x00, (byte) 0x00, 0x00, 0x00, 0x01, 0x01, (byte) 0xad,

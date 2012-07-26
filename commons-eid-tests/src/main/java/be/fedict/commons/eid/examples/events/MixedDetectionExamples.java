@@ -22,11 +22,11 @@ import java.math.BigInteger;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.BeIDCardEventsManager;
 import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
-import be.fedict.commons.eid.client.CardEventsListener;
-import be.fedict.commons.eid.client.CardTerminalEventsListener;
+import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
+import be.fedict.commons.eid.client.event.CardEventsListener;
+import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
 /*
  * mixed asynchronous detection of CardTerminals, BeID and non-BeID cards,

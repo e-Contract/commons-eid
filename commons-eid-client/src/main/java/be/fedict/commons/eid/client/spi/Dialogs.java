@@ -16,7 +16,7 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.commons.eid.client;
+package be.fedict.commons.eid.client.spi;
 
 public interface Dialogs {
 	// get PIN from the user

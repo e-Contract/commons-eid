@@ -23,6 +23,8 @@
 package be.fedict.commons.eid.client;
 import java.io.File;
 
+import be.fedict.commons.eid.client.spi.Logger;
+
 /*
  * Encapsulate fixes regarding the dynamic loading of the pcsclite library on GNU/Linux Systems.
  * statically call LibJ2PCSCGNULinuxFix.fixNativeLibrary() before using a TerminalFactory.

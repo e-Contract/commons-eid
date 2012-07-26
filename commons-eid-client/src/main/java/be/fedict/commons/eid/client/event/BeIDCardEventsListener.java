@@ -16,9 +16,11 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.commons.eid.client;
+package be.fedict.commons.eid.client.event;
 
 import javax.smartcardio.CardTerminal;
+
+import be.fedict.commons.eid.client.BeIDCard;
 
 public interface BeIDCardEventsListener {
 	void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card);

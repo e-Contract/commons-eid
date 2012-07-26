@@ -37,6 +37,10 @@ import javax.smartcardio.CardTerminals;
 import javax.smartcardio.CardTerminals.State;
 import javax.smartcardio.TerminalFactory;
 
+import be.fedict.commons.eid.client.event.CardEventsListener;
+import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
+import be.fedict.commons.eid.client.spi.Logger;
+
 public class CardAndTerminalEventsManager implements Runnable {
 	private static final int DEFAULT_DELAY = 250;
 	private boolean running, subSystemInitialized, autoconnect;
