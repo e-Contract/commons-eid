@@ -21,7 +21,7 @@ package test.integ.be.fedict.commons.eid.client;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import be.fedict.commons.eid.client.Logger;
+import be.fedict.commons.eid.client.spi.Logger;
 
 public class TestLogger implements Logger {
 

@@ -16,16 +16,18 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.commons.eid.client;
-
 /**
- * Listener interface for various eID related events like read progress. To be
- * used in user interfaces.
+ * Interface to subscribe to a CardAndTerminalEventsManager
  * 
- * @author Frank Cornelis
+ * @author Frank Marien
  * 
  */
-public interface BeIDCardListener {
 
-	void notifyReadProgress(int offset, int estimatedMaxSize);
+package be.fedict.commons.eid.client.event;
+import javax.smartcardio.Card;
+import javax.smartcardio.CardTerminal;
+
+public interface CardEventsListener {
+	void cardInserted(CardTerminal cardTerminal, Card card);
+	void cardRemoved(CardTerminal cardTerminal);
 }

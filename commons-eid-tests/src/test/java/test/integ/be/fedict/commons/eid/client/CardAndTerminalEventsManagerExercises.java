@@ -33,8 +33,8 @@ import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
 import org.junit.Test;
 import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
-import be.fedict.commons.eid.client.CardEventsListener;
-import be.fedict.commons.eid.client.CardTerminalEventsListener;
+import be.fedict.commons.eid.client.event.CardEventsListener;
+import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
 public class CardAndTerminalEventsManagerExercises
 		implements

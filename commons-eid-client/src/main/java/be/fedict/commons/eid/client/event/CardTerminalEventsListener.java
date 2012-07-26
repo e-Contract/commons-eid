@@ -16,17 +16,12 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.commons.eid.client;
+package be.fedict.commons.eid.client.event;
 
-/**
- * Logger-interface.
- * 
- * @author Frank Cornelis
- * 
- */
-public interface Logger {
+import javax.smartcardio.CardTerminal;
 
-	void error(String message);
-
-	void debug(String message);
+public interface CardTerminalEventsListener {
+	void terminalAttached(CardTerminal cardTerminal);
+	void terminalDetached(CardTerminal cardTerminal);
+	void terminalException(Throwable throwable);
 }

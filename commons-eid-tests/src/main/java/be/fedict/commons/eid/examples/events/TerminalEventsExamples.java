@@ -22,7 +22,7 @@ import java.util.Set;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
-import be.fedict.commons.eid.client.CardTerminalEventsListener;
+import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
 public class TerminalEventsExamples {
 	/*

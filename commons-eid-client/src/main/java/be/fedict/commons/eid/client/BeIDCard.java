@@ -35,6 +35,9 @@ import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.ResponseAPDU;
 
+import be.fedict.commons.eid.client.spi.Dialogs;
+import be.fedict.commons.eid.client.spi.Logger;
+
 public class BeIDCard extends BELPICCard {
 	private Dialogs dialogs;
 	private Locale locale;

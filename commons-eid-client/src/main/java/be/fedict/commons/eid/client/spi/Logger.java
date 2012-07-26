@@ -16,18 +16,17 @@
  * http://www.gnu.org/licenses/.
  */
 
+package be.fedict.commons.eid.client.spi;
+
 /**
- * Interface to subscribe to a CardAndTerminalEventsManager
+ * Logger-interface.
  * 
- * @author Frank Marien
+ * @author Frank Cornelis
  * 
  */
+public interface Logger {
 
-package be.fedict.commons.eid.client;
-import javax.smartcardio.Card;
-import javax.smartcardio.CardTerminal;
+	void error(String message);
 
-public interface CardEventsListener {
-	void cardInserted(CardTerminal cardTerminal, Card card);
-	void cardRemoved(CardTerminal cardTerminal);
+	void debug(String message);
 }

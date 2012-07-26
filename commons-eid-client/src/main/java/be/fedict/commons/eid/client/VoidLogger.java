@@ -18,6 +18,8 @@
 
 package be.fedict.commons.eid.client;
 
+import be.fedict.commons.eid.client.spi.Logger;
+
 /**
  * Void implementation of the logger interface.
  * 

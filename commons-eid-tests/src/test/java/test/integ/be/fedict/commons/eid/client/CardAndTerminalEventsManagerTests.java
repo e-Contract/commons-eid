@@ -44,8 +44,8 @@ import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.SimulatedCard;
 import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.SimulatedCardTerminal;
 import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.SimulatedCardTerminals;
 import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
-import be.fedict.commons.eid.client.CardEventsListener;
-import be.fedict.commons.eid.client.CardTerminalEventsListener;
+import be.fedict.commons.eid.client.event.CardEventsListener;
+import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
 public class CardAndTerminalEventsManagerTests {
 	private static final int numberOfTerminals = 16;
