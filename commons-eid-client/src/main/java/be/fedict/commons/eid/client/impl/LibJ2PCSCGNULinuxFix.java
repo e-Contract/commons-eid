@@ -20,7 +20,7 @@
  * author Frank Marien
  */
 
-package be.fedict.commons.eid.client;
+package be.fedict.commons.eid.client.impl;
 import java.io.File;
 
 import be.fedict.commons.eid.client.spi.Logger;

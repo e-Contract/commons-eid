@@ -16,7 +16,7 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.commons.eid.client;
+package be.fedict.commons.eid.client.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

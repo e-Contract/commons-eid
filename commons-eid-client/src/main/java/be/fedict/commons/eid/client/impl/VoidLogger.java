@@ -16,7 +16,7 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.commons.eid.client;
+package be.fedict.commons.eid.client.impl;
 
 import be.fedict.commons.eid.client.spi.Logger;
 
@@ -26,7 +26,7 @@ import be.fedict.commons.eid.client.spi.Logger;
  * @author Frank Cornelis
  * 
  */
-final class VoidLogger implements Logger {
+public final class VoidLogger implements Logger {
 
 	@Override
 	public void error(String message) {
