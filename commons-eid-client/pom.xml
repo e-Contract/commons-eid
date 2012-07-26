@@ -9,4 +9,17 @@
 	</parent>
 	<name>Commons eID Client</name>
 	<artifactId>commons-eid-client</artifactId>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
