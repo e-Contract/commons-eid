@@ -20,7 +20,7 @@ package test.integ.be.fedict.commons.eid.client;
 
 import org.junit.Test;
 
-import be.fedict.commons.eid.client.LibJ2PCSCGNULinuxFix;
+import be.fedict.commons.eid.client.impl.LibJ2PCSCGNULinuxFix;
 
 public class LibJ2PCSCGNULinuxFixTest {
 	private void _testFix() {

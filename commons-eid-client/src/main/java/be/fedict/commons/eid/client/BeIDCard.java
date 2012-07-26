@@ -35,6 +35,8 @@ import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.ResponseAPDU;
 
+import be.fedict.commons.eid.client.impl.CCID;
+import be.fedict.commons.eid.client.impl.Digest;
 import be.fedict.commons.eid.client.spi.Dialogs;
 import be.fedict.commons.eid.client.spi.Logger;
 

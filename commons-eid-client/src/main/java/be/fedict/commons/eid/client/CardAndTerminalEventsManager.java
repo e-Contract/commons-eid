@@ -39,6 +39,8 @@ import javax.smartcardio.TerminalFactory;
 
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
+import be.fedict.commons.eid.client.impl.LibJ2PCSCGNULinuxFix;
+import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.Logger;
 
 public class CardAndTerminalEventsManager implements Runnable {
