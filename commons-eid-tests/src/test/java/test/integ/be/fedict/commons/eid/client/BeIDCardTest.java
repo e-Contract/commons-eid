@@ -24,15 +24,13 @@ import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import javax.smartcardio.CardTerminal;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
-import be.fedict.commons.eid.client.BELPICCard;
+import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.BeIDCardEventsManager;
 import be.fedict.commons.eid.client.BeIDFileType;
-import be.fedict.commons.eid.client.CardManager;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
 import be.fedict.commons.eid.consumer.Identity;
 
@@ -43,12 +41,10 @@ public class BeIDCardTest {
 	@Test
 	public void testReadFiles() throws Exception {
 		TestLogger logger = new TestLogger();
-		CardManager cardManager = new CardManager(logger);
-		CardTerminal cardTerminal = cardManager.findFirstBeIDCardTerminal();
-
-		assertNotNull(cardTerminal);
-
-		BELPICCard beIDCard = new BELPICCard(cardTerminal, logger);
+		BeIDCardEventsManager beIDCardEventsManager = new BeIDCardEventsManager(
+				logger);
+		BeIDCard beIDCard = beIDCardEventsManager.getFirstBeIDCard();
+		assertNotNull(beIDCard);
 
 		beIDCard.addCardListener(new TestBeIDCardListener());
 
