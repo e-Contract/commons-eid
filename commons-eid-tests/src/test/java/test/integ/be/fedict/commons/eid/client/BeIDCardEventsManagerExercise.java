@@ -87,7 +87,7 @@ public class BeIDCardEventsManagerExercise
 
 			File atrFile = new File("/tmp/Alice_ATR.bin");
 			OutputStream os = new FileOutputStream(atrFile);
-			os.write(card.getCard().getATR().getBytes());
+			os.write(card.getATR().getBytes());
 
 			for (BeIDFileType fileType : BeIDFileType.values()) {
 				byte[] tlvData = card.readFile(fileType);

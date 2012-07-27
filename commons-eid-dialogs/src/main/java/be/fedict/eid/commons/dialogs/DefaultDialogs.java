@@ -1,0 +1,502 @@
+/*
+ * Commons eID Project.
+ * Copyright (C) 2008-2012 FedICT.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License version
+ * 3.0 as published by the Free Software Foundation.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, see 
+ * http://www.gnu.org/licenses/.
+ */
+
+package be.fedict.eid.commons.dialogs;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Arrays;
+import java.util.Locale;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import be.fedict.commons.eid.client.spi.UI;
+import be.fedict.eid.commons.dialogs.Messages.MESSAGE_ID;
+
+/**
+ * Default Implementation of UI Interface
+ * @author Frank Cornelis
+ * 
+ */
+public class DefaultDialogs implements UI {
+	public static final int MIN_PIN_SIZE = 4;
+	public static final int MAX_PIN_SIZE = 12;
+	public static final int PUK_SIZE = 6;
+
+	//TODO can pinPadFrame and secureReaderTransactionFrame be on-screen at the same time? if not can be one member var and one dispose method
+	private Component parentComponent;
+	private Messages messages;
+	private JFrame pinPadFrame;
+	private JFrame secureReaderTransactionFrame;
+
+	public DefaultDialogs() {
+		this(null, new Messages(Locale.getDefault()));
+	}
+
+	public DefaultDialogs(Component parentComponent) {
+		this(parentComponent, new Messages(Locale.getDefault()));
+	}
+
+	public DefaultDialogs(Component parentComponent, Messages messages) {
+		this.parentComponent = parentComponent;
+		this.messages = messages;
+	}
+
+	@Override
+	public void advisePINBlocked() {
+		JOptionPane.showMessageDialog(this.parentComponent, this.messages
+				.getMessage(MESSAGE_ID.PIN_BLOCKED), "eID card blocked",
+				JOptionPane.ERROR_MESSAGE);
+	}
+
+	@Override
+	public void advisePINChanged() {
+		JOptionPane.showMessageDialog(this.parentComponent, this.messages
+				.getMessage(MESSAGE_ID.PIN_CHANGED), "eID PIN change",
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	@Override
+	public void advisePINPadChangePIN(int retriesLeft) {
+		showPINPadFrame(retriesLeft, "eID PIN change", this.messages
+				.getMessage(MESSAGE_ID.PIN_PAD_CHANGE));
+
+	}
+
+	@Override
+	public void advisePINPadNewPINEntry(int retriesLeft) {
+		showPINPadFrame(retriesLeft, "eID PIN change", this.messages
+				.getMessage(MESSAGE_ID.PIN_PAD_MODIFY_NEW));
+	}
+
+	@Override
+	public void advisePINPadNewPINEntryAgain(int retriesLeft) {
+		showPINPadFrame(retriesLeft, "eID PIN change", this.messages
+				.getMessage(MESSAGE_ID.PIN_PAD_MODIFY_NEW_AGAIN));
+	}
+
+	@Override
+	public void advisePINPadOldPINEntry(int retriesLeft) {
+		showPINPadFrame(retriesLeft, "eID PIN change", this.messages
+				.getMessage(MESSAGE_ID.PIN_PAD_MODIFY_OLD));
+
+	}
+
+	@Override
+	public void advisePINPadOperationEnd() {
+		disposePINPadFrame();
+	}
+
+	@Override
+	public void advisePINPadPINEntry(int retriesLeft) {
+		showPINPadFrame(retriesLeft, "PIN", this.messages
+				.getMessage(MESSAGE_ID.PIN_PAD));
+	}
+
+	@Override
+	public void advisePINPadPUKEntry(int retriesLeft) {
+		showPINPadFrame(retriesLeft, "eID PIN unblock", this.messages
+				.getMessage(MESSAGE_ID.PUK_PAD));
+
+	}
+
+	@Override
+	public void advisePINUnblocked() {
+		JOptionPane.showMessageDialog(this.parentComponent, this.messages
+				.getMessage(MESSAGE_ID.PIN_UNBLOCKED), "eID PIN unblock",
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	@Override
+	public char[][] obtainOldAndNewPIN(int retriesLeft) {
+		Box mainPanel = Box.createVerticalBox();
+
+		if (-1 != retriesLeft) {
+			Box retriesPanel = Box.createHorizontalBox();
+			JLabel retriesLabel = new JLabel(this.messages
+					.getMessage(MESSAGE_ID.RETRIES_LEFT)
+					+ ": " + retriesLeft);
+			retriesLabel.setForeground(Color.RED);
+			retriesPanel.add(retriesLabel);
+			retriesPanel.add(Box.createHorizontalGlue());
+			mainPanel.add(retriesPanel);
+			mainPanel.add(Box.createVerticalStrut(5));
+		}
+
+		JPasswordField oldPinField = new JPasswordField(MAX_PIN_SIZE);
+		{
+			Box oldPinPanel = Box.createHorizontalBox();
+			JLabel oldPinLabel = new JLabel(this.messages
+					.getMessage(MESSAGE_ID.CURRENT_PIN)
+					+ ":");
+			oldPinLabel.setLabelFor(oldPinField);
+			oldPinPanel.add(oldPinLabel);
+			oldPinPanel.add(Box.createHorizontalStrut(5));
+			oldPinPanel.add(oldPinField);
+			mainPanel.add(oldPinPanel);
+		}
+
+		mainPanel.add(Box.createVerticalStrut(5));
+
+		JPasswordField newPinField = new JPasswordField(MAX_PIN_SIZE);
+		{
+			Box newPinPanel = Box.createHorizontalBox();
+			JLabel newPinLabel = new JLabel(this.messages
+					.getMessage(MESSAGE_ID.NEW_PIN)
+					+ ":");
+			newPinLabel.setLabelFor(newPinField);
+			newPinPanel.add(newPinLabel);
+			newPinPanel.add(Box.createHorizontalStrut(5));
+			newPinPanel.add(newPinField);
+			mainPanel.add(newPinPanel);
+		}
+
+		mainPanel.add(Box.createVerticalStrut(5));
+
+		JPasswordField new2PinField = new JPasswordField(MAX_PIN_SIZE);
+		{
+			Box new2PinPanel = Box.createHorizontalBox();
+			JLabel new2PinLabel = new JLabel(this.messages
+					.getMessage(MESSAGE_ID.NEW_PIN)
+					+ ":");
+			new2PinLabel.setLabelFor(new2PinField);
+			new2PinPanel.add(new2PinLabel);
+			new2PinPanel.add(Box.createHorizontalStrut(5));
+			new2PinPanel.add(new2PinField);
+			mainPanel.add(new2PinPanel);
+		}
+
+		int result = JOptionPane.showOptionDialog(this.parentComponent,
+				mainPanel, "Change eID PIN", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, null, null);
+		if (result != JOptionPane.OK_OPTION) {
+			throw new RuntimeException("operation canceled.");
+		}
+		if (false == Arrays.equals(newPinField.getPassword(), new2PinField
+				.getPassword())) {
+			throw new RuntimeException("new PINs not equal");
+		}
+		char[] oldPin = new char[oldPinField.getPassword().length];
+		char[] newPin = new char[newPinField.getPassword().length];
+		System.arraycopy(oldPinField.getPassword(), 0, oldPin, 0, oldPinField
+				.getPassword().length);
+		System.arraycopy(newPinField.getPassword(), 0, newPin, 0, newPinField
+				.getPassword().length);
+		Arrays.fill(oldPinField.getPassword(), (char) 0);
+		Arrays.fill(newPinField.getPassword(), (char) 0);
+		return new char[][]{oldPin, newPin};
+	}
+
+	@Override
+	public char[] obtainPIN(int retriesLeft) {
+		// main panel
+		JPanel mainPanel = new JPanel() {
+			private static final long serialVersionUID = 1L;
+
+			private static final int BORDER_SIZE = 20;
+
+			@Override
+			public Insets getInsets() {
+				return new Insets(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE,
+						BORDER_SIZE);
+			}
+		};
+		BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS);
+		mainPanel.setLayout(boxLayout);
+
+		if (-1 != retriesLeft) {
+			Box retriesPanel = Box.createHorizontalBox();
+			JLabel retriesLabel = new JLabel(this.messages
+					.getMessage(MESSAGE_ID.RETRIES_LEFT)
+					+ ": " + retriesLeft);
+			retriesLabel.setForeground(Color.RED);
+			retriesPanel.add(retriesLabel);
+			retriesPanel.add(Box.createHorizontalGlue());
+			mainPanel.add(retriesPanel);
+			mainPanel.add(Box.createVerticalStrut(5));
+		}
+
+		Box passwordPanel = Box.createHorizontalBox();
+		JLabel promptLabel = new JLabel(this.messages
+				.getMessage(MESSAGE_ID.LABEL_PIN)
+				+ ": ");
+		passwordPanel.add(promptLabel);
+		passwordPanel.add(Box.createHorizontalStrut(5));
+		final JPasswordField passwordField = new JPasswordField(MAX_PIN_SIZE);
+		promptLabel.setLabelFor(passwordField);
+		passwordPanel.add(passwordField);
+		mainPanel.add(passwordPanel);
+
+		// button panel
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Insets getInsets() {
+				return new Insets(0, 0, 5, 5);
+			}
+		};
+		final JButton okButton = new JButton(this.messages
+				.getMessage(MESSAGE_ID.OK));
+		okButton.setEnabled(false);
+		buttonPanel.add(okButton);
+		JButton cancelButton = new JButton(this.messages
+				.getMessage(MESSAGE_ID.CANCEL));
+		buttonPanel.add(cancelButton);
+
+		// dialog box
+		final JDialog dialog = new JDialog((Frame) null, this.messages
+				.getMessage(MESSAGE_ID.ENTER_PIN), true);
+		dialog.setLayout(new BorderLayout());
+		dialog.getContentPane().add(mainPanel, BorderLayout.CENTER);
+		dialog.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
+		final DialogResult dialogResult = new DialogResult();
+
+		okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				dialogResult.result = DialogResult.Result.OK;
+				dialog.dispose();
+			}
+		});
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				dialogResult.result = DialogResult.Result.CANCEL;
+				dialog.dispose();
+			}
+		});
+		passwordField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				int pinSize = passwordField.getPassword().length;
+				if (MIN_PIN_SIZE <= pinSize && pinSize <= MAX_PIN_SIZE) {
+					dialogResult.result = DialogResult.Result.OK;
+					dialog.dispose();
+				}
+			}
+		});
+		passwordField.addKeyListener(new KeyListener() {
+
+			public void keyPressed(KeyEvent e) {
+			}
+
+			public void keyReleased(KeyEvent e) {
+				int pinSize = passwordField.getPassword().length;
+				if (MIN_PIN_SIZE <= pinSize && pinSize <= MAX_PIN_SIZE) {
+					okButton.setEnabled(true);
+				} else {
+					okButton.setEnabled(false);
+				}
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+		});
+
+		dialog.pack();
+		if (this.parentComponent != null) {
+			dialog.setLocationRelativeTo(this.parentComponent);
+		}
+
+		dialog.setVisible(true);
+		// setVisible will wait until some button or so has been pressed
+
+		if (dialogResult.result == DialogResult.Result.OK) {
+			char[] pin = passwordField.getPassword();
+			return pin;
+		}
+		throw new RuntimeException("operation canceled.");
+	}
+
+	@Override
+	public char[][] obtainPUKCodes(int retriesLeft) {
+		Box mainPanel = Box.createVerticalBox();
+
+		if (-1 != retriesLeft) {
+			Box retriesPanel = Box.createHorizontalBox();
+			JLabel retriesLabel = new JLabel(this.messages
+					.getMessage(MESSAGE_ID.RETRIES_LEFT)
+					+ ": " + retriesLeft);
+			retriesLabel.setForeground(Color.RED);
+			retriesPanel.add(retriesLabel);
+			retriesPanel.add(Box.createHorizontalGlue());
+			mainPanel.add(retriesPanel);
+			mainPanel.add(Box.createVerticalStrut(5));
+		}
+
+		JPasswordField puk1Field = new JPasswordField(8);
+		{
+			Box puk1Panel = Box.createHorizontalBox();
+			JLabel puk1Label = new JLabel("eID PUK1:");
+			puk1Label.setLabelFor(puk1Field);
+			puk1Panel.add(puk1Label);
+			puk1Panel.add(Box.createHorizontalStrut(5));
+			puk1Panel.add(puk1Field);
+			mainPanel.add(puk1Panel);
+		}
+
+		mainPanel.add(Box.createVerticalStrut(5));
+
+		JPasswordField puk2Field = new JPasswordField(8);
+		{
+			Box puk2Panel = Box.createHorizontalBox();
+			JLabel puk2Label = new JLabel("eID PUK2:");
+			puk2Label.setLabelFor(puk2Field);
+			puk2Panel.add(puk2Label);
+			puk2Panel.add(Box.createHorizontalStrut(5));
+			puk2Panel.add(puk2Field);
+			mainPanel.add(puk2Panel);
+		}
+
+		int result = JOptionPane.showOptionDialog(this.parentComponent,
+				mainPanel, "eID PIN unblock", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, null, null);
+		if (result != JOptionPane.OK_OPTION) {
+			throw new RuntimeException("operation canceled.");
+		}
+		if (puk1Field.getPassword().length != PUK_SIZE
+				|| puk2Field.getPassword().length != PUK_SIZE) {
+			throw new RuntimeException("PUK size incorrect");
+		}
+		char[] puk1 = new char[puk1Field.getPassword().length];
+		char[] puk2 = new char[puk2Field.getPassword().length];
+		System.arraycopy(puk1Field.getPassword(), 0, puk1, 0, puk1Field
+				.getPassword().length);
+		System.arraycopy(puk2Field.getPassword(), 0, puk2, 0, puk2Field
+				.getPassword().length);
+		Arrays.fill(puk1Field.getPassword(), (char) 0);
+		Arrays.fill(puk2Field.getPassword(), (char) 0);
+		return new char[][]{puk1, puk2};
+	}
+
+	@Override
+	public void adviseSecureReaderOperation() {
+		if (null != this.secureReaderTransactionFrame) {
+			disposeSecureReaderFrame();
+		}
+		this.secureReaderTransactionFrame = new JFrame(
+				"Transaction Confirmation");
+		JPanel panel = new JPanel() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Insets getInsets() {
+				return new Insets(10, 30, 10, 30);
+			}
+		};
+		BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
+		panel.setLayout(boxLayout);
+		panel.add(new JLabel(
+				"Check the transaction message on the secure card reader."));
+
+		this.secureReaderTransactionFrame.getContentPane().add(panel);
+		this.secureReaderTransactionFrame.pack();
+
+		if (this.parentComponent != null) {
+			this.secureReaderTransactionFrame
+					.setLocationRelativeTo(this.parentComponent);
+		}
+		this.secureReaderTransactionFrame.setVisible(true);
+	}
+
+	@Override
+	public void adviseSecureReaderOperationEnd() {
+		disposeSecureReaderFrame();
+	}
+
+	/*
+	 ***********************************************************************************************************************
+	 */
+
+	private void showPINPadFrame(int retriesLeft, String title, String message) {
+		if (null != this.pinPadFrame) {
+			disposePINPadFrame();
+		}
+		this.pinPadFrame = new JFrame(title);
+		JPanel panel = new JPanel() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Insets getInsets() {
+				return new Insets(10, 30, 10, 30);
+			}
+		};
+		BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
+		panel.setLayout(boxLayout);
+
+		if (-1 != retriesLeft) {
+			JLabel retriesLabel = new JLabel(this.messages
+					.getMessage(MESSAGE_ID.RETRIES_LEFT)
+					+ ": " + retriesLeft);
+			retriesLabel.setForeground(Color.RED);
+			panel.add(retriesLabel);
+		}
+		panel.add(new JLabel(message));
+		this.pinPadFrame.getContentPane().add(panel);
+		this.pinPadFrame.pack();
+
+		if (this.parentComponent != null) {
+			this.pinPadFrame.setLocationRelativeTo(this.parentComponent);
+		}
+		this.pinPadFrame.setVisible(true);
+	}
+
+	private void disposePINPadFrame() {
+		if (null != this.pinPadFrame) {
+			this.pinPadFrame.dispose();
+			this.pinPadFrame = null;
+		}
+	}
+
+	/*
+	 * 
+	 */
+
+	private void disposeSecureReaderFrame() {
+		if (null != this.secureReaderTransactionFrame) {
+			this.secureReaderTransactionFrame.dispose();
+			this.secureReaderTransactionFrame = null;
+		}
+	}
+
+	/*
+	 * 
+	 */
+
+	private static class DialogResult {
+		enum Result {
+			OK, CANCEL
+		};
+
+		public Result result = null;
+	}
+
+}
