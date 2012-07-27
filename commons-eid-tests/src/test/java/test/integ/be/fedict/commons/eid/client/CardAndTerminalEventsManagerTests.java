@@ -120,7 +120,7 @@ public class CardAndTerminalEventsManagerTests {
 		}
 
 		@Override
-		public void terminalException(Throwable throwable) {
+		public synchronized void terminalException(Throwable throwable) {
 		}
 
 		public synchronized Set<CardTerminal> getRecordedState() {
@@ -137,7 +137,8 @@ public class CardAndTerminalEventsManagerTests {
 		}
 
 		@Override
-		public void cardInserted(CardTerminal cardTerminal, Card card) {
+		public synchronized void cardInserted(CardTerminal cardTerminal,
+				Card card) {
 			if (recordedState.containsKey(cardTerminal))
 				throw new IllegalStateException(
 						"Cannot Insert 2 Cards in 1 CardTerminal");
@@ -145,14 +146,14 @@ public class CardAndTerminalEventsManagerTests {
 		}
 
 		@Override
-		public void cardRemoved(CardTerminal cardTerminal) {
+		public synchronized void cardRemoved(CardTerminal cardTerminal) {
 			if (!recordedState.containsKey(cardTerminal))
 				throw new IllegalStateException(
 						"Cannot Remove Card That is not There");
 			recordedState.remove(cardTerminal);
 		}
 
-		public Map<CardTerminal, Card> getRecordedState() {
+		public synchronized Map<CardTerminal, Card> getRecordedState() {
 			return recordedState;
 		}
 	}
@@ -165,6 +166,8 @@ public class CardAndTerminalEventsManagerTests {
 				new TestLogger(), simulatedCardTerminals);
 		RecordKeepingCardTerminalEventsListener recorder = new RecordKeepingCardTerminalEventsListener();
 		cardAndTerminalEventsManager.addCardTerminalListener(recorder);
+		cardAndTerminalEventsManager
+				.addCardTerminalListener(new NPEProneCardTerminalEventsListener());
 		cardAndTerminalEventsManager.start();
 
 		System.err
@@ -176,7 +179,7 @@ public class CardAndTerminalEventsManagerTests {
 				terminalsToExercise);
 		Set<SimulatedCardTerminal> attachedTerminalSet = new HashSet<SimulatedCardTerminal>();
 
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 1000; i++) {
 			for (int j = 0; j < random.nextInt(numberOfTerminals); j++) {
 				SimulatedCardTerminal terminalToAttach = terminalsToExercise
 						.get(random.nextInt(numberOfTerminals));
@@ -208,6 +211,10 @@ public class CardAndTerminalEventsManagerTests {
 			}
 		}
 
+		Thread.sleep(1000);
+
+		// TODO: fix the stop() method
+		//cardAndTerminalEventsManager.stop();
 		assertEquals(expectedState, recorder.getRecordedState());
 	}
 
@@ -219,6 +226,8 @@ public class CardAndTerminalEventsManagerTests {
 				new TestLogger(), simulatedCardTerminals);
 		RecordKeepingCardEventsListener recorder = new RecordKeepingCardEventsListener();
 		cardAndTerminalEventsManager.addCardListener(recorder);
+		cardAndTerminalEventsManager
+				.addCardListener(new NPEProneCardEventsListener());
 		cardAndTerminalEventsManager.start();
 
 		ArrayList<SimulatedCardTerminal> terminalsToExercise = new ArrayList<SimulatedCardTerminal>(
@@ -241,7 +250,7 @@ public class CardAndTerminalEventsManagerTests {
 
 		System.err.println("inserting and removing some simulated cards");
 
-		for (int i = 0; i < 100000; i++) {
+		for (int i = 0; i < 1000; i++) {
 			for (int j = 0; j < random.nextInt(numberOfCards); j++) {
 				SimulatedCardTerminal terminalToInsertCardInto = terminalsToExercise
 						.get(random.nextInt(numberOfTerminals));
@@ -285,6 +294,48 @@ public class CardAndTerminalEventsManagerTests {
 			}
 		}
 
+		Thread.sleep(1000);
+
+		// TODO: fix the stop() method
+		//cardAndTerminalEventsManager.stop();
 		assertEquals(expectedState, recorder.getRecordedState());
+	}
+
+	private final class NPEProneCardTerminalEventsListener
+			implements
+				CardTerminalEventsListener {
+		@Override
+		public void terminalAttached(CardTerminal cardTerminal) {
+			throw new NullPointerException(
+					"Fake NPE attempting to trash a CardTerminalEventsListener");
+		}
+
+		@Override
+		public void terminalDetached(CardTerminal cardTerminal) {
+			throw new NullPointerException(
+					"Fake NPE attempting to trash a CardTerminalEventsListener");
+		}
+
+		@Override
+		public void terminalException(Throwable throwable) {
+			throw new NullPointerException(
+					"Fake NPE attempting to trash a CardTerminalEventsListener");
+		}
+	}
+
+	private final class NPEProneCardEventsListener
+			implements
+				CardEventsListener {
+		@Override
+		public void cardInserted(CardTerminal cardTerminal, Card card) {
+			throw new NullPointerException(
+					"Fake NPE attempting to trash a CardEventsListener");
+		}
+
+		@Override
+		public void cardRemoved(CardTerminal cardTerminal) {
+			throw new NullPointerException(
+					"Fake NPE attempting to trash a CardEventsListener");
+		}
 	}
 }

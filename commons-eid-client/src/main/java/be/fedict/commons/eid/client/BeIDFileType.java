@@ -33,19 +33,16 @@ public enum BeIDFileType {
 	private final byte[] fileId;
 	private final byte keyId;
 	private final int estimatedMaxSize;
-	private final boolean chainIncludesCitizenCA;
 
 	private BeIDFileType(byte[] fileId, int estimatedMaxSize) {
 		this.fileId = fileId;
 		this.keyId = -1;
-		this.chainIncludesCitizenCA = false;
 		this.estimatedMaxSize = estimatedMaxSize;
 	}
 
 	private BeIDFileType(byte[] fileId, int keyId, int estimatedMaxSize) {
 		this.fileId = fileId;
 		this.keyId = (byte) keyId;
-		this.chainIncludesCitizenCA = true;
 		this.estimatedMaxSize = estimatedMaxSize;
 	}
 
@@ -57,8 +54,12 @@ public enum BeIDFileType {
 		return this.keyId;
 	}
 
+	public boolean isCertificateUserCanSignWith() {
+		return this.keyId != -1;
+	}
+
 	public boolean chainIncludesCitizenCA() {
-		return chainIncludesCitizenCA;
+		return isCertificateUserCanSignWith();
 	}
 
 	public int getEstimatedMaxSize() {

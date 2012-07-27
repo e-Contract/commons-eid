@@ -18,7 +18,7 @@
 
 package be.fedict.commons.eid.client.spi;
 
-public interface Dialogs {
+public interface UI {
 	// get PIN from the user
 	char[] obtainPIN(int triesLeft);
 
@@ -57,4 +57,10 @@ public interface Dialogs {
 
 	// one of the above PINPad operation ends
 	void advisePINPadOperationEnd();
+
+	// user needs to attend some operation on a secure reader
+	void adviseSecureReaderOperation();
+
+	// operation on secure reader ends
+	void adviseSecureReaderOperationEnd();
 }

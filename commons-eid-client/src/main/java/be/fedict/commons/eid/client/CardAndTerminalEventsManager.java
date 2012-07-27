@@ -36,7 +36,6 @@ import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CardTerminals;
 import javax.smartcardio.CardTerminals.State;
 import javax.smartcardio.TerminalFactory;
-
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 import be.fedict.commons.eid.client.impl.LibJ2PCSCGNULinuxFix;
@@ -45,7 +44,8 @@ import be.fedict.commons.eid.client.spi.Logger;
 
 public class CardAndTerminalEventsManager implements Runnable {
 	private static final int DEFAULT_DELAY = 250;
-	private boolean running, subSystemInitialized, autoconnect;
+	private volatile boolean running;
+	private boolean subSystemInitialized, autoconnect;
 	private Thread thread;
 	private Set<CardTerminal> terminalsPresent, terminalsWithCards;
 	private CardTerminals cardTerminals;
@@ -170,11 +170,13 @@ public class CardAndTerminalEventsManager implements Runnable {
 
 	// -----------------------------------------------------------------------
 
-	// stop this Terminalmanager's worked thread.
-	public CardAndTerminalEventsManager stop() {
+	// stop this CardAndTerminalEventsManager's worker thread.
+	public CardAndTerminalEventsManager stop() throws InterruptedException {
 		logger
 				.debug("CardAndTerminalEventsManager worker thread stop requested.");
 		running = false;
+		thread.interrupt();
+		thread.join();
 		return this;
 	}
 
@@ -427,32 +429,67 @@ public class CardAndTerminalEventsManager implements Runnable {
 
 	// Tell listeners about attached readers
 	protected void listenersTerminalsAttached(Set<CardTerminal> attached) {
-		for (CardTerminal terminal : attached) {
-			synchronized (cardTerminalEventsListeners) {
-				for (CardTerminalEventsListener listener : cardTerminalEventsListeners)
-					listener.terminalAttached(terminal);
+		if (!attached.isEmpty()) {
+			Set<CardTerminalEventsListener> copyOfListeners;
+
+			synchronized (this.cardTerminalEventsListeners) {
+				copyOfListeners = new HashSet<CardTerminalEventsListener>(
+						this.cardTerminalEventsListeners);
+			}
+
+			for (CardTerminal terminal : attached) {
+				for (CardTerminalEventsListener listener : copyOfListeners) {
+					try {
+						listener.terminalAttached(terminal);
+					} catch (Exception thrownInListener) {
+						//this.logger.error("Exception thrown in CardTerminalEventsListener.terminalAttached:" + thrownInListener.getMessage());
+					}
+				}
 			}
 		}
 	}
 
 	// Tell listeners about detached readers
 	protected void listenersTerminalsDetached(Set<CardTerminal> detached) {
-		for (CardTerminal terminal : detached) {
-			synchronized (cardTerminalEventsListeners) {
-				for (CardTerminalEventsListener listener : cardTerminalEventsListeners)
-					listener.terminalDetached(terminal);
+		if (!detached.isEmpty()) {
+			Set<CardTerminalEventsListener> copyOfListeners;
+
+			synchronized (this.cardTerminalEventsListeners) {
+				copyOfListeners = new HashSet<CardTerminalEventsListener>(
+						this.cardTerminalEventsListeners);
+			}
+
+			for (CardTerminal terminal : detached) {
+				for (CardTerminalEventsListener listener : copyOfListeners) {
+					try {
+						listener.terminalDetached(terminal);
+					} catch (Exception thrownInListener) {
+						//this.logger.error("Exception thrown in CardTerminalEventsListener.terminalDetached:" + thrownInListener.getMessage());
+					}
+				}
 			}
 		}
 	}
 
 	// Tell listeners about removed cards
 	protected void listenersTerminalsWithCardsRemoved(Set<CardTerminal> removed) {
-		for (CardTerminal terminal : removed) {
-			synchronized (cardEventsListeners) {
-				for (CardEventsListener listener : cardEventsListeners)
-					listener.cardRemoved(terminal);
+		if (!removed.isEmpty()) {
+			Set<CardEventsListener> copyOfListeners;
+
+			synchronized (this.cardTerminalEventsListeners) {
+				copyOfListeners = new HashSet<CardEventsListener>(
+						this.cardEventsListeners);
 			}
 
+			for (CardTerminal terminal : removed) {
+				for (CardEventsListener listener : copyOfListeners) {
+					try {
+						listener.cardRemoved(terminal);
+					} catch (Exception thrownInListener) {
+						//this.logger.error("Exception thrown in CardEventsListener.cardRemoved:" + thrownInListener.getMessage());
+					}
+				}
+			}
 		}
 	}
 
@@ -463,19 +500,33 @@ public class CardAndTerminalEventsManager implements Runnable {
 	// filled out, but it may still be null, if the connect failed.
 	protected void listenersTerminalsWithCardsInserted(
 			Set<CardTerminal> inserted) {
-		for (CardTerminal terminal : inserted) {
-			Card card = null;
+		if (!inserted.isEmpty()) {
+			Set<CardEventsListener> copyOfListeners;
 
-			if (autoconnect) {
-				try {
-					card = terminal.connect("*");
-				} catch (CardException cex) {
-					listenersException(cex);
-				}
+			synchronized (this.cardTerminalEventsListeners) {
+				copyOfListeners = new HashSet<CardEventsListener>(
+						this.cardEventsListeners);
 			}
-			synchronized (cardEventsListeners) {
-				for (CardEventsListener listener : cardEventsListeners)
-					listener.cardInserted(terminal, card);
+
+			for (CardTerminal terminal : inserted) {
+				Card card = null;
+
+				if (autoconnect) {
+					try {
+						card = terminal.connect("*");
+					} catch (CardException cex) {
+						listenersException(cex);
+					}
+				}
+
+				for (CardEventsListener listener : copyOfListeners) {
+					try {
+						listener.cardInserted(terminal, card);
+					} catch (Exception thrownInListener) {
+						//this.logger.error("Exception thrown in CardEventsListener.cardInserted:" + thrownInListener.getMessage());
+					}
+
+				}
 			}
 		}
 	}
@@ -488,9 +539,19 @@ public class CardAndTerminalEventsManager implements Runnable {
 				&& throwable.getMessage().equals("list() failed"))
 			return;
 
-		synchronized (cardTerminalEventsListeners) {
-			for (CardTerminalEventsListener listener : cardTerminalEventsListeners)
+		Set<CardTerminalEventsListener> copyOfListeners;
+
+		synchronized (this.cardTerminalEventsListeners) {
+			copyOfListeners = new HashSet<CardTerminalEventsListener>(
+					this.cardTerminalEventsListeners);
+		}
+
+		for (CardTerminalEventsListener listener : copyOfListeners) {
+			try {
 				listener.terminalException(throwable);
+			} catch (Exception thrownInListener) {
+				//this.logger.error("Exception thrown in CardTerminalEventsListener.terminalException:" + thrownInListener.getMessage());
+			}
 		}
 	}
 

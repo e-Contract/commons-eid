@@ -19,17 +19,13 @@
 package test.integ.be.fedict.commons.eid.client;
 
 import static org.junit.Assert.assertNotNull;
-
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-
 import javax.smartcardio.CardTerminal;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
-
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardEventsManager;
 import be.fedict.commons.eid.client.BeIDFileType;
@@ -85,37 +81,71 @@ public class BeIDCardEventsManagerTest {
 		Object waitObject = new Object();
 		beIDCardEventsManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardEventsManager, waitObject, true));
+						beIDCardEventsManager, waitObject, true, false));
 		beIDCardEventsManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardEventsManager, waitObject, false));
+						beIDCardEventsManager, waitObject, false, false));
+		beIDCardEventsManager
+				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
+						beIDCardEventsManager, waitObject, false, true));
 		beIDCardEventsManager.start();
 		synchronized (waitObject) {
 			waitObject.wait();
 		}
 	}
 
-	private final class BeIDCardEventsTestListener implements
-			BeIDCardEventsListener {
+	@Test
+	public void testExceptionsInListener() throws Exception {
+		TestLogger logger = new TestLogger();
+		BeIDCardEventsManager beIDCardEventsManager = new BeIDCardEventsManager(
+				logger);
+		Object waitObject = new Object();
+		beIDCardEventsManager
+				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
+						beIDCardEventsManager, waitObject, true, false));
+		beIDCardEventsManager
+				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
+						beIDCardEventsManager, waitObject, false, false));
+		beIDCardEventsManager
+				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
+						beIDCardEventsManager, waitObject, false, true));
+		beIDCardEventsManager.start();
+		synchronized (waitObject) {
+			waitObject.wait();
+		}
+	}
+
+	private final class BeIDCardEventsTestListener
+			implements
+				BeIDCardEventsListener {
 
 		private final Object waitObject;
 
 		private final BeIDCardEventsManager manager;
 
 		private final boolean removeAfterCardInserted;
+		private final boolean throwNPE;
 
 		public BeIDCardEventsTestListener(BeIDCardEventsManager manager,
-				Object waitObject, boolean removeAfterCardInserted) {
+				Object waitObject, boolean removeAfterCardInserted,
+				boolean throwNPE) {
 			this.manager = manager;
 			this.waitObject = waitObject;
 			this.removeAfterCardInserted = removeAfterCardInserted;
+			this.throwNPE = throwNPE;
 		}
 
 		@Override
 		public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card) {
 			LOG.debug("eID card removed");
+
 			synchronized (this.waitObject) {
 				this.waitObject.notify();
+			}
+
+			if (this.throwNPE) {
+				throw new NullPointerException(
+						"Fake NPE attempting to trash a BeIDCardEventsListener");
 			}
 		}
 
@@ -124,6 +154,11 @@ public class BeIDCardEventsManagerTest {
 			LOG.debug("eID card added");
 			if (this.removeAfterCardInserted) {
 				this.manager.removeBeIDCardListener(this);
+			}
+
+			if (this.throwNPE) {
+				throw new NullPointerException(
+						"Fake NPE attempting to trash a BeIDCardEventsListener");
 			}
 		}
 	}

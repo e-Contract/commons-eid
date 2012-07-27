@@ -28,13 +28,12 @@ import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
-
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.Logger;
 
-public class BeIDCardEventsManager implements CardEventsListener {
+public class BeIDCardEventsManager {
 	private final static byte[] ATR_PATTERN = new byte[]{0x3b, (byte) 0x98,
 			0x00, 0x40, 0x00, (byte) 0x00, 0x00, 0x00, 0x01, 0x01, (byte) 0xad,
 			0x13, 0x10};
@@ -91,7 +90,110 @@ public class BeIDCardEventsManager implements CardEventsListener {
 		this.otherCardListeners = new HashSet<CardEventsListener>();
 		this.terminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
 		this.cardAndTerminalEventsManager = cardAndTerminalEventsManager;
-		this.cardAndTerminalEventsManager.addCardListener(this);
+		this.cardAndTerminalEventsManager
+				.addCardListener(new CardEventsListener() {
+					@Override
+					public void cardInserted(CardTerminal cardTerminal,
+							Card card) {
+						if (card != null && matchesEidAtr(card.getATR())) {
+							BeIDCard beIDCard = new BeIDCard(card,
+									BeIDCardEventsManager.this.logger);
+
+							synchronized (BeIDCardEventsManager.this.terminalsAndCards) {
+								BeIDCardEventsManager.this.terminalsAndCards
+										.put(cardTerminal, beIDCard);
+							}
+
+							Set<BeIDCardEventsListener> copyOfListeners = null;
+
+							synchronized (BeIDCardEventsManager.this.beIdListeners) {
+								copyOfListeners = new HashSet<BeIDCardEventsListener>(
+										BeIDCardEventsManager.this.beIdListeners);
+							}
+
+							for (BeIDCardEventsListener listener : copyOfListeners) {
+								try {
+									listener.eIDCardInserted(cardTerminal,
+											beIDCard);
+								} catch (Throwable thrownInListener) {
+									BeIDCardEventsManager.this.logger
+											.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:"
+													+ thrownInListener
+															.getMessage());
+								}
+							}
+						} else {
+							Set<CardEventsListener> copyOfListeners = null;
+
+							synchronized (BeIDCardEventsManager.this.otherCardListeners) {
+								copyOfListeners = new HashSet<CardEventsListener>(
+										BeIDCardEventsManager.this.otherCardListeners);
+							}
+
+							for (CardEventsListener listener : copyOfListeners) {
+								try {
+									listener.cardInserted(cardTerminal, card);
+								} catch (Throwable thrownInListener) {
+									BeIDCardEventsManager.this.logger
+											.error("Exception thrown in CardEventsListener.cardInserted:"
+													+ thrownInListener
+															.getMessage());
+								}
+							}
+						}
+					}
+
+					@Override
+					public void cardRemoved(CardTerminal cardTerminal) {
+						BeIDCard beIDCard = BeIDCardEventsManager.this.terminalsAndCards
+								.get(cardTerminal);
+						if (beIDCard != null) {
+							synchronized (BeIDCardEventsManager.this.terminalsAndCards) {
+								BeIDCardEventsManager.this.terminalsAndCards
+										.remove(cardTerminal);
+							}
+
+							Set<BeIDCardEventsListener> copyOfListeners = null;
+
+							synchronized (BeIDCardEventsManager.this.beIdListeners) {
+								copyOfListeners = new HashSet<BeIDCardEventsListener>(
+										BeIDCardEventsManager.this.beIdListeners);
+							}
+
+							for (BeIDCardEventsListener listener : copyOfListeners) {
+								try {
+									listener.eIDCardRemoved(cardTerminal,
+											beIDCard);
+								} catch (Throwable thrownInListener) {
+									BeIDCardEventsManager.this.logger
+											.error("Exception thrown in BeIDCardEventsListener.eIDCardRemoved:"
+													+ thrownInListener
+															.getMessage());
+								}
+
+							}
+						} else {
+							Set<CardEventsListener> copyOfListeners = null;
+
+							synchronized (BeIDCardEventsManager.this.otherCardListeners) {
+								copyOfListeners = new HashSet<CardEventsListener>(
+										BeIDCardEventsManager.this.otherCardListeners);
+							}
+
+							for (CardEventsListener listener : copyOfListeners) {
+								try {
+									listener.cardRemoved(cardTerminal);
+								} catch (Throwable thrownInListener) {
+									BeIDCardEventsManager.this.logger
+											.error("Exception thrown in CardEventsListener.cardRemoved:"
+													+ thrownInListener
+															.getMessage());
+								}
+							}
+						}
+
+					}
+				});
 		updateTerminalsAndCards();
 	}
 
@@ -138,7 +240,7 @@ public class BeIDCardEventsManager implements CardEventsListener {
 		return this;
 	}
 
-	public BeIDCardEventsManager stop() {
+	public BeIDCardEventsManager stop() throws InterruptedException {
 		if (terminalManagerIsPrivate)
 			cardAndTerminalEventsManager.stop();
 		return this;
@@ -236,46 +338,5 @@ public class BeIDCardEventsManager implements CardEventsListener {
 		if (Arrays.equals(atrBytes, ATR_PATTERN))
 			return true;
 		return false;
-	}
-
-	@Override
-	public void cardInserted(CardTerminal cardTerminal, Card card) {
-		if (card != null && matchesEidAtr(card.getATR())) {
-			BeIDCard beIDCard = new BeIDCard(card, logger);
-
-			synchronized (terminalsAndCards) {
-				terminalsAndCards.put(cardTerminal, beIDCard);
-			}
-
-			synchronized (beIdListeners) {
-				for (BeIDCardEventsListener listener : beIdListeners)
-					listener.eIDCardInserted(cardTerminal, beIDCard);
-			}
-		} else {
-			synchronized (otherCardListeners) {
-				for (CardEventsListener listener : otherCardListeners)
-					listener.cardInserted(cardTerminal, card);
-			}
-		}
-	}
-
-	@Override
-	public void cardRemoved(CardTerminal cardTerminal) {
-		BeIDCard beIDCard = terminalsAndCards.get(cardTerminal);
-		if (beIDCard != null) {
-			synchronized (terminalsAndCards) {
-				terminalsAndCards.remove(cardTerminal);
-			}
-
-			synchronized (beIdListeners) {
-				for (BeIDCardEventsListener listener : beIdListeners)
-					listener.eIDCardRemoved(cardTerminal, beIDCard);
-			}
-		} else {
-			synchronized (otherCardListeners) {
-				for (CardEventsListener listener : otherCardListeners)
-					listener.cardRemoved(cardTerminal);
-			}
-		}
 	}
 }

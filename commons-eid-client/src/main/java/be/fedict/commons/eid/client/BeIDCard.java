@@ -20,6 +20,7 @@ package be.fedict.commons.eid.client;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,35 +31,57 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
+import javax.smartcardio.CardChannel;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
+import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
-
+import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.CCID;
-import be.fedict.commons.eid.client.impl.Digest;
-import be.fedict.commons.eid.client.spi.Dialogs;
+import be.fedict.commons.eid.client.impl.BeIDDigest;
+import be.fedict.commons.eid.client.impl.VoidLogger;
+import be.fedict.commons.eid.client.spi.UI;
 import be.fedict.commons.eid.client.spi.Logger;
 
-public class BeIDCard extends BELPICCard {
-	private Dialogs dialogs;
+public class BeIDCard {
+	private static final byte[] BELPIC_AID = new byte[]{(byte) 0xA0, 0x00,
+			0x00, 0x01, 0x77, 0x50, 0x4B, 0x43, 0x53, 0x2D, 0x31, 0x35};
+	private static final byte[] APPLET_AID = new byte[]{(byte) 0xA0, 0x00,
+			0x00, 0x00, 0x30, 0x29, 0x05, 0x70, 0x00, (byte) 0xAD, 0x13, 0x10,
+			0x01, 0x01, (byte) 0xFF};
+	private static final int BLOCK_SIZE = 0xff;
+
+	private final CardChannel cardChannel;
+	private final List<BeIDCardListener> cardListeners;
+
+	private final Card card;
+	private final Logger logger;
+	private UI userInterface;
 	private Locale locale;
 
 	public BeIDCard(Card card, Logger logger) {
-		super(card, logger);
+		this.card = card;
+		this.cardChannel = card.getBasicChannel();
+		if (null == logger) {
+			throw new IllegalArgumentException("logger expected");
+		}
+		this.logger = logger;
+		this.cardListeners = new LinkedList<BeIDCardListener>();
 	}
 
 	public BeIDCard(Card card) {
-		super(card);
+		this(card, new VoidLogger());
 	}
 
 	public BeIDCard(CardTerminal cardTerminal, Logger logger)
 			throws CardException {
-		super(cardTerminal, logger);
+		this(cardTerminal.connect("T=0"), logger);
 	}
 
 	public BeIDCard(CardTerminal cardTerminal) throws CardException {
-		super(cardTerminal);
+		this(cardTerminal.connect("T=0"));
 	}
 
 	/*
@@ -148,18 +171,23 @@ public class BeIDCard extends BELPICCard {
 	 * Signing data
 	 */
 
-	public byte[] sign(byte[] digestValue, String digestAlgo, byte keyId,
-			boolean requireSecureReader) throws CardException, IOException,
-			InterruptedException {
-		Integer directPinVerifyFeature = CCID.getFeature(getCard(),
+	public byte[] sign(byte[] digestValue, BeIDDigest digest,
+			BeIDFileType fileType, boolean requireSecureReader)
+			throws CardException, IOException, InterruptedException {
+		if (!fileType.isCertificateUserCanSignWith())
+			throw new IllegalArgumentException(
+					"Not a certificate that can be used for signing: "
+							+ fileType.name());
+
+		Integer directPinVerifyFeature = CCID.getFeature(this.card,
 				CCID.FEATURE_VERIFY_PIN_DIRECT_TAG);
-		Integer verifyPinStartFeature = CCID.getFeature(getCard(),
+		Integer verifyPinStartFeature = CCID.getFeature(this.card,
 				CCID.FEATURE_VERIFY_PIN_START_TAG);
-		Integer eIDPINPadReaderFeature = CCID.getFeature(getCard(),
+		Integer eIDPINPadReaderFeature = CCID.getFeature(this.card,
 				CCID.FEATURE_EID_PIN_PAD_READER_TAG);
 
 		if (null != eIDPINPadReaderFeature) {
-			getLogger().debug("eID-aware secure PIN pad reader detected");
+			this.logger.debug("eID-aware secure PIN pad reader detected");
 		}
 
 		if (requireSecureReader && null == directPinVerifyFeature
@@ -167,10 +195,8 @@ public class BeIDCard extends BELPICCard {
 			throw new SecurityException("not a secure reader");
 		}
 
-		Digest digest = Digest.byName(digestAlgo);
-
 		// select the key
-		getLogger().debug("selecting key...");
+		this.logger.debug("selecting key...");
 
 		ResponseAPDU responseApdu = transmitCommand(
 				BeIDCommandAPDU.SELECT_ALGORITHM_AND_PRIVATE_KEY, new byte[]{
@@ -179,7 +205,7 @@ public class BeIDCard extends BELPICCard {
 						// following
 						// data
 						(byte) 0x80, digest.getAlgorithmReference(), // algorithm reference
-						(byte) 0x84, keyId}); // private key reference
+						(byte) 0x84, fileType.getKeyId()}); // private key reference
 
 		if (0x9000 != responseApdu.getSW()) {
 			throw new ResponseAPDUException(
@@ -187,9 +213,9 @@ public class BeIDCard extends BELPICCard {
 					responseApdu);
 		}
 
-		if (BeIDFileType.SigningCertificate.getKeyId() == keyId) {
-			getLogger().debug(
-					"non-repudiation key detected, immediate PIN verify");
+		if (BeIDFileType.SigningCertificate.getKeyId() == fileType.getKeyId()) {
+			this.logger
+					.debug("non-repudiation key detected, immediate PIN verify");
 			verifyPin(directPinVerifyFeature, verifyPinStartFeature);
 		}
 
@@ -197,7 +223,7 @@ public class BeIDCard extends BELPICCard {
 		digestInfo.write(digest.getPrefix(digestValue.length));
 		digestInfo.write(digestValue);
 
-		getLogger().debug("computing digital signature...");
+		this.logger.debug("computing digital signature...");
 		responseApdu = transmitCommand(
 				BeIDCommandAPDU.COMPUTE_DIGITAL_SIGNATURE, digestInfo
 						.toByteArray());
@@ -211,8 +237,8 @@ public class BeIDCard extends BELPICCard {
 			return responseApdu.getData();
 		}
 		if (0x6982 != responseApdu.getSW()) {
-			getLogger().debug(
-					"SW: " + Integer.toHexString(responseApdu.getSW()));
+			this.logger.debug("SW: "
+					+ Integer.toHexString(responseApdu.getSW()));
 			throw new ResponseAPDUException("compute digital signature error",
 					responseApdu);
 		}
@@ -220,12 +246,11 @@ public class BeIDCard extends BELPICCard {
 		 * 0x6982 = Security status not satisfied, so we do a PIN verification
 		 * before retrying.
 		 */
-		getLogger().debug("PIN verification required...");
+		this.logger.debug("PIN verification required...");
 		verifyPin(directPinVerifyFeature, verifyPinStartFeature);
 
-		getLogger()
-				.debug(
-						"computing digital signature (attempt #2 after PIN verification)...");
+		this.logger
+				.debug("computing digital signature (attempt #2 after PIN verification)...");
 		responseApdu = transmitCommand(
 				BeIDCommandAPDU.COMPUTE_DIGITAL_SIGNATURE, digestInfo
 						.toByteArray());
@@ -244,10 +269,11 @@ public class BeIDCard extends BELPICCard {
 	public byte[] signAuthn(byte[] toBeSigned, boolean requireSecureReader)
 			throws NoSuchAlgorithmException, CardException, IOException,
 			InterruptedException {
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+		MessageDigest messageDigest = BeIDDigest.SHA_1
+				.getMessageDigestInstance();
 		byte[] digest = messageDigest.digest(toBeSigned);
-		return sign(digest, "SHA-1", BeIDFileType.AuthentificationCertificate
-				.getKeyId(), requireSecureReader);
+		return sign(digest, BeIDDigest.SHA_1,
+				BeIDFileType.AuthentificationCertificate, requireSecureReader);
 	}
 
 	/*
@@ -256,9 +282,9 @@ public class BeIDCard extends BELPICCard {
 
 	public void verifyPin() throws IOException, CardException,
 			InterruptedException {
-		Integer directPinVerifyFeature = CCID.getFeature(getCard(),
+		Integer directPinVerifyFeature = CCID.getFeature(this.card,
 				CCID.FEATURE_VERIFY_PIN_DIRECT_TAG);
-		Integer verifyPinStartFeature = CCID.getFeature(getCard(),
+		Integer verifyPinStartFeature = CCID.getFeature(this.card,
 				CCID.FEATURE_VERIFY_PIN_START_TAG);
 		verifyPin(directPinVerifyFeature, verifyPinStartFeature);
 	}
@@ -268,9 +294,9 @@ public class BeIDCard extends BELPICCard {
 	 */
 
 	public void changePin(boolean requireSecureReader) throws Exception {
-		Integer directPinModifyFeature = CCID.getFeature(getCard(),
+		Integer directPinModifyFeature = CCID.getFeature(this.card,
 				CCID.FEATURE_MODIFY_PIN_DIRECT_TAG);
-		Integer modifyPinStartFeature = CCID.getFeature(getCard(),
+		Integer modifyPinStartFeature = CCID.getFeature(this.card,
 				CCID.FEATURE_MODIFY_PIN_START_TAG);
 
 		if (requireSecureReader && null == directPinModifyFeature
@@ -282,11 +308,11 @@ public class BeIDCard extends BELPICCard {
 		ResponseAPDU responseApdu;
 		do {
 			if (null != modifyPinStartFeature) {
-				getLogger().debug("using modify pin start/finish...");
+				this.logger.debug("using modify pin start/finish...");
 				responseApdu = doChangePinStartFinish(retriesLeft,
 						modifyPinStartFeature);
 			} else if (null != directPinModifyFeature) {
-				getLogger().debug("could use direct PIN modify here...");
+				this.logger.debug("could use direct PIN modify here...");
 				responseApdu = doChangePinDirect(retriesLeft,
 						directPinModifyFeature);
 			} else {
@@ -294,24 +320,78 @@ public class BeIDCard extends BELPICCard {
 			}
 
 			if (0x9000 != responseApdu.getSW()) {
-				getLogger().debug("CHANGE PIN error");
-				getLogger().debug(
-						"SW: " + Integer.toHexString(responseApdu.getSW()));
+				this.logger.debug("CHANGE PIN error");
+				this.logger.debug("SW: "
+						+ Integer.toHexString(responseApdu.getSW()));
 				if (0x6983 == responseApdu.getSW()) {
-					this.dialogs.advisePINBlocked();
+					this.userInterface.advisePINBlocked();
 					throw new ResponseAPDUException("eID card blocked!",
 							responseApdu);
 				}
 				if (0x63 != responseApdu.getSW1()) {
-					getLogger().debug("PIN change error. Card blocked?");
+					this.logger.debug("PIN change error. Card blocked?");
 					throw new ResponseAPDUException("PIN Change Error",
 							responseApdu);
 				}
 				retriesLeft = responseApdu.getSW2() & 0xf;
-				getLogger().debug("retries left: " + retriesLeft);
+				this.logger.debug("retries left: " + retriesLeft);
 			}
 		} while (0x9000 != responseApdu.getSW());
-		this.dialogs.advisePINChanged();
+		this.userInterface.advisePINChanged();
+	}
+
+	/*
+	 * 
+	 */
+
+	public byte[] getChallenge(int size) throws CardException {
+		ResponseAPDU responseApdu = transmitCommand(
+				BeIDCommandAPDU.GET_CHALLENGE, new byte[]{}, 0, 0, size);
+		if (0x9000 != responseApdu.getSW()) {
+			this.logger.debug("get challenge failure: "
+					+ Integer.toHexString(responseApdu.getSW()));
+			throw new ResponseAPDUException("get challenge failure: "
+					+ Integer.toHexString(responseApdu.getSW()), responseApdu);
+		}
+		if (size != responseApdu.getData().length) {
+			throw new RuntimeException("challenge size incorrect: "
+					+ responseApdu.getData().length);
+		}
+		return responseApdu.getData();
+	}
+
+	/*
+	 * 
+	 */
+
+	public byte[] signTransactionMessage(String transactionMessage,
+			boolean requireSecureReader) throws CardException, IOException,
+			InterruptedException {
+		Integer eIDPINPadReaderFeature = CCID.getFeature(this.card,
+				CCID.FEATURE_EID_PIN_PAD_READER_TAG);
+		if (null != eIDPINPadReaderFeature) {
+			this.userInterface.adviseSecureReaderOperation();
+		}
+		byte[] signature;
+		try {
+			signature = sign(transactionMessage.getBytes(),
+					BeIDDigest.PLAIN_TEXT,
+					BeIDFileType.AuthentificationCertificate,
+					requireSecureReader);
+		} finally {
+			if (null != eIDPINPadReaderFeature) {
+				this.userInterface.adviseSecureReaderOperationEnd();
+			}
+		}
+		return signature;
+	}
+
+	/*
+	 * returns this card's ATR
+	 */
+
+	public ATR getATR() {
+		return this.card.getATR();
 	}
 
 	/*
@@ -334,21 +414,21 @@ public class BeIDCard extends BELPICCard {
 				responseApdu = verifyPin(retriesLeft);
 			}
 			if (0x9000 != responseApdu.getSW()) {
-				getLogger().debug("VERIFY_PIN error");
-				getLogger().debug(
-						"SW: " + Integer.toHexString(responseApdu.getSW()));
+				this.logger.debug("VERIFY_PIN error");
+				this.logger.debug("SW: "
+						+ Integer.toHexString(responseApdu.getSW()));
 				if (0x6983 == responseApdu.getSW()) {
-					this.dialogs.advisePINBlocked();
+					this.userInterface.advisePINBlocked();
 					throw new ResponseAPDUException("eID card blocked!",
 							responseApdu);
 				}
 				if (0x63 != responseApdu.getSW1()) {
-					getLogger().debug("PIN verification error.");
+					this.logger.debug("PIN verification error.");
 					throw new ResponseAPDUException("PIN Verification Error",
 							responseApdu);
 				}
 				retriesLeft = responseApdu.getSW2() & 0xf;
-				getLogger().debug("retries left: " + retriesLeft);
+				this.logger.debug("retries left: " + retriesLeft);
 			}
 		} while (0x9000 != responseApdu.getSW());
 	}
@@ -358,19 +438,19 @@ public class BeIDCard extends BELPICCard {
 	private ResponseAPDU verifyPin(int retriesLeft,
 			Integer verifyPinStartFeature) throws IOException, CardException,
 			InterruptedException {
-		getLogger().debug("CCID verify PIN start/end sequence...");
+		this.logger.debug("CCID verify PIN start/end sequence...");
 		byte[] verifyCommandData = CCID.createPINVerificationDataStructure(
 				getLocale(), 0x20);
-		this.dialogs.advisePINPadPINEntry(retriesLeft);
+		this.userInterface.advisePINPadPINEntry(retriesLeft);
 		try {
-			int getKeyPressedFeature = CCID.getFeature(getCard(),
+			int getKeyPressedFeature = CCID.getFeature(this.card,
 					CCID.FEATURE_GET_KEY_PRESSED_TAG);
 			transmitControlCommand(verifyPinStartFeature, verifyCommandData);
-			CCID.waitForOK(getCard(), getKeyPressedFeature);
+			CCID.waitForOK(this.card, getKeyPressedFeature);
 		} finally {
-			this.dialogs.advisePINPadOperationEnd();
+			this.userInterface.advisePINPadOperationEnd();
 		}
-		int verifyPinFinishIoctl = CCID.getFeature(getCard(),
+		int verifyPinFinishIoctl = CCID.getFeature(this.card,
 				CCID.FEATURE_VERIFY_PIN_FINISH_TAG);
 		byte[] verifyPinFinishResult = transmitControlCommand(
 				verifyPinFinishIoctl, new byte[0]);
@@ -382,33 +462,33 @@ public class BeIDCard extends BELPICCard {
 
 	private ResponseAPDU verifyPinDirect(int retriesLeft,
 			Integer directPinVerifyFeature) throws IOException, CardException {
-		getLogger().debug("direct PIN verification...");
+		this.logger.debug("direct PIN verification...");
 		byte[] verifyCommandData = CCID.createPINVerificationDataStructure(
 				getLocale(), 0x20);
-		this.dialogs.advisePINPadPINEntry(retriesLeft);
+		this.userInterface.advisePINPadPINEntry(retriesLeft);
 		byte[] result;
 		try {
 			result = transmitControlCommand(directPinVerifyFeature,
 					verifyCommandData);
 		} finally {
-			this.dialogs.advisePINPadOperationEnd();
+			this.userInterface.advisePINPadOperationEnd();
 		}
 		ResponseAPDU responseApdu = new ResponseAPDU(result);
 		if (0x6401 == responseApdu.getSW()) {
-			getLogger().debug("canceled by user");
+			this.logger.debug("canceled by user");
 			SecurityException securityException = new SecurityException(
 					"canceled by user");
 			securityException
 					.initCause(new ResponseAPDUException(responseApdu));
 			throw securityException;
 		} else if (0x6400 == responseApdu.getSW()) {
-			getLogger().debug("PIN pad timeout");
+			this.logger.debug("PIN pad timeout");
 		}
 		return responseApdu;
 	}
 
 	private ResponseAPDU verifyPin(int retriesLeft) throws CardException {
-		char[] pin = this.dialogs.obtainPIN(retriesLeft);
+		char[] pin = this.userInterface.obtainPIN(retriesLeft);
 		byte[] verifyData = new byte[]{(byte) (0x20 | pin.length), (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF};
@@ -425,7 +505,7 @@ public class BeIDCard extends BELPICCard {
 		}
 		Arrays.fill(pin, (char) 0); // minimize exposure
 
-		getLogger().debug("verifying PIN...");
+		this.logger.debug("verifying PIN...");
 		try {
 			return transmitCommand(BeIDCommandAPDU.VERIFY_PIN, verifyData);
 		} finally {
@@ -444,28 +524,28 @@ public class BeIDCard extends BELPICCard {
 		byte[] modifyCommandData = CCID.createPINModificationDataStructure(
 				getLocale(), 0x24);
 		transmitControlCommand(modifyPinStartFeature, modifyCommandData);
-		int getKeyPressedFeature = CCID.getFeature(getCard(),
+		int getKeyPressedFeature = CCID.getFeature(this.card,
 				CCID.FEATURE_GET_KEY_PRESSED_TAG);
 
 		try {
-			getLogger().debug("enter old PIN...");
-			this.dialogs.advisePINPadOldPINEntry(retriesLeft);
-			CCID.waitForOK(getCard(), getKeyPressedFeature);
-			this.dialogs.advisePINPadOperationEnd();
+			this.logger.debug("enter old PIN...");
+			this.userInterface.advisePINPadOldPINEntry(retriesLeft);
+			CCID.waitForOK(this.card, getKeyPressedFeature);
+			this.userInterface.advisePINPadOperationEnd();
 
-			this.dialogs.advisePINPadNewPINEntry(retriesLeft);
-			getLogger().debug("enter new PIN...");
-			CCID.waitForOK(getCard(), getKeyPressedFeature);
-			this.dialogs.advisePINPadOperationEnd();
+			this.userInterface.advisePINPadNewPINEntry(retriesLeft);
+			this.logger.debug("enter new PIN...");
+			CCID.waitForOK(this.card, getKeyPressedFeature);
+			this.userInterface.advisePINPadOperationEnd();
 
-			this.dialogs.advisePINPadNewPINEntryAgain(retriesLeft);
-			getLogger().debug("enter new PIN again...");
-			CCID.waitForOK(getCard(), getKeyPressedFeature);
+			this.userInterface.advisePINPadNewPINEntryAgain(retriesLeft);
+			this.logger.debug("enter new PIN again...");
+			CCID.waitForOK(this.card, getKeyPressedFeature);
 		} finally {
-			this.dialogs.advisePINPadOperationEnd();
+			this.userInterface.advisePINPadOperationEnd();
 		}
 
-		int modifyPinFinishIoctl = CCID.getFeature(getCard(),
+		int modifyPinFinishIoctl = CCID.getFeature(this.card,
 				CCID.FEATURE_MODIFY_PIN_FINISH_TAG);
 		byte[] modifyPinFinishResult = transmitControlCommand(
 				modifyPinFinishIoctl, new byte[0]);
@@ -474,35 +554,35 @@ public class BeIDCard extends BELPICCard {
 
 	private ResponseAPDU doChangePinDirect(int retriesLeft,
 			Integer directPinModifyFeature) throws IOException, CardException {
-		getLogger().debug("direct PIN modification...");
+		this.logger.debug("direct PIN modification...");
 		byte[] modifyCommandData = CCID.createPINModificationDataStructure(
 				getLocale(), 0x24);
-		this.dialogs.advisePINPadChangePIN(retriesLeft);
+		this.userInterface.advisePINPadChangePIN(retriesLeft);
 		byte[] result;
 		try {
 			result = transmitControlCommand(directPinModifyFeature,
 					modifyCommandData);
 		} finally {
-			this.dialogs.advisePINPadOperationEnd();
+			this.userInterface.advisePINPadOperationEnd();
 		}
 		ResponseAPDU responseApdu = new ResponseAPDU(result);
 		if (0x6402 == responseApdu.getSW()) {
-			getLogger().debug("PINs differ");
+			this.logger.debug("PINs differ");
 		} else if (0x6401 == responseApdu.getSW()) {
-			getLogger().debug("canceled by user");
+			this.logger.debug("canceled by user");
 			SecurityException securityException = new SecurityException(
 					"canceled by user");
 			securityException
 					.initCause(new ResponseAPDUException(responseApdu));
 			throw securityException;
 		} else if (0x6400 == responseApdu.getSW()) {
-			getLogger().debug("PIN pad timeout");
+			this.logger.debug("PIN pad timeout");
 		}
 		return responseApdu;
 	}
 
 	private ResponseAPDU doChangePin(int retriesLeft) throws CardException {
-		char[][] pins = this.dialogs.obtainOldAndNewPIN(retriesLeft);
+		char[][] pins = this.userInterface.obtainOldAndNewPIN(retriesLeft);
 		char[] oldPin = pins[0];
 		char[] newPin = pins[1];
 
@@ -550,7 +630,7 @@ public class BeIDCard extends BELPICCard {
 	 */
 
 	public void unblockPin(boolean requireSecureReader) throws Exception {
-		Integer directPinVerifyFeature = CCID.getFeature(getCard(),
+		Integer directPinVerifyFeature = CCID.getFeature(this.card,
 				CCID.FEATURE_VERIFY_PIN_DIRECT_TAG);
 
 		if (requireSecureReader && null == directPinVerifyFeature) {
@@ -561,7 +641,7 @@ public class BeIDCard extends BELPICCard {
 		int retriesLeft = -1;
 		do {
 			if (null != directPinVerifyFeature) {
-				getLogger().debug("could use direct PIN verify here...");
+				this.logger.debug("could use direct PIN verify here...");
 				responseApdu = verifyPukDirect(retriesLeft,
 						directPinVerifyFeature);
 			} else {
@@ -569,28 +649,28 @@ public class BeIDCard extends BELPICCard {
 			}
 
 			if (0x9000 != responseApdu.getSW()) {
-				getLogger().debug("PIN unblock error");
-				getLogger().debug(
-						"SW: " + Integer.toHexString(responseApdu.getSW()));
+				this.logger.debug("PIN unblock error");
+				this.logger.debug("SW: "
+						+ Integer.toHexString(responseApdu.getSW()));
 				if (0x6983 == responseApdu.getSW()) {
-					this.dialogs.advisePINBlocked();
+					this.userInterface.advisePINBlocked();
 					throw new ResponseAPDUException("eID card blocked!",
 							responseApdu);
 				}
 				if (0x63 != responseApdu.getSW1()) {
-					getLogger().debug("PIN unblock error.");
+					this.logger.debug("PIN unblock error.");
 					throw new ResponseAPDUException("PIN unblock error",
 							responseApdu);
 				}
 				retriesLeft = responseApdu.getSW2() & 0xf;
-				getLogger().debug("retries left: " + retriesLeft);
+				this.logger.debug("retries left: " + retriesLeft);
 			}
 		} while (0x9000 != responseApdu.getSW());
-		this.dialogs.advisePINUnblocked();
+		this.userInterface.advisePINUnblocked();
 	}
 
 	private ResponseAPDU doUnblockPin(int retriesLeft) throws CardException {
-		char[][] puks = this.dialogs.obtainPUKCodes(retriesLeft);
+		char[][] puks = this.userInterface.obtainPUKCodes(retriesLeft);
 		char[] puk1 = puks[0];
 		char[] puk2 = puks[1];
 
@@ -622,27 +702,27 @@ public class BeIDCard extends BELPICCard {
 
 	private ResponseAPDU verifyPukDirect(int retriesLeft,
 			Integer directPinVerifyFeature) throws IOException, CardException {
-		getLogger().debug("direct PUK verification...");
+		this.logger.debug("direct PUK verification...");
 		byte[] verifyCommandData = CCID.createPINVerificationDataStructure(
 				getLocale(), 0x2C);
-		this.dialogs.advisePINPadPUKEntry(retriesLeft);
+		this.userInterface.advisePINPadPUKEntry(retriesLeft);
 		byte[] result;
 		try {
 			result = transmitControlCommand(directPinVerifyFeature,
 					verifyCommandData);
 		} finally {
-			this.dialogs.advisePINPadOperationEnd();
+			this.userInterface.advisePINPadOperationEnd();
 		}
 		ResponseAPDU responseApdu = new ResponseAPDU(result);
 		if (0x6401 == responseApdu.getSW()) {
-			getLogger().debug("canceled by user");
+			this.logger.debug("canceled by user");
 			SecurityException securityException = new SecurityException(
 					"canceled by user");
 			securityException
 					.initCause(new ResponseAPDUException(responseApdu));
 			throw securityException;
 		} else if (0x6400 == responseApdu.getSW()) {
-			getLogger().debug("PIN pad timeout");
+			this.logger.debug("PIN pad timeout");
 		}
 		return responseApdu;
 	}
@@ -655,5 +735,279 @@ public class BeIDCard extends BELPICCard {
 
 	public void setLocale(Locale locale) {
 		this.locale = locale;
+	}
+
+	public BeIDCard addCardListener(BeIDCardListener beIDCardListener) {
+		synchronized (this.cardListeners) {
+			this.cardListeners.add(beIDCardListener);
+		}
+
+		return this;
+	}
+
+	public BeIDCard removeCardListener(BeIDCardListener beIDCardListener) {
+		synchronized (this.cardListeners) {
+			this.cardListeners.remove(beIDCardListener);
+		}
+
+		return this;
+	}
+
+	public BeIDCard selectApplet() throws CardException {
+		ResponseAPDU responseApdu;
+
+		responseApdu = transmitCommand(BeIDCommandAPDU.SELECT_APPLET_0,
+				BELPIC_AID);
+		if (0x9000 != responseApdu.getSW()) {
+			logger.error("error selecting BELPIC");
+			logger.debug("status word: "
+					+ Integer.toHexString(responseApdu.getSW()));
+			/*
+			 * Try to select the Applet.
+			 */
+			try {
+				responseApdu = transmitCommand(BeIDCommandAPDU.SELECT_APPLET_1,
+						APPLET_AID);
+			} catch (CardException e) {
+				logger.error("error selecting Applet");
+				return this;
+			}
+			if (0x9000 != responseApdu.getSW()) {
+				logger.error("could not select applet");
+			} else {
+				logger.debug("BELPIC JavaCard applet selected by APPLET_AID");
+			}
+		} else {
+			logger.debug("BELPIC JavaCard applet selected by BELPIC_AID");
+		}
+
+		return this;
+	}
+
+	// --------------------------------------------------------------------------------------------------------------------------------
+
+	public BeIDCard beginExclusive() throws CardException {
+		this.logger.debug("---begin exclusive---");
+		this.card.beginExclusive();
+		return this;
+	}
+
+	public BeIDCard endExclusive() throws CardException {
+		this.logger.debug("---end exclusive---");
+		this.card.endExclusive();
+		return this;
+	}
+
+	// --------------------------------------------------------------------------------------------------------------------------------
+
+	public byte[] readBinary(int estimatedMaxSize) throws CardException,
+			IOException {
+		int offset = 0;
+		this.logger.debug("read binary");
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] data;
+		do {
+			notifyReadProgress(offset, estimatedMaxSize);
+			ResponseAPDU responseApdu = transmitCommand(
+					BeIDCommandAPDU.READ_BINARY, offset >> 8, offset & 0xFF,
+					BLOCK_SIZE);
+			int sw = responseApdu.getSW();
+			if (0x6B00 == sw) {
+				/*
+				 * Wrong parameters (offset outside the EF) End of file reached.
+				 * Can happen in case the file size is a multiple of 0xff bytes.
+				 */
+				break;
+			}
+
+			if (0x9000 != sw) {
+				IOException ioEx = new IOException(
+						"BeIDCommandAPDU response error: "
+								+ responseApdu.getSW());
+				ioEx.initCause(new ResponseAPDUException(responseApdu));
+				throw ioEx;
+			}
+
+			data = responseApdu.getData();
+			baos.write(data);
+			offset += data.length;
+		} while (BLOCK_SIZE == data.length);
+		notifyReadProgress(offset, offset);
+		return baos.toByteArray();
+	}
+
+	public BeIDCard selectFile(byte[] fileId) throws CardException,
+			FileNotFoundException {
+		this.logger.debug("selecting file");
+		ResponseAPDU responseApdu = transmitCommand(
+				BeIDCommandAPDU.SELECT_FILE, fileId);
+		if (0x9000 != responseApdu.getSW()) {
+			FileNotFoundException fnfEx = new FileNotFoundException(
+					"wrong status word after selecting file: "
+							+ Integer.toHexString(responseApdu.getSW()));
+			fnfEx.initCause(new ResponseAPDUException(responseApdu));
+			throw fnfEx;
+		}
+
+		try {
+			// SCARD_E_SHARING_VIOLATION fix
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			throw new RuntimeException("sleep error: " + e.getMessage());
+		}
+
+		return this;
+	}
+
+	public byte[] readFile(BeIDFileType beIDFile) throws CardException,
+			IOException {
+		beginExclusive();
+
+		try {
+			selectFile(beIDFile.getFileId());
+			return readBinary(beIDFile.getEstimatedMaxSize());
+		} finally {
+			endExclusive();
+		}
+	}
+
+	public BeIDCard close() {
+		this.logger.debug("closing eID card");
+
+		try {
+			this.card.disconnect(true);
+		} catch (CardException e) {
+			this.logger.error("could not disconnect the card: "
+					+ e.getMessage());
+		}
+
+		return this;
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------------------------
+
+	protected byte[] transmitControlCommand(int controlCode, byte[] command)
+			throws CardException {
+		return this.card.transmitControlCommand(controlCode, command);
+	}
+
+	protected ResponseAPDU transmitCommand(BeIDCommandAPDU apdu, int p1,
+			int p2, int le) throws CardException {
+		return transmit(new CommandAPDU(apdu.getCla(), apdu.getIns(), p1, p2,
+				le));
+	}
+
+	protected ResponseAPDU transmitCommand(BeIDCommandAPDU apdu, byte[] data)
+			throws CardException {
+		return transmit(new CommandAPDU(apdu.getCla(), apdu.getIns(), apdu
+				.getP1(), apdu.getP2(), data));
+	}
+
+	protected ResponseAPDU transmitCommand(BeIDCommandAPDU apdu, byte[] data,
+			int dataOffset, int dataLength, int ne) throws CardException {
+		return transmit(new CommandAPDU(apdu.getCla(), apdu.getIns(), apdu
+				.getP1(), apdu.getP2(), data, dataOffset, dataLength, ne));
+	}
+
+	private ResponseAPDU transmit(CommandAPDU commandApdu) throws CardException {
+		ResponseAPDU responseApdu = this.cardChannel.transmit(commandApdu);
+		if (0x6c == responseApdu.getSW1()) {
+			/*
+			 * A minimum delay of 10 msec between the answer ?????????6C
+			 * xx????????? and the next BeIDCommandAPDU is mandatory for eID
+			 * v1.0 and v1.1 cards.
+			 */
+			this.logger.debug("sleeping...");
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				throw new RuntimeException("cannot sleep");
+			}
+			responseApdu = this.cardChannel.transmit(commandApdu);
+		}
+		return responseApdu;
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------------------------
+
+	private void notifyReadProgress(int offset, int estimatedMaxOffset) {
+		if (offset > estimatedMaxOffset) {
+			estimatedMaxOffset = offset;
+		}
+
+		synchronized (this.cardListeners) {
+			for (BeIDCardListener listener : this.cardListeners) {
+				listener.notifyReadProgress(offset, estimatedMaxOffset);
+			}
+		}
+	}
+
+	/*
+	 * BeIDCommandAPDU encapsulates values sent in CommandAPDU's, to make these more readable in
+	 * BeIDCard.
+	 */
+
+	private enum BeIDCommandAPDU {
+		SELECT_APPLET_0(0x00, 0xA4, 0x04, 0x0C),
+
+		SELECT_APPLET_1(0x00, 0xA4, 0x04, 0x0C),
+
+		SELECT_FILE(0x00, 0xA4, 0x08, 0x0C),
+
+		READ_BINARY(0x00, 0xB0),
+
+		VERIFY_PIN(0x00, 0x20, 0x00, 0x01),
+
+		CHANGE_PIN(0x00, 0x24, 0x00, 0x01), // 0x0024=change
+		// reference
+		// change
+		SELECT_ALGORITHM_AND_PRIVATE_KEY(0x00, 0x22, 0x41, 0xB6), // ISO 7816-8 SET
+		// COMMAND
+		// (select
+		// algorithm and
+		// key for
+		// signature)
+
+		COMPUTE_DIGITAL_SIGNATURE(0x00, 0x2A, 0x9E, 0x9A), // ISO 7816-8 COMPUTE
+		// DIGITAL SIGNATURE
+		// COMMAND
+		RESET_PIN(0x00, 0x2C, 0x00, 0x01),
+
+		GET_CHALLENGE(0x00, 0x84, 0x00, 0x00);
+
+		private final int cla;
+		private final int ins;
+		private final int p1;
+		private final int p2;
+
+		private BeIDCommandAPDU(int cla, int ins, int p1, int p2) {
+			this.cla = cla;
+			this.ins = ins;
+			this.p1 = p1;
+			this.p2 = p2;
+		}
+
+		private BeIDCommandAPDU(int cla, int ins) {
+			this.cla = cla;
+			this.ins = ins;
+			this.p1 = -1;
+			this.p2 = -1;
+		}
+
+		public int getCla() {
+			return cla;
+		}
+
+		public int getIns() {
+			return ins;
+		}
+
+		public int getP1() {
+			return p1;
+		}
+
+		public int getP2() {
+			return p2;
+		}
 	}
 }
