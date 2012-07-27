@@ -21,7 +21,7 @@ package be.fedict.commons.eid.examples.events;
 import java.util.Set;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
-import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
+import be.fedict.commons.eid.client.CardAndTerminalManager;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
 public class TerminalEventsExamples {
@@ -30,9 +30,9 @@ public class TerminalEventsExamples {
 	 */
 	public void cardterminals_basic_synchronous() {
 		//-------------------------------------------------------------------------------------------------------
-		// instantiate a CardAndTerminalEventsManager with default settings (no logging, default timeout)
+		// instantiate a CardAndTerminalManager with default settings (no logging, default timeout)
 		//-------------------------------------------------------------------------------------------------------
-		CardAndTerminalEventsManager cardAndTerminalEventsManager = new CardAndTerminalEventsManager();
+		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
 
 		//-------------------------------------------------------------------------------------------------------
 		// ask it for all CardTerminals that are currently attached
@@ -40,8 +40,7 @@ public class TerminalEventsExamples {
 		Set<CardTerminal> terminalsAttached = null;
 
 		try {
-			terminalsAttached = cardAndTerminalEventsManager
-					.getTerminalsPresent();
+			terminalsAttached = cardAndTerminalManager.getTerminalsPresent();
 		} catch (CardException cex) {
 			System.out.println("Oops! Failed to get list of CardTerminals:"
 					+ cex.getLocalizedMessage());
@@ -67,14 +66,14 @@ public class TerminalEventsExamples {
 	public TerminalEventsExamples cardterminals_basic_asynchronous()
 			throws InterruptedException {
 		//-------------------------------------------------------------------------------------------------------
-		// instantiate a CardAndTerminalEventsManager with default settings (no logging, default timeout)
+		// instantiate a CardAndTerminalManager with default settings (no logging, default timeout)
 		//-------------------------------------------------------------------------------------------------------
-		CardAndTerminalEventsManager cardAndTerminalEventsManager = new CardAndTerminalEventsManager();
+		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
 
 		//-------------------------------------------------------------------------------------------------------	
 		// register a CardTerminalEventsListener
 		//-------------------------------------------------------------------------------------------------------
-		cardAndTerminalEventsManager
+		cardAndTerminalManager
 				.addCardTerminalListener(new CardTerminalEventsListener() {
 					@Override
 					public void terminalException(Throwable throwable) {
@@ -96,9 +95,9 @@ public class TerminalEventsExamples {
 				});
 
 		//-------------------------------------------------------------------------------------------------------
-		// start the CardAndTerminalEventsManager instance running as a daemon thread.
+		// start the CardAndTerminalManager instance running as a daemon thread.
 		//-------------------------------------------------------------------------------------------------------
-		cardAndTerminalEventsManager.start();
+		cardAndTerminalManager.start();
 
 		//-------------------------------------------------------------------------------------------------------
 		// the main thread goes off and does other things (for this example, just loop and sleep)

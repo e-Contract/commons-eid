@@ -21,7 +21,7 @@ package be.fedict.commons.eid.examples.events;
 import java.util.Set;
 import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDCardEventsManager;
+import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 
 public class BeIDCardEventsExamples {
@@ -30,9 +30,9 @@ public class BeIDCardEventsExamples {
 	 */
 	public void demonstrate_basic_synchronous_usage() {
 		//-------------------------------------------------------------------------------------------------------
-		// instantiate a BeIDCardManager with default settings (no logging, private CardAndTerminalEventsManager)
+		// instantiate a BeIDCardManager with default settings (no logging, private CardAndTerminalManager)
 		//-------------------------------------------------------------------------------------------------------
-		BeIDCardEventsManager beIDCardManager = new BeIDCardEventsManager();
+		BeIDCardManager beIDCardManager = new BeIDCardManager();
 
 		//-------------------------------------------------------------------------------------------------------
 		// ask it for all CardTerminals that currently contain BeID cards
@@ -60,9 +60,9 @@ public class BeIDCardEventsExamples {
 	public BeIDCardEventsExamples demonstrate_basic_asynchronous_usage()
 			throws InterruptedException {
 		//-------------------------------------------------------------------------------------------------------
-		// instantiate a BeIDCardManager with default settings (no logging, private CardAndTerminalEventsManager)
+		// instantiate a BeIDCardManager with default settings (no logging, private CardAndTerminalManager)
 		//-------------------------------------------------------------------------------------------------------
-		BeIDCardEventsManager beIDCardManager = new BeIDCardEventsManager();
+		BeIDCardManager beIDCardManager = new BeIDCardManager();
 
 		//-------------------------------------------------------------------------------------------------------	
 		// register a BeIDCardManagerListener

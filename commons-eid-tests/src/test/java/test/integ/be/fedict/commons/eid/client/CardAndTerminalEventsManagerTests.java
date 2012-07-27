@@ -17,7 +17,7 @@
  */
 
 /**
- * Manual exercise for CardAndTerminalEventsManager.
+ * Manual exercise for CardAndTerminalManager.
  * Prints events and list of readers with cards.
  * [short readername] ... 
  * readers with cards inserted have a "*" behind their short name
@@ -43,7 +43,7 @@ import org.junit.Test;
 import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.SimulatedCard;
 import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.SimulatedCardTerminal;
 import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.SimulatedCardTerminals;
-import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
+import be.fedict.commons.eid.client.CardAndTerminalManager;
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
@@ -78,7 +78,7 @@ public class CardAndTerminalEventsManagerTests {
 	 */
 	@Test
 	public void testSynchronous() throws Exception {
-		CardAndTerminalEventsManager cardAndTerminalEventsManager = new CardAndTerminalEventsManager(
+		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager(
 				new TestLogger(), simulatedCardTerminals);
 
 		for (SimulatedCardTerminal terminal : simulatedCardTerminal) {
@@ -87,7 +87,7 @@ public class CardAndTerminalEventsManagerTests {
 			for (SimulatedCard card : simulatedBeIDCard) {
 				terminal.insertCard(card);
 				StringUtils
-						.printTerminalAndCardOverviewLine(cardAndTerminalEventsManager);
+						.printTerminalAndCardOverviewLine(cardAndTerminalManager);
 				terminal.removeCard();
 			}
 
@@ -162,13 +162,13 @@ public class CardAndTerminalEventsManagerTests {
 	public void testTerminalAttachDetachDetection() throws Exception {
 		Random random = new Random(0);
 		Set<CardTerminal> expectedState = new HashSet<CardTerminal>();
-		CardAndTerminalEventsManager cardAndTerminalEventsManager = new CardAndTerminalEventsManager(
+		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager(
 				new TestLogger(), simulatedCardTerminals);
 		RecordKeepingCardTerminalEventsListener recorder = new RecordKeepingCardTerminalEventsListener();
-		cardAndTerminalEventsManager.addCardTerminalListener(recorder);
-		cardAndTerminalEventsManager
+		cardAndTerminalManager.addCardTerminalListener(recorder);
+		cardAndTerminalManager
 				.addCardTerminalListener(new NPEProneCardTerminalEventsListener());
-		cardAndTerminalEventsManager.start();
+		cardAndTerminalManager.start();
 
 		System.err
 				.println("attaching and detaching some simulated cardterminals");
@@ -222,13 +222,13 @@ public class CardAndTerminalEventsManagerTests {
 	public void testCardInsertRemoveDetection() throws Exception {
 		Random random = new Random(0);
 		Map<SimulatedCardTerminal, SimulatedCard> expectedState = new HashMap<SimulatedCardTerminal, SimulatedCard>();
-		CardAndTerminalEventsManager cardAndTerminalEventsManager = new CardAndTerminalEventsManager(
+		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager(
 				new TestLogger(), simulatedCardTerminals);
 		RecordKeepingCardEventsListener recorder = new RecordKeepingCardEventsListener();
-		cardAndTerminalEventsManager.addCardListener(recorder);
-		cardAndTerminalEventsManager
+		cardAndTerminalManager.addCardListener(recorder);
+		cardAndTerminalManager
 				.addCardListener(new NPEProneCardEventsListener());
-		cardAndTerminalEventsManager.start();
+		cardAndTerminalManager.start();
 
 		ArrayList<SimulatedCardTerminal> terminalsToExercise = new ArrayList<SimulatedCardTerminal>(
 				simulatedCardTerminal);

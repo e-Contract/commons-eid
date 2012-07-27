@@ -17,7 +17,7 @@
  */
 
 /**
- * Interface to subscribe to a CardAndTerminalEventsManager
+ * Interface to subscribe to a CardAndTerminalManager
  * 
  * @author Frank Marien
  * 
