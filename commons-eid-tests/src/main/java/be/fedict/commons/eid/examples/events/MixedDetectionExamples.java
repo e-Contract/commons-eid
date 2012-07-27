@@ -22,15 +22,15 @@ import java.math.BigInteger;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDCardEventsManager;
-import be.fedict.commons.eid.client.CardAndTerminalEventsManager;
+import be.fedict.commons.eid.client.BeIDCardManager;
+import be.fedict.commons.eid.client.CardAndTerminalManager;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
 /*
  * mixed asynchronous detection of CardTerminals, BeID and non-BeID cards,
- * using a BeIDCardEventsManager with your own CardAndTerminalEventsManager
+ * using a BeIDCardManager with your own CardAndTerminalManager
  */
 public class MixedDetectionExamples
 		implements
@@ -39,15 +39,15 @@ public class MixedDetectionExamples
 			CardTerminalEventsListener {
 	private void demonstrate() throws InterruptedException {
 		//-------------------------------------------------------------------------------------------------------
-		// instantiate a CardAndTerminalEventsManager with default settings (no logging, default timeout)
+		// instantiate a CardAndTerminalManager with default settings (no logging, default timeout)
 		//-------------------------------------------------------------------------------------------------------
-		CardAndTerminalEventsManager cardAndTerminalEventsManager = new CardAndTerminalEventsManager();
+		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
 
 		//-------------------------------------------------------------------------------------------------------
-		// instantiate a BeIDCardManager, pass it our CardAndTerminalEventsManager to use
+		// instantiate a BeIDCardManager, pass it our CardAndTerminalManager to use
 		//-------------------------------------------------------------------------------------------------------
-		BeIDCardEventsManager beIDCardManager = new BeIDCardEventsManager(
-				cardAndTerminalEventsManager);
+		BeIDCardManager beIDCardManager = new BeIDCardManager(
+				cardAndTerminalManager);
 
 		//-------------------------------------------------------------------------------------------------------	
 		// register ourselves as BeIDCardEventsListener to get BeID card insert and remove events
@@ -55,10 +55,10 @@ public class MixedDetectionExamples
 		beIDCardManager.addBeIDCardEventListener(this);
 
 		//-------------------------------------------------------------------------------------------------------	
-		// register ourselves as CardEventsListener to the BeIDCardEventsManager, to get events of *other* cards
-		// being inserted/removed (if we would register ourselves to the CardAndTerminalEventsManager
+		// register ourselves as CardEventsListener to the BeIDCardManager, to get events of *other* cards
+		// being inserted/removed (if we would register ourselves to the CardAndTerminalManager
 		// for this, we would get 2 events when a BeID was inserted, one for the BeID, one for the Card by itself,
-		// because CardAndTerminalEventsManager cannot distinguish between them, and BeIDCardEventsManager can)
+		// because CardAndTerminalManager cannot distinguish between them, and BeIDCardManager can)
 		//-------------------------------------------------------------------------------------------------------
 		beIDCardManager.addOtherCardEventListener(this);
 		//  ^^^^^^^^^^^^^^^  // see above	
@@ -66,7 +66,7 @@ public class MixedDetectionExamples
 		//-------------------------------------------------------------------------------------------------------	
 		// register ourselves as CardTerminalEventsListener to get CardTerminal attach and detach events
 		//-------------------------------------------------------------------------------------------------------
-		cardAndTerminalEventsManager.addCardTerminalListener(this);
+		cardAndTerminalManager.addCardTerminalListener(this);
 
 		//-------------------------------------------------------------------------------------------------------
 		// start the BeIDCardManager instance
@@ -74,9 +74,9 @@ public class MixedDetectionExamples
 		beIDCardManager.start();
 
 		//-------------------------------------------------------------------------------------------------------
-		// start the CardAndTerminalEventsManager
+		// start the CardAndTerminalManager
 		//-------------------------------------------------------------------------------------------------------
-		cardAndTerminalEventsManager.start();
+		cardAndTerminalManager.start();
 
 		//-------------------------------------------------------------------------------------------------------
 		// the main thread goes off and does other things (for this example, just loop and sleep)
@@ -129,7 +129,7 @@ public class MixedDetectionExamples
 
 	//------------------------------------------------------------------------------------------------------------
 	// these respond to non-BeID cards being inserted and removed
-	// (because we registered with a BeIDCardEventsManager, not a CardAndTerminalEventsManager)
+	// (because we registered with a BeIDCardManager, not a CardAndTerminalManager)
 	//------------------------------------------------------------------------------------------------------------
 
 	@Override

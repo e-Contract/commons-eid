@@ -17,7 +17,7 @@
  */
 
 /**
- * A CardAndTerminalEventsManager connects to the CardTerminal PCSC subsystem, and maintains
+ * A CardAndTerminalManager connects to the CardTerminal PCSC subsystem, and maintains
  * state information on any CardTerminals attached and cards inserted
  * Register a CardEventsListener to get callbacks for reader attach/detach
  * and card insert/removal events.
@@ -42,7 +42,7 @@ import be.fedict.commons.eid.client.impl.LibJ2PCSCGNULinuxFix;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.Logger;
 
-public class CardAndTerminalEventsManager implements Runnable {
+public class CardAndTerminalManager implements Runnable {
 	private static final int DEFAULT_DELAY = 250;
 	private volatile boolean running;
 	private boolean subSystemInitialized, autoconnect;
@@ -57,20 +57,19 @@ public class CardAndTerminalEventsManager implements Runnable {
 
 	// ----- various constructors ------
 
-	public CardAndTerminalEventsManager() {
+	public CardAndTerminalManager() {
 		this(new VoidLogger());
 	}
 
-	public CardAndTerminalEventsManager(Logger logger) {
+	public CardAndTerminalManager(Logger logger) {
 		this(logger, null);
 	}
 
-	public CardAndTerminalEventsManager(CardTerminals cardTerminals) {
+	public CardAndTerminalManager(CardTerminals cardTerminals) {
 		this(new VoidLogger(), cardTerminals);
 	}
 
-	public CardAndTerminalEventsManager(Logger logger,
-			CardTerminals cardTerminals) {
+	public CardAndTerminalManager(Logger logger, CardTerminals cardTerminals) {
 		// work around implementation bug in some GNU/Linux JRE's that causes
 		// libpcsc not to be found.
 		LibJ2PCSCGNULinuxFix.fixNativeLibrary(logger);
@@ -105,7 +104,7 @@ public class CardAndTerminalEventsManager implements Runnable {
 	// --------------------------------------------------------------------------------------------------
 
 	// add a CardTerminalEventsListener
-	public CardAndTerminalEventsManager addCardTerminalListener(
+	public CardAndTerminalManager addCardTerminalListener(
 			CardTerminalEventsListener listener) {
 		synchronized (cardTerminalEventsListeners) {
 			cardTerminalEventsListeners.add(listener);
@@ -114,8 +113,7 @@ public class CardAndTerminalEventsManager implements Runnable {
 	}
 
 	// add a CardEventsListener
-	public CardAndTerminalEventsManager addCardListener(
-			CardEventsListener listener) {
+	public CardAndTerminalManager addCardListener(CardEventsListener listener) {
 		synchronized (cardEventsListeners) {
 			cardEventsListeners.add(listener);
 		}
@@ -124,11 +122,10 @@ public class CardAndTerminalEventsManager implements Runnable {
 
 	// --------------------------------------------------------------------------------------------------
 
-	// start this CardAndTerminalEventsManager in the background as a Thread
-	public CardAndTerminalEventsManager start() {
-		logger
-				.debug("CardAndTerminalEventsManager worker thread start requested.");
-		thread = new Thread(this, "CardAndTerminalEventsManager");
+	// start this CardAndTerminalManager in the background as a Thread
+	public CardAndTerminalManager start() {
+		logger.debug("CardAndTerminalManager worker thread start requested.");
+		thread = new Thread(this, "CardAndTerminalManager");
 		thread.setDaemon(true);
 		thread.start();
 		return this;
@@ -137,7 +134,7 @@ public class CardAndTerminalEventsManager implements Runnable {
 	// --------------------------------------------------------------------------------------------------
 
 	// remove a CardTerminalEventsListener
-	public CardAndTerminalEventsManager removeCardTerminalListener(
+	public CardAndTerminalManager removeCardTerminalListener(
 			CardTerminalEventsListener listener) {
 		synchronized (cardTerminalEventsListeners) {
 			cardTerminalEventsListeners.remove(listener);
@@ -146,8 +143,7 @@ public class CardAndTerminalEventsManager implements Runnable {
 	}
 
 	// remove a CardEventsListener
-	public CardAndTerminalEventsManager removeCardListener(
-			CardEventsListener listener) {
+	public CardAndTerminalManager removeCardListener(CardEventsListener listener) {
 		synchronized (cardEventsListeners) {
 			cardEventsListeners.remove(listener);
 		}
@@ -170,10 +166,9 @@ public class CardAndTerminalEventsManager implements Runnable {
 
 	// -----------------------------------------------------------------------
 
-	// stop this CardAndTerminalEventsManager's worker thread.
-	public CardAndTerminalEventsManager stop() throws InterruptedException {
-		logger
-				.debug("CardAndTerminalEventsManager worker thread stop requested.");
+	// stop this CardAndTerminalManager's worker thread.
+	public CardAndTerminalManager stop() throws InterruptedException {
+		logger.debug("CardAndTerminalManager worker thread stop requested.");
 		running = false;
 		thread.interrupt();
 		thread.join();
@@ -185,7 +180,7 @@ public class CardAndTerminalEventsManager implements Runnable {
 	@Override
 	public void run() {
 		running = true;
-		logger.debug("CardAndTerminalEventsManager worker thread started.");
+		logger.debug("CardAndTerminalManager worker thread started.");
 
 		try {
 			while (running)
@@ -193,11 +188,11 @@ public class CardAndTerminalEventsManager implements Runnable {
 		} catch (InterruptedException ie) {
 			if (running)
 				logger
-						.error("CardAndTerminalEventsManager worker thread unexpectedly interrupted: "
+						.error("CardAndTerminalManager worker thread unexpectedly interrupted: "
 								+ ie.getLocalizedMessage());
 		}
 
-		logger.debug("CardAndTerminalEventsManager worker thread ended.");
+		logger.debug("CardAndTerminalManager worker thread ended.");
 	}
 
 	private void handlePCSCEvents() throws InterruptedException {
@@ -345,7 +340,7 @@ public class CardAndTerminalEventsManager implements Runnable {
 	}
 
 	// set polling/retry delay.
-	public CardAndTerminalEventsManager setDelay(int delay) {
+	public CardAndTerminalManager setDelay(int delay) {
 		this.delay = delay;
 		return this;
 	}
@@ -354,7 +349,7 @@ public class CardAndTerminalEventsManager implements Runnable {
 		return autoconnect;
 	}
 
-	public CardAndTerminalEventsManager setAutoconnect(boolean autoconnect) {
+	public CardAndTerminalManager setAutoconnect(boolean autoconnect) {
 		this.autoconnect = autoconnect;
 		return this;
 	}

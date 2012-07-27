@@ -36,7 +36,7 @@ import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import org.junit.Test;
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDCardEventsManager;
+import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.event.CardEventsListener;
@@ -48,13 +48,13 @@ public class BeIDCardEventsManagerExercise
 		implements
 			BeIDCardEventsListener,
 			CardEventsListener {
-	private BeIDCardEventsManager beIDCardManager;
+	private BeIDCardManager beIDCardManager;
 
 	// ---------------------------------------------------------------------------------------------
 
 	@Test
 	public void testAsynchronous() throws Exception {
-		beIDCardManager = new BeIDCardEventsManager(new TestLogger());
+		beIDCardManager = new BeIDCardManager(new TestLogger());
 		beIDCardManager.addBeIDCardEventListener(this);
 		beIDCardManager.addOtherCardEventListener(this);
 		beIDCardManager.start();

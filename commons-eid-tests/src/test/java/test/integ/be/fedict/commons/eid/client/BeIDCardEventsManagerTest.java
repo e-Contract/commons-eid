@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDCardEventsManager;
+import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
@@ -41,9 +41,8 @@ public class BeIDCardEventsManagerTest {
 	@Test
 	public void testReadFiles() throws Exception {
 		TestLogger logger = new TestLogger();
-		BeIDCardEventsManager beIDCardEventsManager = new BeIDCardEventsManager(
-				logger);
-		BeIDCard beIDCard = beIDCardEventsManager.getFirstBeIDCard();
+		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
+		BeIDCard beIDCard = beIDCardManager.getFirstBeIDCard();
 		assertNotNull(beIDCard);
 
 		beIDCard.addCardListener(new TestBeIDCardListener());
@@ -76,19 +75,18 @@ public class BeIDCardEventsManagerTest {
 	@Test
 	public void testListenerModification() throws Exception {
 		TestLogger logger = new TestLogger();
-		BeIDCardEventsManager beIDCardEventsManager = new BeIDCardEventsManager(
-				logger);
+		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
 		Object waitObject = new Object();
-		beIDCardEventsManager
+		beIDCardManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardEventsManager, waitObject, true, false));
-		beIDCardEventsManager
+						beIDCardManager, waitObject, true, false));
+		beIDCardManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardEventsManager, waitObject, false, false));
-		beIDCardEventsManager
+						beIDCardManager, waitObject, false, false));
+		beIDCardManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardEventsManager, waitObject, false, true));
-		beIDCardEventsManager.start();
+						beIDCardManager, waitObject, false, true));
+		beIDCardManager.start();
 		synchronized (waitObject) {
 			waitObject.wait();
 		}
@@ -97,19 +95,18 @@ public class BeIDCardEventsManagerTest {
 	@Test
 	public void testExceptionsInListener() throws Exception {
 		TestLogger logger = new TestLogger();
-		BeIDCardEventsManager beIDCardEventsManager = new BeIDCardEventsManager(
-				logger);
+		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
 		Object waitObject = new Object();
-		beIDCardEventsManager
+		beIDCardManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardEventsManager, waitObject, true, false));
-		beIDCardEventsManager
+						beIDCardManager, waitObject, true, false));
+		beIDCardManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardEventsManager, waitObject, false, false));
-		beIDCardEventsManager
+						beIDCardManager, waitObject, false, false));
+		beIDCardManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardEventsManager, waitObject, false, true));
-		beIDCardEventsManager.start();
+						beIDCardManager, waitObject, false, true));
+		beIDCardManager.start();
 		synchronized (waitObject) {
 			waitObject.wait();
 		}
@@ -121,12 +118,12 @@ public class BeIDCardEventsManagerTest {
 
 		private final Object waitObject;
 
-		private final BeIDCardEventsManager manager;
+		private final BeIDCardManager manager;
 
 		private final boolean removeAfterCardInserted;
 		private final boolean throwNPE;
 
-		public BeIDCardEventsTestListener(BeIDCardEventsManager manager,
+		public BeIDCardEventsTestListener(BeIDCardManager manager,
 				Object waitObject, boolean removeAfterCardInserted,
 				boolean throwNPE) {
 			this.manager = manager;
