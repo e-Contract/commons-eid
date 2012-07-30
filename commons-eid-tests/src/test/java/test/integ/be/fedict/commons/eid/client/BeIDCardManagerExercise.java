@@ -44,7 +44,7 @@ import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
-public class BeIDCardEventsManagerExercise
+public class BeIDCardManagerExercise
 		implements
 			BeIDCardEventsListener,
 			CardEventsListener {

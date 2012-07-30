@@ -36,7 +36,7 @@ import be.fedict.commons.eid.client.CardAndTerminalManager;
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
-public class CardAndTerminalEventsManagerExercises
+public class CardAndTerminalManagerExercises
 		implements
 			CardTerminalEventsListener,
 			CardEventsListener {

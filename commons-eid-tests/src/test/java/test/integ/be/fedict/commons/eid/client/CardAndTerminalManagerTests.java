@@ -47,7 +47,7 @@ import be.fedict.commons.eid.client.CardAndTerminalManager;
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
-public class CardAndTerminalEventsManagerTests {
+public class CardAndTerminalManagerTests {
 	private static final int numberOfTerminals = 16;
 	private static final int numberOfCards = 16;
 

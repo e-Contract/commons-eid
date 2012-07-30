@@ -33,10 +33,10 @@ import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
 import be.fedict.commons.eid.consumer.Identity;
 
-public class BeIDCardEventsManagerTest {
+public class BeIDCardManagerTest {
 
 	private static final Log LOG = LogFactory
-			.getLog(BeIDCardEventsManagerTest.class);
+			.getLog(BeIDCardManagerTest.class);
 
 	@Test
 	public void testReadFiles() throws Exception {
