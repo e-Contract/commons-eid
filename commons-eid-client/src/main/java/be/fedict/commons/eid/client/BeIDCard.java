@@ -179,7 +179,7 @@ public class BeIDCard {
 	 * Signing data
 	 */
 
-	public byte[] sign(byte[] digestValue, BeIDDigest digest,
+	public byte[] sign(byte[] digestValue, BeIDDigest digestAlgo,
 			BeIDFileType fileType, boolean requireSecureReader)
 			throws CardException, IOException, InterruptedException {
 		if (!fileType.isCertificateUserCanSignWith())
@@ -212,7 +212,7 @@ public class BeIDCard {
 						// of
 						// following
 						// data
-						(byte) 0x80, digest.getAlgorithmReference(), // algorithm reference
+						(byte) 0x80, digestAlgo.getAlgorithmReference(), // algorithm reference
 						(byte) 0x84, fileType.getKeyId()}); // private key reference
 
 		if (0x9000 != responseApdu.getSW()) {
@@ -228,7 +228,7 @@ public class BeIDCard {
 		}
 
 		ByteArrayOutputStream digestInfo = new ByteArrayOutputStream();
-		digestInfo.write(digest.getPrefix(digestValue.length));
+		digestInfo.write(digestAlgo.getPrefix(digestValue.length));
 		digestInfo.write(digestValue);
 
 		this.logger.debug("computing digital signature...");
