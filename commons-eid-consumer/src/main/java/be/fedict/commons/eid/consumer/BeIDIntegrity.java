@@ -19,11 +19,13 @@
 package be.fedict.commons.eid.consumer;
 
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
@@ -48,8 +50,27 @@ public class BeIDIntegrity {
 		return result;
 	}
 
+	private byte[] digest(byte[] data) {
+		MessageDigest messageDigest;
+		try {
+			messageDigest = MessageDigest.getInstance("SHA1");
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException("SHA1");
+		}
+		byte[] digestValue = messageDigest.digest(data);
+		return digestValue;
+	}
+
 	public Identity getVerifiedIdentity(byte[] identityFile,
 			byte[] identitySignatureFile, X509Certificate rrnCertificate) {
+		Identity identity = getVerifiedIdentity(identityFile,
+				identitySignatureFile, null, rrnCertificate);
+		return identity;
+	}
+
+	public Identity getVerifiedIdentity(byte[] identityFile,
+			byte[] identitySignatureFile, byte[] photo,
+			X509Certificate rrnCertificate) {
 		PublicKey publicKey = rrnCertificate.getPublicKey();
 		boolean result;
 		try {
@@ -64,6 +85,13 @@ public class BeIDIntegrity {
 			return null;
 		}
 		Identity identity = TlvParser.parse(identityFile, Identity.class);
+		if (null != photo) {
+			byte[] expectedPhotoDigest = identity.getPhotoDigest();
+			byte[] actualPhotoDigest = digest(photo);
+			if (false == Arrays.equals(expectedPhotoDigest, actualPhotoDigest)) {
+				throw new SecurityException("photo digest mismatch");
+			}
+		}
 		return identity;
 	}
 }

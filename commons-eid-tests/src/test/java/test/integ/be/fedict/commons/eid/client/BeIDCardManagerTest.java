@@ -19,13 +19,17 @@
 package test.integ.be.fedict.commons.eid.client;
 
 import static org.junit.Assert.assertNotNull;
+
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
 import javax.smartcardio.CardTerminal;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.BeIDFileType;
@@ -35,8 +39,7 @@ import be.fedict.commons.eid.consumer.Identity;
 
 public class BeIDCardManagerTest {
 
-	private static final Log LOG = LogFactory
-			.getLog(BeIDCardManagerTest.class);
+	private static final Log LOG = LogFactory.getLog(BeIDCardManagerTest.class);
 
 	@Test
 	public void testReadFiles() throws Exception {
@@ -62,11 +65,13 @@ public class BeIDCardManagerTest {
 				.generateCertificate(new ByteArrayInputStream(
 						rrnCertificateFile));
 
+		byte[] photo = beIDCard.readFile(BeIDFileType.Photo);
+
 		beIDCard.close();
 
 		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile,
-				identitySignatureFile, rrnCertificate);
+				identitySignatureFile, photo, rrnCertificate);
 
 		assertNotNull(identity);
 		assertNotNull(identity.getNationalNumber());
@@ -112,9 +117,8 @@ public class BeIDCardManagerTest {
 		}
 	}
 
-	private final class BeIDCardEventsTestListener
-			implements
-				BeIDCardEventsListener {
+	private final class BeIDCardEventsTestListener implements
+			BeIDCardEventsListener {
 
 		private final Object waitObject;
 
