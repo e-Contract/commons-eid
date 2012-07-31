@@ -41,6 +41,7 @@ import javax.smartcardio.ResponseAPDU;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.CCID;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
+import be.fedict.commons.eid.client.impl.MissingUI;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.UI;
 import be.fedict.commons.eid.client.spi.Logger;
@@ -56,6 +57,8 @@ public class BeIDCard {
 	private final CardChannel cardChannel;
 	private final List<BeIDCardListener> cardListeners;
 
+	private final CertificateFactory certificateFactory;
+	
 	private final Card card;
 	private final Logger logger;
 	private UI userInterface;
@@ -69,6 +72,13 @@ public class BeIDCard {
 		}
 		this.logger = logger;
 		this.cardListeners = new LinkedList<BeIDCardListener>();
+		try {
+			this.certificateFactory = CertificateFactory
+					.getInstance("X.509");
+		} catch (CertificateException e) {
+			throw new RuntimeException("X.509 algo", e);
+		}
+		this.userInterface = new MissingUI();
 	}
 
 	public BeIDCard(Card card) {
@@ -90,9 +100,7 @@ public class BeIDCard {
 
 	public X509Certificate getCertificate(BeIDFileType fileType)
 			throws CertificateException, CardException, IOException {
-		CertificateFactory certificateFactory = CertificateFactory
-				.getInstance("X.509");
-		return (X509Certificate) certificateFactory
+		return (X509Certificate) this.certificateFactory
 				.generateCertificate(new ByteArrayInputStream(
 						readFile(fileType)));
 	}
@@ -882,6 +890,10 @@ public class BeIDCard {
 		}
 
 		return this;
+	}
+	
+	public void setUserInterface(UI userInterface) {
+		this.userInterface = userInterface;
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------------------------

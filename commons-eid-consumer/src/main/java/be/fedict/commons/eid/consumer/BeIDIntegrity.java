@@ -19,14 +19,20 @@
 
 package be.fedict.commons.eid.consumer;
 
+import java.io.ByteArrayInputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
@@ -38,28 +44,29 @@ import be.fedict.commons.eid.consumer.tlv.TlvParser;
  */
 public class BeIDIntegrity {
 
-	private boolean verifySignature(byte[] signatureData, PublicKey publicKey,
-			byte[]... data) throws NoSuchAlgorithmException,
-			InvalidKeyException, SignatureException {
-		Signature signature;
-		signature = Signature.getInstance("SHA1withRSA");
-		signature.initVerify(publicKey);
-		for (byte[] dataItem : data) {
-			signature.update(dataItem);
+	private final static Log LOG = LogFactory.getLog(BeIDIntegrity.class);
+
+	private final CertificateFactory certificateFactory;
+
+	public BeIDIntegrity() {
+		try {
+			this.certificateFactory = CertificateFactory.getInstance("X.509");
+		} catch (CertificateException e) {
+			throw new RuntimeException("X.509 algo", e);
 		}
-		boolean result = signature.verify(signatureData);
-		return result;
 	}
 
-	private byte[] digest(byte[] data) {
-		MessageDigest messageDigest;
+	public X509Certificate loadCertificate(byte[] encodedCertificate) {
+		X509Certificate certificate;
 		try {
-			messageDigest = MessageDigest.getInstance("SHA1");
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException("SHA1");
+			certificate = (X509Certificate) this.certificateFactory
+					.generateCertificate(new ByteArrayInputStream(
+							encodedCertificate));
+		} catch (CertificateException e) {
+			throw new RuntimeException(
+					"X509 decoding error: " + e.getMessage(), e);
 		}
-		byte[] digestValue = messageDigest.digest(data);
-		return digestValue;
+		return certificate;
 	}
 
 	public Identity getVerifiedIdentity(byte[] identityFile,
@@ -118,6 +125,30 @@ public class BeIDIntegrity {
 
 	}
 
+	private boolean verifySignature(byte[] signatureData, PublicKey publicKey,
+			byte[]... data) throws NoSuchAlgorithmException,
+			InvalidKeyException, SignatureException {
+		Signature signature;
+		signature = Signature.getInstance("SHA1withRSA");
+		signature.initVerify(publicKey);
+		for (byte[] dataItem : data) {
+			signature.update(dataItem);
+		}
+		boolean result = signature.verify(signatureData);
+		return result;
+	}
+
+	private byte[] digest(byte[] data) {
+		MessageDigest messageDigest;
+		try {
+			messageDigest = MessageDigest.getInstance("SHA1");
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException("SHA1");
+		}
+		byte[] digestValue = messageDigest.digest(data);
+		return digestValue;
+	}
+
 	private byte[] trimRight(byte[] addressFile) {
 		int idx;
 		for (idx = 0; idx < addressFile.length; idx++) {
@@ -127,6 +158,25 @@ public class BeIDIntegrity {
 		}
 		byte[] result = new byte[idx];
 		System.arraycopy(addressFile, 0, result, 0, idx);
+		return result;
+	}
+
+	public boolean verifyAuthnSignature(byte[] toBeSigned,
+			byte[] signatureValue, X509Certificate authnCertificate) {
+		PublicKey publicKey = authnCertificate.getPublicKey();
+		boolean result;
+		try {
+			result = verifySignature(signatureValue, publicKey, toBeSigned);
+		} catch (InvalidKeyException e) {
+			LOG.warn("invalid key: " + e.getMessage(), e);
+			return false;
+		} catch (NoSuchAlgorithmException e) {
+			LOG.warn("no such algo: " + e.getMessage(), e);
+			return false;
+		} catch (SignatureException e) {
+			LOG.warn("signature error: " + e.getMessage(), e);
+			return false;
+		}
 		return result;
 	}
 }
