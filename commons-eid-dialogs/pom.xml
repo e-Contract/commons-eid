@@ -7,15 +7,17 @@
 		<artifactId>commons-eid</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-	<name>Commons eID Default .DefaultDialogs</name>
+	<name>Commons eID Default Dialogs</name>
 	<artifactId>commons-eid-dialogs</artifactId>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
+				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
-					<skip>true</skip>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
