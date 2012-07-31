@@ -25,15 +25,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+
 import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.DocumentType;
 import be.fedict.commons.eid.consumer.Gender;
@@ -92,6 +95,8 @@ public class TlvParserTest {
 		LOG.debug("special status: " + identity.specialStatus);
 		assertEquals(SpecialStatus.NO_STATUS, identity.specialStatus);
 		assertNull(identity.getSpecialOrganisation());
+
+		assertNotNull(identity.getData());
 	}
 
 	@Test
@@ -210,18 +215,20 @@ public class TlvParserTest {
 		assertEquals("2000", address.zip);
 		LOG.debug("municipality: " + address.municipality);
 		assertEquals("Antwerpen", address.municipality);
+
+		assertNotNull(address.getData());
 	}
 
 	@Test
 	public void testYearOnlyDate() throws Exception {
-		byte[] yearOnlyTLV = new byte[]{12, 4, '1', '9', '8', '4'};
+		byte[] yearOnlyTLV = new byte[] { 12, 4, '1', '9', '8', '4' };
 		Identity identity = TlvParser.parse(yearOnlyTLV, Identity.class);
 		assertEquals(1984, identity.getDateOfBirth().get(Calendar.YEAR));
 	}
 
 	@Test
 	public void testInvalidDateTruncatedYear() throws Exception {
-		byte[] yearOnlyTLV = new byte[]{12, 3, '9', '8', '4'};
+		byte[] yearOnlyTLV = new byte[] { 12, 3, '9', '8', '4' };
 
 		try {
 			TlvParser.parse(yearOnlyTLV, Identity.class);
@@ -233,8 +240,8 @@ public class TlvParserTest {
 
 	@Test
 	public void testInvalidDateUnknownMonth() throws Exception {
-		byte[] yearOnlyTLV = new byte[]{12, 12, '2', '0', ' ', 'J', 'U', 'N',
-				'O', ' ', '1', '9', '6', '4'};
+		byte[] yearOnlyTLV = new byte[] { 12, 12, '2', '0', ' ', 'J', 'U', 'N',
+				'O', ' ', '1', '9', '6', '4' };
 
 		try {
 			TlvParser.parse(yearOnlyTLV, Identity.class);
@@ -246,8 +253,8 @@ public class TlvParserTest {
 
 	@Test
 	public void testInvalidDateMissingDayOfMonth() throws Exception {
-		byte[] yearOnlyTLV = new byte[]{12, 8, 'S', 'E', 'P', ' ', '1', '9',
-				'6', '4'};
+		byte[] yearOnlyTLV = new byte[] { 12, 8, 'S', 'E', 'P', ' ', '1', '9',
+				'6', '4' };
 
 		try {
 			TlvParser.parse(yearOnlyTLV, Identity.class);
@@ -316,8 +323,8 @@ public class TlvParserTest {
 
 		// verify
 		assertEquals(0x7f, largeField.field1.length);
-		assertArrayEquals(new byte[]{(byte) 0xca, (byte) 0xfe, (byte) 0xba,
-				(byte) 0xbe}, largeField.field2);
+		assertArrayEquals(new byte[] { (byte) 0xca, (byte) 0xfe, (byte) 0xba,
+				(byte) 0xbe }, largeField.field2);
 	}
 
 	public static class MiddlewareEIDFile {
@@ -358,15 +365,15 @@ public class TlvParserTest {
 		LOG.debug("duplicate: " + identity.getDuplicate());
 		LOG.debug("special organisation: \""
 				+ identity.getSpecialOrganisation() + "\"");
-		assertEquals(SpecialOrganisation.UNSPECIFIED, identity
-				.getSpecialOrganisation());
+		assertEquals(SpecialOrganisation.UNSPECIFIED,
+				identity.getSpecialOrganisation());
 	}
 
 	@Test
 	public void testGermanIdentityFileDoB() throws Exception {
 		// setup
-		byte[] idFileCaseInTheField = new byte[]{12, 12, '2', '3', '.', 'S',
-				'E', 'P', '.', ' ', '1', '9', '8', '2'};
+		byte[] idFileCaseInTheField = new byte[] { 12, 12, '2', '3', '.', 'S',
+				'E', 'P', '.', ' ', '1', '9', '8', '2' };
 
 		// operate
 		Identity identity = TlvParser.parse(idFileCaseInTheField,
@@ -376,8 +383,8 @@ public class TlvParserTest {
 		assertNotNull(identity.getDateOfBirth());
 		LOG.debug("date of birth: " + identity.getDateOfBirth().getTime());
 
-		byte[] idFile = new byte[]{12, 11, '2', '3', '.', 'S', 'E', 'P', '.',
-				'1', '9', '8', '2'};
+		byte[] idFile = new byte[] { 12, 11, '2', '3', '.', 'S', 'E', 'P', '.',
+				'1', '9', '8', '2' };
 		Identity identity2 = TlvParser.parse(idFile, Identity.class);
 		assertEquals(identity.getDateOfBirth(), identity2.getDateOfBirth());
 	}
@@ -385,8 +392,8 @@ public class TlvParserTest {
 	@Test
 	public void testIdentityFileDoBYearOnlyWithSpaces() throws Exception {
 		// setup
-		byte[] idFile = new byte[]{12, 12, ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-				' ', '1', '9', '6', '2'};
+		byte[] idFile = new byte[] { 12, 12, ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+				' ', '1', '9', '6', '2' };
 
 		// operate
 		Identity identity = TlvParser.parse(idFile, Identity.class);
@@ -453,15 +460,15 @@ public class TlvParserTest {
 
 		// verify
 		LOG.debug("document type: " + identity.getDocumentType());
-		assertEquals(DocumentType.EUROPEAN_BLUE_CARD_H, identity
-				.getDocumentType());
+		assertEquals(DocumentType.EUROPEAN_BLUE_CARD_H,
+				identity.getDocumentType());
 		LOG.debug("duplicate: " + identity.getDuplicate());
 		assertEquals("01", identity.getDuplicate());
 		assertTrue(identity.isMemberOfFamily());
 		LOG.debug("special organisation: \""
 				+ identity.getSpecialOrganisation() + "\"");
-		assertEquals(SpecialOrganisation.UNSPECIFIED, identity
-				.getSpecialOrganisation());
+		assertEquals(SpecialOrganisation.UNSPECIFIED,
+				identity.getSpecialOrganisation());
 	}
 
 	@Test
@@ -483,7 +490,7 @@ public class TlvParserTest {
 		assertTrue(identity.isMemberOfFamily());
 		LOG.debug("special organisation: \""
 				+ identity.getSpecialOrganisation() + "\"");
-		assertEquals(SpecialOrganisation.RESEARCHER, identity
-				.getSpecialOrganisation());
+		assertEquals(SpecialOrganisation.RESEARCHER,
+				identity.getSpecialOrganisation());
 	}
 }

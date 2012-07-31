@@ -72,19 +72,24 @@ public class TlvParser {
 			DataConvertorException, UnsupportedEncodingException {
 		Field[] fields = tlvClass.getDeclaredFields();
 		Map<Integer, Field> tlvFields = new HashMap<Integer, Field>();
+		T tlvObject = tlvClass.newInstance();
 		for (Field field : fields) {
 			TlvField tlvFieldAnnotation = field.getAnnotation(TlvField.class);
-			if (null == tlvFieldAnnotation) {
-				continue;
+			if (null != tlvFieldAnnotation) {
+				int tagId = tlvFieldAnnotation.value();
+				if (tlvFields.containsKey(new Integer(tagId))) {
+					throw new IllegalArgumentException("TLV field duplicate: "
+							+ tagId);
+				}
+				tlvFields.put(new Integer(tagId), field);
 			}
-			int tagId = tlvFieldAnnotation.value();
-			if (tlvFields.containsKey(new Integer(tagId))) {
-				throw new IllegalArgumentException("TLV field duplicate: "
-						+ tagId);
+			OriginalData originalDataAnnotation = field
+					.getAnnotation(OriginalData.class);
+			if (null != originalDataAnnotation) {
+				field.setAccessible(true);
+				field.set(tlvObject, file);
 			}
-			tlvFields.put(new Integer(tagId), field);
 		}
-		T tlvObject = tlvClass.newInstance();
 
 		int idx = 0;
 		while (idx < file.length - 1) {

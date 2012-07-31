@@ -20,6 +20,7 @@ package be.fedict.commons.eid.consumer;
 
 import java.io.Serializable;
 
+import be.fedict.commons.eid.consumer.tlv.OriginalData;
 import be.fedict.commons.eid.consumer.tlv.TlvField;
 
 /**
@@ -48,6 +49,9 @@ public class Address implements Serializable {
 	@TlvField(3)
 	public String municipality;
 
+	@OriginalData
+	public byte[] data;
+
 	/*
 	 * We're also providing getters to make this class more useful within web
 	 * frameworks like JBoss Seam.
@@ -63,5 +67,9 @@ public class Address implements Serializable {
 
 	public String getMunicipality() {
 		return this.municipality;
+	}
+
+	public byte[] getData() {
+		return this.data;
 	}
 }

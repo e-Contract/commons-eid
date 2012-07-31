@@ -26,6 +26,7 @@ import be.fedict.commons.eid.consumer.tlv.ConvertData;
 import be.fedict.commons.eid.consumer.tlv.DateOfBirthDataConvertor;
 import be.fedict.commons.eid.consumer.tlv.DocumentTypeConvertor;
 import be.fedict.commons.eid.consumer.tlv.GenderDataConvertor;
+import be.fedict.commons.eid.consumer.tlv.OriginalData;
 import be.fedict.commons.eid.consumer.tlv.SpecialOrganisationConvertor;
 import be.fedict.commons.eid.consumer.tlv.SpecialStatusConvertor;
 import be.fedict.commons.eid.consumer.tlv.TlvField;
@@ -121,6 +122,9 @@ public class Identity implements Serializable {
 	@TlvField(20)
 	public boolean memberOfFamily;
 
+	@OriginalData
+	public byte[] data;
+
 	/*
 	 * We're also providing getters and a toString to make this class more
 	 * useful within web frameworks like JBoss Seam.
@@ -204,6 +208,10 @@ public class Identity implements Serializable {
 
 	public SpecialOrganisation getSpecialOrganisation() {
 		return this.specialOrganisation;
+	}
+
+	public byte[] getData() {
+		return this.data;
 	}
 
 	@Override
