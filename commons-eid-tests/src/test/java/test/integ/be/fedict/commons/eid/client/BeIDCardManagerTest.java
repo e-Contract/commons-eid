@@ -19,9 +19,9 @@
 package test.integ.be.fedict.commons.eid.client;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.security.cert.CertificateFactory;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
 import javax.smartcardio.CardTerminal;
@@ -34,9 +34,11 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
+import be.fedict.commons.eid.client.spi.UI;
 import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
 import be.fedict.commons.eid.consumer.Identity;
+import be.fedict.eid.commons.dialogs.DefaultDialogs;
 
 public class BeIDCardManagerTest {
 
@@ -56,15 +58,8 @@ public class BeIDCardManagerTest {
 		LOG.debug("reading identity signature file");
 		byte[] identitySignatureFile = beIDCard
 				.readFile(BeIDFileType.IdentitySignature);
-		LOG.debug("reading RRN certificate file");
-		byte[] rrnCertificateFile = beIDCard
-				.readFile(BeIDFileType.RRNCertificate);
 
-		CertificateFactory certificateFactory = CertificateFactory
-				.getInstance("X.509");
-		X509Certificate rrnCertificate = (X509Certificate) certificateFactory
-				.generateCertificate(new ByteArrayInputStream(
-						rrnCertificateFile));
+		X509Certificate rrnCertificate = beIDCard.getRRNCertificate();
 
 		byte[] photoFile = beIDCard.readFile(BeIDFileType.Photo);
 		byte[] addressFile = beIDCard.readFile(BeIDFileType.Address);
@@ -172,5 +167,36 @@ public class BeIDCardManagerTest {
 						"Fake NPE attempting to trash a BeIDCardEventsListener");
 			}
 		}
+	}
+
+	@Test
+	public void testAuthnSignature() throws Exception {
+		TestLogger logger = new TestLogger();
+		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
+		BeIDCard beIDCard = beIDCardManager.getFirstBeIDCard();
+		assertNotNull(beIDCard);
+
+		UI userInterface = new DefaultDialogs();
+		beIDCard.setUserInterface(userInterface);
+
+		byte[] toBeSigned = new byte[10];
+		SecureRandom secureRandom = new SecureRandom();
+		secureRandom.nextBytes(toBeSigned);
+
+		X509Certificate authnCertificate = beIDCard
+				.getAuthenticationCertificate();
+
+		byte[] signatureValue;
+		try {
+			signatureValue = beIDCard.signAuthn(toBeSigned, false);
+		} finally {
+			beIDCard.close();
+		}
+
+		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		boolean result = beIDIntegrity.verifyAuthnSignature(toBeSigned,
+				signatureValue, authnCertificate);
+
+		assertTrue(result);
 	}
 }
