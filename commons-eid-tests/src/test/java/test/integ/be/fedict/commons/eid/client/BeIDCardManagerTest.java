@@ -44,13 +44,20 @@ public class BeIDCardManagerTest {
 
 	private static final Log LOG = LogFactory.getLog(BeIDCardManagerTest.class);
 
-	@Test
-	public void testReadFiles() throws Exception {
+	private BeIDCard getBeIDCard() throws Exception {
 		TestLogger logger = new TestLogger();
 		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
 		BeIDCard beIDCard = beIDCardManager.getFirstBeIDCard();
 		assertNotNull(beIDCard);
 
+		UI userInterface = new DefaultDialogs();
+		beIDCard.setUserInterface(userInterface);
+		return beIDCard;
+	}
+
+	@Test
+	public void testReadFiles() throws Exception {
+		BeIDCard beIDCard = getBeIDCard();
 		beIDCard.addCardListener(new TestBeIDCardListener());
 
 		LOG.debug("reading identity file");
@@ -171,13 +178,7 @@ public class BeIDCardManagerTest {
 
 	@Test
 	public void testAuthnSignature() throws Exception {
-		TestLogger logger = new TestLogger();
-		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
-		BeIDCard beIDCard = beIDCardManager.getFirstBeIDCard();
-		assertNotNull(beIDCard);
-
-		UI userInterface = new DefaultDialogs();
-		beIDCard.setUserInterface(userInterface);
+		BeIDCard beIDCard = getBeIDCard();
 
 		byte[] toBeSigned = new byte[10];
 		SecureRandom secureRandom = new SecureRandom();
@@ -198,5 +199,16 @@ public class BeIDCardManagerTest {
 				signatureValue, authnCertificate);
 
 		assertTrue(result);
+	}
+
+	@Test
+	public void testChangePIN() throws Exception {
+		BeIDCard beIDCard = getBeIDCard();
+
+		try {
+			beIDCard.changePin(false);
+		} finally {
+			beIDCard.close();
+		}
 	}
 }
