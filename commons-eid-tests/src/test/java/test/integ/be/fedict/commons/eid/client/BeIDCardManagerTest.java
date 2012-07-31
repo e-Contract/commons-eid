@@ -34,6 +34,7 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
+import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
 import be.fedict.commons.eid.consumer.Identity;
 
@@ -65,16 +66,25 @@ public class BeIDCardManagerTest {
 				.generateCertificate(new ByteArrayInputStream(
 						rrnCertificateFile));
 
-		byte[] photo = beIDCard.readFile(BeIDFileType.Photo);
+		byte[] photoFile = beIDCard.readFile(BeIDFileType.Photo);
+		byte[] addressFile = beIDCard.readFile(BeIDFileType.Address);
+		byte[] addressSignatureFile = beIDCard
+				.readFile(BeIDFileType.AddressSignature);
 
 		beIDCard.close();
 
 		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile,
-				identitySignatureFile, photo, rrnCertificate);
+				identitySignatureFile, photoFile, rrnCertificate);
 
 		assertNotNull(identity);
 		assertNotNull(identity.getNationalNumber());
+
+		Address address = beIDIntegrity.getVerifiedAddress(addressFile,
+				identitySignatureFile, addressSignatureFile, rrnCertificate);
+
+		assertNotNull(address);
+		assertNotNull(address.getStreetAndNumber());
 	}
 
 	@Test

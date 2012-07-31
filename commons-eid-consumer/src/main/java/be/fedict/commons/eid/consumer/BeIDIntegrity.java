@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2012 FedICT.
+ * Copyright (C) 2009 Frank Cornelis.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -93,5 +94,39 @@ public class BeIDIntegrity {
 			}
 		}
 		return identity;
+	}
+
+	public Address getVerifiedAddress(byte[] addressFile,
+			byte[] identitySignatureFile, byte[] addressSignatureFile,
+			X509Certificate rrnCertificate) {
+		byte[] trimmedAddressFile = trimRight(addressFile);
+		PublicKey publicKey = rrnCertificate.getPublicKey();
+		boolean result;
+		try {
+			result = verifySignature(addressSignatureFile, publicKey,
+					trimmedAddressFile, identitySignatureFile);
+		} catch (Exception e) {
+			throw new SecurityException(
+					"address signature verification error: " + e.getMessage(),
+					e);
+		}
+		if (false == result) {
+			return null;
+		}
+		Address address = TlvParser.parse(addressFile, Address.class);
+		return address;
+
+	}
+
+	private byte[] trimRight(byte[] addressFile) {
+		int idx;
+		for (idx = 0; idx < addressFile.length; idx++) {
+			if (0 == addressFile[idx]) {
+				break;
+			}
+		}
+		byte[] result = new byte[idx];
+		System.arraycopy(addressFile, 0, result, 0, idx);
+		return result;
 	}
 }
