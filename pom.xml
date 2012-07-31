@@ -27,6 +27,7 @@
 		</developer>
 	</developers>
 	<modules>
+		<module>commons-eid-bom</module>
 		<module>commons-eid-client</module>
 		<module>commons-eid-consumer</module>
 		<module>commons-eid-dialogs</module>
