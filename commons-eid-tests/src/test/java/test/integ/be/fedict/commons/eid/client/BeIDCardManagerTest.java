@@ -21,6 +21,7 @@ package test.integ.be.fedict.commons.eid.client;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
@@ -34,6 +35,7 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
+import be.fedict.commons.eid.client.impl.BeIDDigest;
 import be.fedict.commons.eid.client.spi.UI;
 import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
@@ -210,5 +212,31 @@ public class BeIDCardManagerTest {
 		} finally {
 			beIDCard.close();
 		}
+	}
+
+	@Test
+	public void testNonRepSignature() throws Exception {
+		byte[] toBeSigned = new byte[10];
+		SecureRandom secureRandom = new SecureRandom();
+		secureRandom.nextBytes(toBeSigned);
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
+		byte[] digestValue = messageDigest.digest(toBeSigned);
+
+		BeIDCard beIDCard = getBeIDCard();
+		X509Certificate signingCertificate;
+		byte[] signatureValue;
+		try {
+			signatureValue = beIDCard.sign(digestValue, BeIDDigest.SHA_1,
+					BeIDFileType.SigningCertificate, false);
+			assertNotNull(signatureValue);
+			signingCertificate = beIDCard.getSigningCertificate();
+		} finally {
+			beIDCard.close();
+		}
+
+		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		boolean result = beIDIntegrity.verifyNonRepSignature(digestValue,
+				signatureValue, signingCertificate);
+		assertTrue(result);
 	}
 }
