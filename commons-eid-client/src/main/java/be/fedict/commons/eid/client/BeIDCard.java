@@ -895,6 +895,15 @@ public class BeIDCard {
 	public void setUserInterface(UI userInterface) {
 		this.userInterface = userInterface;
 	}
+	
+	public void logoff() throws Exception {
+		CommandAPDU logoffApdu = new CommandAPDU(0x80, 0xE6, 0x00, 0x00);
+		this.logger.debug("logoff...");
+		ResponseAPDU responseApdu = transmit(logoffApdu);
+		if (0x9000 != responseApdu.getSW()) {
+			throw new RuntimeException("logoff failed");
+		}
+	}
 
 	// ----------------------------------------------------------------------------------------------------------------------------------
 
