@@ -1,0 +1,24 @@
+FedICT Commons eID Project
+
+  Welcome to the project site of the FedICT Commons eID Project.
+  The Commons eID project delivers several artifacts.
+  
+* Commons eID Client
+
+  This artifact contains the basic eID I/O code to read out eID files, and to sign.
+
+* Commons eID Dialogs
+
+  This artifact contains generic dialogs for eID PIN entry and such.
+
+* Commons eID Consumer
+
+  This artifact contains eID consumer handling code like for example the TLV parser.
+
+* Commons eID JCA
+
+  This artifact provides a JCA security provider for the eID card.
+
+* Commons eID BOM
+
+  This artifact delivers a bill of materials POM for the Commons eID project.
