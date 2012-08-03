@@ -27,9 +27,11 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
+import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -40,15 +42,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
+import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.BeIDCardManager;
+import be.fedict.commons.eid.client.spi.UI;
 import be.fedict.commons.eid.consumer.jca.ProxyPrivateKey;
 import be.fedict.commons.eid.consumer.jca.ProxyProvider;
+import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
+import be.fedict.commons.eid.jca.BeIDProvider;
+import be.fedict.eid.commons.dialogs.DefaultDialogs;
 
 public class JCATest {
 
 	private static final Log LOG = LogFactory.getLog(JCATest.class);
 
 	@Test
-	public void testKeyStore() throws Exception {
+	public void testProxySignature() throws Exception {
 		Security.addProvider(new ProxyProvider());
 
 		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -116,5 +124,90 @@ public class JCATest {
 		privateKey.setSignatureValue(signatureValue);
 		String signResult = signTask.get();
 		assertNotNull(signResult);
+	}
+
+	@Test
+	public void testBeIDSignature() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
+		BeIDCard beIDCard = getBeIDCard();
+		keyStoreParameter.setBeIDCard(beIDCard);
+		keyStoreParameter.setLogoff(true);
+		keyStore.load(keyStoreParameter);
+
+		Enumeration<String> aliases = keyStore.aliases();
+		while (aliases.hasMoreElements()) {
+			String alias = aliases.nextElement();
+			LOG.debug("alias: " + alias);
+		}
+
+		assertEquals(2, keyStore.size());
+
+		assertTrue(keyStore.containsAlias("Signature"));
+		assertTrue(keyStore.containsAlias("Authentication"));
+		assertNotNull(keyStore.getCreationDate("Signature"));
+		assertNotNull(keyStore.getCreationDate("Authentication"));
+
+		assertTrue(keyStore.isCertificateEntry("Signature"));
+		X509Certificate signCertificate = (X509Certificate) keyStore
+				.getCertificate("Signature");
+		assertNotNull(signCertificate);
+
+		assertTrue(keyStore.isCertificateEntry("Authentication"));
+		X509Certificate authnCertificate = (X509Certificate) keyStore
+				.getCertificate("Authentication");
+		assertNotNull(authnCertificate);
+
+		assertNotNull(keyStore.getCertificateChain("Signature"));
+		assertNotNull(keyStore.getCertificateChain("Authentication"));
+
+		assertTrue(keyStore.isKeyEntry("Authentication"));
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+				"Authentication", null);
+		assertNotNull(authnPrivateKey);
+
+		assertTrue(keyStore.isKeyEntry("Signature"));
+		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature",
+				null);
+		assertNotNull(signPrivateKey);
+
+		Signature signature = Signature.getInstance("SHA1withRSA");
+		signature.initSign(authnPrivateKey);
+		assertTrue(signature.getProvider() instanceof BeIDProvider);
+
+		byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		byte[] signatureValue = signature.sign();
+		assertNotNull(signatureValue);
+
+		signature = Signature.getInstance("SHA1withRSA");
+		signature.initVerify(authnCertificate.getPublicKey());
+		signature.update(toBeSigned);
+		boolean result = signature.verify(signatureValue);
+		assertTrue(result);
+
+		signature = Signature.getInstance("SHA256withRSA");
+		signature.initSign(signPrivateKey);
+		signature.update(toBeSigned);
+		signatureValue = signature.sign();
+
+		signature = Signature.getInstance("SHA256withRSA");
+		signature.initVerify(signCertificate.getPublicKey());
+		signature.update(toBeSigned);
+		result = signature.verify(signatureValue);
+		assertTrue(result);
+	}
+
+	private BeIDCard getBeIDCard() throws Exception {
+		TestLogger logger = new TestLogger();
+		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
+		BeIDCard beIDCard = beIDCardManager.getFirstBeIDCard();
+		assertNotNull(beIDCard);
+
+		UI userInterface = new DefaultDialogs();
+		beIDCard.setUserInterface(userInterface);
+		return beIDCard;
 	}
 }
