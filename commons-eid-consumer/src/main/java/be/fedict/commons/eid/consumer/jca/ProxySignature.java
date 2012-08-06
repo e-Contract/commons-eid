@@ -46,6 +46,8 @@ public class ProxySignature extends SignatureSpi {
 		digestAlgos = new HashMap<String, String>();
 		digestAlgos.put("SHA1withRSA", "SHA-1");
 		digestAlgos.put("SHA256withRSA", "SHA-256");
+		digestAlgos.put("SHA384withRSA", "SHA-384");
+		digestAlgos.put("SHA512withRSA", "SHA-512");
 	}
 
 	public ProxySignature(String algorithm) throws NoSuchAlgorithmException {

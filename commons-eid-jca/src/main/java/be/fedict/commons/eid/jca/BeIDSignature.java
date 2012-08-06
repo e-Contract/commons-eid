@@ -51,12 +51,17 @@ public class BeIDSignature extends SignatureSpi {
 		digestAlgos = new HashMap<String, String>();
 		digestAlgos.put("SHA1withRSA", "SHA-1");
 		digestAlgos.put("SHA256withRSA", "SHA-256");
+		digestAlgos.put("SHA384withRSA", "SHA-384");
+		digestAlgos.put("SHA512withRSA", "SHA-512");
 	}
 
 	BeIDSignature(String signatureAlgorithm) throws NoSuchAlgorithmException {
 		LOG.debug("constructor: " + signatureAlgorithm);
 		this.signatureAlgorithm = signatureAlgorithm;
 		String digestAlgo = digestAlgos.get(signatureAlgorithm);
+		if (null == digestAlgo) {
+			throw new NoSuchAlgorithmException(signatureAlgorithm);
+		}
 		this.messageDigest = MessageDigest.getInstance(digestAlgo);
 	}
 

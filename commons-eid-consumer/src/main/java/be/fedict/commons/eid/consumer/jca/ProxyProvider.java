@@ -46,6 +46,10 @@ public class ProxyProvider extends Provider {
 				ProxySignature.class.getName(), signatureServiceAttributes));
 		putService(new ProxyService(this, "Signature", "SHA256withRSA",
 				ProxySignature.class.getName(), signatureServiceAttributes));
+		putService(new ProxyService(this, "Signature", "SHA384withRSA",
+				ProxySignature.class.getName(), signatureServiceAttributes));
+		putService(new ProxyService(this, "Signature", "SHA512withRSA",
+				ProxySignature.class.getName(), signatureServiceAttributes));
 	}
 
 	public static final class ProxyService extends Service {
