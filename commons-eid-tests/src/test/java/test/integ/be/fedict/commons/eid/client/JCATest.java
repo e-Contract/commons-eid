@@ -182,6 +182,11 @@ public class JCATest {
 		byte[] signatureValue = signature.sign();
 		assertNotNull(signatureValue);
 
+		signature.initVerify(authnCertificate.getPublicKey());
+		signature.update(toBeSigned);
+		boolean beIDResult = signature.verify(signatureValue);
+		assertTrue(beIDResult);
+
 		signature = Signature.getInstance("SHA1withRSA");
 		signature.initVerify(authnCertificate.getPublicKey());
 		signature.update(toBeSigned);
@@ -192,6 +197,11 @@ public class JCATest {
 		signature.initSign(signPrivateKey);
 		signature.update(toBeSigned);
 		signatureValue = signature.sign();
+
+		signature.initVerify(signCertificate.getPublicKey());
+		signature.update(toBeSigned);
+		beIDResult = signature.verify(signatureValue);
+		assertTrue(beIDResult);
 
 		signature = Signature.getInstance("SHA256withRSA");
 		signature.initVerify(signCertificate.getPublicKey());
