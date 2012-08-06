@@ -20,6 +20,8 @@ package be.fedict.commons.eid.jca;
 
 import java.security.PrivateKey;
 import java.security.SignatureException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,6 +41,16 @@ public class BeIDPrivateKey implements PrivateKey {
 	private final BeIDCard beIDCard;
 
 	private final boolean logoff;
+
+	private final static Map<String, BeIDDigest> beIDDigests;
+
+	static {
+		beIDDigests = new HashMap<String, BeIDDigest>();
+		beIDDigests.put("SHA-1", BeIDDigest.SHA_1);
+		beIDDigests.put("SHA-256", BeIDDigest.SHA_256);
+		beIDDigests.put("SHA-384", BeIDDigest.SHA_384);
+		beIDDigests.put("SHA-512", BeIDDigest.SHA_512);
+	}
 
 	public BeIDPrivateKey(BeIDFileType certificateFileType, BeIDCard beIDCard,
 			boolean logoff) {
@@ -65,12 +77,8 @@ public class BeIDPrivateKey implements PrivateKey {
 
 	byte[] sign(byte[] digestValue, String digestAlgo)
 			throws SignatureException {
-		BeIDDigest beIDDigest;
-		if ("SHA-1".equals(digestAlgo)) {
-			beIDDigest = BeIDDigest.SHA_1;
-		} else if ("SHA-256".equals(digestAlgo)) {
-			beIDDigest = BeIDDigest.SHA_256;
-		} else {
+		BeIDDigest beIDDigest = beIDDigests.get(digestAlgo);
+		if (null == beIDDigest) {
 			throw new SignatureException("unsupported algo: " + digestAlgo);
 		}
 		byte[] signatureValue;

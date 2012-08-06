@@ -28,6 +28,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
@@ -173,8 +174,20 @@ public class JCATest {
 				null);
 		assertNotNull(signPrivateKey);
 
-		Signature signature = Signature.getInstance("SHA1withRSA");
-		signature.initSign(authnPrivateKey);
+		verifySignatureAlgorithm("SHA1withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA256withRSA", signPrivateKey,
+				signCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA384withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA512withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+	}
+
+	private void verifySignatureAlgorithm(String signatureAlgorithm,
+			PrivateKey privateKey, PublicKey publicKey) throws Exception {
+		Signature signature = Signature.getInstance(signatureAlgorithm);
+		signature.initSign(privateKey);
 		assertTrue(signature.getProvider() instanceof BeIDProvider);
 
 		byte[] toBeSigned = "hello world".getBytes();
@@ -182,31 +195,15 @@ public class JCATest {
 		byte[] signatureValue = signature.sign();
 		assertNotNull(signatureValue);
 
-		signature.initVerify(authnCertificate.getPublicKey());
+		signature.initVerify(publicKey);
 		signature.update(toBeSigned);
 		boolean beIDResult = signature.verify(signatureValue);
 		assertTrue(beIDResult);
 
-		signature = Signature.getInstance("SHA1withRSA");
-		signature.initVerify(authnCertificate.getPublicKey());
+		signature = Signature.getInstance(signatureAlgorithm);
+		signature.initVerify(publicKey);
 		signature.update(toBeSigned);
 		boolean result = signature.verify(signatureValue);
-		assertTrue(result);
-
-		signature = Signature.getInstance("SHA256withRSA");
-		signature.initSign(signPrivateKey);
-		signature.update(toBeSigned);
-		signatureValue = signature.sign();
-
-		signature.initVerify(signCertificate.getPublicKey());
-		signature.update(toBeSigned);
-		beIDResult = signature.verify(signatureValue);
-		assertTrue(beIDResult);
-
-		signature = Signature.getInstance("SHA256withRSA");
-		signature.initVerify(signCertificate.getPublicKey());
-		signature.update(toBeSigned);
-		result = signature.verify(signatureValue);
 		assertTrue(result);
 	}
 
