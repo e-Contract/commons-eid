@@ -18,6 +18,7 @@
 
 package test.integ.be.fedict.commons.eid.client;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -38,6 +39,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -182,6 +187,48 @@ public class JCATest {
 				authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA512withRSA", authnPrivateKey,
 				authnCertificate.getPublicKey());
+	}
+
+	@Test
+	public void testSoftwareRSAKeyWrapping() throws Exception {
+		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+		KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+		SecretKey secretKey = keyGenerator.generateKey();
+		LOG.debug("secret key algo: " + secretKey.getAlgorithm());
+
+		Cipher cipher = Cipher.getInstance("RSA");
+		cipher.init(Cipher.WRAP_MODE, keyPair.getPublic());
+		LOG.debug("cipher security provider: " + cipher.getProvider().getName());
+		LOG.debug("cipher type: " + cipher.getClass().getName());
+		byte[] wrappedKey = cipher.wrap(secretKey);
+
+		cipher.init(Cipher.UNWRAP_MODE, keyPair.getPrivate());
+		Key resultKey = cipher.unwrap(wrappedKey, "AES", Cipher.SECRET_KEY);
+
+		assertArrayEquals(secretKey.getEncoded(), resultKey.getEncoded());
+
+	}
+
+	@Test
+	public void testAutoFindCard() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		// keyStore.load(null);
+		keyStore.load(null, null);
+
+		Enumeration<String> aliases = keyStore.aliases();
+		assertNotNull(aliases);
+		while (aliases.hasMoreElements()) {
+			String alias = aliases.nextElement();
+			LOG.debug("alias: " + alias);
+		}
+
+		X509Certificate authnCertificate = (X509Certificate) keyStore
+				.getCertificate("Authentication");
+		assertNotNull(authnCertificate);
 	}
 
 	private void verifySignatureAlgorithm(String signatureAlgorithm,

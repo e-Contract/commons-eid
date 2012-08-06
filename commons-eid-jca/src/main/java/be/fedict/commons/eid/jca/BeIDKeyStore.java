@@ -39,7 +39,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.BeIDFileType;
+import be.fedict.commons.eid.client.spi.UI;
+import be.fedict.eid.commons.dialogs.DefaultDialogs;
 
 public class BeIDKeyStore extends KeyStoreSpi {
 
@@ -53,15 +56,16 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	public Key engineGetKey(String alias, char[] password)
 			throws NoSuchAlgorithmException, UnrecoverableKeyException {
 		LOG.debug("engineGetKey: " + alias);
+		BeIDCard beIDCard = getBeIDCard();
 		if ("Authentication".equals(alias)) {
 			BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(
-					BeIDFileType.AuthentificationCertificate, this.beIDCard,
+					BeIDFileType.AuthentificationCertificate, beIDCard,
 					this.logoff);
 			return beIDPrivateKey;
 		}
 		if ("Signature".equals(alias)) {
 			BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(
-					BeIDFileType.SigningCertificate, this.beIDCard, this.logoff);
+					BeIDFileType.SigningCertificate, beIDCard, this.logoff);
 			return beIDPrivateKey;
 		}
 		return null;
@@ -70,9 +74,10 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	@Override
 	public Certificate[] engineGetCertificateChain(String alias) {
 		LOG.debug("engineGetCertificateChain: " + alias);
+		BeIDCard beIDCard = getBeIDCard();
 		if ("Signature".equals(alias)) {
 			try {
-				List<X509Certificate> signingCertificateChain = this.beIDCard
+				List<X509Certificate> signingCertificateChain = beIDCard
 						.getSigningCertificateChain();
 				return signingCertificateChain
 						.toArray(new X509Certificate[] {});
@@ -83,7 +88,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		}
 		if ("Authentication".equals(alias)) {
 			try {
-				List<X509Certificate> signingCertificateChain = this.beIDCard
+				List<X509Certificate> signingCertificateChain = beIDCard
 						.getAuthenticationCertificateChain();
 				return signingCertificateChain
 						.toArray(new X509Certificate[] {});
@@ -98,9 +103,10 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	@Override
 	public Certificate engineGetCertificate(String alias) {
 		LOG.debug("engineGetCertificate: " + alias);
+		BeIDCard beIDCard = getBeIDCard();
 		if ("Signature".equals(alias)) {
 			try {
-				return this.beIDCard.getSigningCertificate();
+				return beIDCard.getSigningCertificate();
 			} catch (Exception e) {
 				LOG.warn("error: " + e.getMessage(), e);
 				return null;
@@ -108,7 +114,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		}
 		if ("Authentication".equals(alias)) {
 			try {
-				return this.beIDCard.getAuthenticationCertificate();
+				return beIDCard.getAuthenticationCertificate();
 			} catch (Exception e) {
 				LOG.warn("error: " + e.getMessage(), e);
 				return null;
@@ -129,20 +135,24 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	@Override
 	public void engineSetKeyEntry(String alias, Key key, char[] password,
 			Certificate[] chain) throws KeyStoreException {
+		throw new KeyStoreException();
 	}
 
 	@Override
 	public void engineSetKeyEntry(String alias, byte[] key, Certificate[] chain)
 			throws KeyStoreException {
+		throw new KeyStoreException();
 	}
 
 	@Override
 	public void engineSetCertificateEntry(String alias, Certificate cert)
 			throws KeyStoreException {
+		throw new KeyStoreException();
 	}
 
 	@Override
 	public void engineDeleteEntry(String alias) throws KeyStoreException {
+		throw new KeyStoreException();
 	}
 
 	@Override
@@ -210,6 +220,9 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	@Override
 	public void engineLoad(LoadStoreParameter param) throws IOException,
 			NoSuchAlgorithmException, CertificateException {
+		if (null == param) {
+			return;
+		}
 		if (false == param instanceof BeIDKeyStoreParameter) {
 			throw new NoSuchAlgorithmException();
 		}
@@ -217,5 +230,18 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		LOG.debug("engineLoad");
 		this.beIDCard = keyStoreParameter.getBeIDCard();
 		this.logoff = keyStoreParameter.getLogoff();
+	}
+
+	private BeIDCard getBeIDCard() {
+		if (null == this.beIDCard) {
+			BeIDCardManager beIDCardManager = new BeIDCardManager();
+			this.beIDCard = beIDCardManager.getFirstBeIDCard();
+			if (null == this.beIDCard) {
+				throw new SecurityException("missing eID card");
+			}
+			UI userInterface = new DefaultDialogs();
+			this.beIDCard.setUserInterface(userInterface);
+		}
+		return this.beIDCard;
 	}
 }
