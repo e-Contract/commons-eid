@@ -24,6 +24,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Signature;
 import java.security.SignatureException;
 import java.security.SignatureSpi;
 import java.util.HashMap;
@@ -42,6 +43,10 @@ public class BeIDSignature extends SignatureSpi {
 
 	private BeIDPrivateKey privateKey;
 
+	private Signature verifySignature;
+
+	private final String signatureAlgorithm;
+
 	static {
 		digestAlgos = new HashMap<String, String>();
 		digestAlgos.put("SHA1withRSA", "SHA-1");
@@ -50,6 +55,7 @@ public class BeIDSignature extends SignatureSpi {
 
 	BeIDSignature(String signatureAlgorithm) throws NoSuchAlgorithmException {
 		LOG.debug("constructor: " + signatureAlgorithm);
+		this.signatureAlgorithm = signatureAlgorithm;
 		String digestAlgo = digestAlgos.get(signatureAlgorithm);
 		this.messageDigest = MessageDigest.getInstance(digestAlgo);
 	}
@@ -57,6 +63,17 @@ public class BeIDSignature extends SignatureSpi {
 	@Override
 	protected void engineInitVerify(PublicKey publicKey)
 			throws InvalidKeyException {
+		LOG.debug("engineInitVerify");
+		if (null == this.verifySignature) {
+			try {
+				this.verifySignature = Signature
+						.getInstance(this.signatureAlgorithm);
+			} catch (NoSuchAlgorithmException e) {
+				throw new InvalidKeyException(
+						"no such algo: " + e.getMessage(), e);
+			}
+		}
+		this.verifySignature.initVerify(publicKey);
 	}
 
 	@Override
@@ -73,12 +90,18 @@ public class BeIDSignature extends SignatureSpi {
 	@Override
 	protected void engineUpdate(byte b) throws SignatureException {
 		this.messageDigest.update(b);
+		if (null != this.verifySignature) {
+			this.verifySignature.update(b);
+		}
 	}
 
 	@Override
 	protected void engineUpdate(byte[] b, int off, int len)
 			throws SignatureException {
 		this.messageDigest.update(b, off, len);
+		if (null != this.verifySignature) {
+			this.verifySignature.update(b, off, len);
+		}
 	}
 
 	@Override
@@ -91,7 +114,12 @@ public class BeIDSignature extends SignatureSpi {
 
 	@Override
 	protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
-		return false;
+		LOG.debug("engineVerify");
+		if (null == this.verifySignature) {
+			throw new SignatureException("initVerify required");
+		}
+		boolean result = this.verifySignature.verify(sigBytes);
+		return result;
 	}
 
 	@Override
