@@ -113,8 +113,8 @@ public class BeIDSignature extends SignatureSpi {
 	protected byte[] engineSign() throws SignatureException {
 		LOG.debug("engineSign");
 		byte[] digestValue = this.messageDigest.digest();
-		return this.privateKey.sign(digestValue,
-				this.messageDigest.getAlgorithm());
+		return this.privateKey.sign(digestValue, this.messageDigest
+				.getAlgorithm());
 	}
 
 	@Override

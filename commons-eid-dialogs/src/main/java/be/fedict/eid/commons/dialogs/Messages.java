@@ -23,7 +23,7 @@ import java.util.ResourceBundle;
 import javax.swing.UIManager;
 
 /**
- * Util class to manage the i18n messages used within the eID Applet UI.
+ * Util class to manage the i18n messages used within the eID Applet BeIDCardUI.
  * 
  * @author Frank Cornelis
  * 

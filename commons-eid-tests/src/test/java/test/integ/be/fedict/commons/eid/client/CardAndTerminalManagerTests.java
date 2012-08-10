@@ -72,29 +72,6 @@ public class CardAndTerminalManagerTests {
 		simulatedCardTerminals = new SimulatedCardTerminals();
 	}
 
-	/*
-	 * Tests cardAndTerminalEventsManager procedural call: instantiate, then
-	 * call getTerminalsPresent and/or getTerminalsWithCards
-	 */
-	@Test
-	public void testSynchronous() throws Exception {
-		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager(
-				new TestLogger(), simulatedCardTerminals);
-
-		for (SimulatedCardTerminal terminal : simulatedCardTerminal) {
-			simulatedCardTerminals.attachCardTerminal(terminal);
-
-			for (SimulatedCard card : simulatedBeIDCard) {
-				terminal.insertCard(card);
-				StringUtils
-						.printTerminalAndCardOverviewLine(cardAndTerminalManager);
-				terminal.removeCard();
-			}
-
-			simulatedCardTerminals.detachCardTerminal(terminal);
-		}
-	}
-
 	// ---------------------------------------------------------------------------------------------
 
 	private class RecordKeepingCardTerminalEventsListener

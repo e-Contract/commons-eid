@@ -18,6 +18,7 @@
 
 package be.fedict.commons.eid.client;
 
+import java.awt.GraphicsEnvironment;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -39,14 +40,17 @@ import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
-import be.fedict.commons.eid.client.impl.CCID;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
-import be.fedict.commons.eid.client.impl.MissingUI;
+import be.fedict.commons.eid.client.impl.CCID;
 import be.fedict.commons.eid.client.impl.VoidLogger;
-import be.fedict.commons.eid.client.spi.UI;
 import be.fedict.commons.eid.client.spi.Logger;
+import be.fedict.commons.eid.client.spi.BeIDCardUI;
 
 public class BeIDCard {
+	private static final String UI_MISSING_LOG_MESSAGE = "No BeIDCardUI set and can't load DefaultBeIDCardUI";
+	private static final String UI_DEFAULT_REQUIRES_HEAD = "No BeIDCardUI set and DefaultBeIDCardUI requires a graphical environment";
+	private static final String DEFAULT_UI_IMPLEMENTATION = "be.fedict.eid.commons.dialogs.DefaultBeIDCardUI";
+
 	private static final byte[] BELPIC_AID = new byte[]{(byte) 0xA0, 0x00,
 			0x00, 0x01, 0x77, 0x50, 0x4B, 0x43, 0x53, 0x2D, 0x31, 0x35};
 	private static final byte[] APPLET_AID = new byte[]{(byte) 0xA0, 0x00,
@@ -58,10 +62,10 @@ public class BeIDCard {
 	private final List<BeIDCardListener> cardListeners;
 
 	private final CertificateFactory certificateFactory;
-	
+
 	private final Card card;
 	private final Logger logger;
-	private UI userInterface;
+	private BeIDCardUI ui;
 	private Locale locale;
 
 	public BeIDCard(Card card, Logger logger) {
@@ -73,12 +77,10 @@ public class BeIDCard {
 		this.logger = logger;
 		this.cardListeners = new LinkedList<BeIDCardListener>();
 		try {
-			this.certificateFactory = CertificateFactory
-					.getInstance("X.509");
+			this.certificateFactory = CertificateFactory.getInstance("X.509");
 		} catch (CertificateException e) {
 			throw new RuntimeException("X.509 algo", e);
 		}
-		this.userInterface = new MissingUI();
 	}
 
 	public BeIDCard(Card card) {
@@ -332,7 +334,7 @@ public class BeIDCard {
 				this.logger.debug("SW: "
 						+ Integer.toHexString(responseApdu.getSW()));
 				if (0x6983 == responseApdu.getSW()) {
-					this.userInterface.advisePINBlocked();
+					getUI().advisePINBlocked();
 					throw new ResponseAPDUException("eID card blocked!",
 							responseApdu);
 				}
@@ -345,7 +347,7 @@ public class BeIDCard {
 				this.logger.debug("retries left: " + retriesLeft);
 			}
 		} while (0x9000 != responseApdu.getSW());
-		this.userInterface.advisePINChanged();
+		getUI().advisePINChanged();
 	}
 
 	/*
@@ -378,7 +380,7 @@ public class BeIDCard {
 		Integer eIDPINPadReaderFeature = CCID.getFeature(this.card,
 				CCID.FEATURE_EID_PIN_PAD_READER_TAG);
 		if (null != eIDPINPadReaderFeature) {
-			this.userInterface.adviseSecureReaderOperation();
+			getUI().adviseSecureReaderOperation();
 		}
 		byte[] signature;
 		try {
@@ -388,7 +390,7 @@ public class BeIDCard {
 					requireSecureReader);
 		} finally {
 			if (null != eIDPINPadReaderFeature) {
-				this.userInterface.adviseSecureReaderOperationEnd();
+				getUI().adviseSecureReaderOperationEnd();
 			}
 		}
 		return signature;
@@ -426,7 +428,7 @@ public class BeIDCard {
 				this.logger.debug("SW: "
 						+ Integer.toHexString(responseApdu.getSW()));
 				if (0x6983 == responseApdu.getSW()) {
-					this.userInterface.advisePINBlocked();
+					getUI().advisePINBlocked();
 					throw new ResponseAPDUException("eID card blocked!",
 							responseApdu);
 				}
@@ -449,14 +451,14 @@ public class BeIDCard {
 		this.logger.debug("CCID verify PIN start/end sequence...");
 		byte[] verifyCommandData = CCID.createPINVerificationDataStructure(
 				getLocale(), 0x20);
-		this.userInterface.advisePINPadPINEntry(retriesLeft);
+		getUI().advisePINPadPINEntry(retriesLeft);
 		try {
 			int getKeyPressedFeature = CCID.getFeature(this.card,
 					CCID.FEATURE_GET_KEY_PRESSED_TAG);
 			transmitControlCommand(verifyPinStartFeature, verifyCommandData);
 			CCID.waitForOK(this.card, getKeyPressedFeature);
 		} finally {
-			this.userInterface.advisePINPadOperationEnd();
+			getUI().advisePINPadOperationEnd();
 		}
 		int verifyPinFinishIoctl = CCID.getFeature(this.card,
 				CCID.FEATURE_VERIFY_PIN_FINISH_TAG);
@@ -473,13 +475,13 @@ public class BeIDCard {
 		this.logger.debug("direct PIN verification...");
 		byte[] verifyCommandData = CCID.createPINVerificationDataStructure(
 				getLocale(), 0x20);
-		this.userInterface.advisePINPadPINEntry(retriesLeft);
+		getUI().advisePINPadPINEntry(retriesLeft);
 		byte[] result;
 		try {
 			result = transmitControlCommand(directPinVerifyFeature,
 					verifyCommandData);
 		} finally {
-			this.userInterface.advisePINPadOperationEnd();
+			getUI().advisePINPadOperationEnd();
 		}
 		ResponseAPDU responseApdu = new ResponseAPDU(result);
 		if (0x6401 == responseApdu.getSW()) {
@@ -496,7 +498,7 @@ public class BeIDCard {
 	}
 
 	private ResponseAPDU verifyPin(int retriesLeft) throws CardException {
-		char[] pin = this.userInterface.obtainPIN(retriesLeft);
+		char[] pin = getUI().obtainPIN(retriesLeft);
 		byte[] verifyData = new byte[]{(byte) (0x20 | pin.length), (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF};
@@ -537,20 +539,20 @@ public class BeIDCard {
 
 		try {
 			this.logger.debug("enter old PIN...");
-			this.userInterface.advisePINPadOldPINEntry(retriesLeft);
+			getUI().advisePINPadOldPINEntry(retriesLeft);
 			CCID.waitForOK(this.card, getKeyPressedFeature);
-			this.userInterface.advisePINPadOperationEnd();
+			getUI().advisePINPadOperationEnd();
 
-			this.userInterface.advisePINPadNewPINEntry(retriesLeft);
+			getUI().advisePINPadNewPINEntry(retriesLeft);
 			this.logger.debug("enter new PIN...");
 			CCID.waitForOK(this.card, getKeyPressedFeature);
-			this.userInterface.advisePINPadOperationEnd();
+			getUI().advisePINPadOperationEnd();
 
-			this.userInterface.advisePINPadNewPINEntryAgain(retriesLeft);
+			getUI().advisePINPadNewPINEntryAgain(retriesLeft);
 			this.logger.debug("enter new PIN again...");
 			CCID.waitForOK(this.card, getKeyPressedFeature);
 		} finally {
-			this.userInterface.advisePINPadOperationEnd();
+			getUI().advisePINPadOperationEnd();
 		}
 
 		int modifyPinFinishIoctl = CCID.getFeature(this.card,
@@ -565,13 +567,13 @@ public class BeIDCard {
 		this.logger.debug("direct PIN modification...");
 		byte[] modifyCommandData = CCID.createPINModificationDataStructure(
 				getLocale(), 0x24);
-		this.userInterface.advisePINPadChangePIN(retriesLeft);
+		getUI().advisePINPadChangePIN(retriesLeft);
 		byte[] result;
 		try {
 			result = transmitControlCommand(directPinModifyFeature,
 					modifyCommandData);
 		} finally {
-			this.userInterface.advisePINPadOperationEnd();
+			getUI().advisePINPadOperationEnd();
 		}
 		ResponseAPDU responseApdu = new ResponseAPDU(result);
 		if (0x6402 == responseApdu.getSW()) {
@@ -590,7 +592,7 @@ public class BeIDCard {
 	}
 
 	private ResponseAPDU doChangePin(int retriesLeft) throws CardException {
-		char[][] pins = this.userInterface.obtainOldAndNewPIN(retriesLeft);
+		char[][] pins = getUI().obtainOldAndNewPIN(retriesLeft);
 		char[] oldPin = pins[0];
 		char[] newPin = pins[1];
 
@@ -661,7 +663,7 @@ public class BeIDCard {
 				this.logger.debug("SW: "
 						+ Integer.toHexString(responseApdu.getSW()));
 				if (0x6983 == responseApdu.getSW()) {
-					this.userInterface.advisePINBlocked();
+					getUI().advisePINBlocked();
 					throw new ResponseAPDUException("eID card blocked!",
 							responseApdu);
 				}
@@ -674,11 +676,11 @@ public class BeIDCard {
 				this.logger.debug("retries left: " + retriesLeft);
 			}
 		} while (0x9000 != responseApdu.getSW());
-		this.userInterface.advisePINUnblocked();
+		getUI().advisePINUnblocked();
 	}
 
 	private ResponseAPDU doUnblockPin(int retriesLeft) throws CardException {
-		char[][] puks = this.userInterface.obtainPUKCodes(retriesLeft);
+		char[][] puks = getUI().obtainPUKCodes(retriesLeft);
 		char[] puk1 = puks[0];
 		char[] puk2 = puks[1];
 
@@ -713,13 +715,13 @@ public class BeIDCard {
 		this.logger.debug("direct PUK verification...");
 		byte[] verifyCommandData = CCID.createPINVerificationDataStructure(
 				getLocale(), 0x2C);
-		this.userInterface.advisePINPadPUKEntry(retriesLeft);
+		getUI().advisePINPadPUKEntry(retriesLeft);
 		byte[] result;
 		try {
 			result = transmitControlCommand(directPinVerifyFeature,
 					verifyCommandData);
 		} finally {
-			this.userInterface.advisePINPadOperationEnd();
+			getUI().advisePINPadOperationEnd();
 		}
 		ResponseAPDU responseApdu = new ResponseAPDU(result);
 		if (0x6401 == responseApdu.getSW()) {
@@ -891,11 +893,7 @@ public class BeIDCard {
 
 		return this;
 	}
-	
-	public void setUserInterface(UI userInterface) {
-		this.userInterface = userInterface;
-	}
-	
+
 	public void logoff() throws Exception {
 		CommandAPDU logoffApdu = new CommandAPDU(0x80, 0xE6, 0x00, 0x00);
 		this.logger.debug("logoff...");
@@ -963,9 +961,38 @@ public class BeIDCard {
 		}
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------------------------
+
+	private BeIDCardUI getUI() {
+		if (this.ui == null) {
+			if (GraphicsEnvironment.isHeadless()) {
+				logger.error(UI_DEFAULT_REQUIRES_HEAD);
+				throw new UnsupportedOperationException(
+						UI_DEFAULT_REQUIRES_HEAD);
+			}
+
+			try {
+				ClassLoader classLoader = BeIDCard.class.getClassLoader();
+				Class<?> uiClass = classLoader
+						.loadClass(DEFAULT_UI_IMPLEMENTATION);
+				this.ui = (BeIDCardUI) uiClass.newInstance();
+			} catch (Exception e) {
+				logger.error(UI_MISSING_LOG_MESSAGE);
+				throw new UnsupportedOperationException(UI_MISSING_LOG_MESSAGE,
+						e);
+			}
+		}
+
+		return this.ui;
+	}
+
+	public void setUI(BeIDCardUI userInterface) {
+		this.ui = userInterface;
+	}
+
 	/*
-	 * BeIDCommandAPDU encapsulates values sent in CommandAPDU's, to make these more readable in
-	 * BeIDCard.
+	 * BeIDCommandAPDU encapsulates values sent in CommandAPDU's, to make these
+	 * more readable in BeIDCard.
 	 */
 
 	private enum BeIDCommandAPDU {

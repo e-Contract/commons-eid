@@ -25,34 +25,6 @@ import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 
 public class BeIDCardEventsExamples {
-	/*
-	 * get information about BeID cards currently inserted, from the current thread:
-	 */
-	public void demonstrate_basic_synchronous_usage() {
-		//-------------------------------------------------------------------------------------------------------
-		// instantiate a BeIDCardManager with default settings (no logging, private CardAndTerminalManager)
-		//-------------------------------------------------------------------------------------------------------
-		BeIDCardManager beIDCardManager = new BeIDCardManager();
-
-		//-------------------------------------------------------------------------------------------------------
-		// ask it for all CardTerminals that currently contain BeID cards
-		//-------------------------------------------------------------------------------------------------------
-		Set<CardTerminal> terminalsWithBeIDCards = beIDCardManager
-				.getTerminalsWithBeIDCardsPresent();
-
-		//-------------------------------------------------------------------------------------------------------
-		// either say there are none, or if there are, list them
-		//-------------------------------------------------------------------------------------------------------
-		if (terminalsWithBeIDCards.isEmpty()) {
-			System.out.println("No Terminals With BeID Cards Found");
-		} else {
-			System.out.println("Terminals With BeID Cards:");
-
-			for (CardTerminal terminal : terminalsWithBeIDCards) {
-				System.out.println("-" + terminal.getName());
-			}
-		}
-	}
 
 	/*
 	 * get information about BeID cards being inserted and removed, while doing something else:
@@ -98,7 +70,6 @@ public class BeIDCardEventsExamples {
 
 	public static void main(String[] args) throws InterruptedException {
 		BeIDCardEventsExamples examples = new BeIDCardEventsExamples();
-		examples.demonstrate_basic_synchronous_usage();
 		examples.demonstrate_basic_asynchronous_usage();
 	}
 }

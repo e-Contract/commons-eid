@@ -28,7 +28,6 @@
 
 package test.integ.be.fedict.commons.eid.client;
 import java.util.Random;
-import java.util.Set;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
 import org.junit.Test;
@@ -41,31 +40,6 @@ public class CardAndTerminalManagerExercises
 			CardTerminalEventsListener,
 			CardEventsListener {
 	private CardAndTerminalManager cardAndTerminalManager;
-
-	/*
-	 * Exercises cardAndTerminalManager procedural call: instantiate, then
-	 * call getTerminalsPresent and/or getTerminalsWithCards
-	 */
-	@Test
-	public void testSynchronous() throws Exception {
-		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager(
-				new TestLogger());
-
-		System.out.println("Terminals Connected:");
-		Set<CardTerminal> terminals = cardAndTerminalManager
-				.getTerminalsPresent();
-		for (CardTerminal terminal : terminals)
-			System.out.println("\t"
-					+ StringUtils.getShortTerminalname(terminal.getName()));
-		System.out.println();
-
-		System.out.println("Terminals With Cards:");
-		Set<CardTerminal> terminalsWithCards = cardAndTerminalManager
-				.getTerminalsWithCards();
-		for (CardTerminal terminal : terminalsWithCards)
-			System.out.println("\t"
-					+ StringUtils.getShortTerminalname(terminal.getName()));
-	}
 
 	// ---------------------------------------------------------------------------------------------
 
@@ -139,11 +113,11 @@ public class CardAndTerminalManagerExercises
 	// ---------------------------------------------------------------------------------------------
 
 	/*
-	 * Exercise CardAndTerminalManager's start() stop() semantics, with
-	 * regards to its worker thread. This test starts and stops a
-	 * CardAndTerminalManager randomly. It should remain in a consistent
-	 * state at all times and detect terminal attaches/detaches and card
-	 * inserts/removals as usual (while running, of course..)
+	 * Exercise CardAndTerminalManager's start() stop() semantics, with regards
+	 * to its worker thread. This test starts and stops a CardAndTerminalManager
+	 * randomly. It should remain in a consistent state at all times and detect
+	 * terminal attaches/detaches and card inserts/removals as usual (while
+	 * running, of course..)
 	 */
 	@Test
 	public void testStartStop() throws Exception {
@@ -163,31 +137,6 @@ public class CardAndTerminalManagerExercises
 		}
 	}
 
-	/*
-	 * Exercise CardAndTerminalManager's consistency with synchronous and
-	 * asynchronous operations mixed. Async test with random synchronous calls
-	 * mixed in
-	 */
-	@Test
-	public void testSyncAsyncMix() throws Exception {
-		Random random = new Random(0);
-		cardAndTerminalManager = new CardAndTerminalManager(new TestLogger());
-		cardAndTerminalManager.addCardTerminalListener(this);
-		cardAndTerminalManager.addCardListener(this);
-		cardAndTerminalManager.start();
-
-		for (;;) {
-			if (random.nextBoolean()) {
-				System.err.print("T");
-				cardAndTerminalManager.getTerminalsPresent();
-			} else {
-				System.err.print("C");
-				cardAndTerminalManager.getTerminalsWithCards();
-			}
-			Thread.sleep(random.nextInt(10));
-		}
-	}
-
 	// ----------------------------- callbacks that just print to stderr
 	// -------------------
 
@@ -195,14 +144,12 @@ public class CardAndTerminalManagerExercises
 	public void terminalAttached(CardTerminal terminalAttached) {
 		System.err.println("Terminal Attached [" + terminalAttached.getName()
 				+ "]");
-		StringUtils.printTerminalOverviewLine(cardAndTerminalManager);
 	}
 
 	@Override
 	public void terminalDetached(CardTerminal terminalDetached) {
 		System.err.println("Terminal Detached [" + terminalDetached.getName()
 				+ "]");
-		StringUtils.printTerminalOverviewLine(cardAndTerminalManager);
 	}
 
 	@Override
@@ -214,14 +161,12 @@ public class CardAndTerminalManagerExercises
 					+ "]");
 		else
 			System.err.println("Card present but failed to connect()");
-		StringUtils.printTerminalOverviewLine(cardAndTerminalManager);
 	}
 
 	@Override
 	public void cardRemoved(CardTerminal terminalWithCardRemoved) {
 		System.err.println("Card Removed From ["
 				+ terminalWithCardRemoved.getName() + "]");
-		StringUtils.printTerminalOverviewLine(cardAndTerminalManager);
 	}
 
 	@Override

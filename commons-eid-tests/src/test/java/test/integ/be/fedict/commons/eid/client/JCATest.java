@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -39,23 +38,20 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
-
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
-
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDCardManager;
-import be.fedict.commons.eid.client.spi.UI;
+import be.fedict.commons.eid.client.BeIDCards;
+import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.commons.eid.consumer.jca.ProxyPrivateKey;
 import be.fedict.commons.eid.consumer.jca.ProxyProvider;
 import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
 import be.fedict.commons.eid.jca.BeIDProvider;
-import be.fedict.eid.commons.dialogs.DefaultDialogs;
+import be.fedict.eid.commons.dialogs.DefaultBeIDCardUI;
 
 public class JCATest {
 
@@ -200,7 +196,9 @@ public class JCATest {
 
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.WRAP_MODE, keyPair.getPublic());
-		LOG.debug("cipher security provider: " + cipher.getProvider().getName());
+		LOG
+				.debug("cipher security provider: "
+						+ cipher.getProvider().getName());
 		LOG.debug("cipher type: " + cipher.getClass().getName());
 		byte[] wrappedKey = cipher.wrap(secretKey);
 
@@ -256,12 +254,9 @@ public class JCATest {
 
 	private BeIDCard getBeIDCard() throws Exception {
 		TestLogger logger = new TestLogger();
-		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
-		BeIDCard beIDCard = beIDCardManager.getFirstBeIDCard();
-		assertNotNull(beIDCard);
-
-		UI userInterface = new DefaultDialogs();
-		beIDCard.setUserInterface(userInterface);
+		BeIDCards beIDCards = new BeIDCards(logger);
+		BeIDCard beIDCard = beIDCards.getFirstBeIDCard();
+		assertNotNull(beIDCard);;
 		return beIDCard;
 	}
 }

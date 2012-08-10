@@ -37,8 +37,8 @@ public class BeIDProvider extends Provider {
 	public BeIDProvider() {
 		super(NAME, 1.0, "BeID Provider");
 
-		putService(new BeIDService(this, "KeyStore", "BeID",
-				BeIDKeyStore.class.getName()));
+		putService(new BeIDService(this, "KeyStore", "BeID", BeIDKeyStore.class
+				.getName()));
 
 		Map<String, String> signatureServiceAttributes = new HashMap<String, String>();
 		signatureServiceAttributes.put("SupportedKeyClasses",

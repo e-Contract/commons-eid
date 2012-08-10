@@ -16,7 +16,7 @@
  * http://www.gnu.org/licenses/.
  */
 
-package test.integ.be.fedict.commons.eid.client.cardfactoryproxy;
+package be.fedict.commons.eid.client.spi;
 
 public class Sleeper {
 	private boolean isAwoken;
@@ -25,6 +25,15 @@ public class Sleeper {
 		while (!isAwoken)
 			try {
 				this.wait(timeout);
+			} catch (InterruptedException e) {
+			} // intentionally empty
+		isAwoken = false;
+	}
+
+	public synchronized void sleepUntilAwakened() {
+		while (!isAwoken)
+			try {
+				this.wait();
 			} catch (InterruptedException e) {
 			} // intentionally empty
 		isAwoken = false;

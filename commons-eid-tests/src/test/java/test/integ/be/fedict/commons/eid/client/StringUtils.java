@@ -21,11 +21,7 @@ package test.integ.be.fedict.commons.eid.client;
 import java.math.BigInteger;
 import java.util.Set;
 import javax.smartcardio.ATR;
-import javax.smartcardio.Card;
-import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
-import be.fedict.commons.eid.client.BeIDCardManager;
-import be.fedict.commons.eid.client.CardAndTerminalManager;
 
 public class StringUtils {
 	public static String atrToString(ATR atr) {
@@ -43,73 +39,6 @@ public class StringUtils {
 			shortName.append(terminalName);
 
 		return shortName.toString();
-	}
-
-	public static void printTerminalOverviewLine(
-			CardAndTerminalManager cardAndTerminalManager) {
-		StringBuilder overviewLine = new StringBuilder();
-
-		try {
-			for (CardTerminal terminal : cardAndTerminalManager
-					.getTerminalsPresent()) {
-				overviewLine.append("[");
-				overviewLine.append(StringUtils.getShortTerminalname(terminal
-						.getName()));
-				try {
-					if (terminal.isCardPresent())
-						overviewLine.append("*");
-				} catch (CardException cex) {
-					overviewLine.append("!");
-				}
-				overviewLine.append("] ");
-			}
-		} catch (CardException e) {
-			System.err.println("FAILED TO READ LIST OF TERMINALS");
-		}
-
-		System.out.println(overviewLine.toString());
-	}
-
-	public static void printTerminalAndCardOverviewLine(
-			CardAndTerminalManager cardAndTerminalManager) {
-		StringBuilder overviewLine = new StringBuilder();
-
-		try {
-			for (CardTerminal terminal : cardAndTerminalManager
-					.getTerminalsPresent()) {
-				overviewLine.append("[");
-				overviewLine.append(terminal.getName());
-				try {
-					if (terminal.isCardPresent()) {
-						overviewLine.append(":");
-						Card card = terminal.connect("*");
-						overviewLine.append(StringUtils.atrToString(card
-								.getATR()));
-					}
-				} catch (CardException cex) {
-					overviewLine.append("!");
-				}
-				overviewLine.append("] ");
-			}
-		} catch (CardException e) {
-			System.err.println("FAILED TO READ LIST OF TERMINALS");
-		}
-
-		System.out.println(overviewLine.toString());
-	}
-
-	public static void printTerminalOverviewLine(BeIDCardManager cardManager) {
-		StringBuilder overviewLine = new StringBuilder();
-
-		for (CardTerminal terminal : cardManager
-				.getTerminalsWithBeIDCardsPresent()) {
-			overviewLine.append("[");
-			overviewLine.append(StringUtils.getShortTerminalname(terminal
-					.getName()));
-			overviewLine.append("] ");
-		}
-
-		System.out.println(overviewLine.toString());
 	}
 
 	public static void printTerminalSet(Set<CardTerminal> set) {
