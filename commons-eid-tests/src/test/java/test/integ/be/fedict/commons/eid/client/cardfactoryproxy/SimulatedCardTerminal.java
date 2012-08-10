@@ -21,6 +21,7 @@ package test.integ.be.fedict.commons.eid.client.cardfactoryproxy;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
+import be.fedict.commons.eid.client.spi.Sleeper;
 
 public class SimulatedCardTerminal extends CardTerminal {
 	private String name;

@@ -18,7 +18,7 @@
 
 package be.fedict.commons.eid.client.spi;
 
-public interface UI {
+public interface BeIDCardUI {
 	// get PIN from the user
 	char[] obtainPIN(int triesLeft);
 

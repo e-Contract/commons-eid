@@ -34,15 +34,13 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDCardManager;
+import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.BeIDFileType;
-import be.fedict.commons.eid.client.spi.UI;
-import be.fedict.eid.commons.dialogs.DefaultDialogs;
+import be.fedict.commons.eid.client.spi.BeIDCardUI;
+import be.fedict.eid.commons.dialogs.DefaultBeIDCardUI;
 
 public class BeIDKeyStore extends KeyStoreSpi {
 
@@ -79,8 +77,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			try {
 				List<X509Certificate> signingCertificateChain = beIDCard
 						.getSigningCertificateChain();
-				return signingCertificateChain
-						.toArray(new X509Certificate[] {});
+				return signingCertificateChain.toArray(new X509Certificate[]{});
 			} catch (Exception e) {
 				LOG.error("error: " + e.getMessage(), e);
 				return null;
@@ -90,8 +87,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			try {
 				List<X509Certificate> signingCertificateChain = beIDCard
 						.getAuthenticationCertificateChain();
-				return signingCertificateChain
-						.toArray(new X509Certificate[] {});
+				return signingCertificateChain.toArray(new X509Certificate[]{});
 			} catch (Exception e) {
 				LOG.error("error: " + e.getMessage(), e);
 				return null;
@@ -234,13 +230,11 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	private BeIDCard getBeIDCard() {
 		if (null == this.beIDCard) {
-			BeIDCardManager beIDCardManager = new BeIDCardManager();
-			this.beIDCard = beIDCardManager.getFirstBeIDCard();
+			BeIDCards beIDCards = new BeIDCards();
+			this.beIDCard = beIDCards.getFirstBeIDCard();
 			if (null == this.beIDCard) {
 				throw new SecurityException("missing eID card");
 			}
-			UI userInterface = new DefaultDialogs();
-			this.beIDCard.setUserInterface(userInterface);
 		}
 		return this.beIDCard;
 	}

@@ -21,12 +21,10 @@ package be.fedict.commons.eid.client;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
-import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.event.CardEventsListener;
@@ -34,13 +32,6 @@ import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.Logger;
 
 public class BeIDCardManager {
-	private final static byte[] ATR_PATTERN = new byte[]{0x3b, (byte) 0x98,
-			0x00, 0x40, 0x00, (byte) 0x00, 0x00, 0x00, 0x01, 0x01, (byte) 0xad,
-			0x13, 0x10};
-	private final static byte[] ATR_MASK = new byte[]{(byte) 0xff, (byte) 0xff,
-			0x00, (byte) 0xff, 0x00, 0x00, 0x00, 0x00, (byte) 0xff,
-			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xf0};
-
 	private CardAndTerminalManager cardAndTerminalManager;
 	private boolean terminalManagerIsPrivate;
 	private Map<CardTerminal, BeIDCard> terminalsAndCards;
@@ -50,8 +41,8 @@ public class BeIDCardManager {
 
 	/*
 	 * a BeIDCardManager with a default (void) logger and a private
-	 * CardAndTerminalManager that is automatically started and stopped
-	 * with the BeIDCardManager
+	 * CardAndTerminalManager that is automatically started and stopped with the
+	 * BeIDCardManager
 	 */
 	public BeIDCardManager() {
 		this(new VoidLogger());
@@ -68,9 +59,8 @@ public class BeIDCardManager {
 
 	/*
 	 * a BeIDCardManager with a default (void) logger, caller supplies a
-	 * CardAndTerminalManager. note: caller is responsible for start()in
-	 * the supplied CardAndTerminalManager, it will not be automatically
-	 * started!
+	 * CardAndTerminalManager. note: caller is responsible for start()in the
+	 * supplied CardAndTerminalManager, it will not be automatically started!
 	 */
 	public BeIDCardManager(CardAndTerminalManager cardAndTerminalManager) {
 		this(new VoidLogger(), cardAndTerminalManager);
@@ -78,9 +68,8 @@ public class BeIDCardManager {
 
 	/*
 	 * a BeIDCardManager logging to logger, caller supplies a
-	 * CardAndTerminalManager. note: caller is responsible for start()in
-	 * the supplied CardAndTerminalManager, it will not be automatically
-	 * started!
+	 * CardAndTerminalManager. note: caller is responsible for start()in the
+	 * supplied CardAndTerminalManager, it will not be automatically started!
 	 */
 	public BeIDCardManager(Logger logger,
 			CardAndTerminalManager cardAndTerminalManager) {
@@ -185,7 +174,6 @@ public class BeIDCardManager {
 
 			}
 		});
-		updateTerminalsAndCards();
 	}
 
 	public BeIDCardManager start() {
@@ -236,88 +224,16 @@ public class BeIDCardManager {
 		return this;
 	}
 
-	public Map<CardTerminal, BeIDCard> getTerminalsAndBeIDCardsPresent() {
-		updateTerminalsAndCards();
-		Map<CardTerminal, BeIDCard> copyOfTerminalsAndCards;
-		synchronized (terminalsAndCards) {
-			copyOfTerminalsAndCards = new HashMap<CardTerminal, BeIDCard>(
-					terminalsAndCards);
-		}
-		return copyOfTerminalsAndCards;
-	}
+	/*
+	 * Private Support methods
+	 */
 
-	public Set<CardTerminal> getTerminalsWithBeIDCardsPresent() {
-		updateTerminalsAndCards();
-		Set<CardTerminal> terminals;
-		synchronized (terminalsAndCards) {
-			terminals = new HashSet<CardTerminal>(terminalsAndCards.keySet());
-		}
-		return terminals;
-	}
-
-	public Set<BeIDCard> getBeIDCardsPresent() {
-		updateTerminalsAndCards();
-		Set<BeIDCard> cards;
-		synchronized (terminalsAndCards) {
-			cards = new HashSet<BeIDCard>(terminalsAndCards.values());
-		}
-		return cards;
-	}
-
-	public CardTerminal getFirstBeIDCardTerminal() {
-		Set<CardTerminal> terminalsWithCards = getTerminalsWithBeIDCardsPresent();
-		Iterator<CardTerminal> terminalsWithCardsIterator = terminalsWithCards
-				.iterator();
-		if (!terminalsWithCardsIterator.hasNext())
-			return null;
-		return terminalsWithCardsIterator.next();
-	}
-
-	public BeIDCard getFirstBeIDCard() {
-		Set<BeIDCard> cards = getBeIDCardsPresent();
-		Iterator<BeIDCard> cardsIterator = cards.iterator();
-		if (!cardsIterator.hasNext())
-			return null;
-		return cardsIterator.next();
-	}
-
-	public Map.Entry<CardTerminal, BeIDCard> getFirstBeIDTerminalAndCard() {
-		Map<CardTerminal, BeIDCard> terminalsAndCards = getTerminalsAndBeIDCardsPresent();
-		Iterator<Map.Entry<CardTerminal, BeIDCard>> terminalsAndCardsIterator = terminalsAndCards
-				.entrySet().iterator();
-		if (!terminalsAndCardsIterator.hasNext())
-			return null;
-		return terminalsAndCardsIterator.next();
-	}
-
-	private void updateTerminalsAndCards() {
-		// if our CardAndTerminalManager is running, terminalsAndCards
-		// will get updated
-		// asynchronously, don't replace it here
-		if (cardAndTerminalManager.isRunning())
-			return;
-
-		Map<CardTerminal, BeIDCard> newTerminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
-
-		try {
-			for (CardTerminal terminal : cardAndTerminalManager
-					.getTerminalsWithCards()) {
-				try {
-					Card card = terminal.connect("*");
-					if (card != null && matchesEidAtr(card.getATR()))
-						newTerminalsAndCards.put(terminal, new BeIDCard(card,
-								logger));
-				} catch (CardException cex) {
-					logger.error("Can't Connect to Card in Terminal "
-							+ terminal.getName());
-				}
-			}
-		} catch (CardException cex) {
-			logger.error("Can't Obtain List Of Terminals With Cards");
-		}
-
-		terminalsAndCards = newTerminalsAndCards;
-	}
+	private final static byte[] ATR_PATTERN = new byte[]{0x3b, (byte) 0x98,
+			0x00, 0x40, 0x00, (byte) 0x00, 0x00, 0x00, 0x01, 0x01, (byte) 0xad,
+			0x13, 0x10};
+	private final static byte[] ATR_MASK = new byte[]{(byte) 0xff, (byte) 0xff,
+			0x00, (byte) 0xff, 0x00, 0x00, 0x00, 0x00, (byte) 0xff,
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xf0};
 
 	private boolean matchesEidAtr(ATR atr) {
 		byte[] atrBytes = atr.getBytes();

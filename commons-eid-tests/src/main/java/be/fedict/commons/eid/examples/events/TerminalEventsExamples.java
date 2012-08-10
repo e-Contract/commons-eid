@@ -25,54 +25,22 @@ import be.fedict.commons.eid.client.CardAndTerminalManager;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
 public class TerminalEventsExamples {
-	/*
-	 * get information about CardTerminals currently attached, from the current thread:
-	 */
-	public void cardterminals_basic_synchronous() {
-		//-------------------------------------------------------------------------------------------------------
-		// instantiate a CardAndTerminalManager with default settings (no logging, default timeout)
-		//-------------------------------------------------------------------------------------------------------
-		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
-
-		//-------------------------------------------------------------------------------------------------------
-		// ask it for all CardTerminals that are currently attached
-		//-------------------------------------------------------------------------------------------------------
-		Set<CardTerminal> terminalsAttached = null;
-
-		try {
-			terminalsAttached = cardAndTerminalManager.getTerminalsPresent();
-		} catch (CardException cex) {
-			System.out.println("Oops! Failed to get list of CardTerminals:"
-					+ cex.getLocalizedMessage());
-		}
-
-		//-------------------------------------------------------------------------------------------------------
-		// either say there are none, or if there are, list them
-		//-------------------------------------------------------------------------------------------------------
-		if (terminalsAttached == null || terminalsAttached.isEmpty()) {
-			System.out.println("No CardTerminals Found");
-		} else {
-			System.out.println("Terminals Attached:");
-
-			for (CardTerminal terminal : terminalsAttached) {
-				System.out.println("-" + terminal.getName());
-			}
-		}
-	}
 
 	/*
-	 * get information about CardTerminals being attached and detached, while doing something else:
+	 * get information about CardTerminals being attached and detached, while
+	 * doing something else:
 	 */
 	public TerminalEventsExamples cardterminals_basic_asynchronous()
 			throws InterruptedException {
-		//-------------------------------------------------------------------------------------------------------
-		// instantiate a CardAndTerminalManager with default settings (no logging, default timeout)
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// instantiate a CardAndTerminalManager with default settings (no
+		// logging, default timeout)
+		// -------------------------------------------------------------------------------------------------------
 		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
 
-		//-------------------------------------------------------------------------------------------------------	
+		// -------------------------------------------------------------------------------------------------------
 		// register a CardTerminalEventsListener
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
 		cardAndTerminalManager
 				.addCardTerminalListener(new CardTerminalEventsListener() {
 					@Override
@@ -94,24 +62,24 @@ public class TerminalEventsExamples {
 					}
 				});
 
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
 		// start the CardAndTerminalManager instance running as a daemon thread.
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
 		cardAndTerminalManager.start();
 
-		//-------------------------------------------------------------------------------------------------------
-		// the main thread goes off and does other things (for this example, just loop and sleep)
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// the main thread goes off and does other things (for this example,
+		// just loop and sleep)
+		// -------------------------------------------------------------------------------------------------------
 		System.err.println("Now.. attach and detach some cardterminals..");
 		for (;;)
 			Thread.sleep(2000);
 	}
 
-	//-------------------------------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------------------------------
 
 	public static void main(String[] args) throws InterruptedException {
 		TerminalEventsExamples examples = new TerminalEventsExamples();
-		examples.cardterminals_basic_synchronous();
 		examples.cardterminals_basic_asynchronous();
 	}
 }

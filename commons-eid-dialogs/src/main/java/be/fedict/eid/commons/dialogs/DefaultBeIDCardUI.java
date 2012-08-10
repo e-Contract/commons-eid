@@ -40,16 +40,16 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import be.fedict.commons.eid.client.spi.UI;
+import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.eid.commons.dialogs.Messages.MESSAGE_ID;
 
 /**
- * Default Implementation of UI Interface
+ * Default Implementation of BeIDCardUI Interface
  * 
  * @author Frank Cornelis
  * 
  */
-public class DefaultDialogs implements UI {
+public class DefaultBeIDCardUI implements BeIDCardUI {
 	public static final int MIN_PIN_SIZE = 4;
 	public static final int MAX_PIN_SIZE = 12;
 	public static final int PUK_SIZE = 6;
@@ -60,15 +60,15 @@ public class DefaultDialogs implements UI {
 	private JFrame pinPadFrame;
 	private JFrame secureReaderTransactionFrame;
 
-	public DefaultDialogs() {
+	public DefaultBeIDCardUI() {
 		this(null, new Messages(Locale.getDefault()));
 	}
 
-	public DefaultDialogs(Component parentComponent) {
+	public DefaultBeIDCardUI(Component parentComponent) {
 		this(parentComponent, new Messages(Locale.getDefault()));
 	}
 
-	public DefaultDialogs(Component parentComponent, Messages messages) {
+	public DefaultBeIDCardUI(Component parentComponent, Messages messages) {
 		this.parentComponent = parentComponent;
 		this.messages = messages;
 	}

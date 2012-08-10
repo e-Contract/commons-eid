@@ -18,13 +18,14 @@
 
 package be.fedict.commons.eid.client.spi;
 
-/**
- * Logger-interface.
- * 
- * @author Frank Cornelis
- * 
- */
-public interface Logger {
-	void error(String message);
-	void debug(String message);
+public interface BeIDCardsUI {
+	// user needs to connect a Card Terminal
+	void adviseCardTerminalRequired();
+
+	// user needs to insert a BeID Card
+	void adviseBeIDCardRequired();
+
+	// operation on secure reader ends
+	void adviseEnd();
+
 }

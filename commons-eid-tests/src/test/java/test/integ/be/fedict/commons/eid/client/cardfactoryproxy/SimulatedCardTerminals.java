@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CardTerminals;
+import be.fedict.commons.eid.client.spi.Sleeper;
 
 public class SimulatedCardTerminals extends CardTerminals {
 	private Set<SimulatedCardTerminal> terminals;

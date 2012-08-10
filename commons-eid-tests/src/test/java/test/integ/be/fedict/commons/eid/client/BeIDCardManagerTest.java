@@ -18,78 +18,17 @@
 
 package test.integ.be.fedict.commons.eid.client;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
-
 import javax.smartcardio.CardTerminal;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
-
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;
-import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
-import be.fedict.commons.eid.client.impl.BeIDDigest;
-import be.fedict.commons.eid.client.spi.UI;
-import be.fedict.commons.eid.consumer.Address;
-import be.fedict.commons.eid.consumer.BeIDIntegrity;
-import be.fedict.commons.eid.consumer.Identity;
-import be.fedict.eid.commons.dialogs.DefaultDialogs;
 
 public class BeIDCardManagerTest {
 
 	private static final Log LOG = LogFactory.getLog(BeIDCardManagerTest.class);
-
-	private BeIDCard getBeIDCard() throws Exception {
-		TestLogger logger = new TestLogger();
-		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
-		BeIDCard beIDCard = beIDCardManager.getFirstBeIDCard();
-		assertNotNull(beIDCard);
-
-		UI userInterface = new DefaultDialogs();
-		beIDCard.setUserInterface(userInterface);
-		return beIDCard;
-	}
-
-	@Test
-	public void testReadFiles() throws Exception {
-		BeIDCard beIDCard = getBeIDCard();
-		beIDCard.addCardListener(new TestBeIDCardListener());
-
-		LOG.debug("reading identity file");
-		byte[] identityFile = beIDCard.readFile(BeIDFileType.Identity);
-		LOG.debug("reading identity signature file");
-		byte[] identitySignatureFile = beIDCard
-				.readFile(BeIDFileType.IdentitySignature);
-
-		X509Certificate rrnCertificate = beIDCard.getRRNCertificate();
-
-		byte[] photoFile = beIDCard.readFile(BeIDFileType.Photo);
-		byte[] addressFile = beIDCard.readFile(BeIDFileType.Address);
-		byte[] addressSignatureFile = beIDCard
-				.readFile(BeIDFileType.AddressSignature);
-
-		beIDCard.close();
-
-		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
-		Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile,
-				identitySignatureFile, photoFile, rrnCertificate);
-
-		assertNotNull(identity);
-		assertNotNull(identity.getNationalNumber());
-
-		Address address = beIDIntegrity.getVerifiedAddress(addressFile,
-				identitySignatureFile, addressSignatureFile, rrnCertificate);
-
-		assertNotNull(address);
-		assertNotNull(address.getStreetAndNumber());
-	}
 
 	@Test
 	public void testListenerModification() throws Exception {
@@ -131,8 +70,9 @@ public class BeIDCardManagerTest {
 		}
 	}
 
-	private final class BeIDCardEventsTestListener implements
-			BeIDCardEventsListener {
+	private final class BeIDCardEventsTestListener
+			implements
+				BeIDCardEventsListener {
 
 		private final Object waitObject;
 
@@ -178,65 +118,4 @@ public class BeIDCardManagerTest {
 		}
 	}
 
-	@Test
-	public void testAuthnSignature() throws Exception {
-		BeIDCard beIDCard = getBeIDCard();
-
-		byte[] toBeSigned = new byte[10];
-		SecureRandom secureRandom = new SecureRandom();
-		secureRandom.nextBytes(toBeSigned);
-
-		X509Certificate authnCertificate = beIDCard
-				.getAuthenticationCertificate();
-
-		byte[] signatureValue;
-		try {
-			signatureValue = beIDCard.signAuthn(toBeSigned, false);
-		} finally {
-			beIDCard.close();
-		}
-
-		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
-		boolean result = beIDIntegrity.verifyAuthnSignature(toBeSigned,
-				signatureValue, authnCertificate);
-
-		assertTrue(result);
-	}
-
-	@Test
-	public void testChangePIN() throws Exception {
-		BeIDCard beIDCard = getBeIDCard();
-
-		try {
-			beIDCard.changePin(false);
-		} finally {
-			beIDCard.close();
-		}
-	}
-
-	@Test
-	public void testNonRepSignature() throws Exception {
-		byte[] toBeSigned = new byte[10];
-		SecureRandom secureRandom = new SecureRandom();
-		secureRandom.nextBytes(toBeSigned);
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
-		byte[] digestValue = messageDigest.digest(toBeSigned);
-
-		BeIDCard beIDCard = getBeIDCard();
-		X509Certificate signingCertificate;
-		byte[] signatureValue;
-		try {
-			signatureValue = beIDCard.sign(digestValue, BeIDDigest.SHA_1,
-					BeIDFileType.SigningCertificate, false);
-			assertNotNull(signatureValue);
-			signingCertificate = beIDCard.getSigningCertificate();
-		} finally {
-			beIDCard.close();
-		}
-
-		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
-		boolean result = beIDIntegrity.verifyNonRepSignature(digestValue,
-				signatureValue, signingCertificate);
-		assertTrue(result);
-	}
 }

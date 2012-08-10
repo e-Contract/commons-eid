@@ -18,9 +18,9 @@
 
 package be.fedict.commons.eid.client.impl;
 
-import be.fedict.commons.eid.client.spi.UI;
+import be.fedict.commons.eid.client.spi.BeIDCardUI;
 
-public class MissingUI implements UI {
+public class MissingUI implements BeIDCardUI {
 
 	@Override
 	public char[] obtainPIN(int triesLeft) {
