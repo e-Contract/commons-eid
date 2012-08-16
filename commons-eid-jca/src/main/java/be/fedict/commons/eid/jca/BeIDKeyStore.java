@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
+import be.fedict.commons.eid.client.BeIDCardsException;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.eid.commons.dialogs.DefaultBeIDCardUI;

@@ -1,14 +1,29 @@
+/*
+ * Commons eID Project.
+ * Copyright (C) 2008-2012 FedICT.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License version
+ * 3.0 as published by the Free Software Foundation.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, see 
+ * http://www.gnu.org/licenses/.
+ */
+
 package be.fedict.commons.eid.client;
 
-import java.awt.GraphicsEnvironment;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
-import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
 import be.fedict.commons.eid.client.spi.Logger;
@@ -16,53 +31,41 @@ import be.fedict.commons.eid.client.spi.Sleeper;
 
 public class BeIDCards {
 	private static final String UI_MISSING_LOG_MESSAGE = "No BeIDCardsUI set and can't load DefaultBeIDCardsUI";
-	private static final String UI_DEFAULT_REQUIRES_HEAD = "No BeIDCardsUI set and DefaultBeIDCardsUI requires a graphical environment";
 	private static final String DEFAULT_UI_IMPLEMENTATION = "be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI";
 
 	private final Logger logger;
 	private BeIDCardManager cardManager;
-	private boolean cardManagerIsPrivate;
+	private boolean initialized;
 	private Map<CardTerminal, BeIDCard> beIDTerminalsAndCards;
-	private Map<CardTerminal, Card> otherTerminalsAndCards;
-	private Sleeper beIDSleeper, otherCardSleeper;
+	private Sleeper initSleeper, beIDSleeper;
 	private BeIDCardsUI ui;
 
 	/*
-	 * a BeIDCards with a default (void) logger and a private BeIDCardManager
-	 * that is automatically started and stopped.
+	 * a BeIDCards with a default (void) logger using the default UI
 	 */
 	public BeIDCards() {
 		this(new VoidLogger());
 	}
 
 	/*
-	 * a BeIDCards logging to logger, and a private BeIDCardManager that is
-	 * automatically started and stopped.
+	 * a BeIDCards logging to logger, using default UI
 	 */
 	public BeIDCards(Logger logger) {
-		this(logger, new BeIDCardManager());
-		this.cardManagerIsPrivate = true;
-		this.cardManager.start();
-	}
-
-	/*
-	 * a BeIDCards with a default (void) logger, caller supplies a
-	 * BeIDCardManager. note: caller is responsible for start()ing the supplied
-	 * BeIDCardManager
-	 */
-	public BeIDCards(BeIDCardManager cardManager) {
-		this(new VoidLogger(), cardManager);
+		this(logger, null);
 	}
 
 	/*
 	 * a BeIDCards logging to logger, caller supplies a BeIDCardManager. note:
 	 * caller is responsible for start()ing the supplied BeIDCardManager
 	 */
-	public BeIDCards(Logger logger, BeIDCardManager cardManager) {
+	public BeIDCards(Logger logger, BeIDCardsUI ui) {
 		this.logger = logger;
-		this.cardManager = cardManager;
+		this.ui = ui;
+		this.cardManager = new BeIDCardManager();
+		this.initSleeper = new Sleeper();
 		this.beIDSleeper = new Sleeper();
 		this.beIDTerminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
+		this.initialized = false;
 
 		this.cardManager.addBeIDCardEventListener(new BeIDCardEventsListener() {
 			@Override
@@ -83,40 +86,20 @@ public class BeIDCards {
 					beIDSleeper.awaken();
 				}
 			}
-		});
-
-		this.cardManager.addOtherCardEventListener(new CardEventsListener() {
-			@Override
-			public void cardInserted(CardTerminal cardTerminal, Card card) {
-				BeIDCards.this.logger.debug("Other Card Insertion Reported");
-				synchronized (BeIDCards.this.otherTerminalsAndCards) {
-					BeIDCards.this.otherTerminalsAndCards.put(cardTerminal,
-							card);
-					otherCardSleeper.awaken();
-				}
-			}
 
 			@Override
-			public void cardRemoved(CardTerminal cardTerminal) {
-				BeIDCards.this.logger.debug("Other Card Removal Reported");
-				synchronized (BeIDCards.this.otherTerminalsAndCards) {
-					BeIDCards.this.otherTerminalsAndCards.remove(cardTerminal);
-					otherCardSleeper.awaken();
-				}
+			public void eIDCardEventsInitialized() {
+				BeIDCards.this.initialized = true;
+				initSleeper.awaken();
 			}
 		});
-	}
 
-	public boolean hasBeIDCards() {
-		boolean has;
-		synchronized (this.beIDTerminalsAndCards) {
-			has = (!beIDTerminalsAndCards.isEmpty());
-		}
-		return has;
+		this.cardManager.start();
 	}
 
 	public Set<BeIDCard> getBeIDCards() {
 		waitForAtLeastOneBeIDCard();
+
 		HashSet<BeIDCard> cards;
 		synchronized (this.beIDTerminalsAndCards) {
 			cards = new HashSet<BeIDCard>(this.beIDTerminalsAndCards.values());
@@ -126,22 +109,22 @@ public class BeIDCards {
 
 	public BeIDCard getFirstBeIDCard() {
 		waitForAtLeastOneBeIDCard();
+
 		Set<BeIDCard> cards = getBeIDCards();
 		return cards.iterator().next();
 	}
 
-	public BeIDCard waitForSingleBeIDCard() throws MultipleBeIDCardsException {
+	public BeIDCard getSingleBeIDCard() {
 		waitForAtLeastOneBeIDCard();
 
-		HashSet<BeIDCard> cards;
 		synchronized (this.beIDTerminalsAndCards) {
-			cards = new HashSet<BeIDCard>(this.beIDTerminalsAndCards.values());
+			if (this.beIDTerminalsAndCards.size() == 1) {
+				return this.beIDTerminalsAndCards.values().iterator().next();
+			} else {
+				return getUI().selectBeIDCard(
+						this.beIDTerminalsAndCards.values());
+			}
 		}
-
-		if (cards.size() > 1)
-			throw new MultipleBeIDCardsException();
-
-		return cards.iterator().next();
 	}
 
 	/*
@@ -149,8 +132,7 @@ public class BeIDCards {
 	 * private cardManager, if present
 	 */
 	public BeIDCards close() throws InterruptedException {
-		if (this.cardManagerIsPrivate)
-			this.cardManager.stop();
+		this.cardManager.stop();
 		return this;
 	}
 
@@ -158,12 +140,6 @@ public class BeIDCards {
 
 	private BeIDCardsUI getUI() {
 		if (this.ui == null) {
-			if (GraphicsEnvironment.isHeadless()) {
-				logger.error(UI_DEFAULT_REQUIRES_HEAD);
-				throw new UnsupportedOperationException(
-						UI_DEFAULT_REQUIRES_HEAD);
-			}
-
 			try {
 				ClassLoader classLoader = BeIDCard.class.getClassLoader();
 				Class<?> uiClass = classLoader
@@ -183,10 +159,24 @@ public class BeIDCards {
 		this.ui = ui;
 	}
 
+	public boolean hasBeIDCards() {
+		waitUntilInitialized();
+		boolean has;
+		synchronized (this.beIDTerminalsAndCards) {
+			has = (!beIDTerminalsAndCards.isEmpty());
+		}
+		return has;
+	}
+
 	/*
 	 * Private, supporting methods
 	 * **********************************************
 	 */
+
+	private void waitUntilInitialized() {
+		while (!this.initialized)
+			initSleeper.sleepUntilAwakened();
+	}
 
 	private void waitForAtLeastOneBeIDCard() {
 		if (!hasBeIDCards()) {

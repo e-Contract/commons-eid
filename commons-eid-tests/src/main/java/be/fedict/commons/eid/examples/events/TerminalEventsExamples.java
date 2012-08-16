@@ -60,7 +60,17 @@ public class TerminalEventsExamples {
 						System.out.println("CardTerminal ["
 								+ cardTerminal.getName() + "] attached\n");
 					}
+
+					@Override
+					public void terminalEventsInitialized() {
+						System.out
+								.println("From now on you'll see terminals being Attached/Detached");
+					}
+
 				});
+
+		System.out
+				.println("First, you'll see Attach events for CardTerminals that were already attached");
 
 		// -------------------------------------------------------------------------------------------------------
 		// start the CardAndTerminalManager instance running as a daemon thread.
@@ -71,7 +81,6 @@ public class TerminalEventsExamples {
 		// the main thread goes off and does other things (for this example,
 		// just loop and sleep)
 		// -------------------------------------------------------------------------------------------------------
-		System.err.println("Now.. attach and detach some cardterminals..");
 		for (;;)
 			Thread.sleep(2000);
 	}

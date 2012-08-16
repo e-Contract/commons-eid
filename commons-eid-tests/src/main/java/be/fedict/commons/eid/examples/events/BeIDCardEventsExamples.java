@@ -51,7 +51,16 @@ public class BeIDCardEventsExamples {
 				System.out.println("BeID Card Inserted Into Card Termimal ["
 						+ cardTerminal.getName() + "]\n");
 			}
+
+			@Override
+			public void eIDCardEventsInitialized() {
+				System.out
+						.println("From now on you'll see BeID Cards being Inserted/Removed");
+			}
 		});
+
+		System.out
+				.println("First, you'll see Inserted events for BeID Cards that were already inserted");
 
 		//-------------------------------------------------------------------------------------------------------
 		// start the BeIDCardManager instance.
@@ -61,7 +70,6 @@ public class BeIDCardEventsExamples {
 		//-------------------------------------------------------------------------------------------------------
 		// the main thread goes off and does other things (for this example, just loop and sleep)
 		//-------------------------------------------------------------------------------------------------------
-		System.err.println("Now.. insert and remove some BeID cards..");
 		for (;;)
 			Thread.sleep(2000);
 	}

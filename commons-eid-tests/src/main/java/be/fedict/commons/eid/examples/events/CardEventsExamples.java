@@ -61,7 +61,16 @@ public class CardEventsExamples {
 				System.err.println("Card Removed From ["
 						+ cardTerminal.getName() + "]");
 			}
+
+			@Override
+			public void cardEventsInitialized() {
+				System.out
+						.println("From now on you'll see Cards being Inserted/Removed");
+			}
 		});
+
+		System.out
+				.println("First, you'll see Inserted events for Cards that were already inserted");
 
 		// -------------------------------------------------------------------------------------------------------
 		// start the CardAndTerminalManager instance running as a daemon thread.
@@ -72,7 +81,6 @@ public class CardEventsExamples {
 		// the main thread goes off and does other things (for this example,
 		// just loop and sleep)
 		// -------------------------------------------------------------------------------------------------------
-		System.err.println("Now.. insert and remove some cards");
 		for (;;)
 			Thread.sleep(2000);
 	}

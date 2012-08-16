@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.smartcardio.CardException;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
+import be.fedict.commons.eid.client.BeIDCardsException;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
@@ -14,17 +15,15 @@ public class BeIDCardsExample {
 	 * get information about BeID cards inserted, from the current thread:
 	 */
 	public void demonstrate() {
-		//-------------------------------------------------------------------------------------------------------
-		// instantiate a BeIDCardManager with default settings (no logging, private CardAndTerminalManager)
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// instantiate a BeIDCardManager with default settings (no logging)
+		// -------------------------------------------------------------------------------------------------------
 		BeIDCards beIDCards = new BeIDCards();
 
-		if (!beIDCards.hasBeIDCards())
-			System.out.println("There are not BeID Cards.. please insert some");
-
-		//-------------------------------------------------------------------------------------------------------
-		// ask it for all CardTerminals that currently contain BeID cards (which may block until there is at least one)
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// ask it for all CardTerminals that currently contain BeID cards (which
+		// may block and possibly interact with the user until there is at least one)
+		// -------------------------------------------------------------------------------------------------------
 		Set<BeIDCard> cards = beIDCards.getBeIDCards();
 
 		System.out.println("BeID Cards:");
@@ -47,7 +46,8 @@ public class BeIDCardsExample {
 		}
 	}
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException,
+			BeIDCardsException {
 		BeIDCardsExample examples = new BeIDCardsExample();
 		examples.demonstrate();
 	}
