@@ -103,6 +103,12 @@ public class CardAndTerminalManagerTests {
 		public synchronized Set<CardTerminal> getRecordedState() {
 			return new HashSet<CardTerminal>(recordedState);
 		}
+
+		@Override
+		public void terminalEventsInitialized() {
+			// TODO Auto-generated method stub
+
+		}
 	}
 
 	private class RecordKeepingCardEventsListener implements CardEventsListener {
@@ -132,6 +138,12 @@ public class CardAndTerminalManagerTests {
 
 		public synchronized Map<CardTerminal, Card> getRecordedState() {
 			return recordedState;
+		}
+
+		@Override
+		public void cardEventsInitialized() {
+			// TODO Auto-generated method stub
+
 		}
 	}
 
@@ -298,6 +310,11 @@ public class CardAndTerminalManagerTests {
 			throw new NullPointerException(
 					"Fake NPE attempting to trash a CardTerminalEventsListener");
 		}
+
+		@Override
+		public void terminalEventsInitialized() {
+			System.out.println("Terminal Events Initialised");
+		}
 	}
 
 	private final class NPEProneCardEventsListener
@@ -313,6 +330,11 @@ public class CardAndTerminalManagerTests {
 		public void cardRemoved(CardTerminal cardTerminal) {
 			throw new NullPointerException(
 					"Fake NPE attempting to trash a CardEventsListener");
+		}
+
+		@Override
+		public void cardEventsInitialized() {
+			System.out.println("Card Events Initialised");
 		}
 	}
 }

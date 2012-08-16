@@ -83,6 +83,12 @@ public class CardAndTerminalManagerExercises
 			@Override
 			public void terminalAttached(CardTerminal cardTerminal) {
 			}
+
+			@Override
+			public void terminalEventsInitialized() {
+				// TODO Auto-generated method stub
+
+			}
 		};
 
 		CardEventsListener dummyCL = new CardEventsListener() {
@@ -93,6 +99,12 @@ public class CardAndTerminalManagerExercises
 
 			@Override
 			public void cardInserted(CardTerminal cardTerminal, Card card) {
+			}
+
+			@Override
+			public void cardEventsInitialized() {
+				// TODO Auto-generated method stub
+
 			}
 		};
 
@@ -172,5 +184,17 @@ public class CardAndTerminalManagerExercises
 	@Override
 	public void terminalException(Throwable throwable) {
 		System.err.println("Exception: " + throwable.getLocalizedMessage());
+	}
+
+	@Override
+	public void cardEventsInitialized() {
+		System.out.println("Card Events Initialised");
+
+	}
+
+	@Override
+	public void terminalEventsInitialized() {
+		System.out.println("Terminal Events Initialised");
+
 	}
 }

@@ -68,6 +68,9 @@ public class MixedDetectionExamples
 		//-------------------------------------------------------------------------------------------------------
 		cardAndTerminalManager.addCardTerminalListener(this);
 
+		System.out
+				.println("First, you'll see events for terminals and Cards that were already present");
+
 		//-------------------------------------------------------------------------------------------------------
 		// start the BeIDCardManager instance
 		//-------------------------------------------------------------------------------------------------------
@@ -81,8 +84,6 @@ public class MixedDetectionExamples
 		//-------------------------------------------------------------------------------------------------------
 		// the main thread goes off and does other things (for this example, just loop and sleep)
 		//-------------------------------------------------------------------------------------------------------
-		System.out
-				.println("Now.. attach, detach terminals, insert cards of all kinds..");
 		for (;;)
 			Thread.sleep(2000);
 	}
@@ -111,6 +112,12 @@ public class MixedDetectionExamples
 				+ "]\n");
 	}
 
+	@Override
+	public void terminalEventsInitialized() {
+		System.out
+				.println("From now on you'll see terminals being Attached/Detached");
+	}
+
 	//------------------------------------------------------------------------------------------------------------
 	// these respond to BeID cards being inserted and removed
 	//------------------------------------------------------------------------------------------------------------
@@ -125,6 +132,12 @@ public class MixedDetectionExamples
 	public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
 		System.out.println("BeID Card Inserted Into Card Termimal ["
 				+ cardTerminal.getName() + "]\n");
+	}
+
+	@Override
+	public void eIDCardEventsInitialized() {
+		System.out
+				.println("From now on you'll see BeID Cards being Inserted/Removed");
 	}
 
 	//------------------------------------------------------------------------------------------------------------
@@ -150,9 +163,16 @@ public class MixedDetectionExamples
 				+ "]");
 	}
 
+	@Override
+	public void cardEventsInitialized() {
+		System.out
+				.println("From now on you'll see Non-BeID Cards being Inserted/Removed");
+	}
+
 	//-------------------------------------------------------------------------------------------------------
 
 	public static void main(String[] args) throws InterruptedException {
 		new MixedDetectionExamples().demonstrate();
 	}
+
 }

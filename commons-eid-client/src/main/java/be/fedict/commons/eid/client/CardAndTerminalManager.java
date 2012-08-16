@@ -45,7 +45,7 @@ public class CardAndTerminalManager implements Runnable {
 	private static final int DEFAULT_DELAY = 250;
 	private volatile boolean running;
 	private boolean subSystemInitialized, autoconnect;
-	private Thread thread;
+	private Thread worker;
 	private Set<CardTerminal> terminalsPresent, terminalsWithCards;
 	private CardTerminals cardTerminals;
 	private Set<String> terminalsToIgnoreCardEventsFor;
@@ -111,12 +111,13 @@ public class CardAndTerminalManager implements Runnable {
 
 	// --------------------------------------------------------------------------------------------------
 
-	// start this CardAndTerminalManager in the background as a Thread
+	// start this CardAndTerminalManager
 	public CardAndTerminalManager start() {
-		logger.debug("CardAndTerminalManager worker thread start requested.");
-		thread = new Thread(this, "CardAndTerminalManager");
-		thread.setDaemon(false);
-		thread.start();
+		this.logger
+				.debug("CardAndTerminalManager worker thread start requested.");
+		this.worker = new Thread(this, "CardAndTerminalManager");
+		this.worker.setDaemon(false);
+		this.worker.start();
 		return this;
 	}
 
@@ -125,42 +126,44 @@ public class CardAndTerminalManager implements Runnable {
 	// remove a CardTerminalEventsListener
 	public CardAndTerminalManager removeCardTerminalListener(
 			CardTerminalEventsListener listener) {
-		synchronized (cardTerminalEventsListeners) {
-			cardTerminalEventsListeners.remove(listener);
+		synchronized (this.cardTerminalEventsListeners) {
+			this.cardTerminalEventsListeners.remove(listener);
 		}
 		return this;
 	}
 
 	// remove a CardEventsListener
 	public CardAndTerminalManager removeCardListener(CardEventsListener listener) {
-		synchronized (cardEventsListeners) {
-			cardEventsListeners.remove(listener);
+		synchronized (this.cardEventsListeners) {
+			this.cardEventsListeners.remove(listener);
 		}
 		return this;
 	}
 
 	// -----------------------------------------------------------------------
 
-	public boolean ignoreCardEventsFor(String terminalName) {
-		synchronized (terminalsToIgnoreCardEventsFor) {
-			return terminalsToIgnoreCardEventsFor.add(terminalName);
+	public CardAndTerminalManager ignoreCardEventsFor(String terminalName) {
+		synchronized (this.terminalsToIgnoreCardEventsFor) {
+			this.terminalsToIgnoreCardEventsFor.add(terminalName);
 		}
+		return this;
 	}
 
-	public boolean acceptCardEventsFor(String terminalName) {
-		synchronized (terminalsToIgnoreCardEventsFor) {
-			return terminalsToIgnoreCardEventsFor.remove(terminalName);
+	public CardAndTerminalManager acceptCardEventsFor(String terminalName) {
+		synchronized (this.terminalsToIgnoreCardEventsFor) {
+			this.terminalsToIgnoreCardEventsFor.remove(terminalName);
 		}
+		return this;
 	}
 
 	// -----------------------------------------------------------------------
 
 	// stop this CardAndTerminalManager's worker thread.
 	public CardAndTerminalManager stop() throws InterruptedException {
-		logger.debug("CardAndTerminalManager worker thread stop requested.");
+		logger.debug("CardAndTerminalManager worker worker stop requested.");
 		running = false;
-		thread.interrupt();
-		thread.join();
+		worker.interrupt();
+		worker.join();
 		return this;
 	}
 
@@ -172,12 +175,20 @@ public class CardAndTerminalManager implements Runnable {
 		logger.debug("CardAndTerminalManager worker thread started.");
 
 		try {
+			// do an initial run, making sure current status is detected
+			// this sends terminal attach and card insert events for this initial state to any listeners
+			handlePCSCEvents();
+
+			// advise listeners that initial state was sent, and that any further events are relative to this
+			listenersInitialized();
+
+			// keep updating
 			while (running)
 				handlePCSCEvents();
 		} catch (InterruptedException ie) {
 			if (running)
 				logger
-						.error("CardAndTerminalManager worker thread unexpectedly interrupted: "
+						.error("CardAndTerminalManager worker worker unexpectedly interrupted: "
 								+ ie.getLocalizedMessage());
 		}
 
@@ -197,6 +208,7 @@ public class CardAndTerminalManager implements Runnable {
 				listenersTerminalsAttachedCardsInserted(this.terminalsPresent,
 						this.terminalsWithCards);
 				this.subSystemInitialized = true;
+
 			} catch (CardException cex) {
 				logCardException(cex,
 						"Cannot enumerate card terminals [1] (No Card Readers Connected?)");
@@ -386,6 +398,47 @@ public class CardAndTerminalManager implements Runnable {
 		listenersTerminalsDetached(detached);
 	}
 
+	private void listenersInitialized() {
+		listenersTerminalEventsInitialized();
+		listenersCardEventsInitialized();
+	}
+
+	private void listenersCardEventsInitialized() {
+		Set<CardEventsListener> copyOfListeners;
+
+		synchronized (this.cardEventsListeners) {
+			copyOfListeners = new HashSet<CardEventsListener>(
+					this.cardEventsListeners);
+		}
+
+		for (CardEventsListener listener : copyOfListeners) {
+			try {
+				listener.cardEventsInitialized();
+			} catch (Exception thrownInListener) {
+				// this.logger.error("Exception thrown in CardEventsListener.cardRemoved:"
+				// + thrownInListener.getMessage());
+			}
+		}
+	}
+
+	private void listenersTerminalEventsInitialized() {
+		Set<CardTerminalEventsListener> copyOfListeners;
+
+		synchronized (this.cardTerminalEventsListeners) {
+			copyOfListeners = new HashSet<CardTerminalEventsListener>(
+					this.cardTerminalEventsListeners);
+		}
+
+		for (CardTerminalEventsListener listener : copyOfListeners) {
+			try {
+				listener.terminalEventsInitialized();
+			} catch (Exception thrownInListener) {
+				// this.logger.error("Exception thrown in CardTerminalEventsListener.terminalAttached:"
+				// + thrownInListener.getMessage());
+			}
+		}
+	}
+
 	// Tell listeners about attached readers
 	protected void listenersTerminalsAttached(Set<CardTerminal> attached) {
 		if (!attached.isEmpty()) {
@@ -437,7 +490,7 @@ public class CardAndTerminalManager implements Runnable {
 		if (!removed.isEmpty()) {
 			Set<CardEventsListener> copyOfListeners;
 
-			synchronized (this.cardTerminalEventsListeners) {
+			synchronized (this.cardEventsListeners) {
 				copyOfListeners = new HashSet<CardEventsListener>(
 						this.cardEventsListeners);
 			}
@@ -465,7 +518,7 @@ public class CardAndTerminalManager implements Runnable {
 		if (!inserted.isEmpty()) {
 			Set<CardEventsListener> copyOfListeners;
 
-			synchronized (this.cardTerminalEventsListeners) {
+			synchronized (this.cardEventsListeners) {
 				copyOfListeners = new HashSet<CardEventsListener>(
 						this.cardEventsListeners);
 			}

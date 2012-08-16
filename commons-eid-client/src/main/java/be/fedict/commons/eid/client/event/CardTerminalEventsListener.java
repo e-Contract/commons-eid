@@ -21,6 +21,7 @@ package be.fedict.commons.eid.client.event;
 import javax.smartcardio.CardTerminal;
 
 public interface CardTerminalEventsListener {
+	void terminalEventsInitialized();
 	void terminalAttached(CardTerminal cardTerminal);
 	void terminalDetached(CardTerminal cardTerminal);
 	void terminalException(Throwable throwable);

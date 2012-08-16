@@ -116,6 +116,12 @@ public class BeIDCardManagerTest {
 						"Fake NPE attempting to trash a BeIDCardEventsListener");
 			}
 		}
+
+		@Override
+		public void eIDCardEventsInitialized() {
+			System.out.println("BeID Card Events Initialised");
+
+		}
 	}
 
 }

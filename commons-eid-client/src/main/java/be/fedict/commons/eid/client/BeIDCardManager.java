@@ -49,8 +49,8 @@ public class BeIDCardManager {
 	}
 
 	/*
-	 * a BeIDCardManager logging to logger, and a private Terminalmanager
-	 * that is automatically started and stopped with the BeIDCardManager
+	 * a BeIDCardManager logging to logger, and a private Terminalmanager that
+	 * is automatically started and stopped with the BeIDCardManager
 	 */
 	public BeIDCardManager(Logger logger) {
 		this(logger, new CardAndTerminalManager());
@@ -172,6 +172,43 @@ public class BeIDCardManager {
 					}
 				}
 
+			}
+
+			@Override
+			public void cardEventsInitialized() {
+				Set<BeIDCardEventsListener> copyOfBeIDCardEventsListeners = null;
+
+				synchronized (BeIDCardManager.this.beIdListeners) {
+					copyOfBeIDCardEventsListeners = new HashSet<BeIDCardEventsListener>(
+							BeIDCardManager.this.beIdListeners);
+				}
+
+				for (BeIDCardEventsListener listener : copyOfBeIDCardEventsListeners) {
+					try {
+						listener.eIDCardEventsInitialized();
+					} catch (Throwable thrownInListener) {
+						BeIDCardManager.this.logger
+								.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:"
+										+ thrownInListener.getMessage());
+					}
+				}
+
+				Set<CardEventsListener> copyOfOtherCardEventsListeners = null;
+
+				synchronized (BeIDCardManager.this.beIdListeners) {
+					copyOfOtherCardEventsListeners = new HashSet<CardEventsListener>(
+							BeIDCardManager.this.otherCardListeners);
+				}
+
+				for (CardEventsListener listener : copyOfOtherCardEventsListeners) {
+					try {
+						listener.cardEventsInitialized();
+					} catch (Throwable thrownInListener) {
+						BeIDCardManager.this.logger
+								.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:"
+										+ thrownInListener.getMessage());
+					}
+				}
 			}
 		});
 	}

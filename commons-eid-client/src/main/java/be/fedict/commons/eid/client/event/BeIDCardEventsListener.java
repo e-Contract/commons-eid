@@ -23,6 +23,7 @@ import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.BeIDCard;
 
 public interface BeIDCardEventsListener {
+	void eIDCardEventsInitialized();
 	void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card);
 	void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card);
 }

@@ -18,12 +18,18 @@
 
 package be.fedict.commons.eid.client.spi;
 
+import java.util.Collection;
+import be.fedict.commons.eid.client.BeIDCard;
+
 public interface BeIDCardsUI {
 	// user needs to connect a Card Terminal
 	void adviseCardTerminalRequired();
 
 	// user needs to insert a BeID Card
 	void adviseBeIDCardRequired();
+
+	// user has multiple eID Cards inserted and needs to choose exactly one
+	BeIDCard selectBeIDCard(Collection<BeIDCard> availableCards);
 
 	// operation on secure reader ends
 	void adviseEnd();

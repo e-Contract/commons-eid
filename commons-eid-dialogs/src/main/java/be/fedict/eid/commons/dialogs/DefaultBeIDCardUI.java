@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -71,6 +72,10 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	public DefaultBeIDCardUI(Component parentComponent, Messages messages) {
 		this.parentComponent = parentComponent;
 		this.messages = messages;
+		if (GraphicsEnvironment.isHeadless()) {
+			throw new UnsupportedOperationException(
+					"DefaultBeIDCardUI is a GUI and hence requires an interactive GraphicsEnvironment");
+		}
 	}
 
 	@Override

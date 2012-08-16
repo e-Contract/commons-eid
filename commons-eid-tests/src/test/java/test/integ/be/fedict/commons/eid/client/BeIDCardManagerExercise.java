@@ -63,41 +63,41 @@ public class BeIDCardManagerExercise
 	@Override
 	public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
 		// save card files for later card simulator use
-		//		try
-		//		{
-		//			byte[] identityTLV=card.readFile(BeIDFileType.Identity);
-		//			byte[] addressTLV=card.readFile(BeIDFileType.Address);
+		// try
+		// {
+		// byte[] identityTLV=card.readFile(BeIDFileType.Identity);
+		// byte[] addressTLV=card.readFile(BeIDFileType.Address);
 		//
-		//			Identity identity=TlvParser.parse(identityTLV,Identity.class);
-		//			System.out.println(identity.firstName+" "+identity.name);
+		// Identity identity=TlvParser.parse(identityTLV,Identity.class);
+		// System.out.println(identity.firstName+" "+identity.name);
 		//
-		//			Address address=TlvParser.parse(addressTLV,Address.class);
-		//			System.out.println(address.streetAndNumber);
+		// Address address=TlvParser.parse(addressTLV,Address.class);
+		// System.out.println(address.streetAndNumber);
 		//
-		//			File atrFile=new File("/tmp/Alice_ATR.bin");
-		//			OutputStream os=new FileOutputStream(atrFile);
-		//			os.write(card.getATR().getBytes());
+		// File atrFile=new File("/tmp/Alice_ATR.bin");
+		// OutputStream os=new FileOutputStream(atrFile);
+		// os.write(card.getATR().getBytes());
 		//
-		//			for(BeIDFileType fileType:BeIDFileType.values())
-		//			{
-		//				byte[] tlvData=card.readFile(fileType);
-		//				System.err.println("Read ["+fileType+"] -> "+tlvData.length+" bytes.");
-		//				File file=new File("/tmp/Alice_"+fileType+".tlv");
-		//				OutputStream stream=new FileOutputStream(file);
-		//				stream.write(tlvData);
-		//			}
+		// for(BeIDFileType fileType:BeIDFileType.values())
+		// {
+		// byte[] tlvData=card.readFile(fileType);
+		// System.err.println("Read ["+fileType+"] -> "+tlvData.length+" bytes.");
+		// File file=new File("/tmp/Alice_"+fileType+".tlv");
+		// OutputStream stream=new FileOutputStream(file);
+		// stream.write(tlvData);
+		// }
 		//
-		//		}
-		//		catch(CardException e)
-		//		{
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-		//		catch(IOException e)
-		//		{
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
+		// }
+		// catch(CardException e)
+		// {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// catch(IOException e)
+		// {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 
 		System.err.println("eID Card Inserted Into ["
 				+ StringUtils.getShortTerminalname(cardTerminal.getName())
@@ -128,5 +128,17 @@ public class BeIDCardManagerExercise
 	public void cardRemoved(CardTerminal cardTerminal) {
 		System.out.println("Other Card Removed From [" + cardTerminal.getName()
 				+ "]");
+	}
+
+	@Override
+	public void cardEventsInitialized() {
+		System.out.println("Other Card Events Initialised");
+
+	}
+
+	@Override
+	public void eIDCardEventsInitialized() {
+		System.out.println("BeID Card Events Initialised");
+
 	}
 }

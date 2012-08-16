@@ -22,25 +22,25 @@ public class Sleeper {
 	private boolean isAwoken;
 
 	public synchronized void sleepUntilAwakened(long timeout) {
-		while (!isAwoken)
+		while (!this.isAwoken)
 			try {
 				this.wait(timeout);
 			} catch (InterruptedException e) {
 			} // intentionally empty
-		isAwoken = false;
+		this.isAwoken = false;
 	}
 
 	public synchronized void sleepUntilAwakened() {
-		while (!isAwoken)
+		while (!this.isAwoken)
 			try {
 				this.wait();
 			} catch (InterruptedException e) {
 			} // intentionally empty
-		isAwoken = false;
+		this.isAwoken = false;
 	}
 
 	public synchronized void awaken() {
-		isAwoken = true;
+		this.isAwoken = true;
 		this.notify();
 	}
 }
