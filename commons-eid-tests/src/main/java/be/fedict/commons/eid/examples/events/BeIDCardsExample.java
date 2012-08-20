@@ -14,7 +14,7 @@ public class BeIDCardsExample {
 	/*
 	 * get information about BeID cards inserted, from the current thread:
 	 */
-	public void demonstrate() {
+	public void demonstrate() throws InterruptedException {
 		// -------------------------------------------------------------------------------------------------------
 		// instantiate a BeIDCardManager with default settings (no logging)
 		// -------------------------------------------------------------------------------------------------------
