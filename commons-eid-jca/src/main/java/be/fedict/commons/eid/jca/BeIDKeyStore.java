@@ -38,10 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
-import be.fedict.commons.eid.client.BeIDCardsException;
 import be.fedict.commons.eid.client.BeIDFileType;
-import be.fedict.commons.eid.client.spi.BeIDCardUI;
-import be.fedict.eid.commons.dialogs.DefaultBeIDCardUI;
 
 public class BeIDKeyStore extends KeyStoreSpi {
 
@@ -232,7 +229,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	private BeIDCard getBeIDCard() {
 		if (null == this.beIDCard) {
 			BeIDCards beIDCards = new BeIDCards();
-			this.beIDCard = beIDCards.getFirstBeIDCard();
+			this.beIDCard = beIDCards.getOneBeIDCard();
 			if (null == this.beIDCard) {
 				throw new SecurityException("missing eID card");
 			}

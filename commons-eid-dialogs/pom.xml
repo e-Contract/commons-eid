@@ -33,10 +33,5 @@
 			<artifactId>commons-eid-consumer</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-	<groupId>org.swinglabs</groupId>
-	<artifactId>swingx</artifactId>
-	<version>1.6.1</version>
-</dependency>
 	</dependencies>
 </project>

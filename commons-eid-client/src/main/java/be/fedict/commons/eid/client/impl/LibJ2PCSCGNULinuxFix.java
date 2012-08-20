@@ -22,7 +22,6 @@
 
 package be.fedict.commons.eid.client.impl;
 import java.io.File;
-
 import be.fedict.commons.eid.client.spi.Logger;
 
 /*
@@ -47,10 +46,10 @@ public class LibJ2PCSCGNULinuxFix {
 	};
 
 	/*
-	 * The libj2pcsc.so from the JRE attempts to dlopen
-	 * using the linker name "libpcsclite.so" instead of the appropriate "libpcsclite.so.1". 
-	 * This causes libpcsclite not to be found on GNU/Linux distributions 
-	 * that don't have the libpcsclite.so symbolic link. This method finds the library and
+	 * The libj2pcsc.so from the JRE attempts to dlopen using the linker name
+	 * "libpcsclite.so" instead of the appropriate "libpcsclite.so.1". This
+	 * causes libpcsclite not to be found on GNU/Linux distributions that don't
+	 * have the libpcsclite.so symbolic link. This method finds the library and
 	 * forces the JRE to use it instead of attempting to locate it by itself.
 	 * See also: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=529339
 	 * 
@@ -80,11 +79,12 @@ public class LibJ2PCSCGNULinuxFix {
 	}
 
 	// ----------------------------------------------------------------------------------------
-	// -------------------------------- supporting private methods. ---------------------------
+	// -------------------------------- supporting private methods.
+	// ---------------------------
 	// ----------------------------------------------------------------------------------------
 
-	/* 
-	 *  Determine Ubuntu-type multilib configuration
+	/*
+	 * Determine Ubuntu-type multilib configuration
 	 */
 	private static UbuntuBitness getUbuntuBitness() {
 		boolean has32 = false, has64 = false;
@@ -104,8 +104,8 @@ public class LibJ2PCSCGNULinuxFix {
 	}
 
 	/*
-	 * return the path with extension appended, if it wasn't already 
-	 * contained in the path
+	 * return the path with extension appended, if it wasn't already contained
+	 * in the path
 	 */
 	private static String extendLibraryPath(String lib_path, String extension) {
 		if (lib_path.contains(extension))
@@ -114,8 +114,8 @@ public class LibJ2PCSCGNULinuxFix {
 	}
 
 	/*
-	 * Oracle Java 7, java.library.path is severely limited as compared to the OpenJDK default
-	 * and doesn't contain Ubuntu 12's MULTILIB directories. 
+	 * Oracle Java 7, java.library.path is severely limited as compared to the
+	 * OpenJDK default and doesn't contain Ubuntu 12's MULTILIB directories.
 	 * Test for Ubuntu in various configs and add the required paths
 	 */
 	private static String fixPathForUbuntuMultiLib(String libraryPath,
@@ -138,7 +138,8 @@ public class LibJ2PCSCGNULinuxFix {
 				return extendLibraryPath(libraryPath, UBUNTU_MULTILIB_64_PATH);
 
 			case MULTILIB : {
-				// multilib Ubuntu. Let the currently running JRE's bitness determine which lib dir to add.
+				// multilib Ubuntu. Let the currently running JRE's bitness
+				// determine which lib dir to add.
 				logger.debug("Multilib Ubuntu detected. Using JRE Bitness.");
 
 				String jvmBinaryArch = System.getProperty(JRE_BITNESS_PROPERTY);
@@ -162,10 +163,11 @@ public class LibJ2PCSCGNULinuxFix {
 				}
 			}
 				break;
-		}
 
-		// not a Ubuntu.
-		logger.debug("Did not find Ubuntu-style multilib.");
+			default : {
+				logger.debug("Did not find Ubuntu-style multilib.");
+			}
+		}
 		return libraryPath;
 	}
 
@@ -173,8 +175,8 @@ public class LibJ2PCSCGNULinuxFix {
 	 * Finds .so.version file on GNU/Linux. avoid guessing all GNU/Linux
 	 * distros' library path configurations on 32 and 64-bit when working around
 	 * the buggy libj2pcsc.so implementation based on JRE implementations adding
-	 * the native library paths to the end of java.library.path.
-	 * Fixes the path for Oracle JRE which doesn't contain the Ubuntu MULTILIB directories
+	 * the native library paths to the end of java.library.path. Fixes the path
+	 * for Oracle JRE which doesn't contain the Ubuntu MULTILIB directories
 	 */
 	private static File findGNULinuxNativeLibrary(String baseName, int version,
 			Logger logger) {

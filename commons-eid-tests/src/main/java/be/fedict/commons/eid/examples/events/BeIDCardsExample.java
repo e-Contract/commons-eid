@@ -24,7 +24,7 @@ public class BeIDCardsExample {
 		// ask it for all CardTerminals that currently contain BeID cards (which
 		// may block and possibly interact with the user until there is at least one)
 		// -------------------------------------------------------------------------------------------------------
-		Set<BeIDCard> cards = beIDCards.getBeIDCards();
+		Set<BeIDCard> cards = beIDCards.getAllBeIDCards();
 
 		System.out.println("BeID Cards:");
 

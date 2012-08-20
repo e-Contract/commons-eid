@@ -46,12 +46,10 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
-import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.commons.eid.consumer.jca.ProxyPrivateKey;
 import be.fedict.commons.eid.consumer.jca.ProxyProvider;
 import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
 import be.fedict.commons.eid.jca.BeIDProvider;
-import be.fedict.eid.commons.dialogs.DefaultBeIDCardUI;
 
 public class JCATest {
 
@@ -255,7 +253,7 @@ public class JCATest {
 	private BeIDCard getBeIDCard() throws Exception {
 		TestLogger logger = new TestLogger();
 		BeIDCards beIDCards = new BeIDCards(logger);
-		BeIDCard beIDCard = beIDCards.getFirstBeIDCard();
+		BeIDCard beIDCard = beIDCards.getOneBeIDCard();
 		assertNotNull(beIDCard);;
 		return beIDCard;
 	}

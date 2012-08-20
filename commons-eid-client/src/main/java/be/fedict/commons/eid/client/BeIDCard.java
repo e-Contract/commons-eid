@@ -39,7 +39,6 @@ import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
 import be.fedict.commons.eid.client.impl.CCID;
