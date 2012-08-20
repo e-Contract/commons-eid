@@ -41,6 +41,6 @@ public class Sleeper {
 
 	public synchronized void awaken() {
 		this.isAwoken = true;
-		this.notify();
+		this.notifyAll();
 	}
 }

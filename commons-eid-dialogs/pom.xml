@@ -8,6 +8,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<name>Commons eID Default Dialogs</name>
+	<groupId>be.fedict.commons-eid</groupId>
 	<artifactId>commons-eid-dialogs</artifactId>
 	<build>
 		<plugins>
