@@ -39,6 +39,7 @@ import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
+import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
 import be.fedict.commons.eid.client.impl.CCID;
@@ -60,7 +61,6 @@ public class BeIDCard {
 
 	private final CardChannel cardChannel;
 	private final List<BeIDCardListener> cardListeners;
-
 	private final CertificateFactory certificateFactory;
 
 	private final Card card;
@@ -101,7 +101,8 @@ public class BeIDCard {
 	 */
 
 	public X509Certificate getCertificate(BeIDFileType fileType)
-			throws CertificateException, CardException, IOException {
+			throws CertificateException, CardException, IOException,
+			InterruptedException {
 		return (X509Certificate) this.certificateFactory
 				.generateCertificate(new ByteArrayInputStream(
 						readFile(fileType)));
@@ -112,22 +113,22 @@ public class BeIDCard {
 	 */
 
 	public X509Certificate getAuthenticationCertificate() throws CardException,
-			IOException, CertificateException {
+			IOException, CertificateException, InterruptedException {
 		return getCertificate(BeIDFileType.AuthentificationCertificate);
 	}
 
 	public X509Certificate getSigningCertificate() throws CardException,
-			IOException, CertificateException {
+			IOException, CertificateException, InterruptedException {
 		return getCertificate(BeIDFileType.SigningCertificate);
 	}
 
 	public X509Certificate getCACertificate() throws CardException,
-			IOException, CertificateException {
+			IOException, CertificateException, InterruptedException {
 		return getCertificate(BeIDFileType.CACertificate);
 	}
 
 	public X509Certificate getRRNCertificate() throws CardException,
-			IOException, CertificateException {
+			IOException, CertificateException, InterruptedException {
 		return getCertificate(BeIDFileType.RRNCertificate);
 	}
 
@@ -136,7 +137,8 @@ public class BeIDCard {
 	 */
 
 	public List<X509Certificate> getCertificateChain(BeIDFileType fileType)
-			throws CertificateException, CardException, IOException {
+			throws CertificateException, CardException, IOException,
+			InterruptedException {
 		CertificateFactory certificateFactory = CertificateFactory
 				.getInstance("X.509");
 		List<X509Certificate> chain = new LinkedList<X509Certificate>();
@@ -158,22 +160,24 @@ public class BeIDCard {
 	 */
 
 	public List<X509Certificate> getAuthenticationCertificateChain()
-			throws CardException, IOException, CertificateException {
+			throws CardException, IOException, CertificateException,
+			InterruptedException {
 		return getCertificateChain(BeIDFileType.AuthentificationCertificate);
 	}
 
 	public List<X509Certificate> getSigningCertificateChain()
-			throws CardException, IOException, CertificateException {
+			throws CardException, IOException, CertificateException,
+			InterruptedException {
 		return getCertificateChain(BeIDFileType.SigningCertificate);
 	}
 
 	public List<X509Certificate> getCACertificateChain() throws CardException,
-			IOException, CertificateException {
+			IOException, CertificateException, InterruptedException {
 		return getCertificateChain(BeIDFileType.CACertificate);
 	}
 
 	public List<X509Certificate> getRRNCertificateChain() throws CardException,
-			IOException, CertificateException {
+			IOException, CertificateException, InterruptedException {
 		return getCertificateChain(BeIDFileType.RRNCertificate);
 	}
 
@@ -810,13 +814,29 @@ public class BeIDCard {
 
 	// --------------------------------------------------------------------------------------------------------------------------------
 
+	public BeIDCard interruptRead() {
+		try {
+			endExclusive();
+		} catch (CardException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return this;
+	}
+
 	public byte[] readBinary(int estimatedMaxSize) throws CardException,
-			IOException {
+			IOException, InterruptedException {
 		int offset = 0;
 		this.logger.debug("read binary");
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] data;
 		do {
+			if (Thread.currentThread().isInterrupted()) {
+				logger.debug("interrupted in readBinary");
+				throw new InterruptedException();
+			}
+
 			notifyReadProgress(offset, estimatedMaxSize);
 			ResponseAPDU responseApdu = transmitCommand(
 					BeIDCommandAPDU.READ_BINARY, offset >> 8, offset & 0xFF,
@@ -870,7 +890,7 @@ public class BeIDCard {
 	}
 
 	public byte[] readFile(BeIDFileType beIDFile) throws CardException,
-			IOException {
+			IOException, InterruptedException {
 		beginExclusive();
 
 		try {
