@@ -18,7 +18,6 @@
 
 package be.fedict.commons.eid.examples.events;
 
-import java.util.Set;
 import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;

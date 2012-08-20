@@ -51,7 +51,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.ListCellRenderer;
-import org.jdesktop.swingx.JXList;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
@@ -111,7 +110,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 		final JPanel masterPanel = new JPanel(new BorderLayout());
 		masterPanel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
 
-		final DefaultListModel<ListData> listModel = new DefaultListModel<ListData>();
+		final DefaultListModel listModel = new DefaultListModel();
 
 		for (BeIDCard card : availableCards) {
 			listModel.addElement(new ListData(card));
@@ -120,14 +119,14 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 		final ListModelUpdater listModelUpdater = new ListModelUpdater(
 				listModel);
 
-		JXList list = new JXList(listModel);
+		JList list = new JList(listModel);
 		list.setCellRenderer(new EidListCellRenderer());
 		masterPanel.add(list);
 		dialog.getContentPane().add(masterPanel);
 
 		MouseListener mouseListener = new MouseAdapter() {
 			public void mouseClicked(MouseEvent mouseEvent) {
-				JList<?> theList = (JList<?>) mouseEvent.getSource();
+				JList theList = (JList) mouseEvent.getSource();
 				if (mouseEvent.getClickCount() == 2) {
 					int index = theList.locationToIndex(mouseEvent.getPoint());
 					if (index >= 0) {
@@ -258,12 +257,11 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 
 	private static class EidListCellRenderer extends JPanel
 			implements
-				ListCellRenderer<Object> {
+				ListCellRenderer {
 		private static final long serialVersionUID = -6914001662919942232L;
 
-		public Component getListCellRendererComponent(JList<?> list,
-				Object value, int index, boolean isSelected,
-				boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList list, Object value,
+				int index, boolean isSelected, boolean cellHasFocus) {
 			JPanel panel = new JPanel();
 			ListData listData = (ListData) value;
 			panel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -382,7 +380,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 		private final CountDownLatch identitiesReadLatch;
 		private final ArrayList<ListItemUpdater> updaters = new ArrayList<ListItemUpdater>();
 
-		public ListModelUpdater(DefaultListModel<ListData> listModel) {
+		public ListModelUpdater(DefaultListModel listModel) {
 			this.identitiesReadLatch = new CountDownLatch(listModel.size());
 			for (int i = 0; i < listModel.size(); i++) {
 				updaters.add(new ListItemUpdater(listModel, i,
@@ -414,12 +412,12 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	}
 
 	private static class ListItemUpdater implements Runnable {
-		private DefaultListModel<ListData> listModel;
+		private DefaultListModel listModel;
 		private int index;
 		private CountDownLatch nameRead;
 		private Thread worker;
 
-		public ListItemUpdater(DefaultListModel<ListData> listModel, int index,
+		public ListItemUpdater(DefaultListModel listModel, int index,
 				CountDownLatch nameRead) {
 			super();
 			this.listModel = listModel;
@@ -446,7 +444,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 
 		@Override
 		public void run() {
-			final ListData listItem = this.listModel.get(this.index);
+			final ListData listItem = (ListData) this.listModel.get(this.index);
 
 			try {
 				Identity identity = TlvParser.parse(listItem.getCard()

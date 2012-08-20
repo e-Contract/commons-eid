@@ -97,24 +97,39 @@ public class BeIDCards {
 		this.cardManager.start();
 	}
 
-	public Set<BeIDCard> getBeIDCards() {
-		waitForAtLeastOneBeIDCard();
+	/*
+	 * return Set of all BeID Cards present. Will return empty Set if no BeID
+	 * cards are present at time of call
+	 */
+	public Set<BeIDCard> getAllBeIDCards() {
+		waitUntilInitialized();
 
-		HashSet<BeIDCard> cards;
 		synchronized (this.beIDTerminalsAndCards) {
-			cards = new HashSet<BeIDCard>(this.beIDTerminalsAndCards.values());
+			return new HashSet<BeIDCard>(this.beIDTerminalsAndCards.values());
 		}
-		return cards;
 	}
 
-	public BeIDCard getFirstBeIDCard() {
+	/*
+	 * return Set of all BeID Cards present.
+	 * Will block if no BeID Cards are present at time of call
+	 * Note that if multiple cards are present, this will return them in arbitrary order
+	 */
+	public Set<BeIDCard> getAtLeastOneBeIDCard() {
 		waitForAtLeastOneBeIDCard();
 
-		Set<BeIDCard> cards = getBeIDCards();
-		return cards.iterator().next();
+		synchronized (this.beIDTerminalsAndCards) {
+			return new HashSet<BeIDCard>(this.beIDTerminalsAndCards.values());
+		}
 	}
 
-	public BeIDCard getSingleBeIDCard() {
+	/*
+	 * return exactly one BeID Card. 
+	 * 
+	 * This will block until at least one BeID card is inserted, at which point this will be returned.
+	 * If, at time of call, more than one BeID card is present, will request the UI to select
+	 * between those, and return the selected card.
+	 */
+	public BeIDCard getOneBeIDCard() {
 		waitForAtLeastOneBeIDCard();
 
 		synchronized (this.beIDTerminalsAndCards) {
@@ -125,6 +140,10 @@ public class BeIDCards {
 						this.beIDTerminalsAndCards.values());
 			}
 		}
+	}
+
+	public BeIDCards waitUntilCardRemoved(BeIDCard card) {
+		return this;
 	}
 
 	/*

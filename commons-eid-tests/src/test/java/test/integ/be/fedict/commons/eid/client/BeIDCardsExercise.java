@@ -12,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
-import be.fedict.commons.eid.client.BeIDCardsException;
 import be.fedict.commons.eid.client.BeIDFileType;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
@@ -117,7 +116,7 @@ public class BeIDCardsExercise {
 
 	private BeIDCard getBeIDCard() {
 		this.beIDCards = new BeIDCards(new TestLogger());
-		BeIDCard beIDCard = this.beIDCards.getSingleBeIDCard();
+		BeIDCard beIDCard = this.beIDCards.getOneBeIDCard();
 		assertNotNull(beIDCard);
 		return beIDCard;
 	}
