@@ -8,6 +8,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<name>Commons eID JCA</name>
+	<groupId>be.fedict.commons-eid</groupId>
 	<artifactId>commons-eid-jca</artifactId>
 	<dependencies>
 		<dependency>

@@ -110,9 +110,9 @@ public class BeIDCards {
 	}
 
 	/*
-	 * return Set of all BeID Cards present.
-	 * Will block if no BeID Cards are present at time of call
-	 * Note that if multiple cards are present, this will return them in arbitrary order
+	 * return Set of all BeID Cards present. Will block if no BeID Cards are
+	 * present at time of call Note that if multiple cards are present, this
+	 * will return them in arbitrary order
 	 */
 	public Set<BeIDCard> getAtLeastOneBeIDCard() {
 		waitForAtLeastOneBeIDCard();
@@ -123,11 +123,12 @@ public class BeIDCards {
 	}
 
 	/*
-	 * return exactly one BeID Card. 
+	 * return exactly one BeID Card.
 	 * 
-	 * This will block until at least one BeID card is inserted, at which point this will be returned.
-	 * If, at time of call, more than one BeID card is present, will request the UI to select
-	 * between those, and return the selected card.
+	 * This will block until at least one BeID card is inserted, at which point
+	 * this will be returned. If, at time of call, more than one BeID card is
+	 * present, will request the UI to select between those, and return the
+	 * selected card.
 	 */
 	public BeIDCard getOneBeIDCard() {
 		waitForAtLeastOneBeIDCard();
@@ -142,7 +143,16 @@ public class BeIDCards {
 		}
 	}
 
+	/*
+	 * wait for a particular BeID card to be removed
+	 * Note that this only works with BeID objects that were acquired using 
+	 * one of the getXXX methods from the same BeIDCards instance
+	 */
 	public BeIDCards waitUntilCardRemoved(BeIDCard card) {
+		while (getAllBeIDCards().contains(card)) {
+			beIDSleeper.sleepUntilAwakened();
+		}
+
 		return this;
 	}
 

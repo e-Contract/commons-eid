@@ -9,6 +9,7 @@
 	</parent>
 	<name>Commons eID BOM</name>
 	<description>Commons eID Bill Of Materials</description>
+	<groupId>be.fedict.commons-eid</groupId>
 	<artifactId>commons-eid-bom</artifactId>
 	<properties>
 		<commons-eid.version>${project.version}</commons-eid.version>
