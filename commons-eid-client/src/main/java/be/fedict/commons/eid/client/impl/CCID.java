@@ -20,42 +20,93 @@ package be.fedict.commons.eid.client.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.Locale;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
+import be.fedict.commons.eid.client.spi.Logger;
 
 public class CCID {
-	public static final byte FEATURE_VERIFY_PIN_START_TAG = 0x01;
-	public static final byte FEATURE_VERIFY_PIN_FINISH_TAG = 0x02;
-	public static final byte FEATURE_MODIFY_PIN_START_TAG = 0x03;
-	public static final byte FEATURE_MODIFY_PIN_FINISH_TAG = 0x04;
-	public static final byte FEATURE_GET_KEY_PRESSED_TAG = 0x05;
-	public static final byte FEATURE_VERIFY_PIN_DIRECT_TAG = 0x06;
-	public static final byte FEATURE_MODIFY_PIN_DIRECT_TAG = 0x07;
-	public static final byte FEATURE_EID_PIN_PAD_READER_TAG = (byte) 0x80;
-
 	public static final int GET_FEATURES = 0x42000D48;
 	public static final int GET_FEATURES_MICROSOFT = (0x31 << 16 | (3400) << 2);
-
 	public static final int MIN_PIN_SIZE = 4;
 	public static final int MAX_PIN_SIZE = 12;
 
-	public static Integer getFeature(Card card, byte featureTag)
-			throws CardException {
-		byte[] features = readFeatures(card);
-		if (features == null || features.length == 0)
-			return null;
-		return findFeature(featureTag, features);
+	private final Logger logger;
+	private final Card card;
+	private final EnumMap<FEATURE, Integer> features;
+
+	public enum FEATURE {
+		VERIFY_PIN_START(0x01), VERIFY_PIN_FINISH(0x02), VERIFY_PIN_DIRECT(0x06), MODIFY_PIN_START(
+				0x03), MODIFY_PIN_FINISH(0x04), MODIFY_PIN_DIRECT(0x07), GET_KEY_PRESSED(
+				0x05), EID_PIN_PAD_READER(0x80);
+
+		private final byte tag;
+
+		FEATURE(int tag) {
+			this.tag = (byte) tag;
+		}
+
+		byte getTag() {
+			return this.tag;
+		}
 	}
 
-	private static byte[] readFeatures(Card card) throws CardException {
-		String osName = System.getProperty("os.name");
-		return card.transmitControlCommand(osName.startsWith("Windows")
-				? GET_FEATURES_MICROSOFT
-				: GET_FEATURES, new byte[0]);
+	public enum INS {
+		VERIFY_PIN(0x20), MODIFY_PIN(0x24), VERIFY_PUK(0x2C);
+
+		private final int ins;
+
+		INS(int ins) {
+			this.ins = ins;
+		}
+
+		int getIns() {
+			return this.ins;
+		}
 	}
 
-	private static Integer findFeature(byte featureTag, byte[] features) {
+	/*
+	 ***********************************************************************************************************
+	 */
+
+	public CCID(Card card) {
+		this(card, new VoidLogger());
+	}
+
+	public CCID(Card card, Logger logger) {
+		this.card = card;
+		this.logger = logger;
+		this.features = new EnumMap<FEATURE, Integer>(FEATURE.class);
+
+		try {
+			String osName = System.getProperty("os.name");
+			byte[] featureBytes = card.transmitControlCommand(osName
+					.startsWith("Windows")
+					? GET_FEATURES_MICROSOFT
+					: GET_FEATURES, new byte[0]);
+			for (FEATURE feature : FEATURE.values()) {
+				features.put(feature, findFeature(feature.getTag(),
+						featureBytes));
+			}
+		} catch (CardException cex) {
+			// intentionally empty.. this.features exists and any gets will fail to find features
+		}
+	}
+
+	public boolean hasFeature(FEATURE feature) {
+		return getFeature(feature) != null;
+	}
+
+	public Integer getFeature(FEATURE feature) {
+		return this.features.get(feature);
+	}
+
+	/*
+	 ***********************************************************************************************************
+	 */
+
+	private Integer findFeature(byte featureTag, byte[] features) {
 		int idx = 0;
 		while (idx < features.length) {
 			byte tag = features[idx];
@@ -75,43 +126,56 @@ public class CCID {
 		return null;
 	}
 
-	public static void waitForOK(Card card, int getKeyPressedFeature)
-			throws CardException, InterruptedException {
+	/* 
+	 * ***********************************************************************************************************************
+	 */
+
+	public void waitForOK() throws CardException, InterruptedException {
 		// wait for key pressed
 		loop : while (true) {
-			byte[] getKeyPressedResult = card.transmitControlCommand(
-					getKeyPressedFeature, new byte[0]);
+			byte[] getKeyPressedResult = this.card.transmitControlCommand(
+					getFeature(FEATURE.GET_KEY_PRESSED), new byte[0]);
 			byte key = getKeyPressedResult[0];
 			switch (key) {
 				case 0x00 :
-					// this.view.addDetailMessage("waiting for CCID...");
+					this.logger.debug("waiting for CCID...");
 					Thread.sleep(200);
 					break;
+
 				case 0x2b :
-					// this.view.addDetailMessage("PIN digit");
+					this.logger.debug("PIN digit");
 					break;
+
 				case 0x0a :
-					// this.view.addDetailMessage("erase PIN digit");
+					this.logger.debug("erase PIN digit");
 					break;
+
 				case 0x0d :
-					// this.view.addDetailMessage("user confirmed");
+					this.logger.debug("user confirmed");
 					break loop;
+
 				case 0x1b :
-					// this.view.addDetailMessage("user canceled");
+					this.logger.debug("user canceled");
 					// XXX: need to send the PIN finish ioctl?
 					throw new SecurityException("canceled by user");
+
 				case 0x40 :
 					// happens in case of a reader timeout
-					// this.view.addDetailMessage("PIN abort");
+					this.logger.debug("PIN abort");
 					break loop;
+
 				default :
-					// this.view.addDetailMessage("CCID get key pressed result: "
-					// + key + " hex: " + Integer.toHexString(key));
+					this.logger.debug("CCID get key pressed result: " + key
+							+ " hex: " + Integer.toHexString(key));
 			}
 		}
 	}
 
-	public static byte getLanguageId(Locale locale) {
+	/*
+	 **** static utilities ****
+	 */
+
+	public byte getLanguageId(Locale locale) {
 		/*
 		 * USB language Ids
 		 */
@@ -128,8 +192,8 @@ public class CCID {
 		return 0x09; // ENGLISH
 	}
 
-	public static byte[] createPINVerificationDataStructure(Locale locale,
-			int apduIns) throws IOException {
+	public byte[] createPINVerificationDataStructure(Locale locale, INS ins)
+			throws IOException {
 		ByteArrayOutputStream verifyCommand = new ByteArrayOutputStream();
 		verifyCommand.write(30); // bTimeOut
 		verifyCommand.write(30); // bTimeOut2
@@ -192,7 +256,7 @@ public class CCID {
 		 */
 		byte[] verifyApdu = new byte[]{
 				0x00, // CLA
-				(byte) apduIns, // INS
+				(byte) ins.getIns(), // INS
 				0x00, // P1
 				0x01, // P2
 				0x08, // Lc = 8 bytes in command data
@@ -207,8 +271,8 @@ public class CCID {
 		return verifyCommandData;
 	}
 
-	public static byte[] createPINModificationDataStructure(Locale locale,
-			int apduIns) throws IOException {
+	public byte[] createPINModificationDataStructure(Locale locale, INS ins)
+			throws IOException {
 		ByteArrayOutputStream modifyCommand = new ByteArrayOutputStream();
 		modifyCommand.write(30); // bTimeOut
 		modifyCommand.write(30); // bTimeOut2
@@ -307,7 +371,7 @@ public class CCID {
 
 		byte[] modifyApdu = new byte[]{
 				0x00, // CLA
-				(byte) apduIns, // INS
+				(byte) ins.getIns(), // INS
 				0x00, // P1
 				0x01, // P2
 				0x10, // Lc = 16 bytes in command data

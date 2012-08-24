@@ -43,8 +43,7 @@ import be.fedict.commons.eid.client.spi.Logger;
 
 public class CardAndTerminalManager implements Runnable {
 	private static final int DEFAULT_DELAY = 250;
-	private volatile boolean running;
-	private boolean subSystemInitialized, autoconnect;
+	private boolean running, subSystemInitialized, autoconnect;
 	private Thread worker;
 	private Set<CardTerminal> terminalsPresent, terminalsWithCards;
 	private CardTerminals cardTerminals;
@@ -116,7 +115,7 @@ public class CardAndTerminalManager implements Runnable {
 		this.logger
 				.debug("CardAndTerminalManager worker thread start requested.");
 		this.worker = new Thread(this, "CardAndTerminalManager");
-		this.worker.setDaemon(false);
+		this.worker.setDaemon(true);
 		this.worker.start();
 		return this;
 	}
@@ -160,8 +159,8 @@ public class CardAndTerminalManager implements Runnable {
 
 	// stop this CardAndTerminalManager's worker thread.
 	public CardAndTerminalManager stop() throws InterruptedException {
-		logger.debug("CardAndTerminalManager worker worker stop requested.");
-		running = false;
+		logger.debug("CardAndTerminalManager worker thread stop requested.");
+		this.running = false;
 		worker.interrupt();
 		worker.join();
 		return this;
@@ -171,24 +170,26 @@ public class CardAndTerminalManager implements Runnable {
 
 	@Override
 	public void run() {
-		running = true;
+		this.running = true;
 		logger.debug("CardAndTerminalManager worker thread started.");
 
 		try {
 			// do an initial run, making sure current status is detected
-			// this sends terminal attach and card insert events for this initial state to any listeners
+			// this sends terminal attach and card insert events for this
+			// initial state to any listeners
 			handlePCSCEvents();
 
-			// advise listeners that initial state was sent, and that any further events are relative to this
+			// advise listeners that initial state was sent, and that any
+			// further events are relative to this
 			listenersInitialized();
 
 			// keep updating
-			while (running)
+			while (this.running)
 				handlePCSCEvents();
 		} catch (InterruptedException ie) {
-			if (running)
+			if (this.running)
 				logger
-						.error("CardAndTerminalManager worker worker unexpectedly interrupted: "
+						.error("CardAndTerminalManager worker thread unexpectedly interrupted: "
 								+ ie.getLocalizedMessage());
 		}
 
@@ -415,8 +416,9 @@ public class CardAndTerminalManager implements Runnable {
 			try {
 				listener.cardEventsInitialized();
 			} catch (Exception thrownInListener) {
-				// this.logger.error("Exception thrown in CardEventsListener.cardRemoved:"
-				// + thrownInListener.getMessage());
+				this.logger
+						.error("Exception thrown in CardEventsListener.cardRemoved:"
+								+ thrownInListener.getMessage());
 			}
 		}
 	}
@@ -433,8 +435,9 @@ public class CardAndTerminalManager implements Runnable {
 			try {
 				listener.terminalEventsInitialized();
 			} catch (Exception thrownInListener) {
-				// this.logger.error("Exception thrown in CardTerminalEventsListener.terminalAttached:"
-				// + thrownInListener.getMessage());
+				this.logger
+						.error("Exception thrown in CardTerminalEventsListener.terminalAttached:"
+								+ thrownInListener.getMessage());
 			}
 		}
 	}
@@ -454,8 +457,9 @@ public class CardAndTerminalManager implements Runnable {
 					try {
 						listener.terminalAttached(terminal);
 					} catch (Exception thrownInListener) {
-						// this.logger.error("Exception thrown in CardTerminalEventsListener.terminalAttached:"
-						// + thrownInListener.getMessage());
+						this.logger
+								.error("Exception thrown in CardTerminalEventsListener.terminalAttached:"
+										+ thrownInListener.getMessage());
 					}
 				}
 			}
@@ -477,8 +481,9 @@ public class CardAndTerminalManager implements Runnable {
 					try {
 						listener.terminalDetached(terminal);
 					} catch (Exception thrownInListener) {
-						// this.logger.error("Exception thrown in CardTerminalEventsListener.terminalDetached:"
-						// + thrownInListener.getMessage());
+						this.logger
+								.error("Exception thrown in CardTerminalEventsListener.terminalDetached:"
+										+ thrownInListener.getMessage());
 					}
 				}
 			}
@@ -500,8 +505,9 @@ public class CardAndTerminalManager implements Runnable {
 					try {
 						listener.cardRemoved(terminal);
 					} catch (Exception thrownInListener) {
-						// this.logger.error("Exception thrown in CardEventsListener.cardRemoved:"
-						// + thrownInListener.getMessage());
+						this.logger
+								.error("Exception thrown in CardEventsListener.cardRemoved:"
+										+ thrownInListener.getMessage());
 					}
 				}
 			}
@@ -538,8 +544,9 @@ public class CardAndTerminalManager implements Runnable {
 					try {
 						listener.cardInserted(terminal, card);
 					} catch (Exception thrownInListener) {
-						// this.logger.error("Exception thrown in CardEventsListener.cardInserted:"
-						// + thrownInListener.getMessage());
+						this.logger
+								.error("Exception thrown in CardEventsListener.cardInserted:"
+										+ thrownInListener.getMessage());
 					}
 
 				}
@@ -566,8 +573,9 @@ public class CardAndTerminalManager implements Runnable {
 			try {
 				listener.terminalException(throwable);
 			} catch (Exception thrownInListener) {
-				// this.logger.error("Exception thrown in CardTerminalEventsListener.terminalException:"
-				// + thrownInListener.getMessage());
+				this.logger
+						.error("Exception thrown in CardTerminalEventsListener.terminalException:"
+								+ thrownInListener.getMessage());
 			}
 		}
 	}

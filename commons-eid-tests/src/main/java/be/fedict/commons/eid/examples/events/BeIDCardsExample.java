@@ -6,7 +6,7 @@ import javax.smartcardio.CardException;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.BeIDCardsException;
-import be.fedict.commons.eid.client.BeIDFileType;
+import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
@@ -32,7 +32,7 @@ public class BeIDCardsExample {
 			byte[] idData;
 
 			try {
-				idData = card.readFile(BeIDFileType.Identity);
+				idData = card.readFile(FileType.Identity);
 			} catch (CardException e) {
 				System.err.println("oops! can't read identity file");
 				return;

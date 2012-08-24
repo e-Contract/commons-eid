@@ -40,9 +40,9 @@ import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
 import org.junit.Before;
 import org.junit.Test;
-import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.SimulatedCard;
-import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.SimulatedCardTerminal;
-import test.integ.be.fedict.commons.eid.client.cardfactoryproxy.SimulatedCardTerminals;
+import test.integ.be.fedict.commons.eid.client.simulation.SimulatedCard;
+import test.integ.be.fedict.commons.eid.client.simulation.SimulatedCardTerminal;
+import test.integ.be.fedict.commons.eid.client.simulation.SimulatedCardTerminals;
 import be.fedict.commons.eid.client.CardAndTerminalManager;
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
@@ -201,9 +201,7 @@ public class CardAndTerminalManagerTests {
 		}
 
 		Thread.sleep(1000);
-
-		// TODO: fix the stop() method
-		//cardAndTerminalEventsManager.stop();
+		cardAndTerminalManager.stop();
 		assertEquals(expectedState, recorder.getRecordedState());
 	}
 
@@ -284,9 +282,7 @@ public class CardAndTerminalManagerTests {
 		}
 
 		Thread.sleep(1000);
-
-		// TODO: fix the stop() method
-		//cardAndTerminalEventsManager.stop();
+		cardAndTerminalManager.stop();
 		assertEquals(expectedState, recorder.getRecordedState());
 	}
 

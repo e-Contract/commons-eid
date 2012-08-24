@@ -52,7 +52,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.ListCellRenderer;
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDFileType;
+import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
 import be.fedict.commons.eid.consumer.Identity;
@@ -448,7 +448,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 
 			try {
 				Identity identity = TlvParser.parse(listItem.getCard()
-						.readFile(BeIDFileType.Identity), Identity.class);
+						.readFile(FileType.Identity), Identity.class);
 				listItem.setIdentity(identity);
 				updateInList(listItem);
 			} catch (Exception ex) {
@@ -459,21 +459,30 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 			}
 
 			try {
-				listItem.setPhotoSizeEstimate(BeIDFileType.Photo
+				listItem.setPhotoSizeEstimate(FileType.Photo
 						.getEstimatedMaxSize());
 				updateInList(listItem);
 
 				listItem.getCard().addCardListener(new BeIDCardListener() {
 					@Override
-					public void notifyReadProgress(int offset,
-							int estimatedMaxSize) {
+					public void notifyReadProgress(FileType fileType,
+							int offset, int estimatedMaxSize) {
 						listItem.setPhotoProgress(offset);
 						updateInList(listItem);
 					}
+
+					@Override
+					public void notifySigningBegin(FileType keyType) {
+						// can safely ignore this here
+					}
+
+					@Override
+					public void notifySigningEnd(FileType keyType) {
+						// can safely ignore this here
+					}
 				});
 
-				byte[] photoFile = listItem.getCard().readFile(
-						BeIDFileType.Photo);
+				byte[] photoFile = listItem.getCard().readFile(FileType.Photo);
 				BufferedImage photoImage = ImageIO
 						.read(new ByteArrayInputStream(photoFile));
 				listItem.setPhoto(new ImageIcon(photoImage));

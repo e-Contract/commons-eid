@@ -18,9 +18,11 @@
 
 package be.fedict.commons.eid.client.spi;
 
+import be.fedict.commons.eid.client.PINPurpose;
+
 public interface BeIDCardUI {
 	// get PIN from the user
-	char[] obtainPIN(int triesLeft);
+	char[] obtainPIN(int triesLeft, PINPurpose type);
 
 	// get Old and New PIN from the user
 	char[][] obtainOldAndNewPIN(int triesLeft);

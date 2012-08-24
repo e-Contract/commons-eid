@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.BeIDFileType;
+import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
 
 public class BeIDPrivateKey implements PrivateKey {
@@ -36,7 +36,7 @@ public class BeIDPrivateKey implements PrivateKey {
 
 	private static final Log LOG = LogFactory.getLog(BeIDPrivateKey.class);
 
-	private final BeIDFileType certificateFileType;
+	private final FileType certificateFileType;
 
 	private final BeIDCard beIDCard;
 
@@ -52,7 +52,7 @@ public class BeIDPrivateKey implements PrivateKey {
 		beIDDigests.put("SHA-512", BeIDDigest.SHA_512);
 	}
 
-	public BeIDPrivateKey(BeIDFileType certificateFileType, BeIDCard beIDCard,
+	public BeIDPrivateKey(FileType certificateFileType, BeIDCard beIDCard,
 			boolean logoff) {
 		LOG.debug("constructor: " + certificateFileType);
 		this.certificateFileType = certificateFileType;

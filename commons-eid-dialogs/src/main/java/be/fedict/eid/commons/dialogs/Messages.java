@@ -66,7 +66,7 @@ public class Messages {
 				"identityPhoto"), DETAILS_BUTTON("detailsButtonText"), CANCEL_BUTTON(
 				"cancelButtonText"), NO_BUTTON("noButtonText"), OK_BUTTON(
 				"okButtonText"), YES_BUTTON("yesButtonText"), CERTIFICATE_NOT_TRUSTED(
-				"certificateNotTrusted");
+				"certificateNotTrusted"), PIN_REASON("pinReason");
 
 		private final String id;
 
@@ -107,6 +107,12 @@ public class Messages {
 
 	public String getMessage(MESSAGE_ID messageId) {
 		String message = this.resourceBundle.getString(messageId.id);
+		return message;
+	}
+
+	public String getMessage(MESSAGE_ID messageId, String variant) {
+		String message = this.resourceBundle.getString(messageId.id + "_"
+				+ variant);
 		return message;
 	}
 
