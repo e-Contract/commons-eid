@@ -110,19 +110,6 @@ public class BeIDCards {
 	}
 
 	/*
-	 * return Set of all BeID Cards present. Will block if no BeID Cards are
-	 * present at time of call Note that if multiple cards are present, this
-	 * will return them in arbitrary order
-	 */
-	public Set<BeIDCard> getAtLeastOneBeIDCard() {
-		waitForAtLeastOneBeIDCard();
-
-		synchronized (this.beIDTerminalsAndCards) {
-			return new HashSet<BeIDCard>(this.beIDTerminalsAndCards.values());
-		}
-	}
-
-	/*
 	 * return exactly one BeID Card.
 	 * 
 	 * This will block until at least one BeID card is inserted, at which point

@@ -21,6 +21,7 @@ package test.integ.be.fedict.commons.eid.client;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 
 public class TestBeIDCardListener implements BeIDCardListener {
@@ -29,7 +30,25 @@ public class TestBeIDCardListener implements BeIDCardListener {
 			.getLog(TestBeIDCardListener.class);
 
 	@Override
-	public void notifyReadProgress(int offset, int estimatedMaxSize) {
-		LOG.debug("read progress: " + offset + " of " + estimatedMaxSize);
+	public void notifyReadProgress(FileType fileType, int offset,
+			int estimatedMaxSize) {
+		LOG.debug("read progress of " + fileType.name() + ":" + offset + " of "
+				+ estimatedMaxSize);
+	}
+
+	@Override
+	public void notifySigningBegin(FileType keyType) {
+		LOG.debug("signing with "
+				+ (keyType == FileType.AuthentificationCertificate
+						? "authentication"
+						: "non-repudiation") + " key has begun");
+	}
+
+	@Override
+	public void notifySigningEnd(FileType keyType) {
+		LOG.debug("signing with "
+				+ (keyType == FileType.AuthentificationCertificate
+						? "authentication"
+						: "non-repudiation") + " key has ended");
 	}
 }

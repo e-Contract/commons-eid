@@ -18,6 +18,8 @@
 
 package be.fedict.commons.eid.client.event;
 
+import be.fedict.commons.eid.client.FileType;
+
 /**
  * Listener interface for various eID related events like read progress. To be
  * used in user interfaces.
@@ -27,5 +29,7 @@ package be.fedict.commons.eid.client.event;
  */
 public interface BeIDCardListener {
 
-	void notifyReadProgress(int offset, int estimatedMaxSize);
+	void notifyReadProgress(FileType fileType, int offset, int estimatedMaxSize);
+	void notifySigningBegin(FileType fileType);
+	void notifySigningEnd(FileType fileType);
 }

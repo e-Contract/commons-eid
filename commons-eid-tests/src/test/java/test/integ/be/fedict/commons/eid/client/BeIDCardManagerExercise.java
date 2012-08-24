@@ -65,8 +65,8 @@ public class BeIDCardManagerExercise
 		// save card files for later card simulator use
 		// try
 		// {
-		// byte[] identityTLV=card.readFile(BeIDFileType.Identity);
-		// byte[] addressTLV=card.readFile(BeIDFileType.Address);
+		// byte[] identityTLV=card.readFile(FileType.Identity);
+		// byte[] addressTLV=card.readFile(FileType.Address);
 		//
 		// Identity identity=TlvParser.parse(identityTLV,Identity.class);
 		// System.out.println(identity.firstName+" "+identity.name);
@@ -78,7 +78,7 @@ public class BeIDCardManagerExercise
 		// OutputStream os=new FileOutputStream(atrFile);
 		// os.write(card.getATR().getBytes());
 		//
-		// for(BeIDFileType fileType:BeIDFileType.values())
+		// for(FileType fileType:FileType.values())
 		// {
 		// byte[] tlvData=card.readFile(fileType);
 		// System.err.println("Read ["+fileType+"] -> "+tlvData.length+" bytes.");

@@ -38,7 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
-import be.fedict.commons.eid.client.BeIDFileType;
+import be.fedict.commons.eid.client.FileType;
 
 public class BeIDKeyStore extends KeyStoreSpi {
 
@@ -55,13 +55,12 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		BeIDCard beIDCard = getBeIDCard();
 		if ("Authentication".equals(alias)) {
 			BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(
-					BeIDFileType.AuthentificationCertificate, beIDCard,
-					this.logoff);
+					FileType.AuthentificationCertificate, beIDCard, this.logoff);
 			return beIDPrivateKey;
 		}
 		if ("Signature".equals(alias)) {
 			BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(
-					BeIDFileType.SigningCertificate, beIDCard, this.logoff);
+					FileType.NonRepudiationCertificate, beIDCard, this.logoff);
 			return beIDPrivateKey;
 		}
 		return null;

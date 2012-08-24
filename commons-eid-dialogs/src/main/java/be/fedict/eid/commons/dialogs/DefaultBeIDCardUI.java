@@ -41,6 +41,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import be.fedict.commons.eid.client.PINPurpose;
 import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.eid.commons.dialogs.Messages.MESSAGE_ID;
 
@@ -55,7 +56,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	public static final int MAX_PIN_SIZE = 12;
 	public static final int PUK_SIZE = 6;
 
-	//TODO can pinPadFrame and secureReaderTransactionFrame be on-screen at the same time? if not can be one member var and one dispose method
+	// TODO can pinPadFrame and secureReaderTransactionFrame be on-screen at the
+	// same time? if not can be one member var and one dispose method
 	private Component parentComponent;
 	private Messages messages;
 	private JFrame pinPadFrame;
@@ -224,11 +226,10 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	}
 
 	@Override
-	public char[] obtainPIN(int retriesLeft) {
+	public char[] obtainPIN(int retriesLeft, PINPurpose reason) {
 		// main panel
 		JPanel mainPanel = new JPanel() {
 			private static final long serialVersionUID = 1L;
-
 			private static final int BORDER_SIZE = 20;
 
 			@Override
@@ -240,6 +241,14 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS);
 		mainPanel.setLayout(boxLayout);
 
+		Box reasonPanel = Box.createHorizontalBox();
+		JLabel reasonLabel = new JLabel(this.messages.getMessage(
+				MESSAGE_ID.PIN_REASON, reason.getType()));
+		reasonPanel.add(reasonLabel);
+		reasonPanel.add(Box.createHorizontalGlue());
+		mainPanel.add(reasonPanel);
+		mainPanel.add(Box.createVerticalStrut(10));
+
 		if (-1 != retriesLeft) {
 			Box retriesPanel = Box.createHorizontalBox();
 			JLabel retriesLabel = new JLabel(this.messages
@@ -249,7 +258,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 			retriesPanel.add(retriesLabel);
 			retriesPanel.add(Box.createHorizontalGlue());
 			mainPanel.add(retriesPanel);
-			mainPanel.add(Box.createVerticalStrut(5));
+			mainPanel.add(Box.createVerticalStrut(10));
 		}
 
 		Box passwordPanel = Box.createHorizontalBox();
@@ -440,7 +449,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	}
 
 	/*
-	 ***********************************************************************************************************************
+	 * **********************************************************************************************************************
 	 */
 
 	private void showPINPadFrame(int retriesLeft, String title, String message) {
