@@ -41,11 +41,6 @@ public class TerminalEventsExamples {
 		// -------------------------------------------------------------------------------------------------------
 		cardAndTerminalManager
 				.addCardTerminalListener(new CardTerminalEventsListener() {
-					@Override
-					public void terminalException(Throwable throwable) {
-						System.out.println("Exception ["
-								+ throwable.getLocalizedMessage() + "]\n");
-					}
 
 					@Override
 					public void terminalDetached(CardTerminal cardTerminal) {

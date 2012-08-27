@@ -110,12 +110,6 @@ public class MixedDetectionExamples
 	}
 
 	@Override
-	public void terminalException(Throwable throwable) {
-		System.out.println("Exception [" + throwable.getLocalizedMessage()
-				+ "]\n");
-	}
-
-	@Override
 	public void terminalEventsInitialized() {
 		System.out
 				.println("From now on you'll see terminals being Attached/Detached");

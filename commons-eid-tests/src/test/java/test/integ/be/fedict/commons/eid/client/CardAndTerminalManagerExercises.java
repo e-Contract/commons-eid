@@ -73,9 +73,6 @@ public class CardAndTerminalManagerExercises
 		this.cardAndTerminalManager.start();
 
 		CardTerminalEventsListener dummyCTL = new CardTerminalEventsListener() {
-			@Override
-			public void terminalException(Throwable throwable) {
-			}
 
 			@Override
 			public void terminalDetached(CardTerminal cardTerminal) {
@@ -182,11 +179,6 @@ public class CardAndTerminalManagerExercises
 	public void cardRemoved(CardTerminal terminalWithCardRemoved) {
 		System.err.println("Card Removed From ["
 				+ terminalWithCardRemoved.getName() + "]");
-	}
-
-	@Override
-	public void terminalException(Throwable throwable) {
-		System.err.println("Exception: " + throwable.getLocalizedMessage());
 	}
 
 	@Override

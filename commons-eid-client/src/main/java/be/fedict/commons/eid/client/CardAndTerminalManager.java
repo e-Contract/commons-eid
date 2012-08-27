@@ -234,7 +234,6 @@ public class CardAndTerminalManager implements Runnable {
 				logCardException(cex,
 						"Cannot enumerate card terminals [1] (No Card Readers Connected?)");
 				clear();
-				listenersException(cex);
 				sleepForDelay();
 				return;
 			}
@@ -256,7 +255,6 @@ public class CardAndTerminalManager implements Runnable {
 			// waitForChange fails (e.g. PCSC is there but no readers)
 			logCardException(cex,
 					"Cannot wait for card terminal events [2] (No Card Readers Connected?)");
-			listenersException(cex);
 			clear();
 			sleepForDelay();
 			return;
@@ -265,7 +263,6 @@ public class CardAndTerminalManager implements Runnable {
 			this.logger
 					.debug("Cannot wait for card terminal changes (no PCSC subsystem?): "
 							+ ise.getLocalizedMessage());
-			listenersException(ise);
 			clear();
 			sleepForDelay();
 			return;
@@ -316,7 +313,6 @@ public class CardAndTerminalManager implements Runnable {
 			// CardTerminals.
 			logCardException(cex,
 					"Cannot wait for card terminal changes (no PCSC subsystem?)");
-			listenersException(cex);
 			clear();
 			sleepForDelay();
 		}
@@ -568,7 +564,9 @@ public class CardAndTerminalManager implements Runnable {
 					try {
 						card = terminal.connect(this.protocol.getProtocol());
 					} catch (CardException cex) {
-						listenersException(cex);
+						this.logger.debug("terminal.connect("
+								+ this.protocol.getProtocol() + ") failed. "
+								+ cex.getMessage());
 					}
 				}
 
@@ -582,33 +580,6 @@ public class CardAndTerminalManager implements Runnable {
 					}
 
 				}
-			}
-		}
-	}
-
-	/*
-	 * Tell listeners about exceptions
-	 */
-	private void listenersException(Throwable throwable) {
-		if (throwable.getMessage() != null
-				&& throwable.getMessage().equals("list() failed")) {
-			return;
-		}
-
-		Set<CardTerminalEventsListener> copyOfListeners;
-
-		synchronized (this.cardTerminalEventsListeners) {
-			copyOfListeners = new HashSet<CardTerminalEventsListener>(
-					this.cardTerminalEventsListeners);
-		}
-
-		for (CardTerminalEventsListener listener : copyOfListeners) {
-			try {
-				listener.terminalException(throwable);
-			} catch (Exception thrownInListener) {
-				this.logger
-						.error("Exception thrown in CardTerminalEventsListener.terminalException:"
-								+ thrownInListener.getMessage());
 			}
 		}
 	}
