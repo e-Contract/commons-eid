@@ -94,16 +94,16 @@ public class CardAndTerminalManager implements Runnable {
 	// add a CardTerminalEventsListener
 	public CardAndTerminalManager addCardTerminalListener(
 			CardTerminalEventsListener listener) {
-		synchronized (cardTerminalEventsListeners) {
-			cardTerminalEventsListeners.add(listener);
+		synchronized (this.cardTerminalEventsListeners) {
+			this.cardTerminalEventsListeners.add(listener);
 		}
 		return this;
 	}
 
 	// add a CardEventsListener
 	public CardAndTerminalManager addCardListener(CardEventsListener listener) {
-		synchronized (cardEventsListeners) {
-			cardEventsListeners.add(listener);
+		synchronized (this.cardEventsListeners) {
+			this.cardEventsListeners.add(listener);
 		}
 		return this;
 	}
@@ -159,10 +159,11 @@ public class CardAndTerminalManager implements Runnable {
 
 	// stop this CardAndTerminalManager's worker thread.
 	public CardAndTerminalManager stop() throws InterruptedException {
-		logger.debug("CardAndTerminalManager worker thread stop requested.");
+		this.logger
+				.debug("CardAndTerminalManager worker thread stop requested.");
 		this.running = false;
-		worker.interrupt();
-		worker.join();
+		this.worker.interrupt();
+		this.worker.join();
 		return this;
 	}
 
@@ -171,7 +172,7 @@ public class CardAndTerminalManager implements Runnable {
 	@Override
 	public void run() {
 		this.running = true;
-		logger.debug("CardAndTerminalManager worker thread started.");
+		this.logger.debug("CardAndTerminalManager worker thread started.");
 
 		try {
 			// do an initial run, making sure current status is detected
@@ -184,23 +185,26 @@ public class CardAndTerminalManager implements Runnable {
 			listenersInitialized();
 
 			// keep updating
-			while (this.running)
+			while (this.running) {
 				handlePCSCEvents();
+			}
 		} catch (InterruptedException ie) {
-			if (this.running)
-				logger
+			if (this.running) {
+				this.logger
 						.error("CardAndTerminalManager worker thread unexpectedly interrupted: "
 								+ ie.getLocalizedMessage());
+			}
 		}
 
-		logger.debug("CardAndTerminalManager worker thread ended.");
+		this.logger.debug("CardAndTerminalManager worker thread ended.");
 	}
 
 	private void handlePCSCEvents() throws InterruptedException {
 		if (!this.subSystemInitialized) {
-			logger.debug("subsystem not initialized");
+			this.logger.debug("subsystem not initialized");
 			try {
-				if (this.terminalsPresent == null || terminalsWithCards == null) {
+				if (this.terminalsPresent == null
+						|| this.terminalsWithCards == null) {
 					this.terminalsPresent = new HashSet<CardTerminal>(
 							this.cardTerminals.list(State.ALL));
 					this.terminalsWithCards = terminalsWithCardsIn(this.terminalsPresent);
@@ -242,7 +246,7 @@ public class CardAndTerminalManager implements Runnable {
 			return;
 		} catch (IllegalStateException ise) {
 			// waitForChange fails (e.g. PCSC is not there)
-			logger
+			this.logger
 					.debug("Cannot wait for card terminal changes (no PCSC subsystem?): "
 							+ ise.getLocalizedMessage());
 			listenersException(ise);
@@ -305,10 +309,11 @@ public class CardAndTerminalManager implements Runnable {
 	// ---------------------------------------------------------------------------------------------------
 
 	private boolean areCardEventsIgnoredFor(CardTerminal cardTerminal) {
-		synchronized (terminalsToIgnoreCardEventsFor) {
-			for (String prefixToMatch : terminalsToIgnoreCardEventsFor) {
-				if (cardTerminal.getName().startsWith(prefixToMatch))
+		synchronized (this.terminalsToIgnoreCardEventsFor) {
+			for (String prefixToMatch : this.terminalsToIgnoreCardEventsFor) {
+				if (cardTerminal.getName().startsWith(prefixToMatch)) {
 					return true;
+				}
 			}
 		}
 
@@ -318,14 +323,15 @@ public class CardAndTerminalManager implements Runnable {
 	private Set<CardTerminal> terminalsWithCardsIn(Set<CardTerminal> terminals) {
 		Set<CardTerminal> terminalsWithCards = new HashSet<CardTerminal>();
 
-		synchronized (terminalsToIgnoreCardEventsFor) {
+		synchronized (this.terminalsToIgnoreCardEventsFor) {
 			for (CardTerminal terminal : terminals) {
 				try {
 					if (terminal.isCardPresent()
-							&& !areCardEventsIgnoredFor(terminal))
+							&& !this.areCardEventsIgnoredFor(terminal)) {
 						terminalsWithCards.add(terminal);
+					}
 				} catch (CardException e) {
-					logger
+					this.logger
 							.error("Problem determining card presence in terminal ["
 									+ terminal.getName() + "]");
 				}
@@ -341,7 +347,7 @@ public class CardAndTerminalManager implements Runnable {
 
 	// get polling/retry delay currently in use
 	public int getDelay() {
-		return delay;
+		return this.delay;
 	}
 
 	// set polling/retry delay.
@@ -368,13 +374,14 @@ public class CardAndTerminalManager implements Runnable {
 		// if we were already intialized, we may have sent attached and insert
 		// events we now pretend to remove and detach all that we know of, for
 		// consistency
-		if (this.subSystemInitialized)
+		if (this.subSystemInitialized) {
 			listenersCardsRemovedTerminalsDetached(this.terminalsWithCards,
 					this.terminalsPresent);
+		}
 		this.terminalsPresent = null;
 		this.terminalsWithCards = null;
 		this.subSystemInitialized = false;
-		logger.debug("cleared");
+		this.logger.debug("cleared");
 	}
 
 	private void listenersTerminalsAttachedCardsInserted(
@@ -559,8 +566,9 @@ public class CardAndTerminalManager implements Runnable {
 	 */
 	private void listenersException(Throwable throwable) {
 		if (throwable.getMessage() != null
-				&& throwable.getMessage().equals("list() failed"))
+				&& throwable.getMessage().equals("list() failed")) {
 			return;
+		}
 
 		Set<CardTerminalEventsListener> copyOfListeners;
 
@@ -581,15 +589,16 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	private void sleepForDelay() throws InterruptedException {
-		Thread.sleep(delay);
+		Thread.sleep(this.delay);
 	}
 
 	private void logCardException(CardException cex, String where) {
 		this.logger.debug(where + ": " + cex.getMessage());
 		this.logger.debug("no card readers connected?");
 		Throwable cause = cex.getCause();
-		if (cause == null)
+		if (cause == null) {
 			return;
+		}
 		this.logger.debug("cause: " + cause.getMessage());
 		this.logger.debug("cause type: " + cause.getClass().getName());
 	}

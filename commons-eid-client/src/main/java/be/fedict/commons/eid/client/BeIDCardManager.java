@@ -214,16 +214,17 @@ public class BeIDCardManager {
 	}
 
 	public BeIDCardManager start() {
-		if (terminalManagerIsPrivate)
-			cardAndTerminalManager.start();
+		if (this.terminalManagerIsPrivate) {
+			this.cardAndTerminalManager.start();
+		}
 		return this;
 	}
 
 	// add a BeIDCardEventsListener to be notified of BeID cards being inserted
 	public BeIDCardManager addBeIDCardEventListener(
 			BeIDCardEventsListener listener) {
-		synchronized (beIdListeners) {
-			beIdListeners.add(listener);
+		synchronized (this.beIdListeners) {
+			this.beIdListeners.add(listener);
 		}
 		return this;
 	}
@@ -231,8 +232,8 @@ public class BeIDCardManager {
 	// remove a BeIDCardEventsListener
 	public BeIDCardManager removeBeIDCardListener(
 			BeIDCardEventsListener listener) {
-		synchronized (beIdListeners) {
-			beIdListeners.remove(listener);
+		synchronized (this.beIdListeners) {
+			this.beIdListeners.remove(listener);
 		}
 		return this;
 	}
@@ -240,8 +241,8 @@ public class BeIDCardManager {
 	// add a CardEventsListener to get notified of other cards being
 	// inserted/removed
 	public BeIDCardManager addOtherCardEventListener(CardEventsListener listener) {
-		synchronized (otherCardListeners) {
-			otherCardListeners.add(listener);
+		synchronized (this.otherCardListeners) {
+			this.otherCardListeners.add(listener);
 		}
 		return this;
 	}
@@ -249,15 +250,16 @@ public class BeIDCardManager {
 	// remove a CardEventsListener
 	public BeIDCardManager removeOtherCardEventListener(
 			BeIDCardEventsListener listener) {
-		synchronized (otherCardListeners) {
-			otherCardListeners.remove(listener);
+		synchronized (this.otherCardListeners) {
+			this.otherCardListeners.remove(listener);
 		}
 		return this;
 	}
 
 	public BeIDCardManager stop() throws InterruptedException {
-		if (terminalManagerIsPrivate)
-			cardAndTerminalManager.stop();
+		if (this.terminalManagerIsPrivate) {
+			this.cardAndTerminalManager.stop();
+		}
 		return this;
 	}
 
@@ -274,12 +276,15 @@ public class BeIDCardManager {
 
 	private boolean matchesEidAtr(ATR atr) {
 		byte[] atrBytes = atr.getBytes();
-		if (atrBytes.length != ATR_PATTERN.length)
+		if (atrBytes.length != ATR_PATTERN.length) {
 			return false;
-		for (int idx = 0; idx < atrBytes.length; idx++)
+		}
+		for (int idx = 0; idx < atrBytes.length; idx++) {
 			atrBytes[idx] &= ATR_MASK[idx];
-		if (Arrays.equals(atrBytes, ATR_PATTERN))
+		}
+		if (Arrays.equals(atrBytes, ATR_PATTERN)) {
 			return true;
+		}
 		return false;
 	}
 }

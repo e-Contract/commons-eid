@@ -74,7 +74,7 @@ public class BeIDCards {
 				synchronized (BeIDCards.this.beIDTerminalsAndCards) {
 					BeIDCards.this.beIDTerminalsAndCards
 							.put(cardTerminal, card);
-					beIDSleeper.awaken();
+					BeIDCards.this.beIDSleeper.awaken();
 				}
 			}
 
@@ -83,14 +83,14 @@ public class BeIDCards {
 				BeIDCards.this.logger.debug("eID Card Removal Reported");
 				synchronized (BeIDCards.this.beIDTerminalsAndCards) {
 					BeIDCards.this.beIDTerminalsAndCards.remove(cardTerminal);
-					beIDSleeper.awaken();
+					BeIDCards.this.beIDSleeper.awaken();
 				}
 			}
 
 			@Override
 			public void eIDCardEventsInitialized() {
 				BeIDCards.this.initialized = true;
-				initSleeper.awaken();
+				BeIDCards.this.initSleeper.awaken();
 			}
 		});
 
@@ -131,13 +131,13 @@ public class BeIDCards {
 	}
 
 	/*
-	 * wait for a particular BeID card to be removed
-	 * Note that this only works with BeID objects that were acquired using 
-	 * one of the getXXX methods from the same BeIDCards instance
+	 * wait for a particular BeID card to be removed Note that this only works
+	 * with BeID objects that were acquired using one of the getXXX methods from
+	 * the same BeIDCards instance
 	 */
 	public BeIDCards waitUntilCardRemoved(BeIDCard card) {
-		while (getAllBeIDCards().contains(card)) {
-			beIDSleeper.sleepUntilAwakened();
+		while (this.getAllBeIDCards().contains(card)) {
+			this.beIDSleeper.sleepUntilAwakened();
 		}
 
 		return this;
@@ -162,7 +162,7 @@ public class BeIDCards {
 						.loadClass(DEFAULT_UI_IMPLEMENTATION);
 				this.ui = (BeIDCardsUI) uiClass.newInstance();
 			} catch (Exception e) {
-				logger.error(UI_MISSING_LOG_MESSAGE);
+				this.logger.error(UI_MISSING_LOG_MESSAGE);
 				throw new UnsupportedOperationException(UI_MISSING_LOG_MESSAGE,
 						e);
 			}
@@ -179,7 +179,7 @@ public class BeIDCards {
 		waitUntilInitialized();
 		boolean has;
 		synchronized (this.beIDTerminalsAndCards) {
-			has = (!beIDTerminalsAndCards.isEmpty());
+			has = (!this.beIDTerminalsAndCards.isEmpty());
 		}
 		return has;
 	}
@@ -190,19 +190,20 @@ public class BeIDCards {
 	 */
 
 	private void waitUntilInitialized() {
-		while (!this.initialized)
-			initSleeper.sleepUntilAwakened();
+		while (!this.initialized) {
+			this.initSleeper.sleepUntilAwakened();
+		}
 	}
 
 	private void waitForAtLeastOneBeIDCard() {
-		if (!hasBeIDCards()) {
+		if (!this.hasBeIDCards()) {
 			try {
-				getUI().adviseBeIDCardRequired();
-				while (!hasBeIDCards()) {
-					beIDSleeper.sleepUntilAwakened();
+				this.getUI().adviseBeIDCardRequired();
+				while (!this.hasBeIDCards()) {
+					this.beIDSleeper.sleepUntilAwakened();
 				}
 			} finally {
-				getUI().adviseEnd();
+				this.getUI().adviseEnd();
 			}
 		}
 	}

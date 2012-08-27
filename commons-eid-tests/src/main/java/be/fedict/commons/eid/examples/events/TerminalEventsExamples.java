@@ -79,8 +79,9 @@ public class TerminalEventsExamples {
 		// the main thread goes off and does other things (for this example,
 		// just loop and sleep)
 		// -------------------------------------------------------------------------------------------------------
-		for (;;)
+		for (;;) {
 			Thread.sleep(2000);
+		}
 	}
 
 	// -------------------------------------------------------------------------------------------------------

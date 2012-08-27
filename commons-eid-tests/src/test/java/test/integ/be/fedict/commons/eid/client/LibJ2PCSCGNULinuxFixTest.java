@@ -35,6 +35,6 @@ public class LibJ2PCSCGNULinuxFixTest {
 
 	@Test
 	public void testFix() throws Exception {
-		_testFix();
+		this._testFix();
 	}
 }

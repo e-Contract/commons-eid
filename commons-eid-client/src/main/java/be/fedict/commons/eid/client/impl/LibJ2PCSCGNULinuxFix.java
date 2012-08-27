@@ -93,14 +93,15 @@ public class LibJ2PCSCGNULinuxFix {
 		multilibdir = new File(UBUNTU_MULTILIB_64_PATH);
 		has64 = (multilibdir != null && multilibdir.isDirectory());
 
-		if (has32 && (!has64))
+		if (has32 && (!has64)) {
 			return UbuntuBitness.PURE32;
-		else if ((!has32) && has64)
+		} else if ((!has32) && has64) {
 			return UbuntuBitness.PURE64;
-		else if (has32 && has64)
+		} else if (has32 && has64) {
 			return UbuntuBitness.MULTILIB;
-		else
+		} else {
 			return UbuntuBitness.NA;
+		}
 	}
 
 	/*
@@ -108,8 +109,9 @@ public class LibJ2PCSCGNULinuxFix {
 	 * in the path
 	 */
 	private static String extendLibraryPath(String lib_path, String extension) {
-		if (lib_path.contains(extension))
+		if (lib_path.contains(extension)) {
 			return lib_path;
+		}
 		return lib_path + ":" + extension;
 	}
 
@@ -143,8 +145,9 @@ public class LibJ2PCSCGNULinuxFix {
 				logger.debug("Multilib Ubuntu detected. Using JRE Bitness.");
 
 				String jvmBinaryArch = System.getProperty(JRE_BITNESS_PROPERTY);
-				if (jvmBinaryArch == null)
+				if (jvmBinaryArch == null) {
 					return libraryPath;
+				}
 
 				logger.debug("JRE Bitness is [" + jvmBinaryArch + "]");
 
@@ -182,8 +185,9 @@ public class LibJ2PCSCGNULinuxFix {
 			Logger logger) {
 		// get java.library.path
 		String nativeLibraryPaths = System.getProperty(LIBRARY_PATH_PROPERTY);
-		if (nativeLibraryPaths == null)
+		if (nativeLibraryPaths == null) {
 			return null;
+		}
 
 		logger.debug("Original Path=[" + nativeLibraryPaths + "]");
 

@@ -118,7 +118,8 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	@Override
 	public Date engineGetCreationDate(String alias) {
-		X509Certificate certificate = (X509Certificate) engineGetCertificate(alias);
+		X509Certificate certificate = (X509Certificate) this
+				.engineGetCertificate(alias);
 		if (null == certificate) {
 			return null;
 		}

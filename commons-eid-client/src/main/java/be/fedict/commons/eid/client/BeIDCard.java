@@ -115,22 +115,22 @@ public class BeIDCard {
 
 	public X509Certificate getAuthenticationCertificate() throws CardException,
 			IOException, CertificateException, InterruptedException {
-		return getCertificate(FileType.AuthentificationCertificate);
+		return this.getCertificate(FileType.AuthentificationCertificate);
 	}
 
 	public X509Certificate getSigningCertificate() throws CardException,
 			IOException, CertificateException, InterruptedException {
-		return getCertificate(FileType.NonRepudiationCertificate);
+		return this.getCertificate(FileType.NonRepudiationCertificate);
 	}
 
 	public X509Certificate getCACertificate() throws CardException,
 			IOException, CertificateException, InterruptedException {
-		return getCertificate(FileType.CACertificate);
+		return this.getCertificate(FileType.CACertificate);
 	}
 
 	public X509Certificate getRRNCertificate() throws CardException,
 			IOException, CertificateException, InterruptedException {
-		return getCertificate(FileType.RRNCertificate);
+		return this.getCertificate(FileType.RRNCertificate);
 	}
 
 	/*
@@ -146,10 +146,11 @@ public class BeIDCard {
 		chain.add((X509Certificate) certificateFactory
 				.generateCertificate(new ByteArrayInputStream(
 						readFile(fileType))));
-		if (fileType.chainIncludesCitizenCA())
+		if (fileType.chainIncludesCitizenCA()) {
 			chain.add((X509Certificate) certificateFactory
 					.generateCertificate(new ByteArrayInputStream(
 							readFile(FileType.CACertificate))));
+		}
 		chain.add((X509Certificate) certificateFactory
 				.generateCertificate(new ByteArrayInputStream(
 						readFile(FileType.RootCertificate))));
@@ -163,23 +164,23 @@ public class BeIDCard {
 	public List<X509Certificate> getAuthenticationCertificateChain()
 			throws CardException, IOException, CertificateException,
 			InterruptedException {
-		return getCertificateChain(FileType.AuthentificationCertificate);
+		return this.getCertificateChain(FileType.AuthentificationCertificate);
 	}
 
 	public List<X509Certificate> getSigningCertificateChain()
 			throws CardException, IOException, CertificateException,
 			InterruptedException {
-		return getCertificateChain(FileType.NonRepudiationCertificate);
+		return this.getCertificateChain(FileType.NonRepudiationCertificate);
 	}
 
 	public List<X509Certificate> getCACertificateChain() throws CardException,
 			IOException, CertificateException, InterruptedException {
-		return getCertificateChain(FileType.CACertificate);
+		return this.getCertificateChain(FileType.CACertificate);
 	}
 
 	public List<X509Certificate> getRRNCertificateChain() throws CardException,
 			IOException, CertificateException, InterruptedException {
-		return getCertificateChain(FileType.RRNCertificate);
+		return this.getCertificateChain(FileType.RRNCertificate);
 	}
 
 	/*
@@ -189,10 +190,11 @@ public class BeIDCard {
 	public byte[] sign(byte[] digestValue, BeIDDigest digestAlgo,
 			FileType fileType, boolean requireSecureReader)
 			throws CardException, IOException, InterruptedException {
-		if (!fileType.isCertificateUserCanSignWith())
+		if (!fileType.isCertificateUserCanSignWith()) {
 			throw new IllegalArgumentException(
 					"Not a certificate that can be used for signing: "
 							+ fileType.name());
+		}
 
 		if (getCCID().hasFeature(CCID.FEATURE.EID_PIN_PAD_READER)) {
 			this.logger.debug("eID-aware secure PIN pad reader detected");
@@ -216,8 +218,10 @@ public class BeIDCard {
 							// of
 							// following
 							// data
-							(byte) 0x80, digestAlgo.getAlgorithmReference(), // algorithm reference
-							(byte) 0x84, fileType.getKeyId()}); // private key reference
+							(byte) 0x80, digestAlgo.getAlgorithmReference(), // algorithm
+							// reference
+							(byte) 0x84, fileType.getKeyId()}); // private key
+			// reference
 
 			if (0x9000 != responseApdu.getSW()) {
 				throw new ResponseAPDUException(
@@ -244,8 +248,8 @@ public class BeIDCard {
 				/*
 				 * OK, we could use the card PIN caching feature.
 				 * 
-				 * Notice that the card PIN caching also works when first doing an
-				 * authentication after a non-repudiation signature.
+				 * Notice that the card PIN caching also works when first doing
+				 * an authentication after a non-repudiation signature.
 				 */
 				return responseApdu.getData();
 			}
@@ -256,8 +260,8 @@ public class BeIDCard {
 						"compute digital signature error", responseApdu);
 			}
 			/*
-			 * 0x6982 = Security status not satisfied, so we do a PIN verification
-			 * before retrying.
+			 * 0x6982 = Security status not satisfied, so we do a PIN
+			 * verification before retrying.
 			 */
 			this.logger.debug("PIN verification required...");
 			verifyPin(PINPurpose.fromFileType(fileType));
@@ -288,26 +292,28 @@ public class BeIDCard {
 		MessageDigest messageDigest = BeIDDigest.SHA_1
 				.getMessageDigestInstance();
 		byte[] digest = messageDigest.digest(toBeSigned);
-		return sign(digest, BeIDDigest.SHA_1,
+		return this.sign(digest, BeIDDigest.SHA_1,
 				FileType.AuthentificationCertificate, requireSecureReader);
 	}
 
 	/*
-	 * Verifying PIN Code (without other actions, for testing PIN), using the most secure method available
-	 * Note that this still has the side effect of loading a successfully tests PIN into the PIN cache, so that unless the card is removed,
-	 * a subsequent authentication attempt will not request the PIN, but proceed with the PIN given here.
+	 * Verifying PIN Code (without other actions, for testing PIN), using the
+	 * most secure method available Note that this still has the side effect of
+	 * loading a successfully tests PIN into the PIN cache, so that unless the
+	 * card is removed, a subsequent authentication attempt will not request the
+	 * PIN, but proceed with the PIN given here.
 	 */
 
 	public void verifyPin() throws IOException, CardException,
 			InterruptedException {
-		verifyPin(PINPurpose.PINTest);
+		this.verifyPin(PINPurpose.PINTest);
 	}
 
 	/*
-	 * Change PIN code
-	 * This method will attempt to change PIN using the most secure method available.
-	 * if requiresSecureReader is true, this will throw a SecurityException if no SPR is available,
-	 * otherwise, this will default to changing the PIN via the UI
+	 * Change PIN code This method will attempt to change PIN using the most
+	 * secure method available. if requiresSecureReader is true, this will throw
+	 * a SecurityException if no SPR is available, otherwise, this will default
+	 * to changing the PIN via the UI
 	 */
 
 	public void changePin(boolean requireSecureReader) throws Exception {
@@ -384,7 +390,7 @@ public class BeIDCard {
 
 		byte[] signature;
 		try {
-			signature = sign(transactionMessage.getBytes(),
+			signature = this.sign(transactionMessage.getBytes(),
 					BeIDDigest.PLAIN_TEXT,
 					FileType.AuthentificationCertificate, requireSecureReader);
 		} finally {
@@ -404,9 +410,9 @@ public class BeIDCard {
 	}
 
 	/*
-	 * Unblocking PIN using PUKs. This will choose the most secure method available
-	 * to unblock a blocked PIN. If requireSecureReader is true, will throw SecurityException
-	 * if an SPR is not available
+	 * Unblocking PIN using PUKs. This will choose the most secure method
+	 * available to unblock a blocked PIN. If requireSecureReader is true, will
+	 * throw SecurityException if an SPR is not available
 	 */
 
 	public void unblockPin(boolean requireSecureReader) throws Exception {
@@ -446,14 +452,14 @@ public class BeIDCard {
 		getUI().advisePINUnblocked();
 	}
 
-	//===========================================================================================================
+	// ===========================================================================================================
 	// private implementations
-	//===========================================================================================================
+	// ===========================================================================================================
 
 	/*
-	 * Verify PIN code for purpose "purpose"
-	 * This method will attempt to verify PIN using the most secure method available. If that method
-	 * turns out to be the UI, will pass purpose to the UI.
+	 * Verify PIN code for purpose "purpose" This method will attempt to verify
+	 * PIN using the most secure method available. If that method turns out to
+	 * be the UI, will pass purpose to the UI.
 	 */
 
 	private void verifyPin(PINPurpose purpose) throws IOException,
@@ -720,7 +726,8 @@ public class BeIDCard {
 	}
 
 	/*
-	 * Unblock the PIN by obtaining PUK codes from the UI and calling RESET_PIN on the card.
+	 * Unblock the PIN by obtaining PUK codes from the UI and calling RESET_PIN
+	 * on the card.
 	 */
 
 	private ResponseAPDU unblockPINViaUI(int retriesLeft) throws CardException {
@@ -755,8 +762,9 @@ public class BeIDCard {
 	}
 
 	public Locale getLocale() {
-		if (this.locale != null)
+		if (this.locale != null) {
 			return this.locale;
+		}
 		return Locale.getDefault();
 	}
 
@@ -786,8 +794,8 @@ public class BeIDCard {
 		responseApdu = transmitCommand(BeIDCommandAPDU.SELECT_APPLET_0,
 				BELPIC_AID);
 		if (0x9000 != responseApdu.getSW()) {
-			logger.error("error selecting BELPIC");
-			logger.debug("status word: "
+			this.logger.error("error selecting BELPIC");
+			this.logger.debug("status word: "
 					+ Integer.toHexString(responseApdu.getSW()));
 			/*
 			 * Try to select the Applet.
@@ -796,16 +804,17 @@ public class BeIDCard {
 				responseApdu = transmitCommand(BeIDCommandAPDU.SELECT_APPLET_1,
 						APPLET_AID);
 			} catch (CardException e) {
-				logger.error("error selecting Applet");
+				this.logger.error("error selecting Applet");
 				return this;
 			}
 			if (0x9000 != responseApdu.getSW()) {
-				logger.error("could not select applet");
+				this.logger.error("could not select applet");
 			} else {
-				logger.debug("BELPIC JavaCard applet selected by APPLET_AID");
+				this.logger
+						.debug("BELPIC JavaCard applet selected by APPLET_AID");
 			}
 		} else {
-			logger.debug("BELPIC JavaCard applet selected by BELPIC_AID");
+			this.logger.debug("BELPIC JavaCard applet selected by BELPIC_AID");
 		}
 
 		return this;
@@ -835,7 +844,7 @@ public class BeIDCard {
 		byte[] data;
 		do {
 			if (Thread.currentThread().isInterrupted()) {
-				logger.debug("interrupted in readBinary");
+				this.logger.debug("interrupted in readBinary");
 				throw new InterruptedException();
 			}
 
@@ -893,13 +902,13 @@ public class BeIDCard {
 
 	public byte[] readFile(FileType fileType) throws CardException,
 			IOException, InterruptedException {
-		beginExclusive();
+		this.beginExclusive();
 
 		try {
-			selectFile(fileType.getFileId());
-			return readBinary(fileType, fileType.getEstimatedMaxSize());
+			this.selectFile(fileType.getFileId());
+			return this.readBinary(fileType, fileType.getEstimatedMaxSize());
 		} finally {
-			endExclusive();
+			this.endExclusive();
 		}
 	}
 
@@ -1033,15 +1042,16 @@ public class BeIDCard {
 	// ----------------------------------------------------------------------------------------------------------------------------------
 
 	private CCID getCCID() {
-		if (this.ccid == null)
+		if (this.ccid == null) {
 			this.ccid = new CCID(this.card);
+		}
 		return this.ccid;
 	}
 
 	private BeIDCardUI getUI() {
 		if (this.ui == null) {
 			if (GraphicsEnvironment.isHeadless()) {
-				logger.error(UI_DEFAULT_REQUIRES_HEAD);
+				this.logger.error(UI_DEFAULT_REQUIRES_HEAD);
 				throw new UnsupportedOperationException(
 						UI_DEFAULT_REQUIRES_HEAD);
 			}
@@ -1052,7 +1062,7 @@ public class BeIDCard {
 						.loadClass(DEFAULT_UI_IMPLEMENTATION);
 				this.ui = (BeIDCardUI) uiClass.newInstance();
 			} catch (Exception e) {
-				logger.error(UI_MISSING_LOG_MESSAGE);
+				this.logger.error(UI_MISSING_LOG_MESSAGE);
 				throw new UnsupportedOperationException(UI_MISSING_LOG_MESSAGE,
 						e);
 			}
@@ -1084,7 +1094,8 @@ public class BeIDCard {
 		CHANGE_PIN(0x00, 0x24, 0x00, 0x01), // 0x0024=change
 		// reference
 		// change
-		SELECT_ALGORITHM_AND_PRIVATE_KEY(0x00, 0x22, 0x41, 0xB6), // ISO 7816-8 SET
+		SELECT_ALGORITHM_AND_PRIVATE_KEY(0x00, 0x22, 0x41, 0xB6), // ISO 7816-8
+		// SET
 		// COMMAND
 		// (select
 		// algorithm and
@@ -1118,19 +1129,19 @@ public class BeIDCard {
 		}
 
 		public int getCla() {
-			return cla;
+			return this.cla;
 		}
 
 		public int getIns() {
-			return ins;
+			return this.ins;
 		}
 
 		public int getP1() {
-			return p1;
+			return this.p1;
 		}
 
 		public int getP2() {
-			return p2;
+			return this.p2;
 		}
 	}
 }

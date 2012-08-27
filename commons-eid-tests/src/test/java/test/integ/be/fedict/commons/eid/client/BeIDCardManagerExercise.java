@@ -45,10 +45,10 @@ public class BeIDCardManagerExercise
 
 	@Test
 	public void testAsynchronous() throws Exception {
-		beIDCardManager = new BeIDCardManager(new TestLogger());
-		beIDCardManager.addBeIDCardEventListener(this);
-		beIDCardManager.addOtherCardEventListener(this);
-		beIDCardManager.start();
+		this.beIDCardManager = new BeIDCardManager(new TestLogger());
+		this.beIDCardManager.addBeIDCardEventListener(this);
+		this.beIDCardManager.addOtherCardEventListener(this);
+		this.beIDCardManager.start();
 
 		System.err.println("main thread running.. do some card tricks..");
 
@@ -114,14 +114,15 @@ public class BeIDCardManagerExercise
 
 	@Override
 	public void cardInserted(CardTerminal cardTerminal, Card card) {
-		if (card != null)
+		if (card != null) {
 			System.out.println("Other Card ["
 					+ String.format("%x", new BigInteger(1, card.getATR()
 							.getBytes())) + "] Inserted Into Terminal ["
 					+ cardTerminal.getName() + "]");
-		else
+		} else {
 			System.out.println("Other Card Inserted Into Terminal ["
 					+ cardTerminal.getName() + "] but failed to connect()");
+		}
 	}
 
 	@Override

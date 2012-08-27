@@ -31,13 +31,13 @@ public class SimulatedCardTerminals extends CardTerminals {
 	private Set<SimulatedCardTerminal> terminals;
 
 	public SimulatedCardTerminals() {
-		terminals = new HashSet<SimulatedCardTerminal>();
+		this.terminals = new HashSet<SimulatedCardTerminal>();
 	}
 
 	public synchronized SimulatedCardTerminals attachCardTerminal(
 			SimulatedCardTerminal terminal) {
 		terminal.setTerminals(this);
-		terminals.add(terminal);
+		this.terminals.add(terminal);
 		notifyAll();
 		return this;
 	}
@@ -45,7 +45,7 @@ public class SimulatedCardTerminals extends CardTerminals {
 	public synchronized SimulatedCardTerminals detachCardTerminal(
 			SimulatedCardTerminal terminal) {
 		terminal.setTerminals(null);
-		terminals.remove(terminal);
+		this.terminals.remove(terminal);
 		notifyAll();
 		return this;
 	}
@@ -61,22 +61,25 @@ public class SimulatedCardTerminals extends CardTerminals {
 		switch (state) {
 			case ALL :
 				return Collections
-						.unmodifiableList(new ArrayList<CardTerminal>(terminals));
+						.unmodifiableList(new ArrayList<CardTerminal>(
+								this.terminals));
 
 			case CARD_PRESENT : {
 				ArrayList<CardTerminal> presentList = new ArrayList<CardTerminal>();
-				for (CardTerminal terminal : terminals) {
-					if (terminal.isCardPresent())
+				for (CardTerminal terminal : this.terminals) {
+					if (terminal.isCardPresent()) {
 						presentList.add(terminal);
+					}
 				}
 				return Collections.unmodifiableList(presentList);
 			}
 
 			case CARD_ABSENT : {
 				ArrayList<CardTerminal> absentList = new ArrayList<CardTerminal>();
-				for (CardTerminal terminal : terminals) {
-					if (!terminal.isCardPresent())
+				for (CardTerminal terminal : this.terminals) {
+					if (!terminal.isCardPresent()) {
 						absentList.add(terminal);
+					}
 				}
 				return Collections.unmodifiableList(absentList);
 			}

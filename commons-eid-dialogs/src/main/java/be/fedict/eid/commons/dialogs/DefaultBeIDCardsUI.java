@@ -145,7 +145,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 
 		dialog.pack();
 
-		if (parentComponent != null) {
+		if (this.parentComponent != null) {
 			dialog.setLocationRelativeTo(this.parentComponent);
 		}
 
@@ -168,7 +168,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 
 	private void showAdvise(String title, String message) {
 		if (null != this.adviseFrame) {
-			adviseEnd();
+			this.adviseEnd();
 		}
 
 		this.adviseFrame = new JFrame(title);
@@ -230,7 +230,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 		}
 
 		public int getPhotoProgress() {
-			return photoProgress;
+			return this.photoProgress;
 		}
 
 		public void setPhotoProgress(int photoProgress) {
@@ -246,7 +246,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 		}
 
 		public boolean hasError() {
-			return error;
+			return this.error;
 		}
 
 		public void setError() {
@@ -383,25 +383,25 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 		public ListModelUpdater(DefaultListModel listModel) {
 			this.identitiesReadLatch = new CountDownLatch(listModel.size());
 			for (int i = 0; i < listModel.size(); i++) {
-				updaters.add(new ListItemUpdater(listModel, i,
-						identitiesReadLatch));
+				this.updaters.add(new ListItemUpdater(listModel, i,
+						this.identitiesReadLatch));
 			}
 		}
 
 		public void waitUntilIdentitiesRead() {
 			try {
-				identitiesReadLatch.await();
+				this.identitiesReadLatch.await();
 			} catch (InterruptedException e) {
 				return;
 			}
 		}
 
 		public void stop() {
-			for (ListItemUpdater updater : updaters) {
+			for (ListItemUpdater updater : this.updaters) {
 				updater.interrupt();
 			}
 
-			for (ListItemUpdater updater : updaters) {
+			for (ListItemUpdater updater : this.updaters) {
 				try {
 					updater.join();
 				} catch (InterruptedException e) {
@@ -423,9 +423,9 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 			this.listModel = listModel;
 			this.index = index;
 			this.nameRead = nameRead;
-			worker = new Thread(this, "ListModelUpdater (" + index + ")");
-			worker.setDaemon(true);
-			worker.start();
+			this.worker = new Thread(this, "ListModelUpdater (" + index + ")");
+			this.worker.setDaemon(true);
+			this.worker.start();
 		}
 
 		public void join() throws InterruptedException {
@@ -450,10 +450,10 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 				Identity identity = TlvParser.parse(listItem.getCard()
 						.readFile(FileType.Identity), Identity.class);
 				listItem.setIdentity(identity);
-				updateInList(listItem);
+				this.updateInList(listItem);
 			} catch (Exception ex) {
 				listItem.setError();
-				updateInList(listItem);
+				this.updateInList(listItem);
 			} finally {
 				this.nameRead.countDown();
 			}
@@ -461,14 +461,14 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 			try {
 				listItem.setPhotoSizeEstimate(FileType.Photo
 						.getEstimatedMaxSize());
-				updateInList(listItem);
+				this.updateInList(listItem);
 
 				listItem.getCard().addCardListener(new BeIDCardListener() {
 					@Override
 					public void notifyReadProgress(FileType fileType,
 							int offset, int estimatedMaxSize) {
 						listItem.setPhotoProgress(offset);
-						updateInList(listItem);
+						ListItemUpdater.this.updateInList(listItem);
 					}
 
 					@Override
@@ -486,10 +486,10 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 				BufferedImage photoImage = ImageIO
 						.read(new ByteArrayInputStream(photoFile));
 				listItem.setPhoto(new ImageIcon(photoImage));
-				updateInList(listItem);
+				this.updateInList(listItem);
 			} catch (Exception ex) {
 				listItem.setError();
-				updateInList(listItem);
+				this.updateInList(listItem);
 			}
 		}
 	}
