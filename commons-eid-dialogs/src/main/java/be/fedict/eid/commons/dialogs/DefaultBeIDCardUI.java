@@ -55,6 +55,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	public static final int MIN_PIN_SIZE = 4;
 	public static final int MAX_PIN_SIZE = 12;
 	public static final int PUK_SIZE = 6;
+	private static final String OPERATION_CANCELLED = "operation cancelled.";
 
 	// TODO can pinPadFrame and secureReaderTransactionFrame be on-screen at the
 	// same time? if not can be one member var and one dispose method
@@ -208,7 +209,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 				mainPanel, "Change eID PIN", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, null, null);
 		if (result != JOptionPane.OK_OPTION) {
-			throw new RuntimeException("operation canceled.");
+			throw new RuntimeException(OPERATION_CANCELLED);
 		}
 		if (false == Arrays.equals(newPinField.getPassword(), new2PinField
 				.getPassword())) {
@@ -349,7 +350,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 			char[] pin = passwordField.getPassword();
 			return pin;
 		}
-		throw new RuntimeException("operation canceled.");
+		throw new RuntimeException(OPERATION_CANCELLED);
 	}
 
 	@Override
@@ -396,7 +397,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 				mainPanel, "eID PIN unblock", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, null, null);
 		if (result != JOptionPane.OK_OPTION) {
-			throw new RuntimeException("operation canceled.");
+			throw new RuntimeException(OPERATION_CANCELLED);
 		}
 		if (puk1Field.getPassword().length != PUK_SIZE
 				|| puk2Field.getPassword().length != PUK_SIZE) {
