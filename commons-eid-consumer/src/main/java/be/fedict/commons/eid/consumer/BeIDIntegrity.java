@@ -80,7 +80,7 @@ public class BeIDIntegrity {
 
 	public Identity getVerifiedIdentity(byte[] identityFile,
 			byte[] identitySignatureFile, X509Certificate rrnCertificate) {
-		Identity identity = getVerifiedIdentity(identityFile,
+		Identity identity = this.getVerifiedIdentity(identityFile,
 				identitySignatureFile, null, rrnCertificate);
 		return identity;
 	}
@@ -175,7 +175,8 @@ public class BeIDIntegrity {
 		PublicKey publicKey = authnCertificate.getPublicKey();
 		boolean result;
 		try {
-			result = verifySignature(signatureValue, publicKey, toBeSigned);
+			result = this
+					.verifySignature(signatureValue, publicKey, toBeSigned);
 		} catch (InvalidKeyException e) {
 			LOG.warn("invalid key: " + e.getMessage(), e);
 			return false;

@@ -127,7 +127,7 @@ public enum DocumentType implements Serializable {
 	}
 
 	public static DocumentType toDocumentType(byte[] value) {
-		int key = toKey(value);
+		int key = DocumentType.toKey(value);
 		DocumentType documentType = DocumentType.documentTypes.get(key);
 		/*
 		 * If the key is unknown, we simply return null.
@@ -136,7 +136,7 @@ public enum DocumentType implements Serializable {
 	}
 
 	public static String toString(byte[] documentTypeValue) {
-		String str = Integer.toString(toKey(documentTypeValue));
+		String str = Integer.toString(DocumentType.toKey(documentTypeValue));
 		return str;
 	}
 }

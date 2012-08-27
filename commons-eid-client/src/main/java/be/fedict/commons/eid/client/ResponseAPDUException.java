@@ -35,6 +35,6 @@ public class ResponseAPDUException extends RuntimeException {
 	}
 
 	public ResponseAPDU getApdu() {
-		return apdu;
+		return this.apdu;
 	}
 }

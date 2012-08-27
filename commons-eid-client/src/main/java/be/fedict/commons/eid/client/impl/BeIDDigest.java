@@ -84,7 +84,7 @@ public enum BeIDDigest {
 	}
 
 	public byte getAlgorithmReference() {
-		return algorithmReference;
+		return this.algorithmReference;
 	}
 
 	public String getStandardName() {

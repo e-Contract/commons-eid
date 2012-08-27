@@ -59,7 +59,7 @@ public enum FileType {
 	}
 
 	public boolean chainIncludesCitizenCA() {
-		return isCertificateUserCanSignWith();
+		return this.isCertificateUserCanSignWith();
 	}
 
 	public int getEstimatedMaxSize() {

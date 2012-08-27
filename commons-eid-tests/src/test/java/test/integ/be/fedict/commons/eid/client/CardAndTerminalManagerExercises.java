@@ -61,15 +61,16 @@ public class CardAndTerminalManagerExercises
 	 */
 
 	@Test
-	public void testAsynchronous() throws Exception {
+	public void testDetections() throws Exception {
 		Random random = new Random(0);
-		cardAndTerminalManager = new CardAndTerminalManager(new TestLogger());
-		cardAndTerminalManager.addCardTerminalListener(this);
-		cardAndTerminalManager.addCardListener(this);
+		this.cardAndTerminalManager = new CardAndTerminalManager(
+				new TestLogger());
+		this.cardAndTerminalManager.addCardTerminalListener(this);
+		this.cardAndTerminalManager.addCardListener(this);
 
 		// cardAndTerminalManager.ignoreCardEventsFor("VASCO DP905");
 
-		cardAndTerminalManager.start();
+		this.cardAndTerminalManager.start();
 
 		CardTerminalEventsListener dummyCTL = new CardTerminalEventsListener() {
 			@Override
@@ -112,12 +113,12 @@ public class CardAndTerminalManagerExercises
 
 		for (;;) {
 			System.err.print("+");
-			cardAndTerminalManager.addCardTerminalListener(dummyCTL);
-			cardAndTerminalManager.addCardListener(dummyCL);
+			this.cardAndTerminalManager.addCardTerminalListener(dummyCTL);
+			this.cardAndTerminalManager.addCardListener(dummyCL);
 			Thread.sleep(random.nextInt(100));
 			System.err.print("-");
-			cardAndTerminalManager.removeCardTerminalListener(dummyCTL);
-			cardAndTerminalManager.removeCardListener(dummyCL);
+			this.cardAndTerminalManager.removeCardTerminalListener(dummyCTL);
+			this.cardAndTerminalManager.removeCardListener(dummyCL);
 			Thread.sleep(random.nextInt(100));
 		}
 	}
@@ -134,17 +135,18 @@ public class CardAndTerminalManagerExercises
 	@Test
 	public void testStartStop() throws Exception {
 		Random random = new Random(0);
-		cardAndTerminalManager = new CardAndTerminalManager(new TestLogger());
-		cardAndTerminalManager.addCardTerminalListener(this);
-		cardAndTerminalManager.addCardListener(this);
-		cardAndTerminalManager.start();
+		this.cardAndTerminalManager = new CardAndTerminalManager(
+				new TestLogger());
+		this.cardAndTerminalManager.addCardTerminalListener(this);
+		this.cardAndTerminalManager.addCardListener(this);
+		this.cardAndTerminalManager.start();
 
 		for (;;) {
 			System.err.print("+");
-			cardAndTerminalManager.start();
+			this.cardAndTerminalManager.start();
 			Thread.sleep(random.nextInt(2000));
 			System.err.print("-");
-			cardAndTerminalManager.stop();
+			this.cardAndTerminalManager.stop();
 			Thread.sleep(random.nextInt(2000));
 		}
 	}
@@ -166,13 +168,14 @@ public class CardAndTerminalManagerExercises
 
 	@Override
 	public void cardInserted(CardTerminal cardTerminal, Card card) {
-		if (card != null)
+		if (card != null) {
 			System.err.println("Card ["
 					+ StringUtils.atrToString(card.getATR())
 					+ "] Inserted Into Terminal [" + cardTerminal.getName()
 					+ "]");
-		else
+		} else {
 			System.err.println("Card present but failed to connect()");
+		}
 	}
 
 	@Override

@@ -73,7 +73,7 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 	}
 
 	public int getDelay() {
-		return delay;
+		return this.delay;
 	}
 
 	public void setDelay(int delay) {
@@ -82,8 +82,8 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 
 	@Override
 	protected ResponseAPDU transmit(CommandAPDU apdu) throws CardException {
-		if (nextConfused) {
-			nextConfused = false;
+		if (this.nextConfused) {
+			this.nextConfused = false;
 			try {
 				Thread.sleep(40000);
 			} catch (InterruptedException e) {
@@ -91,37 +91,37 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 			return WHO_AM_I;
 		}
 
-		if (nextCardException) {
-			nextCardException = false;
+		if (this.nextCardException) {
+			this.nextCardException = false;
 			throw new CardException("Fake CardException Introduced By "
 					+ this.getClass().getName());
 		}
 
-		if (nextTooFast) {
-			nextTooFast = false;
+		if (this.nextTooFast) {
+			this.nextTooFast = false;
 			return WAITWAITWAIT;
 		}
 
-		if (nextRandomResponse) {
-			nextRandomResponse = false;
+		if (this.nextRandomResponse) {
+			this.nextRandomResponse = false;
 			byte[] randomAPDU = new byte[16];
-			random.nextBytes(randomAPDU);
+			this.random.nextBytes(randomAPDU);
 			return new ResponseAPDU(randomAPDU);
 		}
 
-		if (delay > 0) {
+		if (this.delay > 0) {
 			try {
-				Thread.sleep(delay);
+				Thread.sleep(this.delay);
 			} catch (InterruptedException e) {
 			}
 		}
 
-		if (nextBitError) {
+		if (this.nextBitError) {
 			ResponseAPDU response = super.transmit(apdu);
 			byte[] responseBytes = response.getBytes();
 
 			// flip some bits
-			responseBytes[random.nextInt(responseBytes.length)] ^= (byte) random
+			responseBytes[this.random.nextInt(responseBytes.length)] ^= (byte) this.random
 					.nextInt();
 
 			return new ResponseAPDU(responseBytes);

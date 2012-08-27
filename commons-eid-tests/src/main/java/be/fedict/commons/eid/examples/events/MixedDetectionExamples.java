@@ -84,8 +84,9 @@ public class MixedDetectionExamples
 		//-------------------------------------------------------------------------------------------------------
 		// the main thread goes off and does other things (for this example, just loop and sleep)
 		//-------------------------------------------------------------------------------------------------------
-		for (;;)
+		for (;;) {
 			Thread.sleep(2000);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------
@@ -147,14 +148,15 @@ public class MixedDetectionExamples
 
 	@Override
 	public void cardInserted(CardTerminal cardTerminal, Card card) {
-		if (card != null)
+		if (card != null) {
 			System.out.println("Other Card ["
 					+ String.format("%x", new BigInteger(1, card.getATR()
 							.getBytes())) + "] Inserted Into Terminal ["
 					+ cardTerminal.getName() + "]");
-		else
+		} else {
 			System.out.println("Other Card Inserted Into Terminal ["
 					+ cardTerminal.getName() + "] but failed to connect()");
+		}
 	}
 
 	@Override

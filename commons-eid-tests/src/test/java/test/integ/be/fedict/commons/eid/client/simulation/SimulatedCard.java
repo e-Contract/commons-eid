@@ -70,7 +70,7 @@ public class SimulatedCard extends Card {
 
 	@Override
 	public ATR getATR() {
-		return atr;
+		return this.atr;
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class SimulatedCard extends Card {
 
 	@Override
 	public String getProtocol() {
-		return protocol;
+		return this.protocol;
 	}
 
 	@Override
@@ -110,21 +110,25 @@ public class SimulatedCard extends Card {
 
 	protected ResponseAPDU readBinary(int offset, int length) {
 		// how many bytes left to read
-		int lengthToReturn = selectedFile.length - offset;
+		int lengthToReturn = this.selectedFile.length - offset;
 
 		// limited to number of bytes requested
-		if (lengthToReturn > length)
+		if (lengthToReturn > length) {
 			lengthToReturn = length;
+		}
 
 		// there are no more bytes..
-		if (lengthToReturn == 0)
+		if (lengthToReturn == 0) {
 			return OFFSET_OUTSIDE_EF;
+		}
 
 		// reserve number of bytes + 2 for trailer
 		byte[] response = new byte[lengthToReturn + 2];
 
 		// copy the bytes from the selected file..
-		System.arraycopy(selectedFile, offset, response, 0, lengthToReturn);
+		System
+				.arraycopy(this.selectedFile, offset, response, 0,
+						lengthToReturn);
 
 		// add the trailer with OK response
 		response[lengthToReturn] = (byte) 0x90;
@@ -135,19 +139,20 @@ public class SimulatedCard extends Card {
 	}
 
 	protected ResponseAPDU selectFile(byte[] fileId) {
-		selectedFile = files.get(new BigInteger(fileId));
-		if (selectedFile == null)
+		this.selectedFile = this.files.get(new BigInteger(fileId));
+		if (this.selectedFile == null) {
 			return FILE_NOT_FOUND;
+		}
 		return OK;
 	}
 
 	public SimulatedCard setFile(byte[] fileId, byte[] fileData) {
-		files.put(new BigInteger(fileId), fileData);
+		this.files.put(new BigInteger(fileId), fileData);
 		return this;
 	}
 
 	public SimulatedCard removeFile(byte[] fileId) {
-		files.remove(fileId);
+		this.files.remove(fileId);
 		return this;
 	}
 }

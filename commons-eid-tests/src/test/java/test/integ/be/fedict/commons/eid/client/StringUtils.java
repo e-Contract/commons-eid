@@ -35,8 +35,9 @@ public class StringUtils {
 			shortName.append(words[0]);
 			shortName.append(" ");
 			shortName.append(words[1]);
-		} else
+		} else {
 			shortName.append(terminalName);
+		}
 
 		return shortName.toString();
 	}

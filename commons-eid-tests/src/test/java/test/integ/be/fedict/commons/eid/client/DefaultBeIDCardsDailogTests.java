@@ -43,17 +43,18 @@ public class DefaultBeIDCardsDailogTests {
 
 	@Before
 	public void setUp() {
-		simulatedBeIDCards = new ArrayList<BeIDCard>(numberOfCards);
-		for (int i = 0; i < numberOfCards; i++)
-			simulatedBeIDCards.add(new BeIDCard(new SimulatedCard(new ATR(
+		this.simulatedBeIDCards = new ArrayList<BeIDCard>(numberOfCards);
+		for (int i = 0; i < numberOfCards; i++) {
+			this.simulatedBeIDCards.add(new BeIDCard(new SimulatedCard(new ATR(
 					new byte[]{0x3b, (byte) 0x98, (byte) i, 0x40, (byte) i,
 							(byte) i, (byte) i, (byte) i, 0x01, 0x01,
 							(byte) 0xad, 0x13, 0x10}))));
+		}
 	}
 
 	@Test
 	public void testCardSelection() throws Exception {
 		BeIDCardsUI ui = new DefaultBeIDCardsUI();
-		ui.selectBeIDCard(simulatedBeIDCards);
+		ui.selectBeIDCard(this.simulatedBeIDCards);
 	}
 }

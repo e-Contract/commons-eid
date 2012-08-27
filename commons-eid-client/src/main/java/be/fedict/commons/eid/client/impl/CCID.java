@@ -67,7 +67,7 @@ public class CCID {
 	}
 
 	/*
-	 ***********************************************************************************************************
+	 * **********************************************************************************************************
 	 */
 
 	public CCID(Card card) {
@@ -86,11 +86,12 @@ public class CCID {
 					? GET_FEATURES_MICROSOFT
 					: GET_FEATURES, new byte[0]);
 			for (FEATURE feature : FEATURE.values()) {
-				features.put(feature, findFeature(feature.getTag(),
+				this.features.put(feature, findFeature(feature.getTag(),
 						featureBytes));
 			}
 		} catch (CardException cex) {
-			// intentionally empty.. this.features exists and any gets will fail to find features
+			// intentionally empty.. this.features exists and any gets will fail
+			// to find features
 		}
 	}
 
@@ -103,7 +104,7 @@ public class CCID {
 	}
 
 	/*
-	 ***********************************************************************************************************
+	 * **********************************************************************************************************
 	 */
 
 	private Integer findFeature(byte featureTag, byte[] features) {
@@ -126,15 +127,15 @@ public class CCID {
 		return null;
 	}
 
-	/* 
+	/*
 	 * ***********************************************************************************************************************
 	 */
 
 	public void waitForOK() throws CardException, InterruptedException {
 		// wait for key pressed
 		loop : while (true) {
-			byte[] getKeyPressedResult = this.card.transmitControlCommand(
-					getFeature(FEATURE.GET_KEY_PRESSED), new byte[0]);
+			byte[] getKeyPressedResult = this.card.transmitControlCommand(this
+					.getFeature(FEATURE.GET_KEY_PRESSED), new byte[0]);
 			byte key = getKeyPressedResult[0];
 			switch (key) {
 				case 0x00 :
@@ -172,7 +173,7 @@ public class CCID {
 	}
 
 	/*
-	 **** static utilities ****
+	 * *** static utilities ****
 	 */
 
 	public byte getLanguageId(Locale locale) {
@@ -242,7 +243,7 @@ public class CCID {
 		/*
 		 * 0x01 = message with index in bMsgIndex
 		 */
-		verifyCommand.write(new byte[]{getLanguageId(locale), 0x04}); // wLangId
+		verifyCommand.write(new byte[]{this.getLanguageId(locale), 0x04}); // wLangId
 		/*
 		 * 0x04 = default sub-language
 		 */
@@ -344,7 +345,7 @@ public class CCID {
 		 * 0x03 = message with index in bMsgIndex
 		 */
 
-		modifyCommand.write(new byte[]{getLanguageId(locale), 0x04}); // wLangId
+		modifyCommand.write(new byte[]{this.getLanguageId(locale), 0x04}); // wLangId
 		/*
 		 * 0x04 = default sub-language
 		 */
