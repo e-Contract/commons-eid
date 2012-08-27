@@ -52,6 +52,21 @@ public class CardAndTerminalManager implements Runnable {
 	private Set<CardEventsListener> cardEventsListeners;
 	private int delay;
 	private Logger logger;
+	private PROTOCOL protocol;
+
+	public enum PROTOCOL {
+		T0("T=0"), T1("T=1"), TCL("T=CL"), ANY("*");
+
+		private final String protocol;
+
+		PROTOCOL(String protocol) {
+			this.protocol = protocol;
+		}
+
+		String getProtocol() {
+			return this.protocol;
+		}
+	}
 
 	// ----- various constructors ------
 
@@ -80,6 +95,7 @@ public class CardAndTerminalManager implements Runnable {
 		this.running = false;
 		this.subSystemInitialized = false;
 		this.autoconnect = true;
+		this.protocol = PROTOCOL.ANY;
 
 		if (cardTerminals == null) {
 			TerminalFactory terminalFactory = TerminalFactory.getDefault();
@@ -365,6 +381,15 @@ public class CardAndTerminalManager implements Runnable {
 		return this;
 	}
 
+	public PROTOCOL getProtocol() {
+		return this.protocol;
+	}
+
+	public CardAndTerminalManager setProtocol(PROTOCOL protocol) {
+		this.protocol = protocol;
+		return this;
+	}
+
 	// -------------------------------------------------
 	// --------- private convenience methods -----------
 	// -------------------------------------------------
@@ -541,7 +566,7 @@ public class CardAndTerminalManager implements Runnable {
 
 				if (this.autoconnect) {
 					try {
-						card = terminal.connect("*");
+						card = terminal.connect(this.protocol.getProtocol());
 					} catch (CardException cex) {
 						listenersException(cex);
 					}

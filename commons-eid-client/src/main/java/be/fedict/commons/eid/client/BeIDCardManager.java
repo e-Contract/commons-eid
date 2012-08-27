@@ -26,6 +26,8 @@ import java.util.Set;
 import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
+
+import be.fedict.commons.eid.client.CardAndTerminalManager.PROTOCOL;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.impl.VoidLogger;
@@ -42,7 +44,7 @@ public class BeIDCardManager {
 	/*
 	 * a BeIDCardManager with a default (void) logger and a private
 	 * CardAndTerminalManager that is automatically started and stopped with the
-	 * BeIDCardManager
+	 * BeIDCardManager, and that only connects to Cards with Protocol T=0
 	 */
 	public BeIDCardManager() {
 		this(new VoidLogger());
@@ -50,7 +52,8 @@ public class BeIDCardManager {
 
 	/*
 	 * a BeIDCardManager logging to logger, and a private Terminalmanager that
-	 * is automatically started and stopped with the BeIDCardManager
+	 * is automatically started and stopped with the BeIDCardManager,
+	 * and that only connects to Cards with Protocol T=0
 	 */
 	public BeIDCardManager(Logger logger) {
 		this(logger, new CardAndTerminalManager());
@@ -60,7 +63,9 @@ public class BeIDCardManager {
 	/*
 	 * a BeIDCardManager with a default (void) logger, caller supplies a
 	 * CardAndTerminalManager. note: caller is responsible for start()in the
-	 * supplied CardAndTerminalManager, it will not be automatically started!
+	 * supplied CardAndTerminalManager, it will not be automatically started.
+	 * The supplied CardAndTerminalManager should allow protocol T0 ("T=0")
+	 * or ANY ("*") for BeIDCards to work.
 	 */
 	public BeIDCardManager(CardAndTerminalManager cardAndTerminalManager) {
 		this(new VoidLogger(), cardAndTerminalManager);
@@ -77,7 +82,12 @@ public class BeIDCardManager {
 		this.beIdListeners = new HashSet<BeIDCardEventsListener>();
 		this.otherCardListeners = new HashSet<CardEventsListener>();
 		this.terminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
+
 		this.cardAndTerminalManager = cardAndTerminalManager;
+		if (this.terminalManagerIsPrivate) {
+			this.cardAndTerminalManager.setProtocol(PROTOCOL.T0);
+		}
+
 		this.cardAndTerminalManager.addCardListener(new CardEventsListener() {
 			@Override
 			public void cardInserted(CardTerminal cardTerminal, Card card) {
@@ -171,7 +181,6 @@ public class BeIDCardManager {
 						}
 					}
 				}
-
 			}
 
 			@Override

@@ -41,13 +41,13 @@ public class BeIDCardEventsExamples {
 		beIDCardManager.addBeIDCardEventListener(new BeIDCardEventsListener() {
 			@Override
 			public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card) {
-				System.out.println("BeID Card Removed From Card Termimal ["
+				System.out.println("BeID Card Removed From Card Terminal ["
 						+ cardTerminal.getName() + "]\n");
 			}
 
 			@Override
 			public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
-				System.out.println("BeID Card Inserted Into Card Termimal ["
+				System.out.println("BeID Card Inserted Into Card Terminal ["
 						+ cardTerminal.getName() + "]\n");
 			}
 
