@@ -97,10 +97,6 @@ public class CardAndTerminalManagerTests {
 
 		}
 
-		@Override
-		public synchronized void terminalException(Throwable throwable) {
-		}
-
 		public synchronized Set<CardTerminal> getRecordedState() {
 			return new HashSet<CardTerminal>(this.recordedState);
 		}
@@ -303,12 +299,6 @@ public class CardAndTerminalManagerTests {
 
 		@Override
 		public void terminalDetached(CardTerminal cardTerminal) {
-			throw new NullPointerException(
-					"Fake NPE attempting to trash a CardTerminalEventsListener");
-		}
-
-		@Override
-		public void terminalException(Throwable throwable) {
 			throw new NullPointerException(
 					"Fake NPE attempting to trash a CardTerminalEventsListener");
 		}
