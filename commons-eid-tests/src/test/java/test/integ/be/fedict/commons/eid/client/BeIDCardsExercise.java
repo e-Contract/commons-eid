@@ -16,16 +16,16 @@ public class BeIDCardsExercise {
 	@Test
 	public void waitInsertAndRemove() throws Exception {
 		LOG.debug("creating beIDCards Instance");
-		BeIDCards beIDCards = new BeIDCards(new TestLogger());
+		final BeIDCards beIDCards = new BeIDCards(new TestLogger());
 		assertNotNull(beIDCards);
 
 		LOG.debug("asking beIDCards Instance for One BeIDCard");
-		BeIDCard beIDCard = beIDCards.getOneBeIDCard();
+		final BeIDCard beIDCard = beIDCards.getOneBeIDCard();
 		assertNotNull(beIDCard);
 
 		LOG.debug("reading identity file");
-		byte[] identityFile = beIDCard.readFile(FileType.Identity);
-		Identity identity = TlvParser.parse(identityFile, Identity.class);
+		final byte[] identityFile = beIDCard.readFile(FileType.Identity);
+		final Identity identity = TlvParser.parse(identityFile, Identity.class);
 		LOG.debug("card holder is " + identity.getFirstName() + " "
 				+ identity.getName());
 

@@ -30,14 +30,14 @@ public class TestBeIDCardListener implements BeIDCardListener {
 			.getLog(TestBeIDCardListener.class);
 
 	@Override
-	public void notifyReadProgress(FileType fileType, int offset,
-			int estimatedMaxSize) {
+	public void notifyReadProgress(final FileType fileType, final int offset,
+			final int estimatedMaxSize) {
 		LOG.debug("read progress of " + fileType.name() + ":" + offset + " of "
 				+ estimatedMaxSize);
 	}
 
 	@Override
-	public void notifySigningBegin(FileType keyType) {
+	public void notifySigningBegin(final FileType keyType) {
 		LOG.debug("signing with "
 				+ (keyType == FileType.AuthentificationCertificate
 						? "authentication"
@@ -45,7 +45,7 @@ public class TestBeIDCardListener implements BeIDCardListener {
 	}
 
 	@Override
-	public void notifySigningEnd(FileType keyType) {
+	public void notifySigningEnd(final FileType keyType) {
 		LOG.debug("signing with "
 				+ (keyType == FileType.AuthentificationCertificate
 						? "authentication"

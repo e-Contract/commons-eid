@@ -36,14 +36,15 @@ public class CardEventsExamples {
 		// instantiate a CardAndTerminalManager with default settings (no
 		// logging, default timeout)
 		// -------------------------------------------------------------------------------------------------------
-		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
+		final CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
 
 		// -------------------------------------------------------------------------------------------------------
 		// register a CardEventsListener
 		// -------------------------------------------------------------------------------------------------------
 		cardAndTerminalManager.addCardListener(new CardEventsListener() {
 			@Override
-			public void cardInserted(CardTerminal cardTerminal, Card card) {
+			public void cardInserted(final CardTerminal cardTerminal,
+					final Card card) {
 				if (card != null) {
 					System.err.println("Card ["
 							+ String.format("%x", new BigInteger(1, card
@@ -56,7 +57,7 @@ public class CardEventsExamples {
 			}
 
 			@Override
-			public void cardRemoved(CardTerminal cardTerminal) {
+			public void cardRemoved(final CardTerminal cardTerminal) {
 				System.err.println("Card Removed From ["
 						+ cardTerminal.getName() + "]");
 			}
@@ -87,8 +88,8 @@ public class CardEventsExamples {
 
 	// -------------------------------------------------------------------------------------------------------
 
-	public static void main(String[] args) throws InterruptedException {
-		CardEventsExamples examples = new CardEventsExamples();
+	public static void main(final String[] args) throws InterruptedException {
+		final CardEventsExamples examples = new CardEventsExamples();
 		examples.cardterminals_basic_asynchronous();
 	}
 }

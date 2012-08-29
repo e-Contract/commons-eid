@@ -34,7 +34,7 @@ public class TerminalEventsExamples {
 		// instantiate a CardAndTerminalManager with default settings (no
 		// logging, default timeout)
 		// -------------------------------------------------------------------------------------------------------
-		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
+		final CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
 
 		// -------------------------------------------------------------------------------------------------------
 		// register a CardTerminalEventsListener
@@ -43,13 +43,13 @@ public class TerminalEventsExamples {
 				.addCardTerminalListener(new CardTerminalEventsListener() {
 
 					@Override
-					public void terminalDetached(CardTerminal cardTerminal) {
+					public void terminalDetached(final CardTerminal cardTerminal) {
 						System.out.println("CardTerminal ["
 								+ cardTerminal.getName() + "] detached\n");
 					}
 
 					@Override
-					public void terminalAttached(CardTerminal cardTerminal) {
+					public void terminalAttached(final CardTerminal cardTerminal) {
 						System.out.println("CardTerminal ["
 								+ cardTerminal.getName() + "] attached\n");
 					}
@@ -81,8 +81,8 @@ public class TerminalEventsExamples {
 
 	// -------------------------------------------------------------------------------------------------------
 
-	public static void main(String[] args) throws InterruptedException {
-		TerminalEventsExamples examples = new TerminalEventsExamples();
+	public static void main(final String[] args) throws InterruptedException {
+		final TerminalEventsExamples examples = new TerminalEventsExamples();
 		examples.cardterminals_basic_asynchronous();
 	}
 }

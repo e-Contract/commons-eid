@@ -24,13 +24,13 @@ import javax.smartcardio.ATR;
 import javax.smartcardio.CardTerminal;
 
 public class StringUtils {
-	public static String atrToString(ATR atr) {
+	public static String atrToString(final ATR atr) {
 		return String.format("%x", new BigInteger(1, atr.getBytes()));
 	}
 
-	public static String getShortTerminalname(String terminalName) {
-		StringBuilder shortName = new StringBuilder();
-		String[] words = terminalName.split(" ");
+	public static String getShortTerminalname(final String terminalName) {
+		final StringBuilder shortName = new StringBuilder();
+		final String[] words = terminalName.split(" ");
 		if (words.length > 1) {
 			shortName.append(words[0]);
 			shortName.append(" ");
@@ -42,8 +42,8 @@ public class StringUtils {
 		return shortName.toString();
 	}
 
-	public static void printTerminalSet(Set<CardTerminal> set) {
-		StringBuilder overviewLine = new StringBuilder();
+	public static void printTerminalSet(final Set<CardTerminal> set) {
+		final StringBuilder overviewLine = new StringBuilder();
 
 		for (CardTerminal terminal : set) {
 			overviewLine.append("[");

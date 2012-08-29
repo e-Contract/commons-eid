@@ -43,12 +43,12 @@ public class MixedDetectionExamples
 		//-------------------------------------------------------------------------------------------------------
 		// instantiate a CardAndTerminalManager with default settings (no logging, default timeout)
 		//-------------------------------------------------------------------------------------------------------
-		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
+		final CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
 
 		//-------------------------------------------------------------------------------------------------------
 		// instantiate a BeIDCardManager, pass it our CardAndTerminalManager to use
 		//-------------------------------------------------------------------------------------------------------
-		BeIDCardManager beIDCardManager = new BeIDCardManager(
+		final BeIDCardManager beIDCardManager = new BeIDCardManager(
 				cardAndTerminalManager);
 
 		//-------------------------------------------------------------------------------------------------------	
@@ -98,13 +98,13 @@ public class MixedDetectionExamples
 	//------------------------------------------------------------------------------------------------------------
 
 	@Override
-	public void terminalAttached(CardTerminal cardTerminal) {
+	public void terminalAttached(final CardTerminal cardTerminal) {
 		System.out.println("CardTerminal [" + cardTerminal.getName()
 				+ "] attached\n");
 	}
 
 	@Override
-	public void terminalDetached(CardTerminal cardTerminal) {
+	public void terminalDetached(final CardTerminal cardTerminal) {
 		System.out.println("CardTerminal [" + cardTerminal.getName()
 				+ "] detached\n");
 	}
@@ -120,13 +120,15 @@ public class MixedDetectionExamples
 	//------------------------------------------------------------------------------------------------------------
 
 	@Override
-	public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card) {
+	public void eIDCardRemoved(final CardTerminal cardTerminal,
+			final BeIDCard card) {
 		System.out.println("BeID Card Removed From Card Termimal ["
 				+ cardTerminal.getName() + "]\n");
 	}
 
 	@Override
-	public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
+	public void eIDCardInserted(final CardTerminal cardTerminal,
+			final BeIDCard card) {
 		System.out.println("BeID Card Inserted Into Card Termimal ["
 				+ cardTerminal.getName() + "]\n");
 	}
@@ -143,7 +145,7 @@ public class MixedDetectionExamples
 	//------------------------------------------------------------------------------------------------------------
 
 	@Override
-	public void cardInserted(CardTerminal cardTerminal, Card card) {
+	public void cardInserted(final CardTerminal cardTerminal, final Card card) {
 		if (card != null) {
 			System.out.println("Other Card ["
 					+ String.format("%x", new BigInteger(1, card.getATR()
@@ -156,7 +158,7 @@ public class MixedDetectionExamples
 	}
 
 	@Override
-	public void cardRemoved(CardTerminal cardTerminal) {
+	public void cardRemoved(final CardTerminal cardTerminal) {
 		System.out.println("Other Card Removed From [" + cardTerminal.getName()
 				+ "]");
 	}
@@ -169,7 +171,7 @@ public class MixedDetectionExamples
 
 	//-------------------------------------------------------------------------------------------------------
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(final String[] args) throws InterruptedException {
 		new MixedDetectionExamples().demonstrate();
 	}
 

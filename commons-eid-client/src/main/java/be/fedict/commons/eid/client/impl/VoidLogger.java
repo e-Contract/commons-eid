@@ -29,12 +29,12 @@ import be.fedict.commons.eid.client.spi.Logger;
 public final class VoidLogger implements Logger {
 
 	@Override
-	public void error(String message) {
+	public void error(final String message) {
 		// empty
 	}
 
 	@Override
-	public void debug(String message) {
+	public void debug(final String message) {
 		// empty
 	}
 }

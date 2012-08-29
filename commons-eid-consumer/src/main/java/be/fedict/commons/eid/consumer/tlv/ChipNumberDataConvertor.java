@@ -28,8 +28,7 @@ import org.apache.commons.codec.binary.Hex;
  */
 public class ChipNumberDataConvertor implements DataConvertor<String> {
 
-	public String convert(byte[] value) throws DataConvertorException {
-		String chipNumber = new String(Hex.encodeHex(value)).toUpperCase();
-		return chipNumber;
+	public String convert(final byte[] value) throws DataConvertorException {
+		return new String(Hex.encodeHex(value)).toUpperCase();
 	}
 }

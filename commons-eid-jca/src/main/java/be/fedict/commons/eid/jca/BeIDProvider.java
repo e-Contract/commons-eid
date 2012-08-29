@@ -40,7 +40,7 @@ public class BeIDProvider extends Provider {
 		putService(new BeIDService(this, "KeyStore", "BeID", BeIDKeyStore.class
 				.getName()));
 
-		Map<String, String> signatureServiceAttributes = new HashMap<String, String>();
+		final Map<String, String> signatureServiceAttributes = new HashMap<String, String>();
 		signatureServiceAttributes.put("SupportedKeyClasses",
 				BeIDPrivateKey.class.getName());
 		putService(new BeIDService(this, "Signature", "SHA1withRSA",
@@ -55,18 +55,19 @@ public class BeIDProvider extends Provider {
 
 	public static final class BeIDService extends Service {
 
-		public BeIDService(Provider provider, String type, String algorithm,
-				String className) {
+		public BeIDService(final Provider provider, final String type,
+				final String algorithm, final String className) {
 			super(provider, type, algorithm, className, null, null);
 		}
 
-		public BeIDService(Provider provider, String type, String algorithm,
-				String className, Map<String, String> attributes) {
+		public BeIDService(final Provider provider, final String type,
+				final String algorithm, final String className,
+				final Map<String, String> attributes) {
 			super(provider, type, algorithm, className, null, attributes);
 		}
 
 		@Override
-		public Object newInstance(Object constructorParameter)
+		public Object newInstance(final Object constructorParameter)
 				throws NoSuchAlgorithmException {
 			LOG.debug("newInstance");
 			if (super.getType().equals("Signature")) {
@@ -76,7 +77,7 @@ public class BeIDProvider extends Provider {
 		}
 
 		@Override
-		public boolean supportsParameter(Object parameter) {
+		public boolean supportsParameter(final Object parameter) {
 			LOG.debug("supportedParameter: " + parameter);
 			return super.supportsParameter(parameter);
 		}

@@ -52,8 +52,8 @@ public class BeIDPrivateKey implements PrivateKey {
 		beIDDigests.put("SHA-512", BeIDDigest.SHA_512);
 	}
 
-	public BeIDPrivateKey(FileType certificateFileType, BeIDCard beIDCard,
-			boolean logoff) {
+	public BeIDPrivateKey(final FileType certificateFileType,
+			final BeIDCard beIDCard, final boolean logoff) {
 		LOG.debug("constructor: " + certificateFileType);
 		this.certificateFileType = certificateFileType;
 		this.beIDCard = beIDCard;
@@ -75,9 +75,9 @@ public class BeIDPrivateKey implements PrivateKey {
 		return null;
 	}
 
-	byte[] sign(byte[] digestValue, String digestAlgo)
+	byte[] sign(final byte[] digestValue, final String digestAlgo)
 			throws SignatureException {
-		BeIDDigest beIDDigest = beIDDigests.get(digestAlgo);
+		final BeIDDigest beIDDigest = beIDDigests.get(digestAlgo);
 		if (null == beIDDigest) {
 			throw new SignatureException("unsupported algo: " + digestAlgo);
 		}
@@ -88,8 +88,8 @@ public class BeIDPrivateKey implements PrivateKey {
 			if (this.logoff) {
 				this.beIDCard.logoff();
 			}
-		} catch (Exception e) {
-			throw new SignatureException(e);
+		} catch (final Exception ex) {
+			throw new SignatureException(ex);
 		}
 		return signatureValue;
 	}

@@ -86,13 +86,15 @@ public class CardAndTerminalManagerTests {
 		}
 
 		@Override
-		public synchronized void terminalAttached(CardTerminal cardTerminal) {
+		public synchronized void terminalAttached(
+				final CardTerminal cardTerminal) {
 			this.recordedState.add(cardTerminal);
 
 		}
 
 		@Override
-		public synchronized void terminalDetached(CardTerminal cardTerminal) {
+		public synchronized void terminalDetached(
+				final CardTerminal cardTerminal) {
 			this.recordedState.remove(cardTerminal);
 
 		}
@@ -117,8 +119,8 @@ public class CardAndTerminalManagerTests {
 		}
 
 		@Override
-		public synchronized void cardInserted(CardTerminal cardTerminal,
-				Card card) {
+		public synchronized void cardInserted(final CardTerminal cardTerminal,
+				final Card card) {
 			if (this.recordedState.containsKey(cardTerminal)) {
 				throw new IllegalStateException(
 						"Cannot Insert 2 Cards in 1 CardTerminal");
@@ -127,7 +129,7 @@ public class CardAndTerminalManagerTests {
 		}
 
 		@Override
-		public synchronized void cardRemoved(CardTerminal cardTerminal) {
+		public synchronized void cardRemoved(final CardTerminal cardTerminal) {
 			if (!this.recordedState.containsKey(cardTerminal)) {
 				throw new IllegalStateException(
 						"Cannot Remove Card That is not There");
@@ -148,11 +150,11 @@ public class CardAndTerminalManagerTests {
 
 	@Test
 	public void testTerminalAttachDetachDetection() throws Exception {
-		Random random = new Random(0);
-		Set<CardTerminal> expectedState = new HashSet<CardTerminal>();
-		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager(
+		final Random random = new Random(0);
+		final Set<CardTerminal> expectedState = new HashSet<CardTerminal>();
+		final CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager(
 				new TestLogger(), this.simulatedCardTerminals);
-		RecordKeepingCardTerminalEventsListener recorder = new RecordKeepingCardTerminalEventsListener();
+		final RecordKeepingCardTerminalEventsListener recorder = new RecordKeepingCardTerminalEventsListener();
 		cardAndTerminalManager.addCardTerminalListener(recorder);
 		cardAndTerminalManager
 				.addCardTerminalListener(new NPEProneCardTerminalEventsListener());
@@ -161,15 +163,15 @@ public class CardAndTerminalManagerTests {
 		System.err
 				.println("attaching and detaching some simulated cardterminals");
 
-		ArrayList<SimulatedCardTerminal> terminalsToExercise = new ArrayList<SimulatedCardTerminal>(
+		final ArrayList<SimulatedCardTerminal> terminalsToExercise = new ArrayList<SimulatedCardTerminal>(
 				this.simulatedCardTerminal);
-		Set<SimulatedCardTerminal> detachedTerminalSet = new HashSet<SimulatedCardTerminal>(
+		final Set<SimulatedCardTerminal> detachedTerminalSet = new HashSet<SimulatedCardTerminal>(
 				terminalsToExercise);
-		Set<SimulatedCardTerminal> attachedTerminalSet = new HashSet<SimulatedCardTerminal>();
+		final Set<SimulatedCardTerminal> attachedTerminalSet = new HashSet<SimulatedCardTerminal>();
 
 		for (int i = 0; i < 1000; i++) {
 			for (int j = 0; j < random.nextInt(numberOfTerminals); j++) {
-				SimulatedCardTerminal terminalToAttach = terminalsToExercise
+				final SimulatedCardTerminal terminalToAttach = terminalsToExercise
 						.get(random.nextInt(numberOfTerminals));
 				if (detachedTerminalSet.contains(terminalToAttach)) {
 					expectedState.add(terminalToAttach);
@@ -185,7 +187,7 @@ public class CardAndTerminalManagerTests {
 			}
 
 			for (int j = 0; j < random.nextInt(numberOfTerminals); j++) {
-				SimulatedCardTerminal terminalToDetach = terminalsToExercise
+				final SimulatedCardTerminal terminalToDetach = terminalsToExercise
 						.get(random.nextInt(numberOfTerminals));
 				if (attachedTerminalSet.contains(terminalToDetach)) {
 					expectedState.remove(terminalToDetach);
@@ -208,27 +210,27 @@ public class CardAndTerminalManagerTests {
 
 	@Test
 	public void testCardInsertRemoveDetection() throws Exception {
-		Random random = new Random(0);
-		Map<SimulatedCardTerminal, SimulatedCard> expectedState = new HashMap<SimulatedCardTerminal, SimulatedCard>();
-		CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager(
+		final Random random = new Random(0);
+		final Map<SimulatedCardTerminal, SimulatedCard> expectedState = new HashMap<SimulatedCardTerminal, SimulatedCard>();
+		final CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager(
 				new TestLogger(), this.simulatedCardTerminals);
-		RecordKeepingCardEventsListener recorder = new RecordKeepingCardEventsListener();
+		final RecordKeepingCardEventsListener recorder = new RecordKeepingCardEventsListener();
 		cardAndTerminalManager.addCardListener(recorder);
 		cardAndTerminalManager
 				.addCardListener(new NPEProneCardEventsListener());
 		cardAndTerminalManager.start();
 
-		ArrayList<SimulatedCardTerminal> terminalsToExercise = new ArrayList<SimulatedCardTerminal>(
+		final ArrayList<SimulatedCardTerminal> terminalsToExercise = new ArrayList<SimulatedCardTerminal>(
 				this.simulatedCardTerminal);
-		Set<SimulatedCardTerminal> emptyTerminalSet = new HashSet<SimulatedCardTerminal>(
+		final Set<SimulatedCardTerminal> emptyTerminalSet = new HashSet<SimulatedCardTerminal>(
 				terminalsToExercise);
-		Set<SimulatedCardTerminal> fullTerminalSet = new HashSet<SimulatedCardTerminal>();
+		final Set<SimulatedCardTerminal> fullTerminalSet = new HashSet<SimulatedCardTerminal>();
 
-		ArrayList<SimulatedCard> cardsToExercise = new ArrayList<SimulatedCard>(
+		final ArrayList<SimulatedCard> cardsToExercise = new ArrayList<SimulatedCard>(
 				this.simulatedBeIDCard);
-		Set<SimulatedCard> unusedCardSet = new HashSet<SimulatedCard>(
+		final Set<SimulatedCard> unusedCardSet = new HashSet<SimulatedCard>(
 				cardsToExercise);
-		Set<SimulatedCard> usedCardSet = new HashSet<SimulatedCard>();
+		final Set<SimulatedCard> usedCardSet = new HashSet<SimulatedCard>();
 
 		System.err.println("attaching some simulated card readers");
 
@@ -241,9 +243,9 @@ public class CardAndTerminalManagerTests {
 
 		for (int i = 0; i < 1000; i++) {
 			for (int j = 0; j < random.nextInt(numberOfCards); j++) {
-				SimulatedCardTerminal terminalToInsertCardInto = terminalsToExercise
+				final SimulatedCardTerminal terminalToInsertCardInto = terminalsToExercise
 						.get(random.nextInt(numberOfTerminals));
-				SimulatedCard cardToInsert = cardsToExercise.get(random
+				final SimulatedCard cardToInsert = cardsToExercise.get(random
 						.nextInt(numberOfCards));
 
 				if (emptyTerminalSet.contains(terminalToInsertCardInto)
@@ -262,9 +264,9 @@ public class CardAndTerminalManagerTests {
 			}
 
 			for (int j = 0; j < random.nextInt(numberOfCards); j++) {
-				SimulatedCardTerminal terminalToRemoveCardFrom = terminalsToExercise
+				final SimulatedCardTerminal terminalToRemoveCardFrom = terminalsToExercise
 						.get(random.nextInt(numberOfTerminals));
-				SimulatedCard cardToRemove = expectedState
+				final SimulatedCard cardToRemove = expectedState
 						.get(terminalToRemoveCardFrom);
 
 				if (fullTerminalSet.contains(terminalToRemoveCardFrom)
@@ -292,13 +294,13 @@ public class CardAndTerminalManagerTests {
 			implements
 				CardTerminalEventsListener {
 		@Override
-		public void terminalAttached(CardTerminal cardTerminal) {
+		public void terminalAttached(final CardTerminal cardTerminal) {
 			throw new NullPointerException(
 					"Fake NPE attempting to trash a CardTerminalEventsListener");
 		}
 
 		@Override
-		public void terminalDetached(CardTerminal cardTerminal) {
+		public void terminalDetached(final CardTerminal cardTerminal) {
 			throw new NullPointerException(
 					"Fake NPE attempting to trash a CardTerminalEventsListener");
 		}
@@ -313,13 +315,14 @@ public class CardAndTerminalManagerTests {
 			implements
 				CardEventsListener {
 		@Override
-		public void cardInserted(CardTerminal cardTerminal, Card card) {
+		public void cardInserted(final CardTerminal cardTerminal,
+				final Card card) {
 			throw new NullPointerException(
 					"Fake NPE attempting to trash a CardEventsListener");
 		}
 
 		@Override
-		public void cardRemoved(CardTerminal cardTerminal) {
+		public void cardRemoved(final CardTerminal cardTerminal) {
 			throw new NullPointerException(
 					"Fake NPE attempting to trash a CardEventsListener");
 		}

@@ -44,7 +44,7 @@ public class ProxyKeyStore extends KeyStoreSpi {
 	}
 
 	@Override
-	public Key engineGetKey(String alias, char[] password)
+	public Key engineGetKey(final String alias, final char[] password)
 			throws NoSuchAlgorithmException, UnrecoverableKeyException {
 		LOG.debug("engineGetKey");
 		if ("Signature".equals(alias)) {
@@ -54,19 +54,19 @@ public class ProxyKeyStore extends KeyStoreSpi {
 	}
 
 	@Override
-	public Certificate[] engineGetCertificateChain(String alias) {
+	public Certificate[] engineGetCertificateChain(final String alias) {
 		LOG.debug("engineGetCertificateChain");
 		return null;
 	}
 
 	@Override
-	public Certificate engineGetCertificate(String alias) {
+	public Certificate engineGetCertificate(final String alias) {
 		LOG.debug("engineGetCertificate");
 		return null;
 	}
 
 	@Override
-	public Date engineGetCreationDate(String alias) {
+	public Date engineGetCreationDate(final String alias) {
 		LOG.debug("engineGetCreationDate");
 		if ("Signature".equals(alias)) {
 			return new Date();
@@ -75,38 +75,39 @@ public class ProxyKeyStore extends KeyStoreSpi {
 	}
 
 	@Override
-	public void engineSetKeyEntry(String alias, Key key, char[] password,
-			Certificate[] chain) throws KeyStoreException {
-		LOG.debug("engineSetKeyEntry");
-	}
-
-	@Override
-	public void engineSetKeyEntry(String alias, byte[] key, Certificate[] chain)
+	public void engineSetKeyEntry(final String alias, final Key key,
+			final char[] password, final Certificate[] chain)
 			throws KeyStoreException {
 		LOG.debug("engineSetKeyEntry");
 	}
 
 	@Override
-	public void engineSetCertificateEntry(String alias, Certificate cert)
-			throws KeyStoreException {
+	public void engineSetKeyEntry(final String alias, final byte[] key,
+			final Certificate[] chain) throws KeyStoreException {
+		LOG.debug("engineSetKeyEntry");
+	}
+
+	@Override
+	public void engineSetCertificateEntry(final String alias,
+			final Certificate cert) throws KeyStoreException {
 		LOG.debug("engineSetCertificateEntry");
 	}
 
 	@Override
-	public void engineDeleteEntry(String alias) throws KeyStoreException {
+	public void engineDeleteEntry(final String alias) throws KeyStoreException {
 		LOG.debug("engineDeleteEntry");
 	}
 
 	@Override
 	public Enumeration<String> engineAliases() {
 		LOG.debug("engineAliases");
-		Vector<String> aliases = new Vector<String>();
+		final Vector<String> aliases = new Vector<String>();
 		aliases.add("Signature");
 		return aliases.elements();
 	}
 
 	@Override
-	public boolean engineContainsAlias(String alias) {
+	public boolean engineContainsAlias(final String alias) {
 		LOG.debug("engineContainsAlias");
 		if ("Signature".equals(alias)) {
 			return true;
@@ -121,7 +122,7 @@ public class ProxyKeyStore extends KeyStoreSpi {
 	}
 
 	@Override
-	public boolean engineIsKeyEntry(String alias) {
+	public boolean engineIsKeyEntry(final String alias) {
 		LOG.debug("engineIsKeyEntry");
 		if ("Signature".equals(alias)) {
 			return true;
@@ -130,25 +131,25 @@ public class ProxyKeyStore extends KeyStoreSpi {
 	}
 
 	@Override
-	public boolean engineIsCertificateEntry(String alias) {
+	public boolean engineIsCertificateEntry(final String alias) {
 		LOG.debug("engineIsCertificateEntry");
 		return false;
 	}
 
 	@Override
-	public String engineGetCertificateAlias(Certificate cert) {
+	public String engineGetCertificateAlias(final Certificate cert) {
 		LOG.debug("engineGetCertificateAlias");
 		return null;
 	}
 
 	@Override
-	public void engineStore(OutputStream stream, char[] password)
+	public void engineStore(final OutputStream stream, final char[] password)
 			throws IOException, NoSuchAlgorithmException, CertificateException {
 		LOG.debug("engineStore");
 	}
 
 	@Override
-	public void engineLoad(InputStream stream, char[] password)
+	public void engineLoad(final InputStream stream, final char[] password)
 			throws IOException, NoSuchAlgorithmException, CertificateException {
 		LOG.debug("engineLoad");
 	}

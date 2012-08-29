@@ -37,11 +37,11 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 	private int delay;
 	private Random random;
 
-	public ErrorCapableBeIdCard(String profile) {
+	public ErrorCapableBeIdCard(final String profile) {
 		this(profile, System.currentTimeMillis());
 	}
 
-	public ErrorCapableBeIdCard(String profile, long seed) {
+	public ErrorCapableBeIdCard(final String profile, final long seed) {
 		super(profile);
 		this.random = new Random(seed);
 		this.delay = 0;
@@ -76,17 +76,18 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 		return this.delay;
 	}
 
-	public void setDelay(int delay) {
+	public void setDelay(final int delay) {
 		this.delay = delay;
 	}
 
 	@Override
-	protected ResponseAPDU transmit(CommandAPDU apdu) throws CardException {
+	protected ResponseAPDU transmit(final CommandAPDU apdu)
+			throws CardException {
 		if (this.nextConfused) {
 			this.nextConfused = false;
 			try {
 				Thread.sleep(40000);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException iex) {
 			}
 			return WHO_AM_I;
 		}
@@ -104,7 +105,7 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 
 		if (this.nextRandomResponse) {
 			this.nextRandomResponse = false;
-			byte[] randomAPDU = new byte[16];
+			final byte[] randomAPDU = new byte[16];
 			this.random.nextBytes(randomAPDU);
 			return new ResponseAPDU(randomAPDU);
 		}
@@ -112,13 +113,13 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 		if (this.delay > 0) {
 			try {
 				Thread.sleep(this.delay);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException iex) {
 			}
 		}
 
 		if (this.nextBitError) {
-			ResponseAPDU response = super.transmit(apdu);
-			byte[] responseBytes = response.getBytes();
+			final ResponseAPDU response = super.transmit(apdu);
+			final byte[] responseBytes = response.getBytes();
 
 			// flip some bits
 			responseBytes[this.random.nextInt(responseBytes.length)] ^= (byte) this.random

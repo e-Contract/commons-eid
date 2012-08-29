@@ -33,20 +33,22 @@ public class BeIDCardEventsExamples {
 		//-------------------------------------------------------------------------------------------------------
 		// instantiate a BeIDCardManager with default settings (no logging, private CardAndTerminalManager)
 		//-------------------------------------------------------------------------------------------------------
-		BeIDCardManager beIDCardManager = new BeIDCardManager();
+		final BeIDCardManager beIDCardManager = new BeIDCardManager();
 
 		//-------------------------------------------------------------------------------------------------------	
 		// register a BeIDCardManagerListener
 		//-------------------------------------------------------------------------------------------------------
 		beIDCardManager.addBeIDCardEventListener(new BeIDCardEventsListener() {
 			@Override
-			public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card) {
+			public void eIDCardRemoved(final CardTerminal cardTerminal,
+					final BeIDCard card) {
 				System.out.println("BeID Card Removed From Card Terminal ["
 						+ cardTerminal.getName() + "]\n");
 			}
 
 			@Override
-			public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
+			public void eIDCardInserted(final CardTerminal cardTerminal,
+					final BeIDCard card) {
 				System.out.println("BeID Card Inserted Into Card Terminal ["
 						+ cardTerminal.getName() + "]\n");
 			}
@@ -76,8 +78,8 @@ public class BeIDCardEventsExamples {
 
 	//-------------------------------------------------------------------------------------------------------
 
-	public static void main(String[] args) throws InterruptedException {
-		BeIDCardEventsExamples examples = new BeIDCardEventsExamples();
+	public static void main(final String[] args) throws InterruptedException {
+		final BeIDCardEventsExamples examples = new BeIDCardEventsExamples();
 		examples.demonstrate_basic_asynchronous_usage();
 	}
 }

@@ -67,12 +67,12 @@ public class ProxyPrivateKey implements PrivateKey {
 		return this.digestInfo;
 	}
 
-	public void setSignatureValue(byte[] signatureValue) {
+	public void setSignatureValue(final byte[] signatureValue) {
 		this.signatureValue = signatureValue;
 		this.consumerSemaphore.release();
 	}
 
-	byte[] sign(byte[] digestValue, String digestAlgorithm)
+	byte[] sign(final byte[] digestValue, final String digestAlgorithm)
 			throws InterruptedException {
 		this.digestInfo = new DigestInfo(digestValue, digestAlgorithm);
 		this.producerSemaphore.release();
@@ -86,7 +86,7 @@ public class ProxyPrivateKey implements PrivateKey {
 		private final byte[] digestValue;
 		private final String digestAlgorithm;
 
-		public DigestInfo(byte[] digestValue, String digestAlgorithm) {
+		public DigestInfo(final byte[] digestValue, final String digestAlgorithm) {
 			this.digestValue = digestValue;
 			this.digestAlgorithm = digestAlgorithm;
 		}

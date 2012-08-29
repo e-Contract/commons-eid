@@ -24,28 +24,29 @@ public class BeIDCardExercises {
 
 	@Test
 	public void testReadFiles() throws Exception {
-		BeIDCard beIDCard = getBeIDCard();
+		final BeIDCard beIDCard = getBeIDCard();
 		beIDCard.addCardListener(new TestBeIDCardListener());
 
 		LOG.debug("reading identity file");
-		byte[] identityFile = beIDCard.readFile(FileType.Identity);
+		final byte[] identityFile = beIDCard.readFile(FileType.Identity);
 		LOG.debug("reading identity signature file");
-		byte[] identitySignatureFile = beIDCard
+		final byte[] identitySignatureFile = beIDCard
 				.readFile(FileType.IdentitySignature);
 		LOG.debug("reading RRN certificate file");
-		byte[] rrnCertificateFile = beIDCard.readFile(FileType.RRNCertificate);
+		final byte[] rrnCertificateFile = beIDCard
+				.readFile(FileType.RRNCertificate);
 
-		CertificateFactory certificateFactory = CertificateFactory
+		final CertificateFactory certificateFactory = CertificateFactory
 				.getInstance("X.509");
-		X509Certificate rrnCertificate = (X509Certificate) certificateFactory
+		final X509Certificate rrnCertificate = (X509Certificate) certificateFactory
 				.generateCertificate(new ByteArrayInputStream(
 						rrnCertificateFile));
 
 		beIDCard.close();
 
-		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
-		Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile,
-				identitySignatureFile, rrnCertificate);
+		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		final Identity identity = beIDIntegrity.getVerifiedIdentity(
+				identityFile, identitySignatureFile, rrnCertificate);
 
 		assertNotNull(identity);
 		assertNotNull(identity.getNationalNumber());
@@ -53,13 +54,13 @@ public class BeIDCardExercises {
 
 	@Test
 	public void testAuthnSignature() throws Exception {
-		BeIDCard beIDCard = getBeIDCard();
+		final BeIDCard beIDCard = getBeIDCard();
 
-		byte[] toBeSigned = new byte[10];
-		SecureRandom secureRandom = new SecureRandom();
+		final byte[] toBeSigned = new byte[10];
+		final SecureRandom secureRandom = new SecureRandom();
 		secureRandom.nextBytes(toBeSigned);
 
-		X509Certificate authnCertificate = beIDCard
+		final X509Certificate authnCertificate = beIDCard
 				.getAuthenticationCertificate();
 
 		byte[] signatureValue;
@@ -69,8 +70,8 @@ public class BeIDCardExercises {
 			beIDCard.close();
 		}
 
-		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
-		boolean result = beIDIntegrity.verifyAuthnSignature(toBeSigned,
+		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		final boolean result = beIDIntegrity.verifyAuthnSignature(toBeSigned,
 				signatureValue, authnCertificate);
 
 		assertTrue(result);
@@ -78,7 +79,7 @@ public class BeIDCardExercises {
 
 	@Test
 	public void testChangePIN() throws Exception {
-		BeIDCard beIDCard = getBeIDCard();
+		final BeIDCard beIDCard = getBeIDCard();
 
 		try {
 			beIDCard.changePin(false);
@@ -89,13 +90,13 @@ public class BeIDCardExercises {
 
 	@Test
 	public void testNonRepSignature() throws Exception {
-		byte[] toBeSigned = new byte[10];
-		SecureRandom secureRandom = new SecureRandom();
+		final byte[] toBeSigned = new byte[10];
+		final SecureRandom secureRandom = new SecureRandom();
 		secureRandom.nextBytes(toBeSigned);
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
-		byte[] digestValue = messageDigest.digest(toBeSigned);
+		final MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
+		final byte[] digestValue = messageDigest.digest(toBeSigned);
 
-		BeIDCard beIDCard = getBeIDCard();
+		final BeIDCard beIDCard = getBeIDCard();
 
 		X509Certificate signingCertificate;
 		byte[] signatureValue;
@@ -108,8 +109,8 @@ public class BeIDCardExercises {
 			beIDCard.close();
 		}
 
-		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
-		boolean result = beIDIntegrity.verifyNonRepSignature(digestValue,
+		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		final boolean result = beIDIntegrity.verifyNonRepSignature(digestValue,
 				signatureValue, signingCertificate);
 		assertTrue(result);
 	}
@@ -123,19 +124,19 @@ public class BeIDCardExercises {
 
 	private BeIDCard getBeIDCard() {
 		this.beIDCards = new BeIDCards(new TestLogger());
-		BeIDCard beIDCard = this.beIDCards.getOneBeIDCard();
+		final BeIDCard beIDCard = this.beIDCards.getOneBeIDCard();
 		assertNotNull(beIDCard);
 
 		beIDCard.addCardListener(new BeIDCardListener() {
 			@Override
-			public void notifyReadProgress(FileType fileType, int offset,
-					int estimatedMaxSize) {
+			public void notifyReadProgress(final FileType fileType,
+					final int offset, final int estimatedMaxSize) {
 				LOG.debug("read progress of " + fileType.name() + ":" + offset
 						+ " of " + estimatedMaxSize);
 			}
 
 			@Override
-			public void notifySigningBegin(FileType keyType) {
+			public void notifySigningBegin(final FileType keyType) {
 				LOG.debug("signing with "
 						+ (keyType == FileType.AuthentificationCertificate
 								? "authentication"
@@ -143,7 +144,7 @@ public class BeIDCardExercises {
 			}
 
 			@Override
-			public void notifySigningEnd(FileType keyType) {
+			public void notifySigningEnd(final FileType keyType) {
 				LOG.debug("signing with "
 						+ (keyType == FileType.AuthentificationCertificate
 								? "authentication"

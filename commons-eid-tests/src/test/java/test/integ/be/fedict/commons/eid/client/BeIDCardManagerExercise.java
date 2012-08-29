@@ -61,7 +61,8 @@ public class BeIDCardManagerExercise
 	// ------------ callbacks that just print to stderr ---------------
 
 	@Override
-	public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
+	public void eIDCardInserted(final CardTerminal cardTerminal,
+			final BeIDCard card) {
 		// save card files for later card simulator use
 		// try
 		// {
@@ -106,14 +107,15 @@ public class BeIDCardManagerExercise
 	}
 
 	@Override
-	public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card) {
+	public void eIDCardRemoved(final CardTerminal cardTerminal,
+			final BeIDCard card) {
 		System.err.println("eID Card Removed From ["
 				+ StringUtils.getShortTerminalname(cardTerminal.getName())
 				+ "]");
 	}
 
 	@Override
-	public void cardInserted(CardTerminal cardTerminal, Card card) {
+	public void cardInserted(final CardTerminal cardTerminal, final Card card) {
 		if (card != null) {
 			System.out.println("Other Card ["
 					+ String.format("%x", new BigInteger(1, card.getATR()
@@ -126,7 +128,7 @@ public class BeIDCardManagerExercise
 	}
 
 	@Override
-	public void cardRemoved(CardTerminal cardTerminal) {
+	public void cardRemoved(final CardTerminal cardTerminal) {
 		System.out.println("Other Card Removed From [" + cardTerminal.getName()
 				+ "]");
 	}

@@ -37,9 +37,9 @@ import be.fedict.commons.eid.consumer.tlv.TlvParser;
 public class DefaultBeIDCardsDailogExercises {
 	@Test
 	public void testCardSelection() throws Exception {
-		BeIDCard card = new BeIDCards().getOneBeIDCard();
-		byte[] identityData = card.readFile(FileType.Identity);
-		Identity identity = TlvParser.parse(identityData, Identity.class);
+		final BeIDCard card = new BeIDCards().getOneBeIDCard();
+		final byte[] identityData = card.readFile(FileType.Identity);
+		final Identity identity = TlvParser.parse(identityData, Identity.class);
 		System.out.println("chose " + identity.getName() + ", "
 				+ identity.getFirstName() + " " + identity.getMiddleName());
 	}

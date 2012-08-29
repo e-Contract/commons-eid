@@ -27,8 +27,8 @@ public class LibJ2PCSCGNULinuxFixTest {
 		LibJ2PCSCGNULinuxFix.fixNativeLibrary(new TestLogger());
 	}
 
-	public static void main(String[] args) {
-		LibJ2PCSCGNULinuxFixTest fixtest = new LibJ2PCSCGNULinuxFixTest();
+	public static void main(final String[] args) {
+		final LibJ2PCSCGNULinuxFixTest fixtest = new LibJ2PCSCGNULinuxFixTest();
 		fixtest._testFix();
 
 	}

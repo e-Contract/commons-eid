@@ -35,7 +35,7 @@ public class SimulatedCardTerminals extends CardTerminals {
 	}
 
 	public synchronized SimulatedCardTerminals attachCardTerminal(
-			SimulatedCardTerminal terminal) {
+			final SimulatedCardTerminal terminal) {
 		terminal.setTerminals(this);
 		this.terminals.add(terminal);
 		notifyAll();
@@ -43,7 +43,7 @@ public class SimulatedCardTerminals extends CardTerminals {
 	}
 
 	public synchronized SimulatedCardTerminals detachCardTerminal(
-			SimulatedCardTerminal terminal) {
+			final SimulatedCardTerminal terminal) {
 		terminal.setTerminals(null);
 		this.terminals.remove(terminal);
 		notifyAll();
@@ -56,7 +56,7 @@ public class SimulatedCardTerminals extends CardTerminals {
 	}
 
 	@Override
-	public synchronized List<CardTerminal> list(State state)
+	public synchronized List<CardTerminal> list(final State state)
 			throws CardException {
 		switch (state) {
 			case ALL :
@@ -65,7 +65,7 @@ public class SimulatedCardTerminals extends CardTerminals {
 								this.terminals));
 
 			case CARD_PRESENT : {
-				ArrayList<CardTerminal> presentList = new ArrayList<CardTerminal>();
+				final ArrayList<CardTerminal> presentList = new ArrayList<CardTerminal>();
 				for (CardTerminal terminal : this.terminals) {
 					if (terminal.isCardPresent()) {
 						presentList.add(terminal);
@@ -75,7 +75,7 @@ public class SimulatedCardTerminals extends CardTerminals {
 			}
 
 			case CARD_ABSENT : {
-				ArrayList<CardTerminal> absentList = new ArrayList<CardTerminal>();
+				final ArrayList<CardTerminal> absentList = new ArrayList<CardTerminal>();
 				for (CardTerminal terminal : this.terminals) {
 					if (!terminal.isCardPresent()) {
 						absentList.add(terminal);
@@ -92,11 +92,11 @@ public class SimulatedCardTerminals extends CardTerminals {
 	}
 
 	@Override
-	public synchronized boolean waitForChange(long timeout)
+	public synchronized boolean waitForChange(final long timeout)
 			throws CardException {
 		try {
 			wait(timeout);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException iex) {
 			return false;
 		}
 		return true;

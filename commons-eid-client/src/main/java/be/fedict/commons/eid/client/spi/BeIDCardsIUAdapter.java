@@ -15,7 +15,7 @@ public class BeIDCardsIUAdapter implements BeIDCardsUI {
 	}
 
 	@Override
-	public BeIDCard selectBeIDCard(Collection<BeIDCard> availableCards) {
+	public BeIDCard selectBeIDCard(final Collection<BeIDCard> availableCards) {
 		return availableCards.iterator().next();
 	}
 

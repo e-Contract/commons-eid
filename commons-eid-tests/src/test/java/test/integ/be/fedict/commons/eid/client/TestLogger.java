@@ -28,12 +28,12 @@ public class TestLogger implements Logger {
 	private static final Log LOG = LogFactory.getLog(TestLogger.class);
 
 	@Override
-	public void error(String message) {
+	public void error(final String message) {
 		LOG.error(message);
 	}
 
 	@Override
-	public void debug(String message) {
+	public void debug(final String message) {
 		LOG.debug(message);
 	}
 }
