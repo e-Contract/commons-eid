@@ -35,7 +35,7 @@ public enum SpecialOrganisation implements Serializable {
 
 	private final String key;
 
-	private SpecialOrganisation(String key) {
+	private SpecialOrganisation(final String key) {
 		this.key = key;
 	}
 
@@ -46,10 +46,10 @@ public enum SpecialOrganisation implements Serializable {
 	private static Map<String, SpecialOrganisation> specialOrganisations;
 
 	static {
-		Map<String, SpecialOrganisation> specialOrganisations = new HashMap<String, SpecialOrganisation>();
+		final Map<String, SpecialOrganisation> specialOrganisations = new HashMap<String, SpecialOrganisation>();
 		for (SpecialOrganisation specialOrganisation : SpecialOrganisation
 				.values()) {
-			String key = specialOrganisation.getKey();
+			final String key = specialOrganisation.getKey();
 			if (key != null) {
 				if (specialOrganisations.containsKey(key)) {
 					throw new RuntimeException(
@@ -62,14 +62,14 @@ public enum SpecialOrganisation implements Serializable {
 		SpecialOrganisation.specialOrganisations = specialOrganisations;
 	}
 
-	public static SpecialOrganisation toSpecialOrganisation(String key) {
+	public static SpecialOrganisation toSpecialOrganisation(final String key) {
 		if (null == key) {
 			return UNSPECIFIED;
 		}
 		if (key.isEmpty()) {
 			return UNSPECIFIED;
 		}
-		SpecialOrganisation specialOrganisation = SpecialOrganisation.specialOrganisations
+		final SpecialOrganisation specialOrganisation = SpecialOrganisation.specialOrganisations
 				.get(key);
 		if (null == specialOrganisation) {
 			return UNKNOWN;

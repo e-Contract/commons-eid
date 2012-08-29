@@ -43,13 +43,13 @@ public class SimulatedCard extends Card {
 	protected Map<BigInteger, byte[]> files;
 	protected byte[] selectedFile;
 
-	public SimulatedCard(ATR atr) {
+	public SimulatedCard(final ATR atr) {
 		super();
 		this.atr = atr;
 		this.files = new HashMap<BigInteger, byte[]>();
 	}
 
-	public void setATR(ATR atr) {
+	public void setATR(final ATR atr) {
 		this.atr = atr;
 	}
 
@@ -59,7 +59,7 @@ public class SimulatedCard extends Card {
 	}
 
 	@Override
-	public void disconnect(boolean arg0) throws CardException {
+	public void disconnect(final boolean arg0) throws CardException {
 		throw new RuntimeException("Not Implemented In SimulatedCard");
 	}
 
@@ -89,12 +89,13 @@ public class SimulatedCard extends Card {
 	}
 
 	@Override
-	public byte[] transmitControlCommand(int arg0, byte[] arg1)
+	public byte[] transmitControlCommand(final int arg0, final byte[] arg1)
 			throws CardException {
 		throw new RuntimeException("Not Implemented In SimulatedCard");
 	}
 
-	protected ResponseAPDU transmit(CommandAPDU apdu) throws CardException {
+	protected ResponseAPDU transmit(final CommandAPDU apdu)
+			throws CardException {
 		// "SELECT FILE"
 		if (apdu.getCLA() == 0x00 && apdu.getINS() == 0xA4
 				&& apdu.getP1() == 0x08 && apdu.getP2() == 0x0C) {
@@ -102,13 +103,13 @@ public class SimulatedCard extends Card {
 		}
 		// "READ BINARY"
 		else if (apdu.getCLA() == 0x00 && apdu.getINS() == 0xB0) {
-			int offset = (apdu.getP1() << 8) + apdu.getP2();
+			final int offset = (apdu.getP1() << 8) + apdu.getP2();
 			return readBinary(offset, (int) apdu.getNe());
 		}
 		return COMMAND_NOT_AVAILABLE;
 	}
 
-	protected ResponseAPDU readBinary(int offset, int length) {
+	protected ResponseAPDU readBinary(final int offset, final int length) {
 		// how many bytes left to read
 		int lengthToReturn = this.selectedFile.length - offset;
 
@@ -123,7 +124,7 @@ public class SimulatedCard extends Card {
 		}
 
 		// reserve number of bytes + 2 for trailer
-		byte[] response = new byte[lengthToReturn + 2];
+		final byte[] response = new byte[lengthToReturn + 2];
 
 		// copy the bytes from the selected file..
 		System
@@ -138,7 +139,7 @@ public class SimulatedCard extends Card {
 		return new ResponseAPDU(response);
 	}
 
-	protected ResponseAPDU selectFile(byte[] fileId) {
+	protected ResponseAPDU selectFile(final byte[] fileId) {
 		this.selectedFile = this.files.get(new BigInteger(fileId));
 		if (this.selectedFile == null) {
 			return FILE_NOT_FOUND;
@@ -146,12 +147,12 @@ public class SimulatedCard extends Card {
 		return OK;
 	}
 
-	public SimulatedCard setFile(byte[] fileId, byte[] fileData) {
+	public SimulatedCard setFile(final byte[] fileId, final byte[] fileData) {
 		this.files.put(new BigInteger(fileId), fileData);
 		return this;
 	}
 
-	public SimulatedCard removeFile(byte[] fileId) {
+	public SimulatedCard removeFile(final byte[] fileId) {
 		this.files.remove(fileId);
 		return this;
 	}

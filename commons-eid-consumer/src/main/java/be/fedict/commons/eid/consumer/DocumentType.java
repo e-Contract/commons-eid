@@ -83,22 +83,22 @@ public enum DocumentType implements Serializable {
 
 	private final int key;
 
-	private DocumentType(String value) {
+	private DocumentType(final String value) {
 		this.key = toKey(value);
 	}
 
-	private int toKey(String value) {
-		char c1 = value.charAt(0);
+	private int toKey(final String value) {
+		final char c1 = value.charAt(0);
 		int key = c1 - '0';
 		if (2 == value.length()) {
 			key *= 10;
-			char c2 = value.charAt(1);
+			final char c2 = value.charAt(1);
 			key += c2 - '0';
 		}
 		return key;
 	}
 
-	private static int toKey(byte[] value) {
+	private static int toKey(final byte[] value) {
 		int key = value[0] - '0';
 		if (2 == value.length) {
 			key *= 10;
@@ -110,9 +110,9 @@ public enum DocumentType implements Serializable {
 	private static Map<Integer, DocumentType> documentTypes;
 
 	static {
-		Map<Integer, DocumentType> documentTypes = new HashMap<Integer, DocumentType>();
+		final Map<Integer, DocumentType> documentTypes = new HashMap<Integer, DocumentType>();
 		for (DocumentType documentType : DocumentType.values()) {
-			int encodedValue = documentType.key;
+			final int encodedValue = documentType.key;
 			if (documentTypes.containsKey(encodedValue)) {
 				throw new RuntimeException("duplicate document type enum: "
 						+ encodedValue);
@@ -126,17 +126,16 @@ public enum DocumentType implements Serializable {
 		return this.key;
 	}
 
-	public static DocumentType toDocumentType(byte[] value) {
-		int key = DocumentType.toKey(value);
-		DocumentType documentType = DocumentType.documentTypes.get(key);
+	public static DocumentType toDocumentType(final byte[] value) {
+		final int key = DocumentType.toKey(value);
+		final DocumentType documentType = DocumentType.documentTypes.get(key);
 		/*
 		 * If the key is unknown, we simply return null.
 		 */
 		return documentType;
 	}
 
-	public static String toString(byte[] documentTypeValue) {
-		String str = Integer.toString(DocumentType.toKey(documentTypeValue));
-		return str;
+	public static String toString(final byte[] documentTypeValue) {
+		return Integer.toString(DocumentType.toKey(documentTypeValue));
 	}
 }

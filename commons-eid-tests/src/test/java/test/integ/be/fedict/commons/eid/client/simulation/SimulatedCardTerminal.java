@@ -29,12 +29,12 @@ public class SimulatedCardTerminal extends CardTerminal {
 
 	// ---------------------------------------------------------
 
-	public SimulatedCardTerminal(String name) {
+	public SimulatedCardTerminal(final String name) {
 		super();
 		this.name = name;
 	}
 
-	public synchronized void insertCard(SimulatedCard card) {
+	public synchronized void insertCard(final SimulatedCard card) {
 		if (this.card != null) {
 			throw new RuntimeException(
 					"Can't Insert 2 Cards in one Card Reader");
@@ -60,7 +60,7 @@ public class SimulatedCardTerminal extends CardTerminal {
 	// -----------------------------------------------------------
 
 	@Override
-	public Card connect(String protocol) throws CardException {
+	public Card connect(final String protocol) throws CardException {
 		if (!isCardPresent()) {
 			throw new CardException("No Card Present");
 		}
@@ -78,32 +78,32 @@ public class SimulatedCardTerminal extends CardTerminal {
 	}
 
 	@Override
-	public synchronized boolean waitForCardAbsent(long timeout)
+	public synchronized boolean waitForCardAbsent(final long timeout)
 			throws CardException {
 		return waitForCardState(false, timeout);
 	}
 
 	@Override
-	public synchronized boolean waitForCardPresent(long timeout)
+	public synchronized boolean waitForCardPresent(final long timeout)
 			throws CardException {
 		return waitForCardState(true, timeout);
 	}
 
-	private synchronized boolean waitForCardState(boolean state, long timeout)
-			throws CardException {
+	private synchronized boolean waitForCardState(final boolean state,
+			final long timeout) throws CardException {
 		if (this.isCardPresent() == state) {
 			return true;
 		}
 
 		try {
 			wait(timeout);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException iex) {
 			return false;
 		}
 		return true;
 	}
 
-	public void setTerminals(SimulatedCardTerminals terminals) {
+	public void setTerminals(final SimulatedCardTerminals terminals) {
 		this.terminals = terminals;
 	}
 }

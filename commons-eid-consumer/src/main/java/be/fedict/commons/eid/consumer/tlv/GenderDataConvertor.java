@@ -28,8 +28,8 @@ import be.fedict.commons.eid.consumer.Gender;
  */
 public class GenderDataConvertor implements DataConvertor<Gender> {
 
-	public Gender convert(byte[] value) throws DataConvertorException {
-		String genderStr = new String(value);
+	public Gender convert(final byte[] value) throws DataConvertorException {
+		final String genderStr = new String(value);
 		if ("M".equals(genderStr)) {
 			return Gender.MALE;
 		}

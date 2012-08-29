@@ -43,7 +43,7 @@ public class CCID {
 
 		private final byte tag;
 
-		FEATURE(int tag) {
+		FEATURE(final int tag) {
 			this.tag = (byte) tag;
 		}
 
@@ -57,7 +57,7 @@ public class CCID {
 
 		private final int ins;
 
-		INS(int ins) {
+		INS(final int ins) {
 			this.ins = ins;
 		}
 
@@ -70,18 +70,18 @@ public class CCID {
 	 * **********************************************************************************************************
 	 */
 
-	public CCID(Card card) {
+	public CCID(final Card card) {
 		this(card, new VoidLogger());
 	}
 
-	public CCID(Card card, Logger logger) {
+	public CCID(final Card card, final Logger logger) {
 		this.card = card;
 		this.logger = logger;
 		this.features = new EnumMap<FEATURE, Integer>(FEATURE.class);
 
 		try {
-			String osName = System.getProperty("os.name");
-			byte[] featureBytes = card.transmitControlCommand(osName
+			final String osName = System.getProperty("os.name");
+			final byte[] featureBytes = card.transmitControlCommand(osName
 					.startsWith("Windows")
 					? GET_FEATURES_MICROSOFT
 					: GET_FEATURES, new byte[0]);
@@ -89,17 +89,17 @@ public class CCID {
 				this.features.put(feature, findFeature(feature.getTag(),
 						featureBytes));
 			}
-		} catch (CardException cex) {
+		} catch (final CardException cex) {
 			// intentionally empty.. this.features exists and any gets will fail
 			// to find features
 		}
 	}
 
-	public boolean hasFeature(FEATURE feature) {
+	public boolean hasFeature(final FEATURE feature) {
 		return getFeature(feature) != null;
 	}
 
-	public Integer getFeature(FEATURE feature) {
+	public Integer getFeature(final FEATURE feature) {
 		return this.features.get(feature);
 	}
 
@@ -107,10 +107,10 @@ public class CCID {
 	 * **********************************************************************************************************
 	 */
 
-	private Integer findFeature(byte featureTag, byte[] features) {
+	private Integer findFeature(final byte featureTag, final byte[] features) {
 		int idx = 0;
 		while (idx < features.length) {
-			byte tag = features[idx];
+			final byte tag = features[idx];
 			idx += 2;
 			if (featureTag == tag) {
 				int feature = 0;
@@ -134,9 +134,10 @@ public class CCID {
 	public void waitForOK() throws CardException, InterruptedException {
 		// wait for key pressed
 		loop : while (true) {
-			byte[] getKeyPressedResult = this.card.transmitControlCommand(this
-					.getFeature(FEATURE.GET_KEY_PRESSED), new byte[0]);
-			byte key = getKeyPressedResult[0];
+			final byte[] getKeyPressedResult = this.card
+					.transmitControlCommand(this
+							.getFeature(FEATURE.GET_KEY_PRESSED), new byte[0]);
+			final byte key = getKeyPressedResult[0];
 			switch (key) {
 				case 0x00 :
 					this.logger.debug("waiting for CCID...");
@@ -176,7 +177,7 @@ public class CCID {
 	 * *** static utilities ****
 	 */
 
-	public byte getLanguageId(Locale locale) {
+	public byte getLanguageId(final Locale locale) {
 		/*
 		 * USB language Ids
 		 */
@@ -186,16 +187,16 @@ public class CCID {
 		if (Locale.GERMAN.equals(locale)) {
 			return 0x07;
 		}
-		String language = locale.getLanguage();
+		final String language = locale.getLanguage();
 		if ("nl".equals(language)) {
 			return 0x13;
 		}
 		return 0x09; // ENGLISH
 	}
 
-	public byte[] createPINVerificationDataStructure(Locale locale, INS ins)
-			throws IOException {
-		ByteArrayOutputStream verifyCommand = new ByteArrayOutputStream();
+	public byte[] createPINVerificationDataStructure(final Locale locale,
+			final INS ins) throws IOException {
+		final ByteArrayOutputStream verifyCommand = new ByteArrayOutputStream();
 		verifyCommand.write(30); // bTimeOut
 		verifyCommand.write(30); // bTimeOut2
 		verifyCommand.write(0x80 | 0x08 | 0x00 | 0x01); // bmFormatString
@@ -255,7 +256,7 @@ public class CCID {
 		/*
 		 * bTeoPrologue : only significant for T=1 protocol.
 		 */
-		byte[] verifyApdu = new byte[]{
+		final byte[] verifyApdu = new byte[]{
 				0x00, // CLA
 				(byte) ins.getIns(), // INS
 				0x00, // P1
@@ -268,13 +269,13 @@ public class CCID {
 		verifyCommand.write(0x00); // ulDataLength[2]
 		verifyCommand.write(0x00); // ulDataLength[3]
 		verifyCommand.write(verifyApdu); // abData
-		byte[] verifyCommandData = verifyCommand.toByteArray();
+		final byte[] verifyCommandData = verifyCommand.toByteArray();
 		return verifyCommandData;
 	}
 
-	public byte[] createPINModificationDataStructure(Locale locale, INS ins)
-			throws IOException {
-		ByteArrayOutputStream modifyCommand = new ByteArrayOutputStream();
+	public byte[] createPINModificationDataStructure(final Locale locale,
+			final INS ins) throws IOException {
+		final ByteArrayOutputStream modifyCommand = new ByteArrayOutputStream();
 		modifyCommand.write(30); // bTimeOut
 		modifyCommand.write(30); // bTimeOut2
 		modifyCommand.write(0x80 | 0x08 | 0x00 | 0x01); // bmFormatString
@@ -370,7 +371,7 @@ public class CCID {
 		 * bTeoPrologue : only significant for T=1 protocol.
 		 */
 
-		byte[] modifyApdu = new byte[]{
+		final byte[] modifyApdu = new byte[]{
 				0x00, // CLA
 				(byte) ins.getIns(), // INS
 				0x00, // P1
@@ -385,7 +386,7 @@ public class CCID {
 		modifyCommand.write(0x00); // ulDataLength[2]
 		modifyCommand.write(0x00); // ulDataLength[3]
 		modifyCommand.write(modifyApdu); // abData
-		byte[] modifyCommandData = modifyCommand.toByteArray();
+		final byte[] modifyCommandData = modifyCommand.toByteArray();
 		return modifyCommandData;
 	}
 

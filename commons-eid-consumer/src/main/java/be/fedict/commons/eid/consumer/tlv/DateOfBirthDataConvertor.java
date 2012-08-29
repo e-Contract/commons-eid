@@ -37,12 +37,12 @@ public class DateOfBirthDataConvertor
 	private static final Log LOG = LogFactory
 			.getLog(DateOfBirthDataConvertor.class);
 
-	public GregorianCalendar convert(byte[] value)
+	public GregorianCalendar convert(final byte[] value)
 			throws DataConvertorException {
 		String dateOfBirthStr;
 		try {
 			dateOfBirthStr = new String(value, "UTF-8").trim();
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException uex) {
 			throw new DataConvertorException("UTF-8 not supported");
 		}
 		LOG.debug("\"" + dateOfBirthStr + "\"");
@@ -56,20 +56,20 @@ public class DateOfBirthDataConvertor
 		}
 
 		if (spaceIdx > 0) {
-			String dayStr = dateOfBirthStr.substring(0, spaceIdx);
+			final String dayStr = dateOfBirthStr.substring(0, spaceIdx);
 			LOG.debug("day: \"" + dayStr + "\"");
-			int day = Integer.parseInt(dayStr);
+			final int day = Integer.parseInt(dayStr);
 			String monthStr = dateOfBirthStr.substring(spaceIdx + 1,
 					dateOfBirthStr.length() - 4 - 1);
 			if (monthStr.endsWith(".")) {
 				monthStr = monthStr.substring(0, monthStr.length() - 1);
 			}
 			LOG.debug("month: \"" + monthStr + "\"");
-			String yearStr = dateOfBirthStr
-					.substring(dateOfBirthStr.length() - 4);
+			final String yearStr = dateOfBirthStr.substring(dateOfBirthStr
+					.length() - 4);
 			LOG.debug("year: \"" + yearStr + "\"");
-			int year = Integer.parseInt(yearStr);
-			int month = toMonth(monthStr);
+			final int year = Integer.parseInt(yearStr);
+			final int month = toMonth(monthStr);
 			return new GregorianCalendar(year, month, day);
 		}
 
@@ -98,7 +98,7 @@ public class DateOfBirthDataConvertor
 	private int toMonth(String monthStr) throws DataConvertorException {
 		monthStr = monthStr.trim();
 		for (int monthIdx = 0; monthIdx < MONTHS.length; monthIdx++) {
-			String[] monthNames = MONTHS[monthIdx];
+			final String[] monthNames = MONTHS[monthIdx];
 			for (String monthName : monthNames) {
 				if (monthName.equals(monthStr)) {
 					return monthIdx;

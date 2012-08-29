@@ -7,17 +7,17 @@ public class BeIDCardUIAdapter implements BeIDCardUI {
 	private static final String OPERATION_CANCELLED = "operation cancelled.";
 
 	@Override
-	public char[] obtainPIN(int triesLeft, PINPurpose type) {
+	public char[] obtainPIN(final int triesLeft, final PINPurpose type) {
 		throw new RuntimeException(OPERATION_CANCELLED);
 	}
 
 	@Override
-	public char[][] obtainOldAndNewPIN(int triesLeft) {
+	public char[][] obtainOldAndNewPIN(final int triesLeft) {
 		throw new RuntimeException(OPERATION_CANCELLED);
 	}
 
 	@Override
-	public char[][] obtainPUKCodes(int triesLeft) {
+	public char[][] obtainPUKCodes(final int triesLeft) {
 		throw new RuntimeException(OPERATION_CANCELLED);
 	}
 
@@ -34,27 +34,27 @@ public class BeIDCardUIAdapter implements BeIDCardUI {
 	}
 
 	@Override
-	public void advisePINPadPINEntry(int retriesLeft) {
+	public void advisePINPadPINEntry(final int retriesLeft) {
 	}
 
 	@Override
-	public void advisePINPadPUKEntry(int retriesLeft) {
+	public void advisePINPadPUKEntry(final int retriesLeft) {
 	}
 
 	@Override
-	public void advisePINPadChangePIN(int retriesLeft) {
+	public void advisePINPadChangePIN(final int retriesLeft) {
 	}
 
 	@Override
-	public void advisePINPadOldPINEntry(int retriesLeft) {
+	public void advisePINPadOldPINEntry(final int retriesLeft) {
 	}
 
 	@Override
-	public void advisePINPadNewPINEntry(int retriesLeft) {
+	public void advisePINPadNewPINEntry(final int retriesLeft) {
 	}
 
 	@Override
-	public void advisePINPadNewPINEntryAgain(int retriesLeft) {
+	public void advisePINPadNewPINEntryAgain(final int retriesLeft) {
 	}
 
 	@Override

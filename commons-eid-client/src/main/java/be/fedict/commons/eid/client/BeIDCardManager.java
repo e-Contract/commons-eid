@@ -55,7 +55,7 @@ public class BeIDCardManager {
 	 * is automatically started and stopped with the BeIDCardManager,
 	 * and that only connects to Cards with Protocol T=0
 	 */
-	public BeIDCardManager(Logger logger) {
+	public BeIDCardManager(final Logger logger) {
 		this(logger, new CardAndTerminalManager());
 		this.terminalManagerIsPrivate = true;
 	}
@@ -67,7 +67,7 @@ public class BeIDCardManager {
 	 * The supplied CardAndTerminalManager should allow protocol T0 ("T=0")
 	 * or ANY ("*") for BeIDCards to work.
 	 */
-	public BeIDCardManager(CardAndTerminalManager cardAndTerminalManager) {
+	public BeIDCardManager(final CardAndTerminalManager cardAndTerminalManager) {
 		this(new VoidLogger(), cardAndTerminalManager);
 	}
 
@@ -76,8 +76,8 @@ public class BeIDCardManager {
 	 * CardAndTerminalManager. note: caller is responsible for start()in the
 	 * supplied CardAndTerminalManager, it will not be automatically started!
 	 */
-	public BeIDCardManager(Logger logger,
-			CardAndTerminalManager cardAndTerminalManager) {
+	public BeIDCardManager(final Logger logger,
+			final CardAndTerminalManager cardAndTerminalManager) {
 		this.logger = logger;
 		this.beIdListeners = new HashSet<BeIDCardEventsListener>();
 		this.otherCardListeners = new HashSet<CardEventsListener>();
@@ -90,9 +90,10 @@ public class BeIDCardManager {
 
 		this.cardAndTerminalManager.addCardListener(new CardEventsListener() {
 			@Override
-			public void cardInserted(CardTerminal cardTerminal, Card card) {
+			public void cardInserted(final CardTerminal cardTerminal,
+					final Card card) {
 				if (card != null && matchesEidAtr(card.getATR())) {
-					BeIDCard beIDCard = new BeIDCard(card,
+					final BeIDCard beIDCard = new BeIDCard(card,
 							BeIDCardManager.this.logger);
 
 					synchronized (BeIDCardManager.this.terminalsAndCards) {
@@ -110,7 +111,7 @@ public class BeIDCardManager {
 					for (BeIDCardEventsListener listener : copyOfListeners) {
 						try {
 							listener.eIDCardInserted(cardTerminal, beIDCard);
-						} catch (Throwable thrownInListener) {
+						} catch (final Throwable thrownInListener) {
 							BeIDCardManager.this.logger
 									.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:"
 											+ thrownInListener.getMessage());
@@ -127,7 +128,7 @@ public class BeIDCardManager {
 					for (CardEventsListener listener : copyOfListeners) {
 						try {
 							listener.cardInserted(cardTerminal, card);
-						} catch (Throwable thrownInListener) {
+						} catch (final Throwable thrownInListener) {
 							BeIDCardManager.this.logger
 									.error("Exception thrown in CardEventsListener.cardInserted:"
 											+ thrownInListener.getMessage());
@@ -137,8 +138,8 @@ public class BeIDCardManager {
 			}
 
 			@Override
-			public void cardRemoved(CardTerminal cardTerminal) {
-				BeIDCard beIDCard = BeIDCardManager.this.terminalsAndCards
+			public void cardRemoved(final CardTerminal cardTerminal) {
+				final BeIDCard beIDCard = BeIDCardManager.this.terminalsAndCards
 						.get(cardTerminal);
 				if (beIDCard != null) {
 					synchronized (BeIDCardManager.this.terminalsAndCards) {
@@ -156,7 +157,7 @@ public class BeIDCardManager {
 					for (BeIDCardEventsListener listener : copyOfListeners) {
 						try {
 							listener.eIDCardRemoved(cardTerminal, beIDCard);
-						} catch (Throwable thrownInListener) {
+						} catch (final Throwable thrownInListener) {
 							BeIDCardManager.this.logger
 									.error("Exception thrown in BeIDCardEventsListener.eIDCardRemoved:"
 											+ thrownInListener.getMessage());
@@ -174,7 +175,7 @@ public class BeIDCardManager {
 					for (CardEventsListener listener : copyOfListeners) {
 						try {
 							listener.cardRemoved(cardTerminal);
-						} catch (Throwable thrownInListener) {
+						} catch (final Throwable thrownInListener) {
 							BeIDCardManager.this.logger
 									.error("Exception thrown in CardEventsListener.cardRemoved:"
 											+ thrownInListener.getMessage());
@@ -195,7 +196,7 @@ public class BeIDCardManager {
 				for (BeIDCardEventsListener listener : copyOfBeIDCardEventsListeners) {
 					try {
 						listener.eIDCardEventsInitialized();
-					} catch (Throwable thrownInListener) {
+					} catch (final Throwable thrownInListener) {
 						BeIDCardManager.this.logger
 								.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:"
 										+ thrownInListener.getMessage());
@@ -212,7 +213,7 @@ public class BeIDCardManager {
 				for (CardEventsListener listener : copyOfOtherCardEventsListeners) {
 					try {
 						listener.cardEventsInitialized();
-					} catch (Throwable thrownInListener) {
+					} catch (final Throwable thrownInListener) {
 						BeIDCardManager.this.logger
 								.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:"
 										+ thrownInListener.getMessage());
@@ -231,7 +232,7 @@ public class BeIDCardManager {
 
 	// add a BeIDCardEventsListener to be notified of BeID cards being inserted
 	public BeIDCardManager addBeIDCardEventListener(
-			BeIDCardEventsListener listener) {
+			final BeIDCardEventsListener listener) {
 		synchronized (this.beIdListeners) {
 			this.beIdListeners.add(listener);
 		}
@@ -240,7 +241,7 @@ public class BeIDCardManager {
 
 	// remove a BeIDCardEventsListener
 	public BeIDCardManager removeBeIDCardListener(
-			BeIDCardEventsListener listener) {
+			final BeIDCardEventsListener listener) {
 		synchronized (this.beIdListeners) {
 			this.beIdListeners.remove(listener);
 		}
@@ -249,7 +250,8 @@ public class BeIDCardManager {
 
 	// add a CardEventsListener to get notified of other cards being
 	// inserted/removed
-	public BeIDCardManager addOtherCardEventListener(CardEventsListener listener) {
+	public BeIDCardManager addOtherCardEventListener(
+			final CardEventsListener listener) {
 		synchronized (this.otherCardListeners) {
 			this.otherCardListeners.add(listener);
 		}
@@ -258,7 +260,7 @@ public class BeIDCardManager {
 
 	// remove a CardEventsListener
 	public BeIDCardManager removeOtherCardEventListener(
-			BeIDCardEventsListener listener) {
+			final BeIDCardEventsListener listener) {
 		synchronized (this.otherCardListeners) {
 			this.otherCardListeners.remove(listener);
 		}
@@ -283,8 +285,8 @@ public class BeIDCardManager {
 			0x00, (byte) 0xff, 0x00, 0x00, 0x00, 0x00, (byte) 0xff,
 			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xf0};
 
-	private boolean matchesEidAtr(ATR atr) {
-		byte[] atrBytes = atr.getBytes();
+	private boolean matchesEidAtr(final ATR atr) {
+		final byte[] atrBytes = atr.getBytes();
 		if (atrBytes.length != ATR_PATTERN.length) {
 			return false;
 		}

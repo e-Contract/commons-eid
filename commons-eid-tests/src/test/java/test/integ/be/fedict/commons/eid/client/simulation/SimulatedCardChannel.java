@@ -28,7 +28,7 @@ import javax.smartcardio.ResponseAPDU;
 public class SimulatedCardChannel extends CardChannel {
 	private SimulatedCard card;
 
-	public SimulatedCardChannel(SimulatedCard card) {
+	public SimulatedCardChannel(final SimulatedCard card) {
 		this.card = card;
 	}
 
@@ -48,12 +48,13 @@ public class SimulatedCardChannel extends CardChannel {
 	}
 
 	@Override
-	public ResponseAPDU transmit(CommandAPDU apdu) throws CardException {
+	public ResponseAPDU transmit(final CommandAPDU apdu) throws CardException {
 		return this.card.transmit(apdu);
 	}
 
 	@Override
-	public int transmit(ByteBuffer bb0, ByteBuffer bb1) throws CardException {
+	public int transmit(final ByteBuffer bb0, final ByteBuffer bb1)
+			throws CardException {
 		throw new RuntimeException("Not Implemented In SimulatedCardChannel");
 	}
 }

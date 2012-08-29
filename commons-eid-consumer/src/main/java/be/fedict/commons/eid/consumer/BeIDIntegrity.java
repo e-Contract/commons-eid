@@ -60,51 +60,52 @@ public class BeIDIntegrity {
 	public BeIDIntegrity() {
 		try {
 			this.certificateFactory = CertificateFactory.getInstance("X.509");
-		} catch (CertificateException e) {
-			throw new RuntimeException("X.509 algo", e);
+		} catch (final CertificateException cex) {
+			throw new RuntimeException("X.509 algo", cex);
 		}
 	}
 
-	public X509Certificate loadCertificate(byte[] encodedCertificate) {
+	public X509Certificate loadCertificate(final byte[] encodedCertificate) {
 		X509Certificate certificate;
 		try {
 			certificate = (X509Certificate) this.certificateFactory
 					.generateCertificate(new ByteArrayInputStream(
 							encodedCertificate));
-		} catch (CertificateException e) {
-			throw new RuntimeException(
-					"X509 decoding error: " + e.getMessage(), e);
+		} catch (final CertificateException cex) {
+			throw new RuntimeException("X509 decoding error: "
+					+ cex.getMessage(), cex);
 		}
 		return certificate;
 	}
 
-	public Identity getVerifiedIdentity(byte[] identityFile,
-			byte[] identitySignatureFile, X509Certificate rrnCertificate) {
-		Identity identity = this.getVerifiedIdentity(identityFile,
+	public Identity getVerifiedIdentity(final byte[] identityFile,
+			final byte[] identitySignatureFile,
+			final X509Certificate rrnCertificate) {
+		final Identity identity = this.getVerifiedIdentity(identityFile,
 				identitySignatureFile, null, rrnCertificate);
 		return identity;
 	}
 
-	public Identity getVerifiedIdentity(byte[] identityFile,
-			byte[] identitySignatureFile, byte[] photo,
-			X509Certificate rrnCertificate) {
-		PublicKey publicKey = rrnCertificate.getPublicKey();
+	public Identity getVerifiedIdentity(final byte[] identityFile,
+			final byte[] identitySignatureFile, final byte[] photo,
+			final X509Certificate rrnCertificate) {
+		final PublicKey publicKey = rrnCertificate.getPublicKey();
 		boolean result;
 		try {
 			result = verifySignature(identitySignatureFile, publicKey,
 					identityFile);
-		} catch (Exception e) {
+		} catch (final Exception ex) {
 			throw new SecurityException(
-					"identity signature verification error: " + e.getMessage(),
-					e);
+					"identity signature verification error: " + ex.getMessage(),
+					ex);
 		}
 		if (false == result) {
 			return null;
 		}
-		Identity identity = TlvParser.parse(identityFile, Identity.class);
+		final Identity identity = TlvParser.parse(identityFile, Identity.class);
 		if (null != photo) {
-			byte[] expectedPhotoDigest = identity.getPhotoDigest();
-			byte[] actualPhotoDigest = digest(photo);
+			final byte[] expectedPhotoDigest = identity.getPhotoDigest();
+			final byte[] actualPhotoDigest = digest(photo);
 			if (false == Arrays.equals(expectedPhotoDigest, actualPhotoDigest)) {
 				throw new SecurityException("photo digest mismatch");
 			}
@@ -112,128 +113,131 @@ public class BeIDIntegrity {
 		return identity;
 	}
 
-	public Address getVerifiedAddress(byte[] addressFile,
-			byte[] identitySignatureFile, byte[] addressSignatureFile,
-			X509Certificate rrnCertificate) {
-		byte[] trimmedAddressFile = trimRight(addressFile);
-		PublicKey publicKey = rrnCertificate.getPublicKey();
+	public Address getVerifiedAddress(final byte[] addressFile,
+			final byte[] identitySignatureFile,
+			final byte[] addressSignatureFile,
+			final X509Certificate rrnCertificate) {
+		final byte[] trimmedAddressFile = trimRight(addressFile);
+		final PublicKey publicKey = rrnCertificate.getPublicKey();
 		boolean result;
 		try {
 			result = verifySignature(addressSignatureFile, publicKey,
 					trimmedAddressFile, identitySignatureFile);
-		} catch (Exception e) {
+		} catch (final Exception ex) {
 			throw new SecurityException(
-					"address signature verification error: " + e.getMessage(),
-					e);
+					"address signature verification error: " + ex.getMessage(),
+					ex);
 		}
 		if (false == result) {
 			return null;
 		}
-		Address address = TlvParser.parse(addressFile, Address.class);
+		final Address address = TlvParser.parse(addressFile, Address.class);
 		return address;
 
 	}
 
-	private boolean verifySignature(byte[] signatureData, PublicKey publicKey,
-			byte[]... data) throws NoSuchAlgorithmException,
-			InvalidKeyException, SignatureException {
+	private boolean verifySignature(final byte[] signatureData,
+			final PublicKey publicKey, final byte[]... data)
+			throws NoSuchAlgorithmException, InvalidKeyException,
+			SignatureException {
 		Signature signature;
 		signature = Signature.getInstance("SHA1withRSA");
 		signature.initVerify(publicKey);
 		for (byte[] dataItem : data) {
 			signature.update(dataItem);
 		}
-		boolean result = signature.verify(signatureData);
+		final boolean result = signature.verify(signatureData);
 		return result;
 	}
 
-	private byte[] digest(byte[] data) {
+	private byte[] digest(final byte[] data) {
 		MessageDigest messageDigest;
 		try {
 			messageDigest = MessageDigest.getInstance("SHA1");
-		} catch (NoSuchAlgorithmException e) {
+		} catch (final NoSuchAlgorithmException nsaex) {
 			throw new RuntimeException("SHA1");
 		}
-		byte[] digestValue = messageDigest.digest(data);
+		final byte[] digestValue = messageDigest.digest(data);
 		return digestValue;
 	}
 
-	private byte[] trimRight(byte[] addressFile) {
+	private byte[] trimRight(final byte[] addressFile) {
 		int idx;
 		for (idx = 0; idx < addressFile.length; idx++) {
 			if (0 == addressFile[idx]) {
 				break;
 			}
 		}
-		byte[] result = new byte[idx];
+		final byte[] result = new byte[idx];
 		System.arraycopy(addressFile, 0, result, 0, idx);
 		return result;
 	}
 
-	public boolean verifyAuthnSignature(byte[] toBeSigned,
-			byte[] signatureValue, X509Certificate authnCertificate) {
-		PublicKey publicKey = authnCertificate.getPublicKey();
+	public boolean verifyAuthnSignature(final byte[] toBeSigned,
+			final byte[] signatureValue, final X509Certificate authnCertificate) {
+		final PublicKey publicKey = authnCertificate.getPublicKey();
 		boolean result;
 		try {
 			result = this
 					.verifySignature(signatureValue, publicKey, toBeSigned);
-		} catch (InvalidKeyException e) {
-			LOG.warn("invalid key: " + e.getMessage(), e);
+		} catch (final InvalidKeyException ikex) {
+			LOG.warn("invalid key: " + ikex.getMessage(), ikex);
 			return false;
-		} catch (NoSuchAlgorithmException e) {
-			LOG.warn("no such algo: " + e.getMessage(), e);
+		} catch (final NoSuchAlgorithmException nsaex) {
+			LOG.warn("no such algo: " + nsaex.getMessage(), nsaex);
 			return false;
-		} catch (SignatureException e) {
-			LOG.warn("signature error: " + e.getMessage(), e);
+		} catch (final SignatureException sigex) {
+			LOG.warn("signature error: " + sigex.getMessage(), sigex);
 			return false;
 		}
 		return result;
 	}
 
-	public boolean verifyNonRepSignature(byte[] expectedDigestValue,
-			byte[] signatureValue, X509Certificate certificate) {
+	public boolean verifyNonRepSignature(final byte[] expectedDigestValue,
+			final byte[] signatureValue, final X509Certificate certificate) {
 		try {
 			return __verifyNonRepSignature(expectedDigestValue, signatureValue,
 					certificate);
-		} catch (InvalidKeyException e) {
-			LOG.warn("invalid key: " + e.getMessage(), e);
+		} catch (final InvalidKeyException ikex) {
+			LOG.warn("invalid key: " + ikex.getMessage(), ikex);
 			return false;
-		} catch (NoSuchAlgorithmException e) {
-			LOG.warn("no such algo: " + e.getMessage(), e);
+		} catch (final NoSuchAlgorithmException nsaex) {
+			LOG.warn("no such algo: " + nsaex.getMessage(), nsaex);
 			return false;
-		} catch (NoSuchPaddingException e) {
-			LOG.warn("no such padding: " + e.getMessage(), e);
+		} catch (final NoSuchPaddingException nspex) {
+			LOG.warn("no such padding: " + nspex.getMessage(), nspex);
 			return false;
-		} catch (BadPaddingException e) {
-			LOG.warn("bad padding: " + e.getMessage(), e);
+		} catch (final BadPaddingException bpex) {
+			LOG.warn("bad padding: " + bpex.getMessage(), bpex);
 			return false;
-		} catch (IOException e) {
-			LOG.warn("IO error: " + e.getMessage(), e);
+		} catch (final IOException ioex) {
+			LOG.warn("IO error: " + ioex.getMessage(), ioex);
 			return false;
-		} catch (IllegalBlockSizeException e) {
-			LOG.warn("illegal block size: " + e.getMessage(), e);
+		} catch (final IllegalBlockSizeException ibex) {
+			LOG.warn("illegal block size: " + ibex.getMessage(), ibex);
 			return false;
 		}
 	}
 
-	private boolean __verifyNonRepSignature(byte[] expectedDigestValue,
-			byte[] signatureValue, X509Certificate certificate)
+	private boolean __verifyNonRepSignature(final byte[] expectedDigestValue,
+			final byte[] signatureValue, final X509Certificate certificate)
 			throws NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidKeyException, IllegalBlockSizeException,
 			BadPaddingException, IOException {
-		PublicKey publicKey = certificate.getPublicKey();
+		final PublicKey publicKey = certificate.getPublicKey();
 
-		Cipher cipher = Cipher.getInstance("RSA");
+		final Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.DECRYPT_MODE, publicKey);
-		byte[] actualSignatureDigestInfoValue = cipher.doFinal(signatureValue);
+		final byte[] actualSignatureDigestInfoValue = cipher
+				.doFinal(signatureValue);
 
-		ASN1InputStream asnInputStream = new ASN1InputStream(
+		final ASN1InputStream asnInputStream = new ASN1InputStream(
 				actualSignatureDigestInfoValue);
-		DigestInfo actualSignatureDigestInfo = new DigestInfo(
+		final DigestInfo actualSignatureDigestInfo = new DigestInfo(
 				(ASN1Sequence) asnInputStream.readObject());
 		asnInputStream.close();
 
-		byte[] actualDigestValue = actualSignatureDigestInfo.getDigest();
+		final byte[] actualDigestValue = actualSignatureDigestInfo.getDigest();
 		return Arrays.equals(expectedDigestValue, actualDigestValue);
 	}
 }

@@ -34,13 +34,14 @@ public enum FileType {
 	private final byte keyId;
 	private final int estimatedMaxSize;
 
-	private FileType(byte[] fileId, int estimatedMaxSize) {
+	private FileType(final byte[] fileId, final int estimatedMaxSize) {
 		this.fileId = fileId;
 		this.keyId = -1;
 		this.estimatedMaxSize = estimatedMaxSize;
 	}
 
-	private FileType(byte[] fileId, int estimatedMaxSize, int keyId) {
+	private FileType(final byte[] fileId, final int estimatedMaxSize,
+			final int keyId) {
 		this.fileId = fileId;
 		this.keyId = (byte) keyId;
 		this.estimatedMaxSize = estimatedMaxSize;

@@ -32,9 +32,9 @@ public class BeIDCardManagerTest {
 
 	@Test
 	public void testListenerModification() throws Exception {
-		TestLogger logger = new TestLogger();
-		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
-		Object waitObject = new Object();
+		final TestLogger logger = new TestLogger();
+		final BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
+		final Object waitObject = new Object();
 		beIDCardManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
 						beIDCardManager, waitObject, true, false));
@@ -52,9 +52,9 @@ public class BeIDCardManagerTest {
 
 	@Test
 	public void testExceptionsInListener() throws Exception {
-		TestLogger logger = new TestLogger();
-		BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
-		Object waitObject = new Object();
+		final TestLogger logger = new TestLogger();
+		final BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
+		final Object waitObject = new Object();
 		beIDCardManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
 						beIDCardManager, waitObject, true, false));
@@ -81,9 +81,9 @@ public class BeIDCardManagerTest {
 		private final boolean removeAfterCardInserted;
 		private final boolean throwNPE;
 
-		public BeIDCardEventsTestListener(BeIDCardManager manager,
-				Object waitObject, boolean removeAfterCardInserted,
-				boolean throwNPE) {
+		public BeIDCardEventsTestListener(final BeIDCardManager manager,
+				final Object waitObject, final boolean removeAfterCardInserted,
+				final boolean throwNPE) {
 			this.manager = manager;
 			this.waitObject = waitObject;
 			this.removeAfterCardInserted = removeAfterCardInserted;
@@ -91,7 +91,8 @@ public class BeIDCardManagerTest {
 		}
 
 		@Override
-		public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card) {
+		public void eIDCardRemoved(final CardTerminal cardTerminal,
+				final BeIDCard card) {
 			LOG.debug("eID card removed");
 
 			synchronized (this.waitObject) {
@@ -105,7 +106,8 @@ public class BeIDCardManagerTest {
 		}
 
 		@Override
-		public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
+		public void eIDCardInserted(final CardTerminal cardTerminal,
+				final BeIDCard card) {
 			LOG.debug("eID card added");
 			if (this.removeAfterCardInserted) {
 				this.manager.removeBeIDCardListener(this);

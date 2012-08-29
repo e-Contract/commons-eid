@@ -34,7 +34,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 		return null;
 	}
 
-	public void setBeIDCard(BeIDCard beIDCard) {
+	public void setBeIDCard(final BeIDCard beIDCard) {
 		this.beIDCard = beIDCard;
 	}
 
@@ -42,7 +42,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 		return this.beIDCard;
 	}
 
-	public void setLogoff(boolean logoff) {
+	public void setLogoff(final boolean logoff) {
 		this.logoff = logoff;
 	}
 

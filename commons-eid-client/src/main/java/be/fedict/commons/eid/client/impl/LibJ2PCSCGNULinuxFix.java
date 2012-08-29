@@ -59,13 +59,13 @@ public class LibJ2PCSCGNULinuxFix {
 		fixNativeLibrary(new VoidLogger());
 	}
 
-	public static void fixNativeLibrary(Logger logger) {
-		String osName = System.getProperty(OS_NAME_PROPERTY);
+	public static void fixNativeLibrary(final Logger logger) {
+		final String osName = System.getProperty(OS_NAME_PROPERTY);
 		if ((osName != null)
 				&& (osName.startsWith(GNULINUX_OS_PROPERTY_PREFIX))) {
 			logger.debug("OS is [" + osName + "]. Enabling PCSC library fix.");
-			File libPcscLite = findGNULinuxNativeLibrary(PCSC_LIBRARY_NAME,
-					PCSC_LIBRARY_VERSION, logger);
+			final File libPcscLite = findGNULinuxNativeLibrary(
+					PCSC_LIBRARY_NAME, PCSC_LIBRARY_VERSION, logger);
 			if (libPcscLite != null) {
 				logger.debug("Setting [" + SMARTCARDIO_LIBRARY_PROPERTY
 						+ "] to [" + libPcscLite.getAbsolutePath() + "]");
@@ -108,7 +108,8 @@ public class LibJ2PCSCGNULinuxFix {
 	 * return the path with extension appended, if it wasn't already contained
 	 * in the path
 	 */
-	private static String extendLibraryPath(String lib_path, String extension) {
+	private static String extendLibraryPath(final String lib_path,
+			final String extension) {
 		if (lib_path.contains(extension)) {
 			return lib_path;
 		}
@@ -120,8 +121,8 @@ public class LibJ2PCSCGNULinuxFix {
 	 * OpenJDK default and doesn't contain Ubuntu 12's MULTILIB directories.
 	 * Test for Ubuntu in various configs and add the required paths
 	 */
-	private static String fixPathForUbuntuMultiLib(String libraryPath,
-			Logger logger) {
+	private static String fixPathForUbuntuMultiLib(final String libraryPath,
+			final Logger logger) {
 		logger.debug("Looking for Ubuntu-style multilib installation.");
 
 		switch (getUbuntuBitness()) {
@@ -144,7 +145,8 @@ public class LibJ2PCSCGNULinuxFix {
 				// determine which lib dir to add.
 				logger.debug("Multilib Ubuntu detected. Using JRE Bitness.");
 
-				String jvmBinaryArch = System.getProperty(JRE_BITNESS_PROPERTY);
+				final String jvmBinaryArch = System
+						.getProperty(JRE_BITNESS_PROPERTY);
 				if (jvmBinaryArch == null) {
 					return libraryPath;
 				}
@@ -181,8 +183,8 @@ public class LibJ2PCSCGNULinuxFix {
 	 * the native library paths to the end of java.library.path. Fixes the path
 	 * for Oracle JRE which doesn't contain the Ubuntu MULTILIB directories
 	 */
-	private static File findGNULinuxNativeLibrary(String baseName, int version,
-			Logger logger) {
+	private static File findGNULinuxNativeLibrary(final String baseName,
+			final int version, final Logger logger) {
 		// get java.library.path
 		String nativeLibraryPaths = System.getProperty(LIBRARY_PATH_PROPERTY);
 		if (nativeLibraryPaths == null) {
@@ -201,13 +203,14 @@ public class LibJ2PCSCGNULinuxFix {
 		// scan the directories in the path and return the first library called
 		// "baseName" with version "version"
 
-		String libFileName = System.mapLibraryName(baseName) + "." + version;
+		final String libFileName = System.mapLibraryName(baseName) + "."
+				+ version;
 
 		logger.debug("Scanning path for [" + libFileName + "]");
 
 		for (String nativeLibraryPath : nativeLibraryPaths.split(":")) {
 			logger.debug("Scanning [" + nativeLibraryPath + "]");
-			File libraryFile = new File(nativeLibraryPath, libFileName);
+			final File libraryFile = new File(nativeLibraryPath, libFileName);
 			if (libraryFile.exists()) {
 				logger.debug("[" + libFileName + "] found in ["
 						+ nativeLibraryPath + "]");

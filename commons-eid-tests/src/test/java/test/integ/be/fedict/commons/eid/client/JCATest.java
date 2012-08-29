@@ -59,14 +59,15 @@ public class JCATest {
 	public void testProxySignature() throws Exception {
 		Security.addProvider(new ProxyProvider());
 
-		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+		final KeyPairGenerator keyPairGenerator = KeyPairGenerator
+				.getInstance("RSA");
+		final KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
-		KeyStore keyStore = KeyStore.getInstance("ProxyBeID");
+		final KeyStore keyStore = KeyStore.getInstance("ProxyBeID");
 		keyStore.load(null);
-		Enumeration<String> aliases = keyStore.aliases();
+		final Enumeration<String> aliases = keyStore.aliases();
 		while (aliases.hasMoreElements()) {
-			String alias = aliases.nextElement();
+			final String alias = aliases.nextElement();
 			LOG.debug("alias: " + alias);
 			assertTrue(keyStore.isKeyEntry(alias));
 			assertFalse(keyStore.isCertificateEntry(alias));
@@ -75,18 +76,18 @@ public class JCATest {
 		assertTrue(keyStore.containsAlias("Signature"));
 		assertNotNull(keyStore.getCreationDate("Signature"));
 
-		Key key = keyStore.getKey("Signature", null);
+		final Key key = keyStore.getKey("Signature", null);
 		assertNotNull(key);
 		LOG.debug("key type: " + key.getClass().getName());
 		final ProxyPrivateKey privateKey = (ProxyPrivateKey) key;
 
 		{
-			Signature signature = Signature.getInstance("SHA1withRSA");
+			final Signature signature = Signature.getInstance("SHA1withRSA");
 			signature.initSign(privateKey);
 			assertTrue(signature.getProvider() instanceof ProxyProvider);
 		}
 		{
-			Signature signature = Signature.getInstance("SHA1withRSA");
+			final Signature signature = Signature.getInstance("SHA1withRSA");
 			signature.initSign(keyPair.getPrivate());
 			LOG.debug("signature provider: "
 					+ signature.getProvider().getName());
@@ -97,32 +98,33 @@ public class JCATest {
 				new Callable<String>() {
 					@Override
 					public String call() throws Exception {
-						Signature signature = Signature
+						final Signature signature = Signature
 								.getInstance("SHA256withRSA");
 						signature.initSign(privateKey);
 
-						byte[] toBeSigned = "hello world".getBytes();
+						final byte[] toBeSigned = "hello world".getBytes();
 						signature.update(toBeSigned);
-						byte[] signatureValue = signature.sign();
+						final byte[] signatureValue = signature.sign();
 						LOG.debug("received signature value");
 						assertNotNull(signatureValue);
 						return "signature result";
 					}
 
 				});
-		ExecutorService executor = Executors.newFixedThreadPool(1);
+		final ExecutorService executor = Executors.newFixedThreadPool(1);
 		executor.execute(signTask);
 
 		Thread.sleep(1000);
-		ProxyPrivateKey.DigestInfo digestInfo = privateKey.getDigestInfo();
+		final ProxyPrivateKey.DigestInfo digestInfo = privateKey
+				.getDigestInfo();
 		LOG.debug("received digest value");
 
 		assertNotNull(digestInfo);
-		byte[] signatureValue = new byte[20];
-		SecureRandom secureRandom = new SecureRandom();
+		final byte[] signatureValue = new byte[20];
+		final SecureRandom secureRandom = new SecureRandom();
 		secureRandom.nextBytes(signatureValue);
 		privateKey.setSignatureValue(signatureValue);
-		String signResult = signTask.get();
+		final String signResult = signTask.get();
 		assertNotNull(signResult);
 	}
 
@@ -130,16 +132,16 @@ public class JCATest {
 	public void testBeIDSignature() throws Exception {
 		Security.addProvider(new BeIDProvider());
 
-		KeyStore keyStore = KeyStore.getInstance("BeID");
-		BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
-		BeIDCard beIDCard = getBeIDCard();
+		final KeyStore keyStore = KeyStore.getInstance("BeID");
+		final BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
+		final BeIDCard beIDCard = getBeIDCard();
 		keyStoreParameter.setBeIDCard(beIDCard);
 		keyStoreParameter.setLogoff(true);
 		keyStore.load(keyStoreParameter);
 
-		Enumeration<String> aliases = keyStore.aliases();
+		final Enumeration<String> aliases = keyStore.aliases();
 		while (aliases.hasMoreElements()) {
-			String alias = aliases.nextElement();
+			final String alias = aliases.nextElement();
 			LOG.debug("alias: " + alias);
 		}
 
@@ -151,12 +153,12 @@ public class JCATest {
 		assertNotNull(keyStore.getCreationDate("Authentication"));
 
 		assertTrue(keyStore.isCertificateEntry("Signature"));
-		X509Certificate signCertificate = (X509Certificate) keyStore
+		final X509Certificate signCertificate = (X509Certificate) keyStore
 				.getCertificate("Signature");
 		assertNotNull(signCertificate);
 
 		assertTrue(keyStore.isCertificateEntry("Authentication"));
-		X509Certificate authnCertificate = (X509Certificate) keyStore
+		final X509Certificate authnCertificate = (X509Certificate) keyStore
 				.getCertificate("Authentication");
 		assertNotNull(authnCertificate);
 
@@ -164,13 +166,13 @@ public class JCATest {
 		assertNotNull(keyStore.getCertificateChain("Authentication"));
 
 		assertTrue(keyStore.isKeyEntry("Authentication"));
-		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
 				"Authentication", null);
 		assertNotNull(authnPrivateKey);
 
 		assertTrue(keyStore.isKeyEntry("Signature"));
-		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature",
-				null);
+		final PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey(
+				"Signature", null);
 		assertNotNull(signPrivateKey);
 
 		verifySignatureAlgorithm("SHA1withRSA", authnPrivateKey,
@@ -185,23 +187,25 @@ public class JCATest {
 
 	@Test
 	public void testSoftwareRSAKeyWrapping() throws Exception {
-		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+		final KeyPairGenerator keyPairGenerator = KeyPairGenerator
+				.getInstance("RSA");
+		final KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
-		KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-		SecretKey secretKey = keyGenerator.generateKey();
+		final KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+		final SecretKey secretKey = keyGenerator.generateKey();
 		LOG.debug("secret key algo: " + secretKey.getAlgorithm());
 
-		Cipher cipher = Cipher.getInstance("RSA");
+		final Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.WRAP_MODE, keyPair.getPublic());
 		LOG
 				.debug("cipher security provider: "
 						+ cipher.getProvider().getName());
 		LOG.debug("cipher type: " + cipher.getClass().getName());
-		byte[] wrappedKey = cipher.wrap(secretKey);
+		final byte[] wrappedKey = cipher.wrap(secretKey);
 
 		cipher.init(Cipher.UNWRAP_MODE, keyPair.getPrivate());
-		Key resultKey = cipher.unwrap(wrappedKey, "AES", Cipher.SECRET_KEY);
+		final Key resultKey = cipher.unwrap(wrappedKey, "AES",
+				Cipher.SECRET_KEY);
 
 		assertArrayEquals(secretKey.getEncoded(), resultKey.getEncoded());
 
@@ -211,49 +215,50 @@ public class JCATest {
 	public void testAutoFindCard() throws Exception {
 		Security.addProvider(new BeIDProvider());
 
-		KeyStore keyStore = KeyStore.getInstance("BeID");
+		final KeyStore keyStore = KeyStore.getInstance("BeID");
 		// keyStore.load(null);
 		keyStore.load(null, null);
 
-		Enumeration<String> aliases = keyStore.aliases();
+		final Enumeration<String> aliases = keyStore.aliases();
 		assertNotNull(aliases);
 		while (aliases.hasMoreElements()) {
-			String alias = aliases.nextElement();
+			final String alias = aliases.nextElement();
 			LOG.debug("alias: " + alias);
 		}
 
-		X509Certificate authnCertificate = (X509Certificate) keyStore
+		final X509Certificate authnCertificate = (X509Certificate) keyStore
 				.getCertificate("Authentication");
 		assertNotNull(authnCertificate);
 	}
 
-	private void verifySignatureAlgorithm(String signatureAlgorithm,
-			PrivateKey privateKey, PublicKey publicKey) throws Exception {
+	private void verifySignatureAlgorithm(final String signatureAlgorithm,
+			final PrivateKey privateKey, final PublicKey publicKey)
+			throws Exception {
 		Signature signature = Signature.getInstance(signatureAlgorithm);
 		signature.initSign(privateKey);
 		assertTrue(signature.getProvider() instanceof BeIDProvider);
 
-		byte[] toBeSigned = "hello world".getBytes();
+		final byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);
-		byte[] signatureValue = signature.sign();
+		final byte[] signatureValue = signature.sign();
 		assertNotNull(signatureValue);
 
 		signature.initVerify(publicKey);
 		signature.update(toBeSigned);
-		boolean beIDResult = signature.verify(signatureValue);
+		final boolean beIDResult = signature.verify(signatureValue);
 		assertTrue(beIDResult);
 
 		signature = Signature.getInstance(signatureAlgorithm);
 		signature.initVerify(publicKey);
 		signature.update(toBeSigned);
-		boolean result = signature.verify(signatureValue);
+		final boolean result = signature.verify(signatureValue);
 		assertTrue(result);
 	}
 
 	private BeIDCard getBeIDCard() throws Exception {
-		TestLogger logger = new TestLogger();
-		BeIDCards beIDCards = new BeIDCards(logger);
-		BeIDCard beIDCard = beIDCards.getOneBeIDCard();
+		final TestLogger logger = new TestLogger();
+		final BeIDCards beIDCards = new BeIDCards(logger);
+		final BeIDCard beIDCard = beIDCards.getOneBeIDCard();
 		assertNotNull(beIDCard);;
 		return beIDCard;
 	}

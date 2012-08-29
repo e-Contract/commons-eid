@@ -1,7 +1,7 @@
 package be.fedict.commons.eid.client;
 
 public class BeIDCardsException extends Exception {
-	public BeIDCardsException(String string) {
+	public BeIDCardsException(final String string) {
 		super(string);
 	}
 

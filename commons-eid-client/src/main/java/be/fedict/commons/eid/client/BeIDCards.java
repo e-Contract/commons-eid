@@ -50,7 +50,7 @@ public class BeIDCards {
 	/*
 	 * a BeIDCards logging to logger, using default UI
 	 */
-	public BeIDCards(Logger logger) {
+	public BeIDCards(final Logger logger) {
 		this(logger, null);
 	}
 
@@ -58,7 +58,7 @@ public class BeIDCards {
 	 * a BeIDCards logging to logger, caller supplies a BeIDCardManager. note:
 	 * caller is responsible for start()ing the supplied BeIDCardManager
 	 */
-	public BeIDCards(Logger logger, BeIDCardsUI ui) {
+	public BeIDCards(final Logger logger, final BeIDCardsUI ui) {
 		this.logger = logger;
 		this.ui = ui;
 		this.cardManager = new BeIDCardManager();
@@ -69,7 +69,8 @@ public class BeIDCards {
 
 		this.cardManager.addBeIDCardEventListener(new BeIDCardEventsListener() {
 			@Override
-			public void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card) {
+			public void eIDCardInserted(final CardTerminal cardTerminal,
+					final BeIDCard card) {
 				BeIDCards.this.logger.debug("eID Card Insertion Reported");
 				synchronized (BeIDCards.this.beIDTerminalsAndCards) {
 					BeIDCards.this.beIDTerminalsAndCards
@@ -79,7 +80,8 @@ public class BeIDCards {
 			}
 
 			@Override
-			public void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card) {
+			public void eIDCardRemoved(final CardTerminal cardTerminal,
+					final BeIDCard card) {
 				BeIDCards.this.logger.debug("eID Card Removal Reported");
 				synchronized (BeIDCards.this.beIDTerminalsAndCards) {
 					BeIDCards.this.beIDTerminalsAndCards.remove(cardTerminal);
@@ -135,7 +137,7 @@ public class BeIDCards {
 	 * with BeID objects that were acquired using one of the getXXX methods from
 	 * the same BeIDCards instance
 	 */
-	public BeIDCards waitUntilCardRemoved(BeIDCard card) {
+	public BeIDCards waitUntilCardRemoved(final BeIDCard card) {
 		while (this.getAllBeIDCards().contains(card)) {
 			this.beIDSleeper.sleepUntilAwakened();
 		}
@@ -157,11 +159,11 @@ public class BeIDCards {
 	private BeIDCardsUI getUI() {
 		if (this.ui == null) {
 			try {
-				ClassLoader classLoader = BeIDCard.class.getClassLoader();
-				Class<?> uiClass = classLoader
+				final ClassLoader classLoader = BeIDCard.class.getClassLoader();
+				final Class<?> uiClass = classLoader
 						.loadClass(DEFAULT_UI_IMPLEMENTATION);
 				this.ui = (BeIDCardsUI) uiClass.newInstance();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				this.logger.error(UI_MISSING_LOG_MESSAGE);
 				throw new UnsupportedOperationException(UI_MISSING_LOG_MESSAGE,
 						e);
@@ -171,7 +173,7 @@ public class BeIDCards {
 		return this.ui;
 	}
 
-	public void setUI(BeIDCardsUI ui) {
+	public void setUI(final BeIDCardsUI ui) {
 		this.ui = ui;
 	}
 

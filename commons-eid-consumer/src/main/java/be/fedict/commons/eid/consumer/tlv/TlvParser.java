@@ -50,40 +50,43 @@ public class TlvParser {
 	 * @param tlvClass
 	 * @return
 	 */
-	public static <T> T parse(byte[] file, Class<T> tlvClass) {
+	public static <T> T parse(final byte[] file, final Class<T> tlvClass) {
 		T t;
 		try {
 			t = parseThrowing(file, tlvClass);
-		} catch (Exception e) {
+		} catch (final Exception ex) {
 			throw new RuntimeException("error parsing file: "
-					+ tlvClass.getName(), e);
+					+ tlvClass.getName(), ex);
 		}
 		return t;
 	}
 
-	private static byte[] copy(byte[] source, int idx, int count) {
-		byte[] result = new byte[count];
+	private static byte[] copy(final byte[] source, final int idx,
+			final int count) {
+		final byte[] result = new byte[count];
 		System.arraycopy(source, idx, result, 0, count);
 		return result;
 	}
 
-	private static <T> T parseThrowing(byte[] file, Class<T> tlvClass)
-			throws InstantiationException, IllegalAccessException,
-			DataConvertorException, UnsupportedEncodingException {
-		Field[] fields = tlvClass.getDeclaredFields();
-		Map<Integer, Field> tlvFields = new HashMap<Integer, Field>();
-		T tlvObject = tlvClass.newInstance();
+	private static <T> T parseThrowing(final byte[] file,
+			final Class<T> tlvClass) throws InstantiationException,
+			IllegalAccessException, DataConvertorException,
+			UnsupportedEncodingException {
+		final Field[] fields = tlvClass.getDeclaredFields();
+		final Map<Integer, Field> tlvFields = new HashMap<Integer, Field>();
+		final T tlvObject = tlvClass.newInstance();
 		for (Field field : fields) {
-			TlvField tlvFieldAnnotation = field.getAnnotation(TlvField.class);
+			final TlvField tlvFieldAnnotation = field
+					.getAnnotation(TlvField.class);
 			if (null != tlvFieldAnnotation) {
-				int tagId = tlvFieldAnnotation.value();
+				final int tagId = tlvFieldAnnotation.value();
 				if (tlvFields.containsKey(new Integer(tagId))) {
 					throw new IllegalArgumentException("TLV field duplicate: "
 							+ tagId);
 				}
 				tlvFields.put(new Integer(tagId), field);
 			}
-			OriginalData originalDataAnnotation = field
+			final OriginalData originalDataAnnotation = field
 					.getAnnotation(OriginalData.class);
 			if (null != originalDataAnnotation) {
 				field.setAccessible(true);
@@ -93,7 +96,7 @@ public class TlvParser {
 
 		int idx = 0;
 		while (idx < file.length - 1) {
-			byte tag = file[idx];
+			final byte tag = file[idx];
 			idx++;
 			byte lengthByte = file[idx];
 			int length = lengthByte & 0x7f;
@@ -108,16 +111,16 @@ public class TlvParser {
 				continue;
 			}
 			if (tlvFields.containsKey(new Integer(tag))) {
-				Field tlvField = tlvFields.get(new Integer(tag));
-				Class<?> tlvType = tlvField.getType();
-				ConvertData convertDataAnnotation = tlvField
+				final Field tlvField = tlvFields.get(new Integer(tag));
+				final Class<?> tlvType = tlvField.getType();
+				final ConvertData convertDataAnnotation = tlvField
 						.getAnnotation(ConvertData.class);
-				byte[] tlvValue = copy(file, idx, length);
+				final byte[] tlvValue = copy(file, idx, length);
 				Object fieldValue;
 				if (null != convertDataAnnotation) {
-					Class<? extends DataConvertor<?>> dataConvertorClass = convertDataAnnotation
+					final Class<? extends DataConvertor<?>> dataConvertorClass = convertDataAnnotation
 							.value();
-					DataConvertor<?> dataConvertor = dataConvertorClass
+					final DataConvertor<?> dataConvertor = dataConvertorClass
 							.newInstance();
 					fieldValue = dataConvertor.convert(tlvValue);
 				} else if (String.class == tlvType) {

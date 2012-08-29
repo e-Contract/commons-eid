@@ -58,22 +58,22 @@ public enum BeIDDigest {
 	private final byte[] prefix;
 	private final byte algorithmReference;
 
-	public static BeIDDigest getInstance(String name) {
+	public static BeIDDigest getInstance(final String name) {
 		return valueOf(name);
 	}
 
-	private BeIDDigest(byte[] prefix, int algorithmReference) {
+	private BeIDDigest(final byte[] prefix, final int algorithmReference) {
 		this.prefix = prefix;
 		this.algorithmReference = (byte) algorithmReference;
 	}
 
-	private BeIDDigest(byte[] prefix) {
+	private BeIDDigest(final byte[] prefix) {
 		this(prefix, 0x01); // default algorithm reference: PKCS#1
 	}
 
-	public byte[] getPrefix(int valueLength) {
+	public byte[] getPrefix(final int valueLength) {
 		if (this.equals(PLAIN_TEXT)) {
-			byte[] digestInfoPrefix = Arrays.copyOf(this.prefix,
+			final byte[] digestInfoPrefix = Arrays.copyOf(this.prefix,
 					this.prefix.length);
 			digestInfoPrefix[1] = (byte) (valueLength + 13);
 			digestInfoPrefix[14] = (byte) valueLength;

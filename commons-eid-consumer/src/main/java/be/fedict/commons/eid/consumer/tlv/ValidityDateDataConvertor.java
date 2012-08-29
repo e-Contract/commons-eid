@@ -30,13 +30,12 @@ public class ValidityDateDataConvertor
 		implements
 			DataConvertor<GregorianCalendar> {
 
-	public GregorianCalendar convert(byte[] value)
+	public GregorianCalendar convert(final byte[] value)
 			throws DataConvertorException {
-		String dateStr = new String(value);
-		int day = Integer.parseInt(dateStr.substring(0, 2));
-		int month = Integer.parseInt(dateStr.substring(3, 5));
-		int year = Integer.parseInt(dateStr.substring(6));
-		GregorianCalendar calendar = new GregorianCalendar(year, month - 1, day);
-		return calendar;
+		final String dateStr = new String(value);
+		final int day = Integer.parseInt(dateStr.substring(0, 2));
+		final int month = Integer.parseInt(dateStr.substring(3, 5));
+		final int year = Integer.parseInt(dateStr.substring(6));
+		return new GregorianCalendar(year, month - 1, day);
 	}
 }

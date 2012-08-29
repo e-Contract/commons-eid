@@ -62,7 +62,7 @@ public class CardAndTerminalManagerExercises
 
 	@Test
 	public void testDetections() throws Exception {
-		Random random = new Random(0);
+		final Random random = new Random(0);
 		this.cardAndTerminalManager = new CardAndTerminalManager(
 				new TestLogger());
 		this.cardAndTerminalManager.addCardTerminalListener(this);
@@ -72,14 +72,14 @@ public class CardAndTerminalManagerExercises
 
 		this.cardAndTerminalManager.start();
 
-		CardTerminalEventsListener dummyCTL = new CardTerminalEventsListener() {
+		final CardTerminalEventsListener dummyCTL = new CardTerminalEventsListener() {
 
 			@Override
-			public void terminalDetached(CardTerminal cardTerminal) {
+			public void terminalDetached(final CardTerminal cardTerminal) {
 			}
 
 			@Override
-			public void terminalAttached(CardTerminal cardTerminal) {
+			public void terminalAttached(final CardTerminal cardTerminal) {
 			}
 
 			@Override
@@ -89,14 +89,15 @@ public class CardAndTerminalManagerExercises
 			}
 		};
 
-		CardEventsListener dummyCL = new CardEventsListener() {
+		final CardEventsListener dummyCL = new CardEventsListener() {
 
 			@Override
-			public void cardRemoved(CardTerminal cardTerminal) {
+			public void cardRemoved(final CardTerminal cardTerminal) {
 			}
 
 			@Override
-			public void cardInserted(CardTerminal cardTerminal, Card card) {
+			public void cardInserted(final CardTerminal cardTerminal,
+					final Card card) {
 			}
 
 			@Override
@@ -131,7 +132,7 @@ public class CardAndTerminalManagerExercises
 	 */
 	@Test
 	public void testStartStop() throws Exception {
-		Random random = new Random(0);
+		final Random random = new Random(0);
 		this.cardAndTerminalManager = new CardAndTerminalManager(
 				new TestLogger());
 		this.cardAndTerminalManager.addCardTerminalListener(this);
@@ -152,19 +153,19 @@ public class CardAndTerminalManagerExercises
 	// -------------------
 
 	@Override
-	public void terminalAttached(CardTerminal terminalAttached) {
+	public void terminalAttached(final CardTerminal terminalAttached) {
 		System.err.println("Terminal Attached [" + terminalAttached.getName()
 				+ "]");
 	}
 
 	@Override
-	public void terminalDetached(CardTerminal terminalDetached) {
+	public void terminalDetached(final CardTerminal terminalDetached) {
 		System.err.println("Terminal Detached [" + terminalDetached.getName()
 				+ "]");
 	}
 
 	@Override
-	public void cardInserted(CardTerminal cardTerminal, Card card) {
+	public void cardInserted(final CardTerminal cardTerminal, final Card card) {
 		if (card != null) {
 			System.err.println("Card ["
 					+ StringUtils.atrToString(card.getATR())
@@ -176,7 +177,7 @@ public class CardAndTerminalManagerExercises
 	}
 
 	@Override
-	public void cardRemoved(CardTerminal terminalWithCardRemoved) {
+	public void cardRemoved(final CardTerminal terminalWithCardRemoved) {
 		System.err.println("Card Removed From ["
 				+ terminalWithCardRemoved.getName() + "]");
 	}

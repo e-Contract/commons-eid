@@ -39,7 +39,7 @@ public class ProxyProvider extends Provider {
 		putService(new ProxyService(this, "KeyStore", "ProxyBeID",
 				ProxyKeyStore.class.getName()));
 
-		Map<String, String> signatureServiceAttributes = new HashMap<String, String>();
+		final Map<String, String> signatureServiceAttributes = new HashMap<String, String>();
 		signatureServiceAttributes.put("SupportedKeyClasses",
 				ProxyPrivateKey.class.getName());
 		putService(new ProxyService(this, "Signature", "SHA1withRSA",
@@ -54,18 +54,19 @@ public class ProxyProvider extends Provider {
 
 	public static final class ProxyService extends Service {
 
-		public ProxyService(Provider provider, String type, String algorithm,
-				String className) {
+		public ProxyService(final Provider provider, final String type,
+				final String algorithm, final String className) {
 			super(provider, type, algorithm, className, null, null);
 		}
 
-		public ProxyService(Provider provider, String type, String algorithm,
-				String className, Map<String, String> attributes) {
+		public ProxyService(final Provider provider, final String type,
+				final String algorithm, final String className,
+				final Map<String, String> attributes) {
 			super(provider, type, algorithm, className, null, attributes);
 		}
 
 		@Override
-		public Object newInstance(Object constructorParameter)
+		public Object newInstance(final Object constructorParameter)
 				throws NoSuchAlgorithmException {
 			LOG.debug("type: " + super.getType());
 			LOG.debug("newInstance: " + constructorParameter);
@@ -76,7 +77,7 @@ public class ProxyProvider extends Provider {
 		}
 
 		@Override
-		public boolean supportsParameter(Object parameter) {
+		public boolean supportsParameter(final Object parameter) {
 			LOG.debug("supportsParameter: " + parameter);
 			return super.supportsParameter(parameter);
 		}

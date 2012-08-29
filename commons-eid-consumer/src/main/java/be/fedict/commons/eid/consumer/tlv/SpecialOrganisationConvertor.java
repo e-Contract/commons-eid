@@ -38,7 +38,7 @@ public class SpecialOrganisationConvertor
 	private static final Log LOG = LogFactory
 			.getLog(SpecialOrganisationConvertor.class);
 
-	public SpecialOrganisation convert(byte[] value)
+	public SpecialOrganisation convert(final byte[] value)
 			throws DataConvertorException {
 		if (null == value) {
 			return SpecialOrganisation.UNSPECIFIED;
@@ -46,11 +46,12 @@ public class SpecialOrganisationConvertor
 		String key;
 		try {
 			key = new String(value, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new DataConvertorException("string error: " + e.getMessage());
+		} catch (final UnsupportedEncodingException uex) {
+			throw new DataConvertorException("string error: "
+					+ uex.getMessage());
 		}
 		LOG.debug("key: \"" + key + "\"");
-		SpecialOrganisation specialOrganisation = SpecialOrganisation
+		final SpecialOrganisation specialOrganisation = SpecialOrganisation
 				.toSpecialOrganisation(key);
 		return specialOrganisation;
 	}

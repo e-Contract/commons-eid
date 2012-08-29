@@ -45,9 +45,9 @@ public enum SpecialStatus implements Serializable {
 	private static Map<String, SpecialStatus> map;
 
 	static {
-		Map<String, SpecialStatus> map = new HashMap<String, SpecialStatus>();
+		final Map<String, SpecialStatus> map = new HashMap<String, SpecialStatus>();
 		for (SpecialStatus specialStatus : SpecialStatus.values()) {
-			String value = specialStatus.strValue;
+			final String value = specialStatus.strValue;
 			if (map.containsKey(value)) {
 				throw new RuntimeException("duplicate special status: " + value);
 			}
@@ -56,8 +56,8 @@ public enum SpecialStatus implements Serializable {
 		SpecialStatus.map = map;
 	}
 
-	private SpecialStatus(String strValue, boolean whiteCane,
-			boolean extendedMinority, boolean yellowCane) {
+	private SpecialStatus(final String strValue, final boolean whiteCane,
+			final boolean extendedMinority, final boolean yellowCane) {
 		this.strValue = strValue;
 		this.whiteCane = whiteCane;
 		this.extendedMinority = extendedMinority;
@@ -107,7 +107,7 @@ public enum SpecialStatus implements Serializable {
 	 * @param value
 	 * @return
 	 */
-	public static SpecialStatus toSpecialStatus(String value) {
+	public static SpecialStatus toSpecialStatus(final String value) {
 		return SpecialStatus.map.get(value);
 	}
 }

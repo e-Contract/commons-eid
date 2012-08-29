@@ -34,7 +34,7 @@ public class DataConvertorException extends Exception {
 	 * @param message
 	 *            the exception message.
 	 */
-	public DataConvertorException(String message) {
+	public DataConvertorException(final String message) {
 		super(message);
 	}
 }

@@ -18,37 +18,46 @@ public class BeIDCardsExample {
 		// -------------------------------------------------------------------------------------------------------
 		// instantiate a BeIDCardManager with default settings (no logging)
 		// -------------------------------------------------------------------------------------------------------
-		BeIDCards beIDCards = new BeIDCards();
+		final BeIDCards beIDCards = new BeIDCards();
 
 		// -------------------------------------------------------------------------------------------------------
 		// ask it for all CardTerminals that currently contain BeID cards (which
-		// may block and possibly interact with the user until there is at least one)
+		// may be none at all)
 		// -------------------------------------------------------------------------------------------------------
-		Set<BeIDCard> cards = beIDCards.getAllBeIDCards();
+		final Set<BeIDCard> cards = beIDCards.getAllBeIDCards();
+		System.out.println(cards.size() + " BeID Cards found");
+		// -------------------------------------------------------------------------------------------------------
+		// ask it for one BeID Card. This may block and interact with the user.
+		// -------------------------------------------------------------------------------------------------------
+		final BeIDCard card = beIDCards.getOneBeIDCard();
 
-		System.out.println("BeID Cards:");
-
-		for (BeIDCard card : cards) {
-			byte[] idData;
-
-			try {
-				idData = card.readFile(FileType.Identity);
-			} catch (CardException e) {
-				System.err.println("oops! can't read identity file");
-				return;
-			} catch (IOException e) {
-				System.err.println("oops! can't read identity file");
-				return;
-			}
-
-			Identity id = TlvParser.parse(idData, Identity.class);
+		// -------------------------------------------------------------------------------------------------------
+		// read identity file, decode it and print something containing card holder's first name
+		// -------------------------------------------------------------------------------------------------------
+		try {
+			final byte[] idData = card.readFile(FileType.Identity);
+			final Identity id = TlvParser.parse(idData, Identity.class);
 			System.out.println(id.firstName + "'s card");
+		} catch (final CardException cex) {
+			// TODO Auto-generated catch block
+			cex.printStackTrace();
+		} catch (final IOException iox) {
+			// TODO Auto-generated catch block
+			iox.printStackTrace();
 		}
+
+		// -------------------------------------------------------------------------------------------------------
+		// wait for removal of the card we've just read.
+		// -------------------------------------------------------------------------------------------------------
+		System.out.println("Please remove the card now.");
+		beIDCards.waitUntilCardRemoved(card);
+		System.out.println("Thank you.");
+
 	}
 
-	public static void main(String[] args) throws InterruptedException,
+	public static void main(final String[] args) throws InterruptedException,
 			BeIDCardsException {
-		BeIDCardsExample examples = new BeIDCardsExample();
+		final BeIDCardsExample examples = new BeIDCardsExample();
 		examples.demonstrate();
 	}
 

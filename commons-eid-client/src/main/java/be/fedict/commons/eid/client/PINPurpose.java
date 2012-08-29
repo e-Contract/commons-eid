@@ -6,7 +6,7 @@ public enum PINPurpose {
 
 	private final String type;
 
-	private PINPurpose(String type) {
+	private PINPurpose(final String type) {
 		this.type = type;
 	}
 
@@ -14,7 +14,7 @@ public enum PINPurpose {
 		return this.type;
 	}
 
-	public static PINPurpose fromFileType(FileType fileType) {
+	public static PINPurpose fromFileType(final FileType fileType) {
 		switch (fileType) {
 			case AuthentificationCertificate :
 				return AuthenticationSignature;

@@ -54,7 +54,7 @@ public class DefaultBeIDCardsDailogTests {
 
 	@Test
 	public void testCardSelection() throws Exception {
-		BeIDCardsUI ui = new DefaultBeIDCardsUI();
+		final BeIDCardsUI ui = new DefaultBeIDCardsUI();
 		ui.selectBeIDCard(this.simulatedBeIDCards);
 	}
 }

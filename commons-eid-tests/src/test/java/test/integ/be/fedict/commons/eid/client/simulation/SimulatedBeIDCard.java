@@ -25,15 +25,15 @@ import org.apache.commons.io.IOUtils;
 import be.fedict.commons.eid.client.FileType;
 
 public class SimulatedBeIDCard extends SimulatedCard {
-	public SimulatedBeIDCard(String profile) {
+	public SimulatedBeIDCard(final String profile) {
 		super(null);
 
-		InputStream atrInputStream = SimulatedBeIDCard.class
+		final InputStream atrInputStream = SimulatedBeIDCard.class
 				.getResourceAsStream("/" + profile + "_ATR.bin");
 
 		try {
 			setATR(new ATR(IOUtils.toByteArray(atrInputStream)));
-		} catch (IOException e) {
+		} catch (final IOException ioex) {
 			// missing _ATR file, set ATR from testcard
 			setATR(new ATR(new byte[]{0x3b, (byte) 0x98, 0x13, 0x40, 0x0a,
 					(byte) 0xa5, 0x03, 0x01, 0x01, 0x01, (byte) 0xad, 0x13,
@@ -43,15 +43,15 @@ public class SimulatedBeIDCard extends SimulatedCard {
 		setFilesFromProfile(profile);
 	}
 
-	public SimulatedBeIDCard(ATR atr) {
+	public SimulatedBeIDCard(final ATR atr) {
 		super(atr);
 	}
 
-	public SimulatedBeIDCard setFilesFromProfile(String profile) {
+	public SimulatedBeIDCard setFilesFromProfile(final String profile) {
 		for (FileType type : FileType.values()) {
 			try {
 				setFileFromProfile(type, profile);
-			} catch (IOException iox) {
+			} catch (final IOException iox) {
 				System.err.println("Card Has No " + type);
 			}
 		}
@@ -59,9 +59,9 @@ public class SimulatedBeIDCard extends SimulatedCard {
 		return this;
 	}
 
-	public SimulatedBeIDCard setFileFromProfile(FileType type, String profile)
-			throws IOException {
-		InputStream idInputStream = SimulatedBeIDCard.class
+	public SimulatedBeIDCard setFileFromProfile(final FileType type,
+			final String profile) throws IOException {
+		final InputStream idInputStream = SimulatedBeIDCard.class
 				.getResourceAsStream("/" + profile + "_" + type + ".tlv");
 		setFile(type.getFileId(), IOUtils.toByteArray(idInputStream));
 		return this;

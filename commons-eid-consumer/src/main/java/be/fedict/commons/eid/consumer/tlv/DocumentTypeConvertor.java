@@ -34,13 +34,14 @@ public class DocumentTypeConvertor implements DataConvertor<DocumentType> {
 	private static final Log LOG = LogFactory
 			.getLog(DocumentTypeConvertor.class);
 
-	public DocumentType convert(byte[] value) throws DataConvertorException {
+	public DocumentType convert(final byte[] value)
+			throws DataConvertorException {
 		LOG.debug("# bytes for document type field: " + value.length);
 		/*
 		 * More recent eID cards use 2 bytes per default for the document type
 		 * field.
 		 */
-		DocumentType documentType = DocumentType.toDocumentType(value);
+		final DocumentType documentType = DocumentType.toDocumentType(value);
 		if (null == documentType) {
 			LOG.debug("unknown document type: " + DocumentType.toString(value));
 		}

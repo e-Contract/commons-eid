@@ -50,21 +50,22 @@ public class ProxySignature extends SignatureSpi {
 		digestAlgos.put("SHA512withRSA", "SHA-512");
 	}
 
-	public ProxySignature(String algorithm) throws NoSuchAlgorithmException {
+	public ProxySignature(final String algorithm)
+			throws NoSuchAlgorithmException {
 		LOG.debug("constructor: " + algorithm);
-		String digestAlgo = digestAlgos.get(algorithm);
+		final String digestAlgo = digestAlgos.get(algorithm);
 		LOG.debug("digest algo: " + digestAlgo);
 		this.messageDigest = MessageDigest.getInstance(digestAlgo);
 	}
 
 	@Override
-	protected void engineInitVerify(PublicKey publicKey)
+	protected void engineInitVerify(final PublicKey publicKey)
 			throws InvalidKeyException {
 		LOG.debug("engineInitVerify");
 	}
 
 	@Override
-	protected void engineInitSign(PrivateKey privateKey)
+	protected void engineInitSign(final PrivateKey privateKey)
 			throws InvalidKeyException {
 		LOG.debug("engineInitSign");
 		if (false == privateKey instanceof ProxyPrivateKey) {
@@ -75,13 +76,13 @@ public class ProxySignature extends SignatureSpi {
 	}
 
 	@Override
-	protected void engineUpdate(byte b) throws SignatureException {
+	protected void engineUpdate(final byte b) throws SignatureException {
 		LOG.debug("engineUpdate");
 		this.messageDigest.update(b);
 	}
 
 	@Override
-	protected void engineUpdate(byte[] b, int off, int len)
+	protected void engineUpdate(final byte[] b, final int off, final int len)
 			throws SignatureException {
 		LOG.debug("engineUpdate");
 		this.messageDigest.update(b, off, len);
@@ -90,32 +91,33 @@ public class ProxySignature extends SignatureSpi {
 	@Override
 	protected byte[] engineSign() throws SignatureException {
 		LOG.debug("engineSign");
-		byte[] digestValue = this.messageDigest.digest();
+		final byte[] digestValue = this.messageDigest.digest();
 		byte[] signatureValue;
 		try {
 			signatureValue = this.privateKey.sign(digestValue,
 					this.messageDigest.getAlgorithm());
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException iex) {
 			throw new SignatureException("interrupted on sign");
 		}
 		return signatureValue;
 	}
 
 	@Override
-	protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
+	protected boolean engineVerify(final byte[] sigBytes)
+			throws SignatureException {
 		LOG.debug("engineVerify");
 		return false;
 	}
 
 	@Override
 	@Deprecated
-	protected void engineSetParameter(String param, Object value)
+	protected void engineSetParameter(final String param, final Object value)
 			throws InvalidParameterException {
 	}
 
 	@Override
 	@Deprecated
-	protected Object engineGetParameter(String param)
+	protected Object engineGetParameter(final String param)
 			throws InvalidParameterException {
 		return null;
 	}

@@ -21,11 +21,11 @@ package be.fedict.commons.eid.client.spi;
 public class Sleeper {
 	private boolean isAwoken;
 
-	public synchronized void sleepUntilAwakened(long timeout) {
+	public synchronized void sleepUntilAwakened(final long timeout) {
 		while (!this.isAwoken) {
 			try {
 				this.wait(timeout);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException iex) {
 			} // intentionally empty
 		}
 		this.isAwoken = false;
@@ -35,7 +35,7 @@ public class Sleeper {
 		while (!this.isAwoken) {
 			try {
 				this.wait();
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException iex) {
 			} // intentionally empty
 		}
 		this.isAwoken = false;
