@@ -20,6 +20,8 @@ package be.fedict.commons.eid.client.spi;
 
 import java.util.Collection;
 import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.OutOfCardsException;
+import be.fedict.commons.eid.client.CancelledException;
 
 public interface BeIDCardsUI {
 	// user needs to connect a Card Terminal
@@ -28,10 +30,18 @@ public interface BeIDCardsUI {
 	// user needs to insert a BeID Card
 	void adviseBeIDCardRequired();
 
-	// user has multiple eID Cards inserted and needs to choose exactly one
-	BeIDCard selectBeIDCard(Collection<BeIDCard> availableCards);
-
-	// operation on secure reader ends
+	// user no longer needs to take action
 	void adviseEnd();
 
+	// user has multiple eID Cards inserted and needs to choose exactly one
+	// throws CancelledException if user cancels
+	// throws OutOfCardsException if all cards removed before selection could me made
+	BeIDCard selectBeIDCard(Collection<BeIDCard> availableCards)
+			throws CancelledException, OutOfCardsException;
+
+	// user added a BeID card while selectBeIDCard() was blocking
+	void eIDCardInsertedDuringSelection(BeIDCard card);
+
+	// user removed a BeID card while selectBeIDCard() was blocking
+	void eIDCardRemovedDuringSelection(BeIDCard card);
 }

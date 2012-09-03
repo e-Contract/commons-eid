@@ -70,7 +70,7 @@ public class Messages {
 
 		private final String id;
 
-		private MESSAGE_ID(String id) {
+		private MESSAGE_ID(final String id) {
 			this.id = id;
 		}
 
@@ -79,13 +79,13 @@ public class Messages {
 		}
 	};
 
-	public Messages(Locale locale) {
+	public Messages(final Locale locale) {
 		this.locale = locale;
 		ResourceBundle bundle;
 		try {
 			bundle = ResourceBundle
 					.getBundle(RESOURCE_BUNDLE_NAME, this.locale);
-		} catch (MissingResourceException e) {
+		} catch (final MissingResourceException mre) {
 			/*
 			 * In case the selected locale and default system locale are not
 			 * supported we default to english.
@@ -105,15 +105,12 @@ public class Messages {
 				getMessage(MESSAGE_ID.YES_BUTTON));
 	}
 
-	public String getMessage(MESSAGE_ID messageId) {
-		String message = this.resourceBundle.getString(messageId.id);
-		return message;
+	public String getMessage(final MESSAGE_ID messageId) {
+		return this.resourceBundle.getString(messageId.id);
 	}
 
-	public String getMessage(MESSAGE_ID messageId, String variant) {
-		String message = this.resourceBundle.getString(messageId.id + "_"
-				+ variant);
-		return message;
+	public String getMessage(final MESSAGE_ID messageId, final String variant) {
+		return this.resourceBundle.getString(messageId.id + "_" + variant);
 	}
 
 	public Locale getLocale() {

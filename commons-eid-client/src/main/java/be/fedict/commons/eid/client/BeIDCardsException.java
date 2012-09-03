@@ -1,9 +1,9 @@
 package be.fedict.commons.eid.client;
 
 public class BeIDCardsException extends Exception {
-	public BeIDCardsException(final String string) {
-		super(string);
-	}
+	private static final long serialVersionUID = 5199459207976511121L;
 
-	private static final long serialVersionUID = -3856399511094958700L;
+	public BeIDCardsException() {
+		super();
+	}
 }
