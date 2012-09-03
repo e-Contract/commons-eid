@@ -19,45 +19,19 @@
 
 package be.fedict.eid.commons.dialogs;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.ListCellRenderer;
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.FileType;
-import be.fedict.commons.eid.client.event.BeIDCardListener;
+import be.fedict.commons.eid.client.OutOfCardsException;
+import be.fedict.commons.eid.client.CancelledException;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
-import be.fedict.commons.eid.consumer.Identity;
-import be.fedict.commons.eid.consumer.text.Format;
-import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
 /**
  * Default Implementation of BeIDCardsUI Interface
@@ -69,16 +43,18 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	private Component parentComponent;
 	private Messages messages;
 	private JFrame adviseFrame;
+	private BeIDSelectionDialog selectionDialog;
 
 	public DefaultBeIDCardsUI() {
 		this(null, new Messages(Locale.getDefault()));
 	}
 
-	public DefaultBeIDCardsUI(Component parentComponent) {
+	public DefaultBeIDCardsUI(final Component parentComponent) {
 		this(parentComponent, new Messages(Locale.getDefault()));
 	}
 
-	public DefaultBeIDCardsUI(Component parentComponent, Messages messages) {
+	public DefaultBeIDCardsUI(final Component parentComponent,
+			final Messages messages) {
 		this.parentComponent = parentComponent;
 		this.messages = messages;
 		if (GraphicsEnvironment.isHeadless()) {
@@ -103,55 +79,15 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	}
 
 	@Override
-	public BeIDCard selectBeIDCard(Collection<BeIDCard> availableCards) {
-		final JDialog dialog = new JDialog((Frame) this.parentComponent,
-				"Select eID card", true);
-		final ListData selectedListData = new ListData(null);
-		final JPanel masterPanel = new JPanel(new BorderLayout());
-		masterPanel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-
-		final DefaultListModel listModel = new DefaultListModel();
-
-		for (BeIDCard card : availableCards) {
-			listModel.addElement(new ListData(card));
+	public BeIDCard selectBeIDCard(final Collection<BeIDCard> availableCards)
+			throws CancelledException, OutOfCardsException {
+		try {
+			this.selectionDialog = new BeIDSelectionDialog(
+					this.parentComponent, "Select eID card", availableCards);
+			return this.selectionDialog.choose();
+		} finally {
+			this.selectionDialog = null;
 		}
-
-		final ListModelUpdater listModelUpdater = new ListModelUpdater(
-				listModel);
-
-		JList list = new JList(listModel);
-		list.setCellRenderer(new EidListCellRenderer());
-		masterPanel.add(list);
-		dialog.getContentPane().add(masterPanel);
-
-		MouseListener mouseListener = new MouseAdapter() {
-			public void mouseClicked(MouseEvent mouseEvent) {
-				JList theList = (JList) mouseEvent.getSource();
-				if (mouseEvent.getClickCount() == 2) {
-					int index = theList.locationToIndex(mouseEvent.getPoint());
-					if (index >= 0) {
-						listModelUpdater.stop();
-						Object object = theList.getModel().getElementAt(index);
-						ListData listData = (ListData) object;
-						selectedListData.card = listData.getCard();
-						dialog.dispose();
-					}
-				}
-			}
-		};
-		list.addMouseListener(mouseListener);
-
-		listModelUpdater.waitUntilIdentitiesRead();
-
-		dialog.pack();
-
-		if (this.parentComponent != null) {
-			dialog.setLocationRelativeTo(this.parentComponent);
-		}
-
-		dialog.setResizable(false);
-		dialog.setVisible(true);
-		return selectedListData.getCard();
 	}
 
 	@Override
@@ -166,7 +102,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	 * **********************************************************************************************************************
 	 */
 
-	private void showAdvise(String title, String message) {
+	private void showAdvise(final String title, final String message) {
 		if (null != this.adviseFrame) {
 			this.adviseEnd();
 		}
@@ -180,7 +116,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 				return new Insets(10, 30, 10, 30);
 			}
 		};
-		BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
+		final BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
 		panel.setLayout(boxLayout);
 
 		panel.add(new JLabel(message));
@@ -193,304 +129,17 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 		this.adviseFrame.setVisible(true);
 	}
 
-	/*
-	 * **********************************************************************************************************************
-	 */
-
-	private static class ListData {
-		private BeIDCard card;
-		private Identity identity;
-		private ImageIcon photo;
-		private int photoProgress, photoSizeEstimate;
-		private boolean error;
-
-		public ListData(BeIDCard card) {
-			super();
-			this.card = card;
-		}
-
-		public BeIDCard getCard() {
-			return this.card;
-		}
-
-		public ImageIcon getPhoto() {
-			return this.photo;
-		}
-
-		public Identity getIdentity() {
-			return this.identity;
-		}
-
-		public void setIdentity(Identity identity) {
-			this.identity = identity;
-		}
-
-		public void setPhoto(ImageIcon photo) {
-			this.photo = photo;
-		}
-
-		public int getPhotoProgress() {
-			return this.photoProgress;
-		}
-
-		public void setPhotoProgress(int photoProgress) {
-			this.photoProgress = photoProgress;
-		}
-
-		public void setPhotoSizeEstimate(int photoSizeEstimate) {
-			this.photoSizeEstimate = photoSizeEstimate;
-		}
-
-		public int getPhotoSizeEstimate() {
-			return this.photoSizeEstimate;
-		}
-
-		public boolean hasError() {
-			return this.error;
-		}
-
-		public void setError() {
-			this.error = true;
-		}
-
-	}
-
-	private static class EidListCellRenderer extends JPanel
-			implements
-				ListCellRenderer {
-		private static final long serialVersionUID = -6914001662919942232L;
-
-		public Component getListCellRendererComponent(JList list, Object value,
-				int index, boolean isSelected, boolean cellHasFocus) {
-			JPanel panel = new JPanel();
-			ListData listData = (ListData) value;
-			panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-
-			if (listData.hasError()) {
-				panel.add(new JLabel("!"));
-				panel.add(new JLabel("!"));
-			} else {
-				ImageIcon photoIcon = listData.getPhoto();
-
-				if (photoIcon == null) {
-					panel.add(new ProgressPanel(listData.getPhotoProgress(),
-							listData.getPhotoSizeEstimate()));
-				} else {
-					panel.add(new JLabel(photoIcon));
-				}
-
-				if (isSelected) {
-					panel.setBackground(list.getSelectionBackground());
-				} else {
-					panel.setBackground(list.getBackground());
-				}
-
-				panel.add(new IdentityPanel(listData.getIdentity()));
-			}
-			return panel;
+	@Override
+	public void eIDCardInsertedDuringSelection(final BeIDCard card) {
+		if (this.selectionDialog != null) {
+			this.selectionDialog.eIDCardInserted(card);
 		}
 	}
 
-	private static class ProgressPanel extends JPanel {
-		private static final long serialVersionUID = 3198272925609784396L;
-		private JProgressBar progressBar;
-
-		public ProgressPanel(int progress, int max) {
-			super(new GridBagLayout());
-			setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-
-			this.progressBar = new JProgressBar(0, max);
-			this.progressBar.setIndeterminate(false);
-			this.progressBar.setValue(progress);
-
-			Dimension fixedSize = new Dimension(140, 200);
-			setPreferredSize(fixedSize);
-			setMinimumSize(fixedSize);
-			setMaximumSize(fixedSize);
-
-			fixedSize = new Dimension(100, 16);
-			this.progressBar.setPreferredSize(fixedSize);
-
-			add(this.progressBar);
-		}
-	}
-
-	private static class IdentityPanel extends JPanel {
-		private static final long serialVersionUID = 1293396834578252226L;
-
-		public IdentityPanel(Identity identity) {
-			super(new GridBagLayout());
-			setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-			setOpaque(false);
-
-			GridBagConstraints gbc = new GridBagConstraints();
-			gbc.gridy = 0;
-			gbc.anchor = GridBagConstraints.LINE_START;
-			gbc.ipady = 4;
-			add(new JLabel(identity.getName()), gbc);
-
-			gbc = new GridBagConstraints();
-			gbc.gridy = 1;
-			gbc.anchor = GridBagConstraints.LINE_START;
-			gbc.ipady = 4;
-			add(new JLabel(identity.getFirstName() + " "
-					+ identity.getMiddleName()), gbc);
-
-			gbc = new GridBagConstraints();
-			gbc.gridy = 2;
-			gbc.ipady = 8;
-			add(Box.createVerticalGlue(), gbc);
-
-			gbc = new GridBagConstraints();
-			gbc.gridy = 3;
-			gbc.anchor = GridBagConstraints.LINE_START;
-			gbc.ipady = 4;
-			DateFormat dateFormat = DateFormat.getDateInstance(
-					DateFormat.DEFAULT, Locale.getDefault());
-			add(new JLabel(identity.getPlaceOfBirth() + " "
-					+ dateFormat.format(identity.getDateOfBirth().getTime())),
-					gbc);
-
-			gbc = new GridBagConstraints();
-			gbc.gridy = 4;
-			gbc.ipady = 8;
-			add(Box.createVerticalGlue(), gbc);
-
-			gbc = new GridBagConstraints();
-			gbc.gridy = 5;
-			gbc.anchor = GridBagConstraints.LINE_START;
-			gbc.ipady = 4;
-			add(new JLabel(identity.getNationality().toUpperCase()), gbc);
-
-			gbc = new GridBagConstraints();
-			gbc.gridy = 6;
-			gbc.ipady = 8;
-			add(Box.createVerticalGlue(), gbc);
-
-			gbc = new GridBagConstraints();
-			gbc.gridy = 7;
-			gbc.anchor = GridBagConstraints.LINE_START;
-			gbc.ipady = 4;
-			add(new JLabel(Format.formatCardNumber(identity.getCardNumber())),
-					gbc);
-		}
-	}
-
-	private static class ListModelUpdater {
-		private final CountDownLatch identitiesReadLatch;
-		private final ArrayList<ListItemUpdater> updaters = new ArrayList<ListItemUpdater>();
-
-		public ListModelUpdater(DefaultListModel listModel) {
-			this.identitiesReadLatch = new CountDownLatch(listModel.size());
-			for (int i = 0; i < listModel.size(); i++) {
-				this.updaters.add(new ListItemUpdater(listModel, i,
-						this.identitiesReadLatch));
-			}
-		}
-
-		public void waitUntilIdentitiesRead() {
-			try {
-				this.identitiesReadLatch.await();
-			} catch (InterruptedException e) {
-				return;
-			}
-		}
-
-		public void stop() {
-			for (ListItemUpdater updater : this.updaters) {
-				updater.interrupt();
-			}
-
-			for (ListItemUpdater updater : this.updaters) {
-				try {
-					updater.join();
-				} catch (InterruptedException e) {
-					return;
-				}
-			}
-		}
-	}
-
-	private static class ListItemUpdater implements Runnable {
-		private DefaultListModel listModel;
-		private int index;
-		private CountDownLatch nameRead;
-		private Thread worker;
-
-		public ListItemUpdater(DefaultListModel listModel, int index,
-				CountDownLatch nameRead) {
-			super();
-			this.listModel = listModel;
-			this.index = index;
-			this.nameRead = nameRead;
-			this.worker = new Thread(this, "ListModelUpdater (" + index + ")");
-			this.worker.setDaemon(true);
-			this.worker.start();
-		}
-
-		public void join() throws InterruptedException {
-			this.worker.join();
-		}
-
-		public void interrupt() {
-			this.worker.interrupt();
-		}
-
-		private void updateInList(ListData listItem) {
-			synchronized (this.listModel) {
-				this.listModel.set(this.index, listItem);
-			}
-		}
-
-		@Override
-		public void run() {
-			final ListData listItem = (ListData) this.listModel.get(this.index);
-
-			try {
-				Identity identity = TlvParser.parse(listItem.getCard()
-						.readFile(FileType.Identity), Identity.class);
-				listItem.setIdentity(identity);
-				this.updateInList(listItem);
-			} catch (Exception ex) {
-				listItem.setError();
-				this.updateInList(listItem);
-			} finally {
-				this.nameRead.countDown();
-			}
-
-			try {
-				listItem.setPhotoSizeEstimate(FileType.Photo
-						.getEstimatedMaxSize());
-				this.updateInList(listItem);
-
-				listItem.getCard().addCardListener(new BeIDCardListener() {
-					@Override
-					public void notifyReadProgress(FileType fileType,
-							int offset, int estimatedMaxSize) {
-						listItem.setPhotoProgress(offset);
-						ListItemUpdater.this.updateInList(listItem);
-					}
-
-					@Override
-					public void notifySigningBegin(FileType keyType) {
-						// can safely ignore this here
-					}
-
-					@Override
-					public void notifySigningEnd(FileType keyType) {
-						// can safely ignore this here
-					}
-				});
-
-				byte[] photoFile = listItem.getCard().readFile(FileType.Photo);
-				BufferedImage photoImage = ImageIO
-						.read(new ByteArrayInputStream(photoFile));
-				listItem.setPhoto(new ImageIcon(photoImage));
-				this.updateInList(listItem);
-			} catch (Exception ex) {
-				listItem.setError();
-				this.updateInList(listItem);
-			}
+	@Override
+	public void eIDCardRemovedDuringSelection(final BeIDCard card) {
+		if (this.selectionDialog != null) {
+			this.selectionDialog.eIDCardRemoved(card);
 		}
 	}
 }

@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.FileType;
+import be.fedict.commons.eid.client.CancelledException;
 
 public class BeIDKeyStore extends KeyStoreSpi {
 
@@ -230,7 +231,13 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	private BeIDCard getBeIDCard() {
 		if (null == this.beIDCard) {
 			final BeIDCards beIDCards = new BeIDCards();
-			this.beIDCard = beIDCards.getOneBeIDCard();
+
+			try {
+				this.beIDCard = beIDCards.getOneBeIDCard();
+			} catch (final CancelledException cex) {
+				throw new SecurityException("user cancelled");
+			}
+
 			if (null == this.beIDCard) {
 				throw new SecurityException("missing eID card");
 			}

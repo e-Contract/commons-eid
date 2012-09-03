@@ -68,11 +68,12 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		this(null, new Messages(Locale.getDefault()));
 	}
 
-	public DefaultBeIDCardUI(Component parentComponent) {
+	public DefaultBeIDCardUI(final Component parentComponent) {
 		this(parentComponent, new Messages(Locale.getDefault()));
 	}
 
-	public DefaultBeIDCardUI(Component parentComponent, Messages messages) {
+	public DefaultBeIDCardUI(final Component parentComponent,
+			final Messages messages) {
 		this.parentComponent = parentComponent;
 		this.messages = messages;
 		if (GraphicsEnvironment.isHeadless()) {
@@ -96,26 +97,26 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	}
 
 	@Override
-	public void advisePINPadChangePIN(int retriesLeft) {
+	public void advisePINPadChangePIN(final int retriesLeft) {
 		showPINPadFrame(retriesLeft, "eID PIN change", this.messages
 				.getMessage(MESSAGE_ID.PIN_PAD_CHANGE));
 
 	}
 
 	@Override
-	public void advisePINPadNewPINEntry(int retriesLeft) {
+	public void advisePINPadNewPINEntry(final int retriesLeft) {
 		showPINPadFrame(retriesLeft, "eID PIN change", this.messages
 				.getMessage(MESSAGE_ID.PIN_PAD_MODIFY_NEW));
 	}
 
 	@Override
-	public void advisePINPadNewPINEntryAgain(int retriesLeft) {
+	public void advisePINPadNewPINEntryAgain(final int retriesLeft) {
 		showPINPadFrame(retriesLeft, "eID PIN change", this.messages
 				.getMessage(MESSAGE_ID.PIN_PAD_MODIFY_NEW_AGAIN));
 	}
 
 	@Override
-	public void advisePINPadOldPINEntry(int retriesLeft) {
+	public void advisePINPadOldPINEntry(final int retriesLeft) {
 		showPINPadFrame(retriesLeft, "eID PIN change", this.messages
 				.getMessage(MESSAGE_ID.PIN_PAD_MODIFY_OLD));
 
@@ -127,13 +128,13 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	}
 
 	@Override
-	public void advisePINPadPINEntry(int retriesLeft) {
+	public void advisePINPadPINEntry(final int retriesLeft) {
 		showPINPadFrame(retriesLeft, "PIN", this.messages
 				.getMessage(MESSAGE_ID.PIN_PAD));
 	}
 
 	@Override
-	public void advisePINPadPUKEntry(int retriesLeft) {
+	public void advisePINPadPUKEntry(final int retriesLeft) {
 		showPINPadFrame(retriesLeft, "eID PIN unblock", this.messages
 				.getMessage(MESSAGE_ID.PUK_PAD));
 
@@ -147,12 +148,12 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	}
 
 	@Override
-	public char[][] obtainOldAndNewPIN(int retriesLeft) {
-		Box mainPanel = Box.createVerticalBox();
+	public char[][] obtainOldAndNewPIN(final int retriesLeft) {
+		final Box mainPanel = Box.createVerticalBox();
 
 		if (-1 != retriesLeft) {
-			Box retriesPanel = Box.createHorizontalBox();
-			JLabel retriesLabel = new JLabel(this.messages
+			final Box retriesPanel = Box.createHorizontalBox();
+			final JLabel retriesLabel = new JLabel(this.messages
 					.getMessage(MESSAGE_ID.RETRIES_LEFT)
 					+ ": " + retriesLeft);
 			retriesLabel.setForeground(Color.RED);
@@ -162,40 +163,36 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 			mainPanel.add(Box.createVerticalStrut(5));
 		}
 
-		JPasswordField oldPinField = new JPasswordField(MAX_PIN_SIZE);
-		{
-			Box oldPinPanel = Box.createHorizontalBox();
-			JLabel oldPinLabel = new JLabel(this.messages
-					.getMessage(MESSAGE_ID.CURRENT_PIN)
-					+ ":");
-			oldPinLabel.setLabelFor(oldPinField);
-			oldPinPanel.add(oldPinLabel);
-			oldPinPanel.add(Box.createHorizontalStrut(5));
-			oldPinPanel.add(oldPinField);
-			mainPanel.add(oldPinPanel);
-		}
+		final JPasswordField oldPinField = new JPasswordField(MAX_PIN_SIZE);
+		final Box oldPinPanel = Box.createHorizontalBox();
+		final JLabel oldPinLabel = new JLabel(this.messages
+				.getMessage(MESSAGE_ID.CURRENT_PIN)
+				+ ":");
+		oldPinLabel.setLabelFor(oldPinField);
+		oldPinPanel.add(oldPinLabel);
+		oldPinPanel.add(Box.createHorizontalStrut(5));
+		oldPinPanel.add(oldPinField);
+		mainPanel.add(oldPinPanel);
 
 		mainPanel.add(Box.createVerticalStrut(5));
 
-		JPasswordField newPinField = new JPasswordField(MAX_PIN_SIZE);
-		{
-			Box newPinPanel = Box.createHorizontalBox();
-			JLabel newPinLabel = new JLabel(this.messages
-					.getMessage(MESSAGE_ID.NEW_PIN)
-					+ ":");
-			newPinLabel.setLabelFor(newPinField);
-			newPinPanel.add(newPinLabel);
-			newPinPanel.add(Box.createHorizontalStrut(5));
-			newPinPanel.add(newPinField);
-			mainPanel.add(newPinPanel);
-		}
+		final JPasswordField newPinField = new JPasswordField(MAX_PIN_SIZE);
+		final Box newPinPanel = Box.createHorizontalBox();
+		final JLabel newPinLabel = new JLabel(this.messages
+				.getMessage(MESSAGE_ID.NEW_PIN)
+				+ ":");
+		newPinLabel.setLabelFor(newPinField);
+		newPinPanel.add(newPinLabel);
+		newPinPanel.add(Box.createHorizontalStrut(5));
+		newPinPanel.add(newPinField);
+		mainPanel.add(newPinPanel);
 
 		mainPanel.add(Box.createVerticalStrut(5));
 
-		JPasswordField new2PinField = new JPasswordField(MAX_PIN_SIZE);
+		final JPasswordField new2PinField = new JPasswordField(MAX_PIN_SIZE);
 		{
-			Box new2PinPanel = Box.createHorizontalBox();
-			JLabel new2PinLabel = new JLabel(this.messages
+			final Box new2PinPanel = Box.createHorizontalBox();
+			final JLabel new2PinLabel = new JLabel(this.messages
 					.getMessage(MESSAGE_ID.NEW_PIN)
 					+ ":");
 			new2PinLabel.setLabelFor(new2PinField);
@@ -205,7 +202,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 			mainPanel.add(new2PinPanel);
 		}
 
-		int result = JOptionPane.showOptionDialog(this.parentComponent,
+		final int result = JOptionPane.showOptionDialog(this.parentComponent,
 				mainPanel, "Change eID PIN", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, null, null);
 		if (result != JOptionPane.OK_OPTION) {
@@ -215,8 +212,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 				.getPassword())) {
 			throw new RuntimeException("new PINs not equal");
 		}
-		char[] oldPin = new char[oldPinField.getPassword().length];
-		char[] newPin = new char[newPinField.getPassword().length];
+		final char[] oldPin = new char[oldPinField.getPassword().length];
+		final char[] newPin = new char[newPinField.getPassword().length];
 		System.arraycopy(oldPinField.getPassword(), 0, oldPin, 0, oldPinField
 				.getPassword().length);
 		System.arraycopy(newPinField.getPassword(), 0, newPin, 0, newPinField
@@ -227,7 +224,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	}
 
 	@Override
-	public char[] obtainPIN(int retriesLeft, PINPurpose reason) {
+	public char[] obtainPIN(final int retriesLeft, final PINPurpose reason) {
 		// main panel
 		JPanel mainPanel = new JPanel() {
 			private static final long serialVersionUID = 1L;
@@ -239,11 +236,12 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 						BORDER_SIZE);
 			}
 		};
-		BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS);
+		final BoxLayout boxLayout = new BoxLayout(mainPanel,
+				BoxLayout.PAGE_AXIS);
 		mainPanel.setLayout(boxLayout);
 
-		Box reasonPanel = Box.createHorizontalBox();
-		JLabel reasonLabel = new JLabel(this.messages.getMessage(
+		final Box reasonPanel = Box.createHorizontalBox();
+		final JLabel reasonLabel = new JLabel(this.messages.getMessage(
 				MESSAGE_ID.PIN_REASON, reason.getType()));
 		reasonPanel.add(reasonLabel);
 		reasonPanel.add(Box.createHorizontalGlue());
@@ -251,8 +249,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		mainPanel.add(Box.createVerticalStrut(10));
 
 		if (-1 != retriesLeft) {
-			Box retriesPanel = Box.createHorizontalBox();
-			JLabel retriesLabel = new JLabel(this.messages
+			final Box retriesPanel = Box.createHorizontalBox();
+			final JLabel retriesLabel = new JLabel(this.messages
 					.getMessage(MESSAGE_ID.RETRIES_LEFT)
 					+ ": " + retriesLeft);
 			retriesLabel.setForeground(Color.RED);
@@ -262,8 +260,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 			mainPanel.add(Box.createVerticalStrut(10));
 		}
 
-		Box passwordPanel = Box.createHorizontalBox();
-		JLabel promptLabel = new JLabel(this.messages
+		final Box passwordPanel = Box.createHorizontalBox();
+		final JLabel promptLabel = new JLabel(this.messages
 				.getMessage(MESSAGE_ID.LABEL_PIN)
 				+ ": ");
 		passwordPanel.add(promptLabel);
@@ -286,7 +284,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 				.getMessage(MESSAGE_ID.OK));
 		okButton.setEnabled(false);
 		buttonPanel.add(okButton);
-		JButton cancelButton = new JButton(this.messages
+		final JButton cancelButton = new JButton(this.messages
 				.getMessage(MESSAGE_ID.CANCEL));
 		buttonPanel.add(cancelButton);
 
@@ -300,20 +298,20 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		final DialogResult dialogResult = new DialogResult();
 
 		okButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
+			public void actionPerformed(final ActionEvent event) {
 				dialogResult.result = DialogResult.Result.OK;
 				dialog.dispose();
 			}
 		});
 		cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
+			public void actionPerformed(final ActionEvent event) {
 				dialogResult.result = DialogResult.Result.CANCEL;
 				dialog.dispose();
 			}
 		});
 		passwordField.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				int pinSize = passwordField.getPassword().length;
+			public void actionPerformed(final ActionEvent event) {
+				final int pinSize = passwordField.getPassword().length;
 				if (MIN_PIN_SIZE <= pinSize && pinSize <= MAX_PIN_SIZE) {
 					dialogResult.result = DialogResult.Result.OK;
 					dialog.dispose();
@@ -322,11 +320,11 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		});
 		passwordField.addKeyListener(new KeyListener() {
 
-			public void keyPressed(KeyEvent e) {
+			public void keyPressed(final KeyEvent e) {
 			}
 
-			public void keyReleased(KeyEvent e) {
-				int pinSize = passwordField.getPassword().length;
+			public void keyReleased(final KeyEvent e) {
+				final int pinSize = passwordField.getPassword().length;
 				if (MIN_PIN_SIZE <= pinSize && pinSize <= MAX_PIN_SIZE) {
 					okButton.setEnabled(true);
 				} else {
@@ -334,7 +332,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 				}
 			}
 
-			public void keyTyped(KeyEvent e) {
+			public void keyTyped(final KeyEvent e) {
 			}
 		});
 
@@ -347,19 +345,18 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		// setVisible will wait until some button or so has been pressed
 
 		if (dialogResult.result == DialogResult.Result.OK) {
-			char[] pin = passwordField.getPassword();
-			return pin;
+			return passwordField.getPassword();
 		}
 		throw new RuntimeException(OPERATION_CANCELLED);
 	}
 
 	@Override
-	public char[][] obtainPUKCodes(int retriesLeft) {
-		Box mainPanel = Box.createVerticalBox();
+	public char[][] obtainPUKCodes(final int retriesLeft) {
+		final Box mainPanel = Box.createVerticalBox();
 
 		if (-1 != retriesLeft) {
-			Box retriesPanel = Box.createHorizontalBox();
-			JLabel retriesLabel = new JLabel(this.messages
+			final Box retriesPanel = Box.createHorizontalBox();
+			final JLabel retriesLabel = new JLabel(this.messages
 					.getMessage(MESSAGE_ID.RETRIES_LEFT)
 					+ ": " + retriesLeft);
 			retriesLabel.setForeground(Color.RED);
@@ -369,31 +366,27 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 			mainPanel.add(Box.createVerticalStrut(5));
 		}
 
-		JPasswordField puk1Field = new JPasswordField(8);
-		{
-			Box puk1Panel = Box.createHorizontalBox();
-			JLabel puk1Label = new JLabel("eID PUK1:");
-			puk1Label.setLabelFor(puk1Field);
-			puk1Panel.add(puk1Label);
-			puk1Panel.add(Box.createHorizontalStrut(5));
-			puk1Panel.add(puk1Field);
-			mainPanel.add(puk1Panel);
-		}
+		final JPasswordField puk1Field = new JPasswordField(8);
+		final Box puk1Panel = Box.createHorizontalBox();
+		final JLabel puk1Label = new JLabel("eID PUK1:");
+		puk1Label.setLabelFor(puk1Field);
+		puk1Panel.add(puk1Label);
+		puk1Panel.add(Box.createHorizontalStrut(5));
+		puk1Panel.add(puk1Field);
+		mainPanel.add(puk1Panel);
 
 		mainPanel.add(Box.createVerticalStrut(5));
 
-		JPasswordField puk2Field = new JPasswordField(8);
-		{
-			Box puk2Panel = Box.createHorizontalBox();
-			JLabel puk2Label = new JLabel("eID PUK2:");
-			puk2Label.setLabelFor(puk2Field);
-			puk2Panel.add(puk2Label);
-			puk2Panel.add(Box.createHorizontalStrut(5));
-			puk2Panel.add(puk2Field);
-			mainPanel.add(puk2Panel);
-		}
+		final JPasswordField puk2Field = new JPasswordField(8);
+		final Box puk2Panel = Box.createHorizontalBox();
+		final JLabel puk2Label = new JLabel("eID PUK2:");
+		puk2Label.setLabelFor(puk2Field);
+		puk2Panel.add(puk2Label);
+		puk2Panel.add(Box.createHorizontalStrut(5));
+		puk2Panel.add(puk2Field);
+		mainPanel.add(puk2Panel);
 
-		int result = JOptionPane.showOptionDialog(this.parentComponent,
+		final int result = JOptionPane.showOptionDialog(this.parentComponent,
 				mainPanel, "eID PIN unblock", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, null, null);
 		if (result != JOptionPane.OK_OPTION) {
@@ -403,8 +396,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 				|| puk2Field.getPassword().length != PUK_SIZE) {
 			throw new RuntimeException("PUK size incorrect");
 		}
-		char[] puk1 = new char[puk1Field.getPassword().length];
-		char[] puk2 = new char[puk2Field.getPassword().length];
+		final char[] puk1 = new char[puk1Field.getPassword().length];
+		final char[] puk2 = new char[puk2Field.getPassword().length];
 		System.arraycopy(puk1Field.getPassword(), 0, puk1, 0, puk1Field
 				.getPassword().length);
 		System.arraycopy(puk2Field.getPassword(), 0, puk2, 0, puk2Field
@@ -429,7 +422,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 				return new Insets(10, 30, 10, 30);
 			}
 		};
-		BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
+		final BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
 		panel.setLayout(boxLayout);
 		panel.add(new JLabel(
 				"Check the transaction message on the secure card reader."));
@@ -453,7 +446,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	 * **********************************************************************************************************************
 	 */
 
-	private void showPINPadFrame(int retriesLeft, String title, String message) {
+	private void showPINPadFrame(final int retriesLeft, final String title,
+			final String message) {
 		if (null != this.pinPadFrame) {
 			disposePINPadFrame();
 		}
@@ -466,11 +460,11 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 				return new Insets(10, 30, 10, 30);
 			}
 		};
-		BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
+		final BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
 		panel.setLayout(boxLayout);
 
 		if (-1 != retriesLeft) {
-			JLabel retriesLabel = new JLabel(this.messages
+			final JLabel retriesLabel = new JLabel(this.messages
 					.getMessage(MESSAGE_ID.RETRIES_LEFT)
 					+ ": " + retriesLeft);
 			retriesLabel.setForeground(Color.RED);

@@ -18,6 +18,8 @@
 
 package be.fedict.commons.eid.client;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,7 +37,7 @@ public class BeIDCards {
 
 	private final Logger logger;
 	private BeIDCardManager cardManager;
-	private boolean initialized;
+	private boolean initialized, uiSelectingCard;
 	private Map<CardTerminal, BeIDCard> beIDTerminalsAndCards;
 	private Sleeper initSleeper, beIDSleeper;
 	private BeIDCardsUI ui;
@@ -66,12 +68,25 @@ public class BeIDCards {
 		this.beIDSleeper = new Sleeper();
 		this.beIDTerminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
 		this.initialized = false;
+		this.uiSelectingCard = false;
 
 		this.cardManager.addBeIDCardEventListener(new BeIDCardEventsListener() {
 			@Override
 			public void eIDCardInserted(final CardTerminal cardTerminal,
 					final BeIDCard card) {
 				BeIDCards.this.logger.debug("eID Card Insertion Reported");
+
+				if (BeIDCards.this.uiSelectingCard) {
+					try {
+						BeIDCards.this.getUI().eIDCardInsertedDuringSelection(
+								card);
+					} catch (final Exception ex) {
+						BeIDCards.this.logger
+								.error("Exception in UI:eIDCardInserted"
+										+ ex.getMessage());
+					}
+				}
+
 				synchronized (BeIDCards.this.beIDTerminalsAndCards) {
 					BeIDCards.this.beIDTerminalsAndCards
 							.put(cardTerminal, card);
@@ -83,6 +98,18 @@ public class BeIDCards {
 			public void eIDCardRemoved(final CardTerminal cardTerminal,
 					final BeIDCard card) {
 				BeIDCards.this.logger.debug("eID Card Removal Reported");
+
+				if (BeIDCards.this.uiSelectingCard) {
+					try {
+						BeIDCards.this.getUI().eIDCardRemovedDuringSelection(
+								card);
+					} catch (final Exception ex) {
+						BeIDCards.this.logger
+								.error("Exception in UI:eIDCardRemoved"
+										+ ex.getMessage());
+					}
+				}
+
 				synchronized (BeIDCards.this.beIDTerminalsAndCards) {
 					BeIDCards.this.beIDTerminalsAndCards.remove(cardTerminal);
 					BeIDCards.this.beIDSleeper.awaken();
@@ -119,21 +146,43 @@ public class BeIDCards {
 	 * present, will request the UI to select between those, and return the
 	 * selected card.
 	 */
-	public BeIDCard getOneBeIDCard() {
-		waitForAtLeastOneBeIDCard();
+	public BeIDCard getOneBeIDCard() throws CancelledException {
+		BeIDCard selectedCard = null;
 
-		synchronized (this.beIDTerminalsAndCards) {
-			if (this.beIDTerminalsAndCards.size() == 1) {
-				return this.beIDTerminalsAndCards.values().iterator().next();
-			} else {
-				return getUI().selectBeIDCard(
+		do {
+			waitForAtLeastOneBeIDCard();
+
+			// copy current list of BeID Cards to avoid holding a lock on it during possible selectBeIDCard dialog.
+			// (because we'd deadlock when user inserts/removes a card while selectBeIDCard has not returned)
+			Collection<BeIDCard> currentBeIDCards = null;
+			synchronized (this.beIDTerminalsAndCards) {
+				currentBeIDCards = new ArrayList<BeIDCard>(
 						this.beIDTerminalsAndCards.values());
 			}
-		}
+
+			if (currentBeIDCards.size() == 1) {
+				// only one BeID card. return it.
+				selectedCard = currentBeIDCards.iterator().next();
+			} else {
+				// more than one, call upon the UI to obtain a selection
+				try {
+					System.err.println("selecting");
+					this.uiSelectingCard = true;
+					selectedCard = getUI().selectBeIDCard(currentBeIDCards);
+				} catch (final OutOfCardsException oocex) {
+					// if we run out of cards, waitForAtLeastOneBeIDCard will ask for one in the next loop
+				} finally {
+					this.uiSelectingCard = false;
+					System.err.println("no longer selecting");
+				}
+			}
+		} while (selectedCard == null);
+
+		return selectedCard;
 	}
 
 	/*
-	 * wait for a particular BeID card to be removed Note that this only works
+	 * wait for a particular BeID card to be removed. Note that this only works
 	 * with BeID objects that were acquired using one of the getXXX methods from
 	 * the same BeIDCards instance
 	 */

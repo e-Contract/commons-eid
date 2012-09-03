@@ -1,7 +1,6 @@
 package be.fedict.commons.eid.client.spi;
 
 import java.util.Collection;
-
 import be.fedict.commons.eid.client.BeIDCard;
 
 public class BeIDCardsIUAdapter implements BeIDCardsUI {
@@ -20,7 +19,14 @@ public class BeIDCardsIUAdapter implements BeIDCardsUI {
 	}
 
 	@Override
-	public void adviseEnd() {
+	public void eIDCardInsertedDuringSelection(final BeIDCard card) {
 	}
 
+	@Override
+	public void eIDCardRemovedDuringSelection(final BeIDCard card) {
+	}
+
+	@Override
+	public void adviseEnd() {
+	}
 }

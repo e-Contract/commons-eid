@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
+import be.fedict.commons.eid.client.BeIDCardsException;
 import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
@@ -115,42 +116,47 @@ public class BeIDCardExercises {
 		assertTrue(result);
 	}
 
-	//	@Test
-	//	public void testUnblockPIN() throws Exception
-	//	{
-	//		BeIDCard 	beIDCard = getBeIDCard();
-	//					beIDCard.unblockPin(true);
-	//	}
+	// @Test
+	// public void testUnblockPIN() throws Exception
+	// {
+	// BeIDCard beIDCard = getBeIDCard();
+	// beIDCard.unblockPin(true);
+	// }
 
 	private BeIDCard getBeIDCard() {
 		this.beIDCards = new BeIDCards(new TestLogger());
-		final BeIDCard beIDCard = this.beIDCards.getOneBeIDCard();
-		assertNotNull(beIDCard);
+		BeIDCard beIDCard = null;
+		try {
+			beIDCard = this.beIDCards.getOneBeIDCard();
+			assertNotNull(beIDCard);
 
-		beIDCard.addCardListener(new BeIDCardListener() {
-			@Override
-			public void notifyReadProgress(final FileType fileType,
-					final int offset, final int estimatedMaxSize) {
-				LOG.debug("read progress of " + fileType.name() + ":" + offset
-						+ " of " + estimatedMaxSize);
-			}
+			beIDCard.addCardListener(new BeIDCardListener() {
+				@Override
+				public void notifyReadProgress(final FileType fileType,
+						final int offset, final int estimatedMaxSize) {
+					LOG.debug("read progress of " + fileType.name() + ":"
+							+ offset + " of " + estimatedMaxSize);
+				}
 
-			@Override
-			public void notifySigningBegin(final FileType keyType) {
-				LOG.debug("signing with "
-						+ (keyType == FileType.AuthentificationCertificate
-								? "authentication"
-								: "non-repudiation") + " key has begun");
-			}
+				@Override
+				public void notifySigningBegin(final FileType keyType) {
+					LOG.debug("signing with "
+							+ (keyType == FileType.AuthentificationCertificate
+									? "authentication"
+									: "non-repudiation") + " key has begun");
+				}
 
-			@Override
-			public void notifySigningEnd(final FileType keyType) {
-				LOG.debug("signing with "
-						+ (keyType == FileType.AuthentificationCertificate
-								? "authentication"
-								: "non-repudiation") + " key has ended");
-			}
-		});
+				@Override
+				public void notifySigningEnd(final FileType keyType) {
+					LOG.debug("signing with "
+							+ (keyType == FileType.AuthentificationCertificate
+									? "authentication"
+									: "non-repudiation") + " key has ended");
+				}
+			});
+		} catch (final BeIDCardsException bcex) {
+			System.err.println(bcex.getMessage());
+		}
 
 		return beIDCard;
 	}

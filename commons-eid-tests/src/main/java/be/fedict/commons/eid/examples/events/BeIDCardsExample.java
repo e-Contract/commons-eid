@@ -6,6 +6,7 @@ import javax.smartcardio.CardException;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.BeIDCardsException;
+import be.fedict.commons.eid.client.CancelledException;
 import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
@@ -29,29 +30,34 @@ public class BeIDCardsExample {
 		// -------------------------------------------------------------------------------------------------------
 		// ask it for one BeID Card. This may block and interact with the user.
 		// -------------------------------------------------------------------------------------------------------
-		final BeIDCard card = beIDCards.getOneBeIDCard();
 
-		// -------------------------------------------------------------------------------------------------------
-		// read identity file, decode it and print something containing card holder's first name
-		// -------------------------------------------------------------------------------------------------------
 		try {
-			final byte[] idData = card.readFile(FileType.Identity);
-			final Identity id = TlvParser.parse(idData, Identity.class);
-			System.out.println(id.firstName + "'s card");
-		} catch (final CardException cex) {
-			// TODO Auto-generated catch block
-			cex.printStackTrace();
-		} catch (final IOException iox) {
-			// TODO Auto-generated catch block
-			iox.printStackTrace();
-		}
+			final BeIDCard card = beIDCards.getOneBeIDCard();
 
-		// -------------------------------------------------------------------------------------------------------
-		// wait for removal of the card we've just read.
-		// -------------------------------------------------------------------------------------------------------
-		System.out.println("Please remove the card now.");
-		beIDCards.waitUntilCardRemoved(card);
-		System.out.println("Thank you.");
+			// -------------------------------------------------------------------------------------------------------
+			// read identity file, decode it and print something containing card holder's first name
+			// -------------------------------------------------------------------------------------------------------
+			try {
+				final byte[] idData = card.readFile(FileType.Identity);
+				final Identity id = TlvParser.parse(idData, Identity.class);
+				System.out.println(id.firstName + "'s card");
+			} catch (final CardException cex) {
+				// TODO Auto-generated catch block
+				cex.printStackTrace();
+			} catch (final IOException iox) {
+				// TODO Auto-generated catch block
+				iox.printStackTrace();
+			}
+
+			// -------------------------------------------------------------------------------------------------------
+			// wait for removal of the card we've just read.
+			// -------------------------------------------------------------------------------------------------------
+			System.out.println("Please remove the card now.");
+			beIDCards.waitUntilCardRemoved(card);
+			System.out.println("Thank you.");
+		} catch (final CancelledException cex) {
+			System.out.println("Cancelled By User");
+		}
 
 	}
 
