@@ -43,7 +43,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	private Component parentComponent;
 	private Messages messages;
 	private JFrame adviseFrame;
-	private BeIDSelectionDialog selectionDialog;
+	private BeIDSelector selectionDialog;
 
 	public DefaultBeIDCardsUI() {
 		this(null, new Messages(Locale.getDefault()));
@@ -82,8 +82,8 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	public BeIDCard selectBeIDCard(final Collection<BeIDCard> availableCards)
 			throws CancelledException, OutOfCardsException {
 		try {
-			this.selectionDialog = new BeIDSelectionDialog(
-					this.parentComponent, "Select eID card", availableCards);
+			this.selectionDialog = new BeIDSelector(this.parentComponent,
+					"Select eID card", availableCards);
 			return this.selectionDialog.choose();
 		} finally {
 			this.selectionDialog = null;
@@ -132,14 +132,14 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	@Override
 	public void eIDCardInsertedDuringSelection(final BeIDCard card) {
 		if (this.selectionDialog != null) {
-			this.selectionDialog.eIDCardInserted(card);
+			this.selectionDialog.addEIDCard(card);
 		}
 	}
 
 	@Override
 	public void eIDCardRemovedDuringSelection(final BeIDCard card) {
 		if (this.selectionDialog != null) {
-			this.selectionDialog.eIDCardRemoved(card);
+			this.selectionDialog.removeEIDCard(card);
 		}
 	}
 }
