@@ -37,8 +37,8 @@ public class BeIDProvider extends Provider {
 	public BeIDProvider() {
 		super(NAME, 1.0, "BeID Provider");
 
-		putService(new BeIDService(this, "KeyStore", "BeID", BeIDKeyStore.class
-				.getName()));
+		putService(new BeIDService(this, "KeyStore", "BeID",
+				BeIDKeyStore.class.getName()));
 
 		final Map<String, String> signatureServiceAttributes = new HashMap<String, String>();
 		signatureServiceAttributes.put("SupportedKeyClasses",
@@ -51,6 +51,11 @@ public class BeIDProvider extends Provider {
 				BeIDSignature.class.getName(), signatureServiceAttributes));
 		putService(new BeIDService(this, "Signature", "SHA512withRSA",
 				BeIDSignature.class.getName(), signatureServiceAttributes));
+		putService(new BeIDService(this, "Signature", "NONEwithRSA",
+				BeIDSignature.class.getName(), signatureServiceAttributes));
+
+		putService(new BeIDService(this, "KeyManagerFactory", "BeID",
+				BeIDKeyManagerFactory.class.getName()));
 	}
 
 	public static final class BeIDService extends Service {
@@ -69,7 +74,7 @@ public class BeIDProvider extends Provider {
 		@Override
 		public Object newInstance(final Object constructorParameter)
 				throws NoSuchAlgorithmException {
-			LOG.debug("newInstance");
+			LOG.debug("newInstance: " + super.getType());
 			if (super.getType().equals("Signature")) {
 				return new BeIDSignature(this.getAlgorithm());
 			}

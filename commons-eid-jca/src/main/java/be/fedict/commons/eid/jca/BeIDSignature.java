@@ -18,6 +18,7 @@
 
 package be.fedict.commons.eid.jca;
 
+import java.io.ByteArrayOutputStream;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.MessageDigest;
@@ -47,23 +48,34 @@ public class BeIDSignature extends SignatureSpi {
 
 	private final String signatureAlgorithm;
 
+	private final ByteArrayOutputStream precomputedDigestOutputStream;
+
 	static {
 		digestAlgos = new HashMap<String, String>();
 		digestAlgos.put("SHA1withRSA", "SHA-1");
 		digestAlgos.put("SHA256withRSA", "SHA-256");
 		digestAlgos.put("SHA384withRSA", "SHA-384");
 		digestAlgos.put("SHA512withRSA", "SHA-512");
+		digestAlgos.put("NONEwithRSA", null);
 	}
 
 	BeIDSignature(final String signatureAlgorithm)
 			throws NoSuchAlgorithmException {
 		LOG.debug("constructor: " + signatureAlgorithm);
 		this.signatureAlgorithm = signatureAlgorithm;
-		final String digestAlgo = digestAlgos.get(signatureAlgorithm);
-		if (null == digestAlgo) {
+		if (false == digestAlgos.containsKey(signatureAlgorithm)) {
+			LOG.error("no such algo: " + signatureAlgorithm);
 			throw new NoSuchAlgorithmException(signatureAlgorithm);
 		}
-		this.messageDigest = MessageDigest.getInstance(digestAlgo);
+		final String digestAlgo = digestAlgos.get(signatureAlgorithm);
+		if (null != digestAlgo) {
+			this.messageDigest = MessageDigest.getInstance(digestAlgo);
+			this.precomputedDigestOutputStream = null;
+		} else {
+			LOG.debug("NONE message digest");
+			this.messageDigest = null;
+			this.precomputedDigestOutputStream = new ByteArrayOutputStream();
+		}
 	}
 
 	@Override
@@ -90,7 +102,9 @@ public class BeIDSignature extends SignatureSpi {
 			throw new InvalidKeyException();
 		}
 		this.privateKey = (BeIDPrivateKey) privateKey;
-		this.messageDigest.reset();
+		if (null != this.messageDigest) {
+			this.messageDigest.reset();
+		}
 	}
 
 	@Override
@@ -104,7 +118,12 @@ public class BeIDSignature extends SignatureSpi {
 	@Override
 	protected void engineUpdate(final byte[] b, final int off, final int len)
 			throws SignatureException {
-		this.messageDigest.update(b, off, len);
+		if (null != this.messageDigest) {
+			this.messageDigest.update(b, off, len);
+		}
+		if (null != this.precomputedDigestOutputStream) {
+			this.precomputedDigestOutputStream.write(b, off, len);
+		}
 		if (null != this.verifySignature) {
 			this.verifySignature.update(b, off, len);
 		}
@@ -113,9 +132,18 @@ public class BeIDSignature extends SignatureSpi {
 	@Override
 	protected byte[] engineSign() throws SignatureException {
 		LOG.debug("engineSign");
-		final byte[] digestValue = this.messageDigest.digest();
-		return this.privateKey.sign(digestValue, this.messageDigest
-				.getAlgorithm());
+		final byte[] digestValue;
+		final String digestAlgo;
+		if (null != this.messageDigest) {
+			digestValue = this.messageDigest.digest();
+			digestAlgo = this.messageDigest.getAlgorithm();
+		} else if (null != this.precomputedDigestOutputStream) {
+			digestValue = this.precomputedDigestOutputStream.toByteArray();
+			digestAlgo = "NONE";
+		} else {
+			throw new SignatureException();
+		}
+		return this.privateKey.sign(digestValue, digestAlgo);
 	}
 
 	@Override

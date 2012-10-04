@@ -53,7 +53,9 @@ public enum BeIDDigest {
 
 	SHA_1_PSS(new byte[]{}, 0x10),
 
-	SHA_256_PSS(new byte[]{}, 0x20);
+	SHA_256_PSS(new byte[]{}, 0x20),
+	
+	NONE(new byte[] {});
 
 	private final byte[] prefix;
 	private final byte algorithmReference;
