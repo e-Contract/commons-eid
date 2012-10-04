@@ -12,6 +12,9 @@
 	<category name="test.integ">
 		<priority value="DEBUG" />
 	</category>
+	<category name="be.fedict">
+		<priority value="DEBUG" />
+	</category>
 	<root>
 		<appender-ref ref="CONSOLE" />
 	</root>
