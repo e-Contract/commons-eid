@@ -1,0 +1,22 @@
+Commons eID JCA
+
+  This artifact provides a JCA security provider.
+  
+* Creating a signature
+
+  Creating a signature using the Commons eID JCA provider is as easy as it can get.
+
++---
+Security.addProvider(new ProxyProvider());
+KeyStore keyStore = KeyStore.getInstance("BeID");
+PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+Signature signature = Signature.getInstance("SHA1withRSA");
+signature.initSign(authnPrivateKey);
+byte[] toBeSigned = "hello world".getBytes();
+signature.update(toBeSigned);
+byte[] signatureValue = signature.sign();
++---
+
+* Javadoc
+    
+  {{{./apidocs/index.html}Javadoc}}

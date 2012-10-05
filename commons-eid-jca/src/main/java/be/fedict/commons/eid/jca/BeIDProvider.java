@@ -18,14 +18,35 @@
 
 package be.fedict.commons.eid.jca;
 
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
+import java.security.Signature;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.net.ssl.KeyManagerFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * The JCA security provider. Provides an eID based {@link KeyStore},
+ * {@link Signature}, and {@link KeyManagerFactory}.
+ * <p/>
+ * Usage:
+ * 
+ * <pre>
+ * import java.security.Security;
+ * import be.fedict.commons.eid.jca.BeIDProvider;
+ * 
+ * ...
+ * Security.addProvider(new BeIDProvider());
+ * </pre>
+ * 
+ * @author Frank Cornelis
+ * 
+ */
 public class BeIDProvider extends Provider {
 
 	private static final long serialVersionUID = 1L;

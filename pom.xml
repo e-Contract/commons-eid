@@ -44,6 +44,10 @@
 			<url>scp://e-contract.be/maven2</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
+		<site>
+			<id>e-contract-site</id>
+			<url>scp://e-contract.be/sites/commons-eid/</url>
+		</site>
 	</distributionManagement>
 	<modules>
 		<module>commons-eid-bom</module>

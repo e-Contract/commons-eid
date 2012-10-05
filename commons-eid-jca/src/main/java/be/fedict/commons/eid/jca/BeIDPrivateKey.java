@@ -30,6 +30,13 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
 
+/**
+ * eID based JCA private key.
+ * 
+ * @see BeIDKeyStore
+ * @author Frank Cornelis
+ * 
+ */
 public class BeIDPrivateKey implements PrivateKey {
 
 	private static final long serialVersionUID = 1L;

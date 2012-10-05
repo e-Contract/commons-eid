@@ -23,6 +23,13 @@ import java.security.KeyStore.ProtectionParameter;
 
 import be.fedict.commons.eid.client.BeIDCard;
 
+/**
+ * An eID specific {@link KeyStore} parameter.
+ * 
+ * @see KeyStore
+ * @author Frank Cornelis
+ * 
+ */
 public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	private BeIDCard beIDCard;
@@ -34,6 +41,12 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 		return null;
 	}
 
+	/**
+	 * Sets the {@link BeIDCard} to be used by the corresponding
+	 * {@link KeyStore}.
+	 * 
+	 * @param beIDCard
+	 */
 	public void setBeIDCard(final BeIDCard beIDCard) {
 		this.beIDCard = beIDCard;
 	}
@@ -42,6 +55,12 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 		return this.beIDCard;
 	}
 
+	/**
+	 * Set to <code>true</code> if you want an eID logoff to be issued after
+	 * each PIN entry.
+	 * 
+	 * @param logoff
+	 */
 	public void setLogoff(final boolean logoff) {
 		this.logoff = logoff;
 	}

@@ -35,6 +35,13 @@ import javax.net.ssl.X509ExtendedKeyManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * eID specific {@link X509ExtendedKeyManager}.
+ * 
+ * @see BeIDKeyManagerFactory
+ * @author Frank Cornelis
+ * 
+ */
 public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 
 	private static final Log LOG = LogFactory.getLog(BeIDX509KeyManager.class);
