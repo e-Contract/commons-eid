@@ -16,22 +16,22 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>be.fedict</groupId>
+				<groupId>be.fedict.commons-eid</groupId>
 				<artifactId>commons-eid-client</artifactId>
 				<version>${commons-eid.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>be.fedict</groupId>
+				<groupId>be.fedict.commons-eid</groupId>
 				<artifactId>commons-eid-consumer</artifactId>
 				<version>${commons-eid.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>be.fedict</groupId>
+				<groupId>be.fedict.commons-eid</groupId>
 				<artifactId>commons-eid-dialogs</artifactId>
 				<version>${commons-eid.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>be.fedict</groupId>
+				<groupId>be.fedict.commons-eid</groupId>
 				<artifactId>commons-eid-jca</artifactId>
 				<version>${commons-eid.version}</version>
 			</dependency>
