@@ -2,14 +2,19 @@ package test.integ.be.fedict.commons.eid.client;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
+
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.BeIDCardsException;
@@ -79,6 +84,38 @@ public class BeIDCardExercises {
 	}
 
 	@Test
+	public void testPSSSignature() throws Exception {
+		final BeIDCard beIDCard = getBeIDCard();
+
+		final byte[] toBeSigned = new byte[10];
+		final SecureRandom secureRandom = new SecureRandom();
+		secureRandom.nextBytes(toBeSigned);
+
+		final X509Certificate authnCertificate = beIDCard
+				.getAuthenticationCertificate();
+
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+		byte[] digestValue = messageDigest.digest(toBeSigned);
+
+		byte[] signatureValue;
+		try {
+			signatureValue = beIDCard.sign(digestValue, BeIDDigest.SHA_1_PSS,
+					FileType.AuthentificationCertificate, false);
+		} finally {
+			beIDCard.close();
+		}
+
+		Security.addProvider(new BouncyCastleProvider());
+
+		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		final boolean result = beIDIntegrity.verifySignature(
+				"SHA1withRSAandMGF1", signatureValue,
+				authnCertificate.getPublicKey(), toBeSigned);
+
+		assertTrue(result);
+	}
+
+	@Test
 	public void testChangePIN() throws Exception {
 		final BeIDCard beIDCard = getBeIDCard();
 
@@ -141,16 +178,14 @@ public class BeIDCardExercises {
 				@Override
 				public void notifySigningBegin(final FileType keyType) {
 					LOG.debug("signing with "
-							+ (keyType == FileType.AuthentificationCertificate
-									? "authentication"
+							+ (keyType == FileType.AuthentificationCertificate ? "authentication"
 									: "non-repudiation") + " key has begun");
 				}
 
 				@Override
 				public void notifySigningEnd(final FileType keyType) {
 					LOG.debug("signing with "
-							+ (keyType == FileType.AuthentificationCertificate
-									? "authentication"
+							+ (keyType == FileType.AuthentificationCertificate ? "authentication"
 									: "non-repudiation") + " key has ended");
 				}
 			});

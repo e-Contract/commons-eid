@@ -53,6 +53,10 @@ public class BeIDProvider extends Provider {
 				BeIDSignature.class.getName(), signatureServiceAttributes));
 		putService(new BeIDService(this, "Signature", "NONEwithRSA",
 				BeIDSignature.class.getName(), signatureServiceAttributes));
+		putService(new BeIDService(this, "Signature", "SHA1withRSAandMGF1",
+				BeIDSignature.class.getName(), signatureServiceAttributes));
+		putService(new BeIDService(this, "Signature", "SHA256withRSAandMGF1",
+				BeIDSignature.class.getName(), signatureServiceAttributes));
 
 		putService(new BeIDService(this, "KeyManagerFactory", "BeID",
 				BeIDKeyManagerFactory.class.getName()));

@@ -51,6 +51,8 @@ public class BeIDPrivateKey implements PrivateKey {
 		beIDDigests.put("SHA-384", BeIDDigest.SHA_384);
 		beIDDigests.put("SHA-512", BeIDDigest.SHA_512);
 		beIDDigests.put("NONE", BeIDDigest.NONE);
+		beIDDigests.put("SHA-1-PSS", BeIDDigest.SHA_1_PSS);
+		beIDDigests.put("SHA-256-PSS", BeIDDigest.SHA_256_PSS);
 	}
 
 	public BeIDPrivateKey(final FileType certificateFileType,

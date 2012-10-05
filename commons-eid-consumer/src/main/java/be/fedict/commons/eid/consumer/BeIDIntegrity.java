@@ -136,12 +136,19 @@ public class BeIDIntegrity {
 
 	}
 
-	private boolean verifySignature(final byte[] signatureData,
+	public boolean verifySignature(final byte[] signatureData,
 			final PublicKey publicKey, final byte[]... data)
-			throws NoSuchAlgorithmException, InvalidKeyException,
+			throws InvalidKeyException, NoSuchAlgorithmException,
 			SignatureException {
+		return verifySignature("SHA1withRSA", signatureData, publicKey, data);
+	}
+
+	public boolean verifySignature(final String signatureAlgo,
+			final byte[] signatureData, final PublicKey publicKey,
+			final byte[]... data) throws NoSuchAlgorithmException,
+			InvalidKeyException, SignatureException {
 		Signature signature;
-		signature = Signature.getInstance("SHA1withRSA");
+		signature = Signature.getInstance(signatureAlgo);
 		signature.initVerify(publicKey);
 		for (byte[] dataItem : data) {
 			signature.update(dataItem);
