@@ -25,12 +25,32 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 
 import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.KeyManagerFactorySpi;
 import javax.net.ssl.ManagerFactoryParameters;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * eID specific {@link KeyManagerFactory}. Can be used for mutual TLS
+ * authentication.
+ * <p/>
+ * Usage:
+ * 
+ * <pre>
+ * import javax.net.ssl.KeyManagerFactory;
+ * import javax.net.ssl.SSLContext;
+ * ...
+ * KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(&quot;BeID&quot;);
+ * SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+ * sslContext.init(keyManagerFactory.getKeyManagers(), ..., ...);
+ * </pre>
+ * 
+ * @see BeIDX509KeyManager
+ * @author Frank Cornelis
+ * 
+ */
 public class BeIDKeyManagerFactory extends KeyManagerFactorySpi {
 
 	private static final Log LOG = LogFactory

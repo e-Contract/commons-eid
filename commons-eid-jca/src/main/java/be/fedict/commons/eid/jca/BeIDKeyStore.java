@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
+import java.security.KeyStore;
 import java.security.KeyStore.LoadStoreParameter;
 import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
@@ -34,13 +35,40 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
-import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.CancelledException;
+import be.fedict.commons.eid.client.FileType;
 
+/**
+ * eID based JCA {@link KeyStore}. Used to load eID key material via standard
+ * JCA API calls. Supports the eID specific {@link BeIDKeyStoreParameter} key
+ * store parameter.
+ * <p/>
+ * Usage:
+ * 
+ * <pre>
+ * import java.security.KeyStore;
+ * import java.security.cert.X509Certificate;
+ * import java.security.PrivateKey;
+ * 
+ * ...
+ * KeyStore keyStore = KeyStore.getInstance("BeID");
+ * keyStore.load(null);
+ * X509Certificate authnCertificate = (X509Certificate) keyStore
+ * 			.getCertificate("Authentication");
+ * PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+ * 			"Authentication", null);
+ * </pre>
+ * 
+ * @see BeIDKeyStoreParameter
+ * @author Frank Cornelis
+ * 
+ */
 public class BeIDKeyStore extends KeyStoreSpi {
 
 	private static final Log LOG = LogFactory.getLog(BeIDKeyStore.class);
@@ -75,7 +103,8 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			try {
 				final List<X509Certificate> signingCertificateChain = beIDCard
 						.getSigningCertificateChain();
-				return signingCertificateChain.toArray(new X509Certificate[]{});
+				return signingCertificateChain
+						.toArray(new X509Certificate[] {});
 			} catch (final Exception ex) {
 				LOG.error("error: " + ex.getMessage(), ex);
 				return null;
@@ -85,7 +114,8 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			try {
 				final List<X509Certificate> signingCertificateChain = beIDCard
 						.getAuthenticationCertificateChain();
-				return signingCertificateChain.toArray(new X509Certificate[]{});
+				return signingCertificateChain
+						.toArray(new X509Certificate[] {});
 			} catch (final Exception ex) {
 				LOG.error("error: " + ex.getMessage(), ex);
 				return null;

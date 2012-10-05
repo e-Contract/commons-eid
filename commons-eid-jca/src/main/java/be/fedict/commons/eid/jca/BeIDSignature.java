@@ -34,6 +34,22 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * eID based JCA {@link Signature} implementation. Supports the following
+ * signature algorithms:
+ * <ul>
+ * <li><code>SHA1withRSA</code></li>
+ * <li><code>SHA256withRSA</code></li>
+ * <li><code>SHA384withRSA</code></li>
+ * <li><code>SHA512withRSA</code></li>
+ * <li><code>NONEwithRSA</code>, used for mutual TLS authentication.</li>
+ * <li><code>SHA1withRSAandMGF1</code>, supported by future eID cards.</li>
+ * <li><code>SHA256withRSAandMGF1</code>, supported by future eID cards.</li>
+ * </ul>
+ * 
+ * @author Frank Cornelis
+ * 
+ */
 public class BeIDSignature extends SignatureSpi {
 
 	private static final Log LOG = LogFactory.getLog(BeIDSignature.class);
