@@ -57,6 +57,8 @@ public class BeIDSignature extends SignatureSpi {
 		digestAlgos.put("SHA384withRSA", "SHA-384");
 		digestAlgos.put("SHA512withRSA", "SHA-512");
 		digestAlgos.put("NONEwithRSA", null);
+		digestAlgos.put("SHA1withRSAandMGF1", "SHA-1");
+		digestAlgos.put("SHA256withRSAandMGF1", "SHA-256");
 	}
 
 	BeIDSignature(final String signatureAlgorithm)
@@ -133,10 +135,13 @@ public class BeIDSignature extends SignatureSpi {
 	protected byte[] engineSign() throws SignatureException {
 		LOG.debug("engineSign");
 		final byte[] digestValue;
-		final String digestAlgo;
+		String digestAlgo;
 		if (null != this.messageDigest) {
 			digestValue = this.messageDigest.digest();
 			digestAlgo = this.messageDigest.getAlgorithm();
+			if (this.signatureAlgorithm.endsWith("andMGF1")) {
+				digestAlgo += "-PSS";
+			}
 		} else if (null != this.precomputedDigestOutputStream) {
 			digestValue = this.precomputedDigestOutputStream.toByteArray();
 			digestAlgo = "NONE";

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -38,12 +39,16 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
+
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.consumer.jca.ProxyPrivateKey;
@@ -183,6 +188,13 @@ public class JCATest {
 				authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA512withRSA", authnPrivateKey,
 				authnCertificate.getPublicKey());
+
+		Security.addProvider(new BouncyCastleProvider());
+
+		verifySignatureAlgorithm("SHA1withRSAandMGF1", authnPrivateKey,
+				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA256withRSAandMGF1", authnPrivateKey,
+				authnCertificate.getPublicKey());
 	}
 
 	@Test
@@ -197,9 +209,7 @@ public class JCATest {
 
 		final Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.WRAP_MODE, keyPair.getPublic());
-		LOG
-				.debug("cipher security provider: "
-						+ cipher.getProvider().getName());
+		LOG.debug("cipher security provider: " + cipher.getProvider().getName());
 		LOG.debug("cipher type: " + cipher.getClass().getName());
 		final byte[] wrappedKey = cipher.wrap(secretKey);
 
@@ -259,7 +269,8 @@ public class JCATest {
 		final TestLogger logger = new TestLogger();
 		final BeIDCards beIDCards = new BeIDCards(logger);
 		final BeIDCard beIDCard = beIDCards.getOneBeIDCard();
-		assertNotNull(beIDCard);;
+		assertNotNull(beIDCard);
+		;
 		return beIDCard;
 	}
 }
