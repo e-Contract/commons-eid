@@ -1,24 +1,34 @@
 FedICT Commons eID Project
 
   Welcome to the project site of the FedICT Commons eID Project.
-  The Commons eID project delivers several artifacts.
+  The Commons eID project delivers several artifacts to enable the Belgian eID within your Java based applications.
+
+  The architecture of the Commons eID project is specially tailored to be able to serve both
+  desktop applications as well as web browser applets. Desktop applications will basically use all 
+  artifacts together whereas applets will use the client only within the actual applet, and will use the
+  consumer at the server-side.
   
-* Commons eID Client
+  Furthermore the Commons eID project delivers an eID specific JCA security provider. This gives
+  you seamless integration of the eID card into the security architecture of Java. 
+  
+* Modules  
+  
+** Commons eID Client
 
   This artifact contains the basic eID I/O code to read out eID files, and to sign.
 
-* Commons eID Dialogs
+** Commons eID Dialogs
 
   This artifact contains generic dialogs for eID PIN entry and such.
 
-* Commons eID Consumer
+** Commons eID Consumer
 
   This artifact contains eID consumer handling code like for example the TLV parser.
 
-* Commons eID JCA
+** Commons eID JCA
 
   This artifact provides a JCA security provider for the eID card.
 
-* Commons eID BOM
+** Commons eID BOM
 
   This artifact delivers a bill of materials POM for the Commons eID project.
