@@ -44,6 +44,9 @@ import org.apache.commons.logging.LogFactory;
  * Security.addProvider(new BeIDProvider());
  * </pre>
  * 
+ * @see BeIDKeyStore
+ * @see BeIDSignature
+ * @see BeIDKeyManagerFactory
  * @author Frank Cornelis
  * 
  */

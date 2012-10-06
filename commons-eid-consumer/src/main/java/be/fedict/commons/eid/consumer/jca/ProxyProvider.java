@@ -26,6 +26,19 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * JCA security provider for proxy signatures.
+ * <p/>
+ * Usage:
+ * 
+ * <pre>
+ * Security.addProvider(new ProxyProvider());
+ * </pre>
+ * 
+ * @see ProxyKeyStore
+ * @author Frank Cornelis
+ * 
+ */
 public class ProxyProvider extends Provider {
 
 	private static final Log LOG = LogFactory.getLog(ProxyProvider.class);

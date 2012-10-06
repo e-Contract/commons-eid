@@ -7,7 +7,7 @@ Commons eID JCA
   Creating a signature using the Commons eID JCA provider is as easy as it can get.
 
 +---
-Security.addProvider(new ProxyProvider());
+Security.addProvider(new BeIDProvider());
 KeyStore keyStore = KeyStore.getInstance("BeID");
 PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 Signature signature = Signature.getInstance("SHA1withRSA");

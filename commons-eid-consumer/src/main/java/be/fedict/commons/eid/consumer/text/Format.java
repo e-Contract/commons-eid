@@ -1,5 +1,5 @@
 /*
- * eID Middleware Project.
+ * Commons eID Project.
  * Copyright (C) 2010-2012 FedICT.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -23,6 +23,11 @@ package be.fedict.commons.eid.consumer.text;
  * @author Frank Marien
  */
 public class Format {
+	
+	private Format() {
+		super();
+	}
+	
 	// format a national number into YY.MM.DD-S&G.CS
 	public static String formatNationalNumber(final String nationalNumber) {
 		//YY MM DD S&G CS

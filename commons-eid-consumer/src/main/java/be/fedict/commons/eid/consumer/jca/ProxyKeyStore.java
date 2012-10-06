@@ -35,6 +35,19 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * JCA proxy keystore.
+ * <p/>
+ * Usage:
+ * 
+ * <pre>
+ * KeyStore keyStore = KeyStore.getInstance(&quot;ProxyBeID&quot;);
+ * keyStore.load(null);
+ * </pre>
+ * 
+ * @author Frank Cornelis
+ * 
+ */
 public class ProxyKeyStore extends KeyStoreSpi {
 
 	private static final Log LOG = LogFactory.getLog(ProxyKeyStore.class);
