@@ -1,0 +1,7 @@
+Commons eID Consumer
+
+  This artifact provides the consumer classes for performing eID operations.
+
+* Javadoc
+    
+  {{{./apidocs/index.html}Javadoc}}
