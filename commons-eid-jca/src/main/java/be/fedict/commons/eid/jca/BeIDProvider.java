@@ -21,6 +21,7 @@ package be.fedict.commons.eid.jca;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
+import java.security.SecureRandom;
 import java.security.Signature;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * The JCA security provider. Provides an eID based {@link KeyStore},
- * {@link Signature}, and {@link KeyManagerFactory}.
+ * {@link Signature}, {@link KeyManagerFactory}, and {@link SecureRandom}.
  * <p/>
  * Usage:
  * 
@@ -47,6 +48,7 @@ import org.apache.commons.logging.LogFactory;
  * @see BeIDKeyStore
  * @see BeIDSignature
  * @see BeIDKeyManagerFactory
+ * @see BeIDSecureRandom
  * @author Frank Cornelis
  * 
  */
@@ -84,6 +86,9 @@ public class BeIDProvider extends Provider {
 
 		putService(new BeIDService(this, "KeyManagerFactory", "BeID",
 				BeIDKeyManagerFactory.class.getName()));
+
+		putService(new BeIDService(this, "SecureRandom", "BeID",
+				BeIDSecureRandom.class.getName()));
 	}
 
 	public static final class BeIDService extends Service {
