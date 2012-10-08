@@ -57,6 +57,9 @@ public class BeIDIntegrity {
 
 	private final CertificateFactory certificateFactory;
 
+	/**
+	 * Default constructor.
+	 */
 	public BeIDIntegrity() {
 		try {
 			this.certificateFactory = CertificateFactory.getInstance("X.509");
@@ -65,6 +68,12 @@ public class BeIDIntegrity {
 		}
 	}
 
+	/**
+	 * Loads a DER-encoded X509 certificate from a byte array.
+	 * 
+	 * @param encodedCertificate
+	 * @return
+	 */
 	public X509Certificate loadCertificate(final byte[] encodedCertificate) {
 		X509Certificate certificate;
 		try {
@@ -78,6 +87,14 @@ public class BeIDIntegrity {
 		return certificate;
 	}
 
+	/**
+	 * Gives back a parsed identity file after integrity verification.
+	 * 
+	 * @param identityFile
+	 * @param identitySignatureFile
+	 * @param rrnCertificate
+	 * @return
+	 */
 	public Identity getVerifiedIdentity(final byte[] identityFile,
 			final byte[] identitySignatureFile,
 			final X509Certificate rrnCertificate) {
@@ -86,6 +103,16 @@ public class BeIDIntegrity {
 		return identity;
 	}
 
+	/**
+	 * Gives back a parsed identity file after integrity verification including
+	 * the eID photo.
+	 * 
+	 * @param identityFile
+	 * @param identitySignatureFile
+	 * @param photo
+	 * @param rrnCertificate
+	 * @return
+	 */
 	public Identity getVerifiedIdentity(final byte[] identityFile,
 			final byte[] identitySignatureFile, final byte[] photo,
 			final X509Certificate rrnCertificate) {
@@ -113,6 +140,15 @@ public class BeIDIntegrity {
 		return identity;
 	}
 
+	/**
+	 * Gives back a parsed address file after integrity verification.
+	 * 
+	 * @param addressFile
+	 * @param identitySignatureFile
+	 * @param addressSignatureFile
+	 * @param rrnCertificate
+	 * @return
+	 */
 	public Address getVerifiedAddress(final byte[] addressFile,
 			final byte[] identitySignatureFile,
 			final byte[] addressSignatureFile,
@@ -136,6 +172,17 @@ public class BeIDIntegrity {
 
 	}
 
+	/**
+	 * Verifies a SHA1withRSA signature.
+	 * 
+	 * @param signatureData
+	 * @param publicKey
+	 * @param data
+	 * @return
+	 * @throws InvalidKeyException
+	 * @throws NoSuchAlgorithmException
+	 * @throws SignatureException
+	 */
 	public boolean verifySignature(final byte[] signatureData,
 			final PublicKey publicKey, final byte[]... data)
 			throws InvalidKeyException, NoSuchAlgorithmException,
@@ -143,6 +190,18 @@ public class BeIDIntegrity {
 		return verifySignature("SHA1withRSA", signatureData, publicKey, data);
 	}
 
+	/**
+	 * Verifies a signature.
+	 * 
+	 * @param signatureAlgo
+	 * @param signatureData
+	 * @param publicKey
+	 * @param data
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeyException
+	 * @throws SignatureException
+	 */
 	public boolean verifySignature(final String signatureAlgo,
 			final byte[] signatureData, final PublicKey publicKey,
 			final byte[]... data) throws NoSuchAlgorithmException,
@@ -180,6 +239,14 @@ public class BeIDIntegrity {
 		return result;
 	}
 
+	/**
+	 * Verifies an authentication signature.
+	 * 
+	 * @param toBeSigned
+	 * @param signatureValue
+	 * @param authnCertificate
+	 * @return
+	 */
 	public boolean verifyAuthnSignature(final byte[] toBeSigned,
 			final byte[] signatureValue, final X509Certificate authnCertificate) {
 		final PublicKey publicKey = authnCertificate.getPublicKey();
@@ -200,6 +267,14 @@ public class BeIDIntegrity {
 		return result;
 	}
 
+	/**
+	 * Verifies a non-repudiation signature.
+	 * 
+	 * @param expectedDigestValue
+	 * @param signatureValue
+	 * @param certificate
+	 * @return
+	 */
 	public boolean verifyNonRepSignature(final byte[] expectedDigestValue,
 			final byte[] signatureValue, final X509Certificate certificate) {
 		try {

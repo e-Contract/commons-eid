@@ -43,6 +43,8 @@ import org.apache.commons.logging.LogFactory;
  * <pre>
  * KeyStore keyStore = KeyStore.getInstance(&quot;ProxyBeID&quot;);
  * keyStore.load(null);
+ * ProxyPrivateKey privateKey = (ProxyPrivateKey) keyStore.getKey(&quot;Signature&quot;,
+ * 		null);
  * </pre>
  * 
  * @author Frank Cornelis

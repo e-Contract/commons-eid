@@ -25,6 +25,11 @@
 			<name>Frank Cornelis</name>
 			<email>frank.cornelis@fedict.be</email>
 		</developer>
+		<developer>
+			<id>frankm</id>
+			<name>Frank Marien</name>
+			<email>frank@apsu.be</email>
+		</developer>
 	</developers>
 	<issueManagement>
 		<url>http://code.google.com/p/commons-eid/issues/list</url>
@@ -34,6 +39,9 @@
 			<archive>https://groups.google.com/group/eid-applet</archive>
 		</mailingList>
 	</mailingLists>
+	<ciManagement>
+		<url>https://www.e-contract.be/jenkins/job/commons-eid/</url>
+	</ciManagement>
 	<scm>
 		<connection>scm:hg:https://code.google.com/p/commons-eid/</connection>
 		<tag>HEAD</tag>
@@ -174,7 +182,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-project-info-reports-plugin</artifactId>
-					<version>2.4</version>
+					<version>2.5.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
