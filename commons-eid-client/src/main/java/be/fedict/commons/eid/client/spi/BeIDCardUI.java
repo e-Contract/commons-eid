@@ -40,7 +40,7 @@ public interface BeIDCardUI {
 	void advisePINUnblocked();
 
 	// user can enter PIN on PINPad
-	void advisePINPadPINEntry(int retriesLeft);
+	void advisePINPadPINEntry(int retriesLeft, PINPurpose type);
 
 	// user can enter PUK on PINPad
 	void advisePINPadPUKEntry(int retriesLeft);
