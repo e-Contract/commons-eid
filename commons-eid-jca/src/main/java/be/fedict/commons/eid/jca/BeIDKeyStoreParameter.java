@@ -18,15 +18,31 @@
 
 package be.fedict.commons.eid.jca;
 
+import java.awt.Component;
 import java.security.KeyStore;
 import java.security.KeyStore.ProtectionParameter;
+import java.util.Locale;
 
 import be.fedict.commons.eid.client.BeIDCard;
 
 /**
- * An eID specific {@link KeyStore} parameter.
+ * An eID specific {@link KeyStore} parameter. Used to influence how the eID
+ * card should be handled. If no {@link BeIDKeyStoreParameter} is used for
+ * loading the keystore, a default behavior will be used.
+ * <p/>
+ * Usage:
+ * 
+ * <pre>
+ * import java.security.KeyStore;
+ * ...
+ * KeyStore keyStore = KeyStore.getInstance("BeID");
+ * BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
+ * keyStoreParameter.set...
+ * keyStore.load(keyStoreParameter);
+ * </pre>
  * 
  * @see KeyStore
+ * @see BeIDKeyStore
  * @author Frank Cornelis
  * 
  */
@@ -35,6 +51,10 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	private BeIDCard beIDCard;
 
 	private boolean logoff;
+
+	private Component parentComponent;
+
+	private Locale locale;
 
 	@Override
 	public ProtectionParameter getProtectionParameter() {
@@ -67,5 +87,31 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	public boolean getLogoff() {
 		return this.logoff;
+	}
+
+	/**
+	 * Sets the parent component used to position the default eID dialogs.
+	 * 
+	 * @param parentComponent
+	 */
+	public void setParentComponent(Component parentComponent) {
+		this.parentComponent = parentComponent;
+	}
+
+	public Component getParentComponent() {
+		return this.parentComponent;
+	}
+
+	/**
+	 * Sets the locale used for the default eID dialogs.
+	 * 
+	 * @param locale
+	 */
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+	public Locale getLocale() {
+		return this.locale;
 	}
 }

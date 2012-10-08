@@ -35,6 +35,7 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +44,7 @@ import java.util.concurrent.FutureTask;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.swing.JFrame;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -131,6 +133,32 @@ public class JCATest {
 		privateKey.setSignatureValue(signatureValue);
 		final String signResult = signTask.get();
 		assertNotNull(signResult);
+	}
+
+	@Test
+	public void testSwingParentLocale() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		JFrame frame = new JFrame("Test Parent frame");
+		frame.setSize(200, 200);
+		frame.setLocation(300, 300);
+		frame.setVisible(true);
+
+		final KeyStore keyStore = KeyStore.getInstance("BeID");
+		final BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
+		keyStoreParameter.setLogoff(true);
+		keyStoreParameter.setParentComponent(frame);
+		keyStoreParameter.setLocale(new Locale("nl"));
+		keyStore.load(keyStoreParameter);
+
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+				"Authentication", null);
+		Signature signature = Signature.getInstance("SHA1withRSA");
+		signature.initSign(authnPrivateKey);
+
+		byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		signature.sign();
 	}
 
 	@Test

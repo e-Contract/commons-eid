@@ -18,6 +18,7 @@
 
 package be.fedict.commons.eid.jca;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,6 +35,7 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -43,6 +45,12 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.CancelledException;
 import be.fedict.commons.eid.client.FileType;
+import be.fedict.commons.eid.client.impl.VoidLogger;
+import be.fedict.commons.eid.client.spi.BeIDCardUI;
+import be.fedict.commons.eid.client.spi.BeIDCardsUI;
+import be.fedict.eid.commons.dialogs.DefaultBeIDCardUI;
+import be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI;
+import be.fedict.eid.commons.dialogs.Messages;
 
 /**
  * eID based JCA {@link KeyStore}. Used to load eID key material via standard
@@ -73,23 +81,29 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	private static final Log LOG = LogFactory.getLog(BeIDKeyStore.class);
 
-	private BeIDCard beIDCard;
+	private BeIDKeyStoreParameter keyStoreParameter;
 
-	private boolean logoff;
+	private BeIDCard beIDCard;
 
 	@Override
 	public Key engineGetKey(final String alias, final char[] password)
 			throws NoSuchAlgorithmException, UnrecoverableKeyException {
 		LOG.debug("engineGetKey: " + alias);
 		final BeIDCard beIDCard = getBeIDCard();
+		boolean logoff;
+		if (null == this.keyStoreParameter) {
+			logoff = false;
+		} else {
+			logoff = this.keyStoreParameter.getLogoff();
+		}
 		if ("Authentication".equals(alias)) {
 			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(
-					FileType.AuthentificationCertificate, beIDCard, this.logoff);
+					FileType.AuthentificationCertificate, beIDCard, logoff);
 			return beIDPrivateKey;
 		}
 		if ("Signature".equals(alias)) {
 			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(
-					FileType.NonRepudiationCertificate, beIDCard, this.logoff);
+					FileType.NonRepudiationCertificate, beIDCard, logoff);
 			return beIDPrivateKey;
 		}
 		return null;
@@ -246,31 +260,51 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	@Override
 	public void engineLoad(final LoadStoreParameter param) throws IOException,
 			NoSuchAlgorithmException, CertificateException {
+		LOG.debug("engineLoad");
 		if (null == param) {
 			return;
 		}
 		if (false == param instanceof BeIDKeyStoreParameter) {
 			throw new NoSuchAlgorithmException();
 		}
-		final BeIDKeyStoreParameter keyStoreParameter = (BeIDKeyStoreParameter) param;
-		LOG.debug("engineLoad");
-		this.beIDCard = keyStoreParameter.getBeIDCard();
-		this.logoff = keyStoreParameter.getLogoff();
+		this.keyStoreParameter = (BeIDKeyStoreParameter) param;
 	}
 
 	private BeIDCard getBeIDCard() {
+		if (null != this.beIDCard) {
+			return this.beIDCard;
+		}
+		if (null != this.keyStoreParameter) {
+			this.beIDCard = this.keyStoreParameter.getBeIDCard();
+		}
+		if (null != this.beIDCard) {
+			return this.beIDCard;
+		}
+		Component parentComponent;
+		Locale locale;
+		if (null != this.keyStoreParameter) {
+			parentComponent = this.keyStoreParameter.getParentComponent();
+			locale = this.keyStoreParameter.getLocale();
+		} else {
+			parentComponent = null;
+			locale = null;
+		}
+		if (null == locale) {
+			locale = Locale.getDefault();
+		}
+		Messages messages = new Messages(locale);
+		BeIDCardsUI ui = new DefaultBeIDCardsUI(parentComponent, messages);
+		final BeIDCards beIDCards = new BeIDCards(new VoidLogger(), ui);
+		try {
+			this.beIDCard = beIDCards.getOneBeIDCard();
+			BeIDCardUI userInterface = new DefaultBeIDCardUI(parentComponent,
+					messages);
+			this.beIDCard.setUI(userInterface);
+		} catch (final CancelledException cex) {
+			throw new SecurityException("user cancelled");
+		}
 		if (null == this.beIDCard) {
-			final BeIDCards beIDCards = new BeIDCards();
-
-			try {
-				this.beIDCard = beIDCards.getOneBeIDCard();
-			} catch (final CancelledException cex) {
-				throw new SecurityException("user cancelled");
-			}
-
-			if (null == this.beIDCard) {
-				throw new SecurityException("missing eID card");
-			}
+			throw new SecurityException("missing eID card");
 		}
 		return this.beIDCard;
 	}
