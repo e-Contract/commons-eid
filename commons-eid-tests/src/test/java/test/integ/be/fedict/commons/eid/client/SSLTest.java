@@ -156,9 +156,10 @@ public class SSLTest {
 			spec.setParentComponent(frame);
 
 			keyManagerFactory.init(spec);
+			SecureRandom secureRandom = SecureRandom.getInstance("BeID");
 			sslContext.init(keyManagerFactory.getKeyManagers(),
 					new TrustManager[] { new ClientTestX509TrustManager() },
-					new SecureRandom());
+					secureRandom);
 			SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 			Socket socket = sslSocketFactory.createSocket("localhost",
 					this.serverPort);
