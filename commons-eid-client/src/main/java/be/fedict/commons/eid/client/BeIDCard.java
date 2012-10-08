@@ -587,9 +587,9 @@ public class BeIDCard {
 		int retriesLeft = -1;
 		do {
 			if (getCCID().hasFeature(CCID.FEATURE.VERIFY_PIN_DIRECT)) {
-				responseApdu = verifyPINViaCCIDDirect(retriesLeft);
+				responseApdu = verifyPINViaCCIDDirect(retriesLeft, purpose);
 			} else if (getCCID().hasFeature(CCID.FEATURE.VERIFY_PIN_START)) {
-				responseApdu = verifyPINViaCCIDStartFinish(retriesLeft);
+				responseApdu = verifyPINViaCCIDStartFinish(retriesLeft, purpose);
 			} else {
 				responseApdu = verifyPINViaUI(retriesLeft, purpose);
 			}
@@ -618,10 +618,10 @@ public class BeIDCard {
 	 * Verify PIN code using CCID Direct PIN Verify sequence.
 	 */
 
-	private ResponseAPDU verifyPINViaCCIDDirect(final int retriesLeft)
+	private ResponseAPDU verifyPINViaCCIDDirect(final int retriesLeft, PINPurpose purpose)
 			throws IOException, CardException {
 		this.logger.debug("direct PIN verification...");
-		getUI().advisePINPadPINEntry(retriesLeft);
+		getUI().advisePINPadPINEntry(retriesLeft, purpose);
 		byte[] result;
 		try {
 			result = transmitCCIDControl(
@@ -649,11 +649,11 @@ public class BeIDCard {
 	 * Verify PIN code using CCID Start/Finish sequence.
 	 */
 
-	private ResponseAPDU verifyPINViaCCIDStartFinish(final int retriesLeft)
+	private ResponseAPDU verifyPINViaCCIDStartFinish(final int retriesLeft, PINPurpose purpose)
 			throws IOException, CardException, InterruptedException {
 		this.logger.debug("CCID verify PIN start/end sequence...");
 
-		getUI().advisePINPadPINEntry(retriesLeft);
+		getUI().advisePINPadPINEntry(retriesLeft, purpose);
 
 		try {
 			transmitCCIDControl(
