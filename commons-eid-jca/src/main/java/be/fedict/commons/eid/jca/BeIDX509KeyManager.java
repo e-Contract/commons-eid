@@ -50,9 +50,24 @@ public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 
 	public BeIDX509KeyManager() throws KeyStoreException,
 			NoSuchAlgorithmException, CertificateException, IOException {
+		this(null);
+	}
+
+	public BeIDX509KeyManager(BeIDManagerFactoryParameters beIDSpec)
+			throws KeyStoreException, NoSuchAlgorithmException,
+			CertificateException, IOException {
 		LOG.debug("constructor");
 		this.keyStore = KeyStore.getInstance("BeID");
-		this.keyStore.load(null);
+		BeIDKeyStoreParameter beIDKeyStoreParameter;
+		if (null == beIDSpec) {
+			beIDKeyStoreParameter = null;
+		} else {
+			beIDKeyStoreParameter = new BeIDKeyStoreParameter();
+			beIDKeyStoreParameter.setLocale(beIDSpec.getLocale());
+			beIDKeyStoreParameter.setParentComponent(beIDSpec
+					.getParentComponent());
+		}
+		this.keyStore.load(beIDKeyStoreParameter);
 	}
 
 	@Override

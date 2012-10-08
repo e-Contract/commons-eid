@@ -48,6 +48,7 @@ import org.apache.commons.logging.LogFactory;
  * </pre>
  * 
  * @see BeIDX509KeyManager
+ * @see BeIDManagerFactoryParameters
  * @author Frank Cornelis
  * 
  */
@@ -56,12 +57,14 @@ public class BeIDKeyManagerFactory extends KeyManagerFactorySpi {
 	private static final Log LOG = LogFactory
 			.getLog(BeIDKeyManagerFactory.class);
 
+	private BeIDManagerFactoryParameters beIDSpec;
+
 	@Override
 	protected KeyManager[] engineGetKeyManagers() {
 		LOG.debug("engineGetKeyManagers");
 		KeyManager beidKeyManager;
 		try {
-			beidKeyManager = new BeIDX509KeyManager();
+			beidKeyManager = new BeIDX509KeyManager(this.beIDSpec);
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
@@ -73,6 +76,13 @@ public class BeIDKeyManagerFactory extends KeyManagerFactorySpi {
 	protected void engineInit(ManagerFactoryParameters spec)
 			throws InvalidAlgorithmParameterException {
 		LOG.debug("engineInit(spec)");
+		if (null == spec) {
+			return;
+		}
+		if (false == spec instanceof BeIDManagerFactoryParameters) {
+			throw new InvalidAlgorithmParameterException();
+		}
+		this.beIDSpec = (BeIDManagerFactoryParameters) spec;
 	}
 
 	@Override

@@ -37,6 +37,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.RSAKeyGenParameterSpec;
+import java.util.Locale;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -48,6 +49,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
+import javax.swing.JFrame;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -72,6 +74,7 @@ import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import be.fedict.commons.eid.jca.BeIDManagerFactoryParameters;
 import be.fedict.commons.eid.jca.BeIDProvider;
 
 public class SSLTest {
@@ -139,9 +142,20 @@ public class SSLTest {
 
 		private void mutualSSLConnection() throws Exception {
 			Thread.sleep(1000);
+
+			JFrame frame = new JFrame("Mutual SSL test");
+			frame.setSize(200, 200);
+			frame.setLocation(300, 300);
+			frame.setVisible(true);
+
 			SSLContext sslContext = SSLContext.getInstance("TLS");
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory
 					.getInstance("BeID");
+			BeIDManagerFactoryParameters spec = new BeIDManagerFactoryParameters();
+			spec.setLocale(Locale.FRENCH);
+			spec.setParentComponent(frame);
+
+			keyManagerFactory.init(spec);
 			sslContext.init(keyManagerFactory.getKeyManagers(),
 					new TrustManager[] { new ClientTestX509TrustManager() },
 					new SecureRandom());
