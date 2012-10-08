@@ -26,6 +26,12 @@ import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import be.fedict.commons.eid.client.spi.Logger;
 
+/**
+ * CCID I/O according to the USB Smart card CCID 1.1 specifications.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
 public class CCID {
 	public static final int GET_FEATURES = 0x42000D48;
 	public static final int GET_FEATURES_MICROSOFT = (0x31 << 16 | (3400) << 2);
@@ -82,12 +88,11 @@ public class CCID {
 		try {
 			final String osName = System.getProperty("os.name");
 			final byte[] featureBytes = card.transmitControlCommand(osName
-					.startsWith("Windows")
-					? GET_FEATURES_MICROSOFT
+					.startsWith("Windows") ? GET_FEATURES_MICROSOFT
 					: GET_FEATURES, new byte[0]);
 			for (FEATURE feature : FEATURE.values()) {
-				this.features.put(feature, findFeature(feature.getTag(),
-						featureBytes));
+				this.features.put(feature,
+						findFeature(feature.getTag(), featureBytes));
 			}
 		} catch (final CardException cex) {
 			// intentionally empty.. this.features exists and any gets will fail
@@ -133,42 +138,43 @@ public class CCID {
 
 	public void waitForOK() throws CardException, InterruptedException {
 		// wait for key pressed
-		loop : while (true) {
+		loop: while (true) {
 			final byte[] getKeyPressedResult = this.card
-					.transmitControlCommand(this
-							.getFeature(FEATURE.GET_KEY_PRESSED), new byte[0]);
+					.transmitControlCommand(
+							this.getFeature(FEATURE.GET_KEY_PRESSED),
+							new byte[0]);
 			final byte key = getKeyPressedResult[0];
 			switch (key) {
-				case 0x00 :
-					this.logger.debug("waiting for CCID...");
-					Thread.sleep(200);
-					break;
+			case 0x00:
+				this.logger.debug("waiting for CCID...");
+				Thread.sleep(200);
+				break;
 
-				case 0x2b :
-					this.logger.debug("PIN digit");
-					break;
+			case 0x2b:
+				this.logger.debug("PIN digit");
+				break;
 
-				case 0x0a :
-					this.logger.debug("erase PIN digit");
-					break;
+			case 0x0a:
+				this.logger.debug("erase PIN digit");
+				break;
 
-				case 0x0d :
-					this.logger.debug("user confirmed");
-					break loop;
+			case 0x0d:
+				this.logger.debug("user confirmed");
+				break loop;
 
-				case 0x1b :
-					this.logger.debug("user canceled");
-					// XXX: need to send the PIN finish ioctl?
-					throw new SecurityException("canceled by user");
+			case 0x1b:
+				this.logger.debug("user canceled");
+				// XXX: need to send the PIN finish ioctl?
+				throw new SecurityException("canceled by user");
 
-				case 0x40 :
-					// happens in case of a reader timeout
-					this.logger.debug("PIN abort");
-					break loop;
+			case 0x40:
+				// happens in case of a reader timeout
+				this.logger.debug("PIN abort");
+				break loop;
 
-				default :
-					this.logger.debug("CCID get key pressed result: " + key
-							+ " hex: " + Integer.toHexString(key));
+			default:
+				this.logger.debug("CCID get key pressed result: " + key
+						+ " hex: " + Integer.toHexString(key));
 			}
 		}
 	}
@@ -228,8 +234,8 @@ public class CCID {
 		 * 
 		 * bit 3-0: 4 = PIN length position in APDU
 		 */
-		verifyCommand
-				.write(new byte[]{(byte) MAX_PIN_SIZE, (byte) MIN_PIN_SIZE}); // wPINMaxExtraDigit
+		verifyCommand.write(new byte[] { (byte) MAX_PIN_SIZE,
+				(byte) MIN_PIN_SIZE }); // wPINMaxExtraDigit
 		/*
 		 * first byte = maximum PIN size in digit
 		 * 
@@ -244,7 +250,7 @@ public class CCID {
 		/*
 		 * 0x01 = message with index in bMsgIndex
 		 */
-		verifyCommand.write(new byte[]{this.getLanguageId(locale), 0x04}); // wLangId
+		verifyCommand.write(new byte[] { this.getLanguageId(locale), 0x04 }); // wLangId
 		/*
 		 * 0x04 = default sub-language
 		 */
@@ -252,18 +258,18 @@ public class CCID {
 		/*
 		 * 0x00 = PIN insertion prompt
 		 */
-		verifyCommand.write(new byte[]{0x00, 0x00, 0x00}); // bTeoPrologue
+		verifyCommand.write(new byte[] { 0x00, 0x00, 0x00 }); // bTeoPrologue
 		/*
 		 * bTeoPrologue : only significant for T=1 protocol.
 		 */
-		final byte[] verifyApdu = new byte[]{
+		final byte[] verifyApdu = new byte[] {
 				0x00, // CLA
 				(byte) ins.getIns(), // INS
 				0x00, // P1
 				0x01, // P2
 				0x08, // Lc = 8 bytes in command data
 				(byte) 0x20, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 		verifyCommand.write(verifyApdu.length & 0xff); // ulDataLength[0]
 		verifyCommand.write(0x00); // ulDataLength[1]
 		verifyCommand.write(0x00); // ulDataLength[2]
@@ -322,8 +328,8 @@ public class CCID {
 		 * PIN
 		 */
 
-		modifyCommand
-				.write(new byte[]{(byte) MAX_PIN_SIZE, (byte) MIN_PIN_SIZE}); // wPINMaxExtraDigit
+		modifyCommand.write(new byte[] { (byte) MAX_PIN_SIZE,
+				(byte) MIN_PIN_SIZE }); // wPINMaxExtraDigit
 		/*
 		 * first byte = maximum PIN size in digit
 		 * 
@@ -346,7 +352,7 @@ public class CCID {
 		 * 0x03 = message with index in bMsgIndex
 		 */
 
-		modifyCommand.write(new byte[]{this.getLanguageId(locale), 0x04}); // wLangId
+		modifyCommand.write(new byte[] { this.getLanguageId(locale), 0x04 }); // wLangId
 		/*
 		 * 0x04 = default sub-language
 		 */
@@ -366,12 +372,12 @@ public class CCID {
 		 * 0x02 = new PIN again prompt
 		 */
 
-		modifyCommand.write(new byte[]{0x00, 0x00, 0x00}); // bTeoPrologue
+		modifyCommand.write(new byte[] { 0x00, 0x00, 0x00 }); // bTeoPrologue
 		/*
 		 * bTeoPrologue : only significant for T=1 protocol.
 		 */
 
-		final byte[] modifyApdu = new byte[]{
+		final byte[] modifyApdu = new byte[] {
 				0x00, // CLA
 				(byte) ins.getIns(), // INS
 				0x00, // P1
@@ -380,7 +386,7 @@ public class CCID {
 				(byte) 0x20, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0x20, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 		modifyCommand.write(modifyApdu.length & 0xff); // ulDataLength[0]
 		modifyCommand.write(0x00); // ulDataLength[1]
 		modifyCommand.write(0x00); // ulDataLength[2]
