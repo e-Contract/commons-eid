@@ -25,6 +25,20 @@ package be.fedict.commons.eid.client.spi;
  * 
  */
 public interface Logger {
+
+	/**
+	 * Error messages receiver.
+	 * 
+	 * @param message
+	 *            the error message.
+	 */
 	void error(String message);
+
+	/**
+	 * Debug messages receiver.
+	 * 
+	 * @param message
+	 *            the debug message.
+	 */
 	void debug(String message);
 }

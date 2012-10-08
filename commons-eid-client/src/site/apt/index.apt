@@ -1,3 +1,9 @@
 Commons eID Client
 
   This artifact holds the actual PC/SC based eID code.
+  
+  This artifact has no other dependencies so it can be used within lightweight web browser applets.
+  
+* API
+    
+  {{{./apidocs/index.html}Javadoc API documentation}}
