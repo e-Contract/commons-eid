@@ -9,6 +9,7 @@
 	<name>Commons eID Default Dialogs</name>
 	<groupId>be.fedict.commons-eid</groupId>
 	<artifactId>commons-eid-dialogs</artifactId>
+	<description>Library holding a default implementation of the eID dialogs.</description>
 	<build>
 		<plugins>
 			<plugin>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>be.fedict</groupId>
@@ -9,6 +10,7 @@
 	<name>Commons eID Integration Tests</name>
 	<groupId>be.fedict.commons-eid</groupId>
 	<artifactId>commons-eid-tests</artifactId>
+	<description>Integration tests for the Commons eID project</description>
 	<build>
 		<plugins>
 			<plugin>
@@ -35,22 +37,18 @@
 		<dependency>
 			<groupId>be.fedict.commons-eid</groupId>
 			<artifactId>commons-eid-client</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>be.fedict.commons-eid</groupId>
 			<artifactId>commons-eid-consumer</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>be.fedict.commons-eid</groupId>
 			<artifactId>commons-eid-dialogs</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>be.fedict.commons-eid</groupId>
 			<artifactId>commons-eid-jca</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

@@ -10,6 +10,7 @@
 	<name>Commons eID JCA</name>
 	<groupId>be.fedict.commons-eid</groupId>
 	<artifactId>commons-eid-jca</artifactId>
+	<description>eID based JCA security provider</description>
 	<build>
 		<plugins>
 			<plugin>
@@ -20,6 +21,10 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-javadoc-plugin</artifactId>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-project-info-reports-plugin</artifactId>
 						</plugin>
 					</reportPlugins>
 				</configuration>

@@ -25,6 +25,20 @@ import javax.net.ssl.ManagerFactoryParameters;
 
 /**
  * eID specific implementation of {@link ManagerFactoryParameters}.
+ * <p/>
+ * Usage:
+ * 
+ * <pre>
+ * import javax.net.ssl.KeyManagerFactory;
+ * import javax.net.ssl.SSLContext;
+ * ...
+ * KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(&quot;BeID&quot;);
+ * BeIDManagerFactoryParameters specs = new BeIDManagerFactoryParameters();
+ * specs.set...
+ * keyMannagerFactory.init(specs);
+ * SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+ * sslContext.init(keyManagerFactory.getKeyManagers(), ..., ...);
+ * </pre>
  * 
  * @see BeIDKeyManagerFactory
  * @author Frank Cornelis

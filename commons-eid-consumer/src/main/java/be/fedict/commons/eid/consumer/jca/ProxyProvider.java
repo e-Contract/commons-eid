@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * </pre>
  * 
  * @see ProxyKeyStore
+ * @see ProxySignature
  * @author Frank Cornelis
  * 
  */

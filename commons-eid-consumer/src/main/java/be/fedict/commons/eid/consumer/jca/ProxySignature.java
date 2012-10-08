@@ -24,6 +24,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Signature;
 import java.security.SignatureException;
 import java.security.SignatureSpi;
 import java.util.HashMap;
@@ -32,6 +33,19 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * JCA implementation of {@link Signature} for proxy signatures. Supported
+ * signature algorithms are:
+ * <ul>
+ * <li>SHA1withRSA</li>
+ * <li>SHA256withRSA</li>
+ * <li>SHA384withRSA</li>
+ * <li>SHA512withRSA</li>
+ * </ul>
+ * 
+ * @author Frank Cornelis
+ * 
+ */
 public class ProxySignature extends SignatureSpi {
 
 	private static final Log LOG = LogFactory.getLog(ProxySignature.class);

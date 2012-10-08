@@ -25,6 +25,12 @@ import java.util.concurrent.Semaphore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * Implementation of {@link PrivateKey} for proxy signatures.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
 public class ProxyPrivateKey implements PrivateKey {
 
 	private static final long serialVersionUID = 1L;
@@ -38,6 +44,9 @@ public class ProxyPrivateKey implements PrivateKey {
 	private final Semaphore consumerSemaphore;
 	private final Semaphore producerSemaphore;
 
+	/**
+	 * Default constructor.
+	 */
 	public ProxyPrivateKey() {
 		LOG.debug("constructor");
 		this.consumerSemaphore = new Semaphore(0);
@@ -62,11 +71,25 @@ public class ProxyPrivateKey implements PrivateKey {
 		return null;
 	}
 
+	/**
+	 * Gives back the digest info as injected by the JCA consumer.
+	 * 
+	 * @return
+	 * @throws InterruptedException
+	 */
 	public DigestInfo getDigestInfo() throws InterruptedException {
 		this.producerSemaphore.acquire();
 		return this.digestInfo;
 	}
 
+	/**
+	 * Sets the signature value. The signature value should be calculated based
+	 * on the previously acquired digest info.
+	 * 
+	 * @param signatureValue
+	 *            the PKCS#1 signature value.
+	 * @see #getDigestInfo()
+	 */
 	public void setSignatureValue(final byte[] signatureValue) {
 		this.signatureValue = signatureValue;
 		this.consumerSemaphore.release();
@@ -80,21 +103,43 @@ public class ProxyPrivateKey implements PrivateKey {
 		return this.signatureValue;
 	}
 
+	/**
+	 * A digest info data-structure.
+	 * 
+	 * @author Frank Cornelis
+	 * 
+	 */
 	public static final class DigestInfo implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		private final byte[] digestValue;
 		private final String digestAlgorithm;
 
+		/**
+		 * Main constructor.
+		 * 
+		 * @param digestValue
+		 * @param digestAlgorithm
+		 */
 		public DigestInfo(final byte[] digestValue, final String digestAlgorithm) {
 			this.digestValue = digestValue;
 			this.digestAlgorithm = digestAlgorithm;
 		}
 
+		/**
+		 * Gives back the digest value.
+		 * 
+		 * @return
+		 */
 		public byte[] getDigestValue() {
 			return this.digestValue;
 		}
 
+		/**
+		 * Gives back the digest algorithm.
+		 * 
+		 * @return
+		 */
 		public String getDigestAlgorithm() {
 			return this.digestAlgorithm;
 		}
