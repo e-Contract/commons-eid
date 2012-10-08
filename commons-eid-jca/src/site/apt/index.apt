@@ -9,6 +9,7 @@ Commons eID JCA
 +---
 Security.addProvider(new BeIDProvider());
 KeyStore keyStore = KeyStore.getInstance("BeID");
+keyStore.init(null);
 PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 Signature signature = Signature.getInstance("SHA1withRSA");
 signature.initSign(authnPrivateKey);
@@ -17,6 +18,6 @@ signature.update(toBeSigned);
 byte[] signatureValue = signature.sign();
 +---
 
-* Javadoc
+* API
     
-  {{{./apidocs/index.html}Javadoc}}
+  {{{./apidocs/index.html}Javadoc API documentation}}
