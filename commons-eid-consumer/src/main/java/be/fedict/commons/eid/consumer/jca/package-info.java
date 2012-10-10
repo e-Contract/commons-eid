@@ -20,4 +20,3 @@
  * Package containing the JCA components for proxy signatures.
  */
 package be.fedict.commons.eid.consumer.jca;
-

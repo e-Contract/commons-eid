@@ -94,7 +94,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	 * 
 	 * @param parentComponent
 	 */
-	public void setParentComponent(Component parentComponent) {
+	public void setParentComponent(final Component parentComponent) {
 		this.parentComponent = parentComponent;
 	}
 
@@ -107,7 +107,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	 * 
 	 * @param locale
 	 */
-	public void setLocale(Locale locale) {
+	public void setLocale(final Locale locale) {
 		this.locale = locale;
 	}
 

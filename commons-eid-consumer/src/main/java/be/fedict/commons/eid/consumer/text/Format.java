@@ -23,11 +23,11 @@ package be.fedict.commons.eid.consumer.text;
  * @author Frank Marien
  */
 public class Format {
-	
+
 	private Format() {
 		super();
 	}
-	
+
 	// format a national number into YY.MM.DD-S&G.CS
 	public static String formatNationalNumber(final String nationalNumber) {
 		//YY MM DD S&G CS

@@ -20,4 +20,3 @@
  * Package containing the eID consumer components.
  */
 package be.fedict.commons.eid.consumer;
-

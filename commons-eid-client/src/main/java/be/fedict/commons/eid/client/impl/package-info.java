@@ -20,4 +20,3 @@
  * Client implementation classes.
  */
 package be.fedict.commons.eid.client.impl;
-

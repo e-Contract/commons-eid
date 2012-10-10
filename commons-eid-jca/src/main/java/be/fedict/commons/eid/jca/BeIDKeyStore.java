@@ -117,8 +117,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			try {
 				final List<X509Certificate> signingCertificateChain = beIDCard
 						.getSigningCertificateChain();
-				return signingCertificateChain
-						.toArray(new X509Certificate[] {});
+				return signingCertificateChain.toArray(new X509Certificate[]{});
 			} catch (final Exception ex) {
 				LOG.error("error: " + ex.getMessage(), ex);
 				return null;
@@ -128,8 +127,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			try {
 				final List<X509Certificate> signingCertificateChain = beIDCard
 						.getAuthenticationCertificateChain();
-				return signingCertificateChain
-						.toArray(new X509Certificate[] {});
+				return signingCertificateChain.toArray(new X509Certificate[]{});
 			} catch (final Exception ex) {
 				LOG.error("error: " + ex.getMessage(), ex);
 				return null;
@@ -292,13 +290,13 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		if (null == locale) {
 			locale = Locale.getDefault();
 		}
-		Messages messages = new Messages(locale);
-		BeIDCardsUI ui = new DefaultBeIDCardsUI(parentComponent, messages);
+		final Messages messages = new Messages(locale);
+		final BeIDCardsUI ui = new DefaultBeIDCardsUI(parentComponent, messages);
 		final BeIDCards beIDCards = new BeIDCards(new VoidLogger(), ui);
 		try {
 			this.beIDCard = beIDCards.getOneBeIDCard();
-			BeIDCardUI userInterface = new DefaultBeIDCardUI(parentComponent,
-					messages);
+			final BeIDCardUI userInterface = new DefaultBeIDCardUI(
+					parentComponent, messages);
 			this.beIDCard.setUI(userInterface);
 		} catch (final CancelledException cex) {
 			throw new SecurityException("user cancelled");

@@ -94,8 +94,8 @@ public class BeIDCardExercises {
 		final X509Certificate authnCertificate = beIDCard
 				.getAuthenticationCertificate();
 
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-		byte[] digestValue = messageDigest.digest(toBeSigned);
+		final MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+		final byte[] digestValue = messageDigest.digest(toBeSigned);
 
 		byte[] signatureValue;
 		try {
@@ -109,8 +109,8 @@ public class BeIDCardExercises {
 
 		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		final boolean result = beIDIntegrity.verifySignature(
-				"SHA1withRSAandMGF1", signatureValue,
-				authnCertificate.getPublicKey(), toBeSigned);
+				"SHA1withRSAandMGF1", signatureValue, authnCertificate
+						.getPublicKey(), toBeSigned);
 
 		assertTrue(result);
 	}
@@ -178,14 +178,16 @@ public class BeIDCardExercises {
 				@Override
 				public void notifySigningBegin(final FileType keyType) {
 					LOG.debug("signing with "
-							+ (keyType == FileType.AuthentificationCertificate ? "authentication"
+							+ (keyType == FileType.AuthentificationCertificate
+									? "authentication"
 									: "non-repudiation") + " key has begun");
 				}
 
 				@Override
 				public void notifySigningEnd(final FileType keyType) {
 					LOG.debug("signing with "
-							+ (keyType == FileType.AuthentificationCertificate ? "authentication"
+							+ (keyType == FileType.AuthentificationCertificate
+									? "authentication"
 									: "non-repudiation") + " key has ended");
 				}
 			});

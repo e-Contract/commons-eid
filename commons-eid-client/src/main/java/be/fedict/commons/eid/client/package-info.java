@@ -20,4 +20,3 @@
  * eID client classes.
  */
 package be.fedict.commons.eid.client;
-

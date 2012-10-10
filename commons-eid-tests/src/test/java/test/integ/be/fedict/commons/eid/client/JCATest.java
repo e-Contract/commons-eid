@@ -139,7 +139,7 @@ public class JCATest {
 	public void testSwingParentLocale() throws Exception {
 		Security.addProvider(new BeIDProvider());
 
-		JFrame frame = new JFrame("Test Parent frame");
+		final JFrame frame = new JFrame("Test Parent frame");
 		frame.setSize(200, 200);
 		frame.setLocation(300, 300);
 		frame.setVisible(true);
@@ -151,12 +151,12 @@ public class JCATest {
 		keyStoreParameter.setLocale(new Locale("nl"));
 		keyStore.load(keyStoreParameter);
 
-		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
 				"Authentication", null);
-		Signature signature = Signature.getInstance("SHA1withRSA");
+		final Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(authnPrivateKey);
 
-		byte[] toBeSigned = "hello world".getBytes();
+		final byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);
 		signature.sign();
 	}
@@ -237,7 +237,9 @@ public class JCATest {
 
 		final Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.WRAP_MODE, keyPair.getPublic());
-		LOG.debug("cipher security provider: " + cipher.getProvider().getName());
+		LOG
+				.debug("cipher security provider: "
+						+ cipher.getProvider().getName());
 		LOG.debug("cipher type: " + cipher.getClass().getName());
 		final byte[] wrappedKey = cipher.wrap(secretKey);
 
@@ -297,8 +299,7 @@ public class JCATest {
 		final TestLogger logger = new TestLogger();
 		final BeIDCards beIDCards = new BeIDCards(logger);
 		final BeIDCard beIDCard = beIDCards.getOneBeIDCard();
-		assertNotNull(beIDCard);
-		;
+		assertNotNull(beIDCard);;
 		return beIDCard;
 	}
 }

@@ -50,31 +50,31 @@ public class BeIDSecureRandom extends SecureRandomSpi {
 	private BeIDCard beIDCard;
 
 	@Override
-	protected void engineSetSeed(byte[] seed) {
+	protected void engineSetSeed(final byte[] seed) {
 		LOG.debug("engineSetSeed");
 	}
 
 	@Override
-	protected void engineNextBytes(byte[] bytes) {
+	protected void engineNextBytes(final byte[] bytes) {
 		LOG.debug("engineNextBytes: " + bytes.length + " bytes");
-		BeIDCard beIDCard = getBeIDCard();
+		final BeIDCard beIDCard = getBeIDCard();
 		byte[] randomData;
 		try {
 			randomData = beIDCard.getChallenge(bytes.length);
-		} catch (CardException e) {
+		} catch (final CardException e) {
 			throw new RuntimeException(e);
 		}
 		System.arraycopy(randomData, 0, bytes, 0, bytes.length);
 	}
 
 	@Override
-	protected byte[] engineGenerateSeed(int numBytes) {
+	protected byte[] engineGenerateSeed(final int numBytes) {
 		LOG.debug("engineGenerateSeed: " + numBytes + " bytes");
-		BeIDCard beIDCard = getBeIDCard();
+		final BeIDCard beIDCard = getBeIDCard();
 		byte[] randomData;
 		try {
 			randomData = beIDCard.getChallenge(numBytes);
-		} catch (CardException e) {
+		} catch (final CardException e) {
 			throw new RuntimeException(e);
 		}
 		return randomData;
@@ -84,10 +84,10 @@ public class BeIDSecureRandom extends SecureRandomSpi {
 		if (null != this.beIDCard) {
 			return this.beIDCard;
 		}
-		BeIDCards beIDCards = new BeIDCards();
+		final BeIDCards beIDCards = new BeIDCards();
 		try {
 			this.beIDCard = beIDCards.getOneBeIDCard();
-		} catch (CancelledException e) {
+		} catch (final CancelledException e) {
 			throw new RuntimeException(e);
 		}
 		return this.beIDCard;

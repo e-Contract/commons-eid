@@ -22,4 +22,3 @@
  * @see be.fedict.commons.eid.consumer.tlv.TlvParser
  */
 package be.fedict.commons.eid.consumer.tlv;
-
