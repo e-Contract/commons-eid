@@ -60,6 +60,7 @@ import be.fedict.commons.eid.client.spi.Logger;
  * <li> Creating text message transaction signatures on specialized readers
  * <li> PIN unblocking using PUK codes
  * </ul>
+ * <p>
  * BeIDCard instances rely on an instance of BeIDCardUI to support user interaction, such as obtaining
  * PIN and PUK codes for authentication, signing, verifying, changing PIN codes, and for
  * notifying the user of the progress of such operations on a Secure Pinpad Device.
@@ -87,10 +88,6 @@ import be.fedict.commons.eid.client.spi.Logger;
  *
  */
 
-/**
- * @author frank
- *
- */
 public class BeIDCard {
 	private static final String UI_MISSING_LOG_MESSAGE = "No BeIDCardUI set and can't load DefaultBeIDCardUI";
 	private static final String UI_DEFAULT_REQUIRES_HEAD = "No BeIDCardUI set and DefaultBeIDCardUI requires a graphical environment";
@@ -361,18 +358,16 @@ public class BeIDCard {
 	public List<X509Certificate> getCertificateChain(final FileType fileType)
 			throws CertificateException, CardException, IOException,
 			InterruptedException {
-		final CertificateFactory certificateFactory = CertificateFactory
-				.getInstance("X.509");
 		final List<X509Certificate> chain = new LinkedList<X509Certificate>();
-		chain.add((X509Certificate) certificateFactory
+		chain.add((X509Certificate) this.certificateFactory
 				.generateCertificate(new ByteArrayInputStream(
 						readFile(fileType))));
 		if (fileType.chainIncludesCitizenCA()) {
-			chain.add((X509Certificate) certificateFactory
+			chain.add((X509Certificate) this.certificateFactory
 					.generateCertificate(new ByteArrayInputStream(
 							readFile(FileType.CACertificate))));
 		}
-		chain.add((X509Certificate) certificateFactory
+		chain.add((X509Certificate) this.certificateFactory
 				.generateCertificate(new ByteArrayInputStream(
 						readFile(FileType.RootCertificate))));
 		return chain;
@@ -493,7 +488,7 @@ public class BeIDCard {
 							// data
 							(byte) 0x80, digestAlgo.getAlgorithmReference(), // algorithm
 							// reference
-							(byte) 0x84, fileType.getKeyId()}); // private key
+							(byte) 0x84, fileType.getKeyId(),}); // private key
 			// reference
 
 			if (0x9000 != responseApdu.getSW()) {

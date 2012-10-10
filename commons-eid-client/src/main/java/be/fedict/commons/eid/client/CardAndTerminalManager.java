@@ -41,6 +41,20 @@ import be.fedict.commons.eid.client.impl.LibJ2PCSCGNULinuxFix;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.Logger;
 
+/**
+ * A CardAndTerminalManager maintains an active state overview of
+ * all javax.smartcardio.CardTerminal attached to a system's pcsc
+ * subsystem, and notifies registered:
+ * <ul>
+ * <li>CardTerminalEventsListeners of any CardTerminals Attached or Detached
+ * <li>CardEventsListeners of any Cards inserted into or removed from any attached CardTerminals
+ * </ul>
+ * Note that at the level of CardAndTerminalManager there is no distinction between types of cards
+ * or terminals: They are merely reported using the standard javax.smartcardio classes.
+ * 
+ * @author Frank Marien
+ *
+ */
 public class CardAndTerminalManager implements Runnable {
 	private static final int DEFAULT_DELAY = 250;
 	private boolean running, subSystemInitialized, autoconnect;
@@ -70,18 +84,44 @@ public class CardAndTerminalManager implements Runnable {
 
 	// ----- various constructors ------
 
+	/**
+	 * Instantiate a CardAndTerminalManager working on the standard smartcardio CardTerminals,
+	 * and without any logging.
+	 */
 	public CardAndTerminalManager() {
 		this(new VoidLogger());
 	}
 
+	/**
+	 * Instantiate a CardAndTerminalManager working on the standard smartcardio CardTerminals,
+	 * and logging to the Logger implementation given
+	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be send all the logs
+	 */
 	public CardAndTerminalManager(final Logger logger) {
 		this(logger, null);
 	}
 
+	/**
+	 * Instantiate a CardAndTerminalManager working on a specific CardTerminals instance
+	 * and without any logging. In normal operation, you would use the constructor that 
+	 * takes no CardTerminals parameter, but using this one you could, for example
+	 * obtain a CardTerminals instance from a different TerminalFactory, or from your
+	 * own implementation. 
+	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be send all the logs
+	 * @param cardTerminals instance to obtain terminal and card events from
+	 */
 	public CardAndTerminalManager(final CardTerminals cardTerminals) {
 		this(new VoidLogger(), cardTerminals);
 	}
 
+	/**
+	 * Instantiate a CardAndTerminalManager working on a specific CardTerminals instance,
+	 * and that logs to the given Logger.In normal operation, you would use the constructor that 
+	 * takes no CardTerminals parameter, but using this one you could, for example
+	 * obtain a CardTerminals instance from a different TerminalFactory, or from your
+	 * own implementation. 
+	 * @param cardTerminals instance to obtain terminal and card events from
+	 */
 	public CardAndTerminalManager(final Logger logger,
 			final CardTerminals cardTerminals) {
 		// work around implementation bug in some GNU/Linux JRE's that causes
@@ -109,7 +149,13 @@ public class CardAndTerminalManager implements Runnable {
 
 	// --------------------------------------------------------------------------------------------------
 
-	// add a CardTerminalEventsListener
+	/**
+	 * Register a CardTerminalEventsListener instance. This will subsequently
+	 * be called for any Terminal Attachs/Detaches on CardTerminals that we're not ignoring 
+	 * @see #ignoreCardEventsFor(String)
+	 * @param listener the CardTerminalEventsListener to be registered
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
 	public CardAndTerminalManager addCardTerminalListener(
 			final CardTerminalEventsListener listener) {
 		synchronized (this.cardTerminalEventsListeners) {
@@ -118,7 +164,13 @@ public class CardAndTerminalManager implements Runnable {
 		return this;
 	}
 
-	// add a CardEventsListener
+	/**
+	 * Register a CardEventsListener instance. This will subsequently
+	 * be called for any Card Inserts/Removals on CardTerminals that we're not ignoring 
+	 * @see #ignoreCardEventsFor(String)
+	 * @param listener the CardEventsListener to be registered
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
 	public CardAndTerminalManager addCardListener(
 			final CardEventsListener listener) {
 		synchronized (this.cardEventsListeners) {
@@ -129,7 +181,14 @@ public class CardAndTerminalManager implements Runnable {
 
 	// --------------------------------------------------------------------------------------------------
 
-	// start this CardAndTerminalManager
+	/**
+	 * Start this CardAndTerminalManager. Doing this after registering 
+	 * one or more CardTerminalEventsListener and/or CardEventsListener instances
+	 * will cause these be be called with the initial situation: The terminals
+	 * and cards already present. Calling start() before registering any listeners
+	 * will cause these to not see the initial situation.
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
 	public CardAndTerminalManager start() {
 		this.logger
 				.debug("CardAndTerminalManager worker thread start requested.");
@@ -141,7 +200,11 @@ public class CardAndTerminalManager implements Runnable {
 
 	// --------------------------------------------------------------------------------------------------
 
-	// remove a CardTerminalEventsListener
+	/**
+	 * Unregister a CardTerminalEventsListener instance. 
+	 * @param listener the CardTerminalEventsListener to be unregistered
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
 	public CardAndTerminalManager removeCardTerminalListener(
 			final CardTerminalEventsListener listener) {
 		synchronized (this.cardTerminalEventsListeners) {
@@ -150,7 +213,11 @@ public class CardAndTerminalManager implements Runnable {
 		return this;
 	}
 
-	// remove a CardEventsListener
+	/**
+	 * Unregister a CardEventsListener instance. 
+	 * @param listener the CardEventsListener to be unregistered
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
 	public CardAndTerminalManager removeCardListener(
 			final CardEventsListener listener) {
 		synchronized (this.cardEventsListeners) {
@@ -161,6 +228,14 @@ public class CardAndTerminalManager implements Runnable {
 
 	// -----------------------------------------------------------------------
 
+	/**
+	 * Start ignoring the CardTerminal with the name given. A CardTerminal's
+	 * name is the exact String as returned by {@link javax.smartcardio.CardTerminal#getName() CardTerminal.getName()}
+	 * Note that this name is neither very stable, nor portable between operating systems: it is
+	 * constructed by the PCSC subsystem in an arbitrary fashion, and may change between releases.
+	 * @param terminalName
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
 	public CardAndTerminalManager ignoreCardEventsFor(final String terminalName) {
 		synchronized (this.terminalsToIgnoreCardEventsFor) {
 			this.terminalsToIgnoreCardEventsFor.add(terminalName);
@@ -168,6 +243,12 @@ public class CardAndTerminalManager implements Runnable {
 		return this;
 	}
 
+	/**
+	 * Start accepting events for the CardTerminal with the name given, where
+	 * these were being ignored due to a previous call to {@link #ignoreCardEventsFor(String)}
+	 * @param terminalName
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
 	public CardAndTerminalManager acceptCardEventsFor(final String terminalName) {
 		synchronized (this.terminalsToIgnoreCardEventsFor) {
 			this.terminalsToIgnoreCardEventsFor.remove(terminalName);
@@ -177,7 +258,12 @@ public class CardAndTerminalManager implements Runnable {
 
 	// -----------------------------------------------------------------------
 
-	// stop this CardAndTerminalManager's worker thread.
+	/**
+	 * Stop this CardAndTerminalManager. This will may block until the 
+	 * worker thread has returned, meaning that after this call returns,
+	 * no registered listeners will receive any more events.
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
 	public CardAndTerminalManager stop() throws InterruptedException {
 		this.logger
 				.debug("CardAndTerminalManager worker thread stop requested.");
@@ -187,7 +273,75 @@ public class CardAndTerminalManager implements Runnable {
 		return this;
 	}
 
-	// -----------------------------------------------------------------------
+	/**
+	 * Returns the PCSC polling delay currently in use
+	 * @return the PCSC polling delay currently in use
+	 */
+	public int getDelay() {
+		return this.delay;
+	}
+
+	/**
+	 * Set the PCSC polling delay. A CardAndTerminalsManager will wait
+	 * for a maximum of newDelay milliseconds for new events to be received,
+	 * before issuing a new call to the PCSC subsystem. The higher this number,
+	 * the less CPU this CardAndTerminalsManager will take, but the greater the
+	 * chance that terminal attach/detach events will be noticed late.
+	 * @param newDelay the new delay to trust the PCSC subsystem for
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
+	public CardAndTerminalManager setDelay(final int newDelay) {
+		this.delay = newDelay;
+		return this;
+	}
+
+	/**
+	 * Return whether this CardAndTerminalsManager will automatically connect()
+	 * to any cards inserted and hence, present any CardEventsListeners registered
+	 * with connected Card objects.
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
+	public boolean isAutoconnect() {
+		return this.autoconnect;
+	}
+
+	/**
+	 * Set whether this CardAndTerminalsManager will automatically connect()
+	 * to any cards inserted and hence, present any CardEventsListeners registered
+	 * with connected Card objects.
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
+	public CardAndTerminalManager setAutoconnect(final boolean newAutoConnect) {
+		this.autoconnect = newAutoConnect;
+		return this;
+	}
+
+	/**
+	 * return which card protocols this CardAndTerminalsManager will attempt
+	 * to connect to cards with (if autoconnect is true, see {@link CardAndTerminalManager#setAutoconnect(boolean)})
+	 * the default is PROTOCOL.ANY which allows any protocol.
+	 * @return the currently attempted protocol(s)
+	 */
+	public PROTOCOL getProtocol() {
+		return this.protocol;
+	}
+
+	/**
+	 * Determines which card protocols this CardAndTerminalsManager will attempt
+	 * to connect to cards with (if autoconnect is true, see {@link CardAndTerminalManager#setAutoconnect(boolean)})
+	 * the default is PROTOCOL.ANY which allows any protocol.
+	 *
+	 * @param newProtocol the card protocol(s) to attempt connection to the cards with
+	 * @return this CardAndTerminalManager to allow for method chaining.
+	 */
+	public CardAndTerminalManager setProtocol(final PROTOCOL newProtocol) {
+		this.protocol = newProtocol;
+		return this;
+	}
+
+	// ---------------------------
+	// Private Implementation.. 
+	// ---------------------------
 
 	@Override
 	public void run() {
@@ -358,39 +512,6 @@ public class CardAndTerminalManager implements Runnable {
 		return terminalsWithCards;
 	}
 
-	// -------------------------------------
-	// --------- getters/setters -----------
-	// -------------------------------------
-
-	// get polling/retry delay currently in use
-	public int getDelay() {
-		return this.delay;
-	}
-
-	// set polling/retry delay.
-	public CardAndTerminalManager setDelay(final int delay) {
-		this.delay = delay;
-		return this;
-	}
-
-	public boolean isAutoconnect() {
-		return this.autoconnect;
-	}
-
-	public CardAndTerminalManager setAutoconnect(final boolean autoconnect) {
-		this.autoconnect = autoconnect;
-		return this;
-	}
-
-	public PROTOCOL getProtocol() {
-		return this.protocol;
-	}
-
-	public CardAndTerminalManager setProtocol(final PROTOCOL protocol) {
-		this.protocol = protocol;
-		return this;
-	}
-
 	// -------------------------------------------------
 	// --------- private convenience methods -----------
 	// -------------------------------------------------
@@ -476,7 +597,7 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	// Tell listeners about attached readers
-	protected void listenersTerminalsAttached(final Set<CardTerminal> attached) {
+	private void listenersTerminalsAttached(final Set<CardTerminal> attached) {
 		if (!attached.isEmpty()) {
 			Set<CardTerminalEventsListener> copyOfListeners;
 
@@ -500,7 +621,7 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	// Tell listeners about detached readers
-	protected void listenersTerminalsDetached(final Set<CardTerminal> detached) {
+	private void listenersTerminalsDetached(final Set<CardTerminal> detached) {
 		if (!detached.isEmpty()) {
 			Set<CardTerminalEventsListener> copyOfListeners;
 
@@ -524,7 +645,7 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	// Tell listeners about removed cards
-	protected void listenersTerminalsWithCardsRemoved(
+	private void listenersTerminalsWithCardsRemoved(
 			final Set<CardTerminal> removed) {
 		if (!removed.isEmpty()) {
 			Set<CardEventsListener> copyOfListeners;
@@ -553,7 +674,7 @@ public class CardAndTerminalManager implements Runnable {
 	// if this.autoconnect is enabled (the default), the card argument may be
 	// automatically
 	// filled out, but it may still be null, if the connect failed.
-	protected void listenersTerminalsWithCardsInserted(
+	private void listenersTerminalsWithCardsInserted(
 			final Set<CardTerminal> inserted) {
 		if (!inserted.isEmpty()) {
 			Set<CardEventsListener> copyOfListeners;
