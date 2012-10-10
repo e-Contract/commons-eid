@@ -474,6 +474,7 @@ public class BeIDCard {
 			throw new SecurityException("not a secure reader");
 		}
 
+		this.beginExclusive();
 		notifySigningBegin(fileType);
 
 		try {
@@ -546,7 +547,9 @@ public class BeIDCard {
 
 			return responseApdu.getData();
 		} finally {
+			this.endExclusive();
 			notifySigningEnd(fileType);
+
 		}
 	}
 
