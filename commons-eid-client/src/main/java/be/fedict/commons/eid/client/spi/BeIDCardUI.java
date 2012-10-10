@@ -20,49 +20,99 @@ package be.fedict.commons.eid.client.spi;
 
 import be.fedict.commons.eid.client.PINPurpose;
 
+/**
+ * Implement a BeIDCardUI to interact with the user from a BeIDCard instance.
+ * @author Frank Marien
+ *
+ */
 public interface BeIDCardUI {
-	// get PIN from the user
+	/**
+	 * get PIN from the user
+	 * @param triesLeft the number of attempts left before the PIN is blocked.
+	 * @param type the reason why the PIN code is requested
+	 * @return the PIN code.
+	 */
 	char[] obtainPIN(int triesLeft, PINPurpose type);
 
-	// get Old and New PIN from the user
+	/**
+	 * get Old and New PIN from the user. (pin change)
+	 * @param triesLeft the number of attempts left before the PIN is blocked.
+	 * @return old and new PIN codes
+	 */
 	char[][] obtainOldAndNewPIN(int triesLeft);
 
-	// get PUK Codes from the user
+	/**
+	 * get PUK Codes from the user (PIN unblock)
+	 * @param triesLeft the number of attempts left before the card is blocked.
+	 * @return PUK1 and PUK2 codes
+	 */
 	char[][] obtainPUKCodes(int triesLeft);
 
-	// PIN changed successfully
+	/**
+	 * PIN was changed successfully
+	 */
 	void advisePINChanged();
 
-	// too many tries. PIN now blocked
+	/**
+	 * too many tries. PIN now blocked
+	 */
 	void advisePINBlocked();
 
-	// PIN unblock operation successful.
+	/**
+	 * PIN unblock operation was successful.
+	 */
 	void advisePINUnblocked();
 
-	// user can enter PIN on PINPad
+	/**
+	 * user can enter PIN on Secure PINPad
+	 * @param retriesLeft the number of attempts left before the PIN is blocked.
+	 * @param type the reason why the PIN code is requested
+	 */
 	void advisePINPadPINEntry(int retriesLeft, PINPurpose type);
 
-	// user can enter PUK on PINPad
+	/**
+	 * user can enter PUK on PINPad
+	 * @param retriesLeft the number of attempts left before the card is blocked.
+	 */
 	void advisePINPadPUKEntry(int retriesLeft);
 
-	// user can change PIN (old, new, new-again) on PIN Pad
+	/**
+	 * user can change PIN (old, new, new-again) on PIN Pad
+	 * @param retriesLeft the number of attempts left before the PIN is blocked.
+	 */
 	void advisePINPadChangePIN(int retriesLeft);
 
-	// user can enter old PIN on PINPad
+	/**
+	 * user can enter old PIN on PINPad
+	 * @param retriesLeft the number of attempts left before the PIN is blocked.
+	 */
 	void advisePINPadOldPINEntry(int retriesLeft);
 
-	// user can enter new PIN on PINPad
+	/**
+	 * user can enter new PIN on PINPad
+	 * @param retriesLeft the number of attempts left before the PIN is blocked.
+	 */
 	void advisePINPadNewPINEntry(int retriesLeft);
 
-	// user can enter new PIN on PINPad again
+	/**
+	 * user can enter new PIN on PINPad again
+	 * @param retriesLeft the number of attempts left before the PIN is blocked.
+	 */
 	void advisePINPadNewPINEntryAgain(int retriesLeft);
 
-	// one of the above PINPad operation ends
+	/**
+	 * one of the above PINPad operation ends
+	 */
 	void advisePINPadOperationEnd();
 
-	// user needs to attend some operation on a secure reader
+	/**
+	 * user needs to attend some operation on a secure reader
+	 * (more instuctions are available from the reader's own user interface)
+	 */
 	void adviseSecureReaderOperation();
 
-	// operation on secure reader ends
+	/**
+	 * operation on secure reader ends
+	 */
 	void adviseSecureReaderOperationEnd();
 }

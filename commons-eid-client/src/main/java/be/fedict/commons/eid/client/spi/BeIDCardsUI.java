@@ -20,28 +20,54 @@ package be.fedict.commons.eid.client.spi;
 
 import java.util.Collection;
 import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.OutOfCardsException;
 import be.fedict.commons.eid.client.CancelledException;
 
+/**
+ * implement a BeIDCardsUI to interact with the user with an instance of
+ * {@link BeIDCards}.
+ * 
+ * @author Frank Marien
+ * 
+ */
 public interface BeIDCardsUI {
-	// user needs to connect a Card Terminal
+
+	/**
+	 * The user needs to connect a Card Terminal, since there are none
+	 */
 	void adviseCardTerminalRequired();
 
-	// user needs to insert a BeID Card
+	/**
+	 * The user needs to insert a BeID Card. There are card terminals, but none
+	 * currently holds a BeID card.
+	 */
 	void adviseBeIDCardRequired();
 
-	// user no longer needs to take action
+	/**
+	 * No more user actions are required, at this point.
+	 */
 	void adviseEnd();
 
-	// user has multiple eID Cards inserted and needs to choose exactly one
-	// throws CancelledException if user cancels
-	// throws OutOfCardsException if all cards removed before selection could me made
+	/**
+	 * user has multiple eID Cards inserted and needs to choose exactly one.
+	 * throws CancelledException if user cancels throws OutOfCardsException if
+	 * all cards removed before selection could me made.
+	 */
 	BeIDCard selectBeIDCard(Collection<BeIDCard> availableCards)
 			throws CancelledException, OutOfCardsException;
 
-	// user added a BeID card while selectBeIDCard() was blocking
+	/**
+	 * user added a BeID card while selectBeIDCard() was blocking.
+	 * An implementation should update the list of cards, if possible.
+	 * @param card the card just inserted.
+	 */
 	void eIDCardInsertedDuringSelection(BeIDCard card);
 
-	// user removed a BeID card while selectBeIDCard() was blocking
+	/**
+	 * user removed a BeID card while selectBeIDCard() was blocking.
+	 * An implementation should update the list of cards, if possible.
+	 * @param card the card just removed.
+	 */
 	void eIDCardRemovedDuringSelection(BeIDCard card);
 }

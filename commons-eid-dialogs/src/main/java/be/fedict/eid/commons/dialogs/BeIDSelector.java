@@ -41,6 +41,13 @@ import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.text.Format;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
+/**
+ * Dynamically changing dialog listing BeIDCards by photo and main identity data
+ * part of the DefaultBeIDCardsUI. Based on the original, static BeID selector dialog
+ * from eid-applet.
+ * @author Frank Marien
+ *
+ */
 public class BeIDSelector {
 	private JDialog dialog;
 	private JPanel masterPanel;
