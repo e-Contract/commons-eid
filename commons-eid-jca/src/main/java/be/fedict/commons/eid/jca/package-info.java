@@ -20,4 +20,3 @@
  * Package containing the JCA components.
  */
 package be.fedict.commons.eid.jca;
-

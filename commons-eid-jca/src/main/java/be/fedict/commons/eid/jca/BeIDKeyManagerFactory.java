@@ -65,15 +65,15 @@ public class BeIDKeyManagerFactory extends KeyManagerFactorySpi {
 		KeyManager beidKeyManager;
 		try {
 			beidKeyManager = new BeIDX509KeyManager(this.beIDSpec);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new IllegalStateException(e);
 		}
-		KeyManager[] keyManagers = new KeyManager[] { beidKeyManager };
+		final KeyManager[] keyManagers = new KeyManager[]{beidKeyManager};
 		return keyManagers;
 	}
 
 	@Override
-	protected void engineInit(ManagerFactoryParameters spec)
+	protected void engineInit(final ManagerFactoryParameters spec)
 			throws InvalidAlgorithmParameterException {
 		LOG.debug("engineInit(spec)");
 		if (null == spec) {
@@ -86,7 +86,7 @@ public class BeIDKeyManagerFactory extends KeyManagerFactorySpi {
 	}
 
 	@Override
-	protected void engineInit(KeyStore keyStore, char[] password)
+	protected void engineInit(final KeyStore keyStore, final char[] password)
 			throws KeyStoreException, NoSuchAlgorithmException,
 			UnrecoverableKeyException {
 		LOG.debug("engineInit(KeyStore,password)");

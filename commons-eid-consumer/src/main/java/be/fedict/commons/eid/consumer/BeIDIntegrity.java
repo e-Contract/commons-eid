@@ -187,7 +187,8 @@ public class BeIDIntegrity {
 			final PublicKey publicKey, final byte[]... data)
 			throws InvalidKeyException, NoSuchAlgorithmException,
 			SignatureException {
-		return verifySignature("SHA1withRSA", signatureData, publicKey, data);
+		return this.verifySignature("SHA1withRSA", signatureData, publicKey,
+				data);
 	}
 
 	/**

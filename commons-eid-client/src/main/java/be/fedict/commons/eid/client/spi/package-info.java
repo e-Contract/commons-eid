@@ -20,4 +20,3 @@
  * Service provider interfaces.
  */
 package be.fedict.commons.eid.client.spi;
-

@@ -38,6 +38,14 @@ public class CCID {
 	public static final int MIN_PIN_SIZE = 4;
 	public static final int MAX_PIN_SIZE = 12;
 
+	public static final String DUTCH_LANGUAGE = "nl";
+	public static final String FRENCH_LANGUAGE = Locale.FRENCH.getLanguage();
+	public static final String GERMAN_LANGUAGE = Locale.GERMAN.getLanguage();
+	public static final int DUTCH_LANGUAGE_CODE = 0x13;
+	public static final int FRENCH_LANGUAGE_CODE = 0x0c;
+	public static final int GERMAN_LANGUAGE_CODE = 0x07;
+	public static final int ENGLISH_LANGUAGE_CODE = 0x09;
+
 	private final Logger logger;
 	private final Card card;
 	private final EnumMap<FEATURE, Integer> features;
@@ -88,11 +96,12 @@ public class CCID {
 		try {
 			final String osName = System.getProperty("os.name");
 			final byte[] featureBytes = card.transmitControlCommand(osName
-					.startsWith("Windows") ? GET_FEATURES_MICROSOFT
+					.startsWith("Windows")
+					? GET_FEATURES_MICROSOFT
 					: GET_FEATURES, new byte[0]);
 			for (FEATURE feature : FEATURE.values()) {
-				this.features.put(feature,
-						findFeature(feature.getTag(), featureBytes));
+				this.features.put(feature, findFeature(feature.getTag(),
+						featureBytes));
 			}
 		} catch (final CardException cex) {
 			// intentionally empty.. this.features exists and any gets will fail
@@ -138,43 +147,42 @@ public class CCID {
 
 	public void waitForOK() throws CardException, InterruptedException {
 		// wait for key pressed
-		loop: while (true) {
+		loop : while (true) {
 			final byte[] getKeyPressedResult = this.card
-					.transmitControlCommand(
-							this.getFeature(FEATURE.GET_KEY_PRESSED),
-							new byte[0]);
+					.transmitControlCommand(this
+							.getFeature(FEATURE.GET_KEY_PRESSED), new byte[0]);
 			final byte key = getKeyPressedResult[0];
 			switch (key) {
-			case 0x00:
-				this.logger.debug("waiting for CCID...");
-				Thread.sleep(200);
-				break;
+				case 0x00 :
+					this.logger.debug("waiting for CCID...");
+					Thread.sleep(200);
+					break;
 
-			case 0x2b:
-				this.logger.debug("PIN digit");
-				break;
+				case 0x2b :
+					this.logger.debug("PIN digit");
+					break;
 
-			case 0x0a:
-				this.logger.debug("erase PIN digit");
-				break;
+				case 0x0a :
+					this.logger.debug("erase PIN digit");
+					break;
 
-			case 0x0d:
-				this.logger.debug("user confirmed");
-				break loop;
+				case 0x0d :
+					this.logger.debug("user confirmed");
+					break loop;
 
-			case 0x1b:
-				this.logger.debug("user canceled");
-				// XXX: need to send the PIN finish ioctl?
-				throw new SecurityException("canceled by user");
+				case 0x1b :
+					this.logger.debug("user canceled");
+					// XXX: need to send the PIN finish ioctl?
+					throw new SecurityException("canceled by user");
 
-			case 0x40:
-				// happens in case of a reader timeout
-				this.logger.debug("PIN abort");
-				break loop;
+				case 0x40 :
+					// happens in case of a reader timeout
+					this.logger.debug("PIN abort");
+					break loop;
 
-			default:
-				this.logger.debug("CCID get key pressed result: " + key
-						+ " hex: " + Integer.toHexString(key));
+				default :
+					this.logger.debug("CCID get key pressed result: " + key
+							+ " hex: " + Integer.toHexString(key));
 			}
 		}
 	}
@@ -183,21 +191,23 @@ public class CCID {
 	 * *** static utilities ****
 	 */
 
-	public byte getLanguageId(final Locale locale) {
-		/*
-		 * USB language Ids
-		 */
-		if (Locale.FRENCH.equals(locale)) {
-			return 0x0c;
-		}
-		if (Locale.GERMAN.equals(locale)) {
-			return 0x07;
-		}
+	public final byte getLanguageId(final Locale locale) {
+
 		final String language = locale.getLanguage();
-		if ("nl".equals(language)) {
-			return 0x13;
+
+		if (DUTCH_LANGUAGE.equals(language)) {
+			return DUTCH_LANGUAGE_CODE;
 		}
-		return 0x09; // ENGLISH
+
+		if (FRENCH_LANGUAGE.equals(language)) {
+			return FRENCH_LANGUAGE_CODE;
+		}
+
+		if (GERMAN_LANGUAGE.equals(language)) {
+			return GERMAN_LANGUAGE_CODE;
+		}
+
+		return ENGLISH_LANGUAGE_CODE; // ENGLISH
 	}
 
 	public byte[] createPINVerificationDataStructure(final Locale locale,
@@ -234,8 +244,8 @@ public class CCID {
 		 * 
 		 * bit 3-0: 4 = PIN length position in APDU
 		 */
-		verifyCommand.write(new byte[] { (byte) MAX_PIN_SIZE,
-				(byte) MIN_PIN_SIZE }); // wPINMaxExtraDigit
+		verifyCommand
+				.write(new byte[]{(byte) MAX_PIN_SIZE, (byte) MIN_PIN_SIZE}); // wPINMaxExtraDigit
 		/*
 		 * first byte = maximum PIN size in digit
 		 * 
@@ -250,7 +260,7 @@ public class CCID {
 		/*
 		 * 0x01 = message with index in bMsgIndex
 		 */
-		verifyCommand.write(new byte[] { this.getLanguageId(locale), 0x04 }); // wLangId
+		verifyCommand.write(new byte[]{this.getLanguageId(locale), 0x04}); // wLangId
 		/*
 		 * 0x04 = default sub-language
 		 */
@@ -258,18 +268,18 @@ public class CCID {
 		/*
 		 * 0x00 = PIN insertion prompt
 		 */
-		verifyCommand.write(new byte[] { 0x00, 0x00, 0x00 }); // bTeoPrologue
+		verifyCommand.write(new byte[]{0x00, 0x00, 0x00}); // bTeoPrologue
 		/*
 		 * bTeoPrologue : only significant for T=1 protocol.
 		 */
-		final byte[] verifyApdu = new byte[] {
+		final byte[] verifyApdu = new byte[]{
 				0x00, // CLA
 				(byte) ins.getIns(), // INS
 				0x00, // P1
 				0x01, // P2
 				0x08, // Lc = 8 bytes in command data
 				(byte) 0x20, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
 		verifyCommand.write(verifyApdu.length & 0xff); // ulDataLength[0]
 		verifyCommand.write(0x00); // ulDataLength[1]
 		verifyCommand.write(0x00); // ulDataLength[2]
@@ -328,8 +338,8 @@ public class CCID {
 		 * PIN
 		 */
 
-		modifyCommand.write(new byte[] { (byte) MAX_PIN_SIZE,
-				(byte) MIN_PIN_SIZE }); // wPINMaxExtraDigit
+		modifyCommand
+				.write(new byte[]{(byte) MAX_PIN_SIZE, (byte) MIN_PIN_SIZE}); // wPINMaxExtraDigit
 		/*
 		 * first byte = maximum PIN size in digit
 		 * 
@@ -352,7 +362,7 @@ public class CCID {
 		 * 0x03 = message with index in bMsgIndex
 		 */
 
-		modifyCommand.write(new byte[] { this.getLanguageId(locale), 0x04 }); // wLangId
+		modifyCommand.write(new byte[]{this.getLanguageId(locale), 0x04}); // wLangId
 		/*
 		 * 0x04 = default sub-language
 		 */
@@ -372,12 +382,12 @@ public class CCID {
 		 * 0x02 = new PIN again prompt
 		 */
 
-		modifyCommand.write(new byte[] { 0x00, 0x00, 0x00 }); // bTeoPrologue
+		modifyCommand.write(new byte[]{0x00, 0x00, 0x00}); // bTeoPrologue
 		/*
 		 * bTeoPrologue : only significant for T=1 protocol.
 		 */
 
-		final byte[] modifyApdu = new byte[] {
+		final byte[] modifyApdu = new byte[]{
 				0x00, // CLA
 				(byte) ins.getIns(), // INS
 				0x00, // P1
@@ -386,7 +396,7 @@ public class CCID {
 				(byte) 0x20, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0x20, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
 		modifyCommand.write(modifyApdu.length & 0xff); // ulDataLength[0]
 		modifyCommand.write(0x00); // ulDataLength[1]
 		modifyCommand.write(0x00); // ulDataLength[2]
