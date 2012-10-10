@@ -94,7 +94,7 @@ public class CardAndTerminalManager implements Runnable {
 
 	/**
 	 * Instantiate a CardAndTerminalManager working on the standard smartcardio CardTerminals,
-	 * and logging to the Logger implementation given
+	 * and logging to the Logger implementation given.
 	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be send all the logs
 	 */
 	public CardAndTerminalManager(final Logger logger) {
@@ -245,7 +245,7 @@ public class CardAndTerminalManager implements Runnable {
 
 	/**
 	 * Start accepting events for the CardTerminal with the name given, where
-	 * these were being ignored due to a previous call to {@link #ignoreCardEventsFor(String)}
+	 * these were being ignored due to a previous call to {@link #ignoreCardEventsFor(String)}.
 	 * @param terminalName
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
@@ -297,8 +297,7 @@ public class CardAndTerminalManager implements Runnable {
 
 	/**
 	 * Return whether this CardAndTerminalsManager will automatically connect()
-	 * to any cards inserted and hence, present any CardEventsListeners registered
-	 * with connected Card objects.
+	 * to any cards inserted.
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
 	public boolean isAutoconnect() {
@@ -307,8 +306,7 @@ public class CardAndTerminalManager implements Runnable {
 
 	/**
 	 * Set whether this CardAndTerminalsManager will automatically connect()
-	 * to any cards inserted and hence, present any CardEventsListeners registered
-	 * with connected Card objects.
+	 * to any cards inserted.
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
 	public CardAndTerminalManager setAutoconnect(final boolean newAutoConnect) {
@@ -318,7 +316,7 @@ public class CardAndTerminalManager implements Runnable {
 
 	/**
 	 * return which card protocols this CardAndTerminalsManager will attempt
-	 * to connect to cards with (if autoconnect is true, see {@link CardAndTerminalManager#setAutoconnect(boolean)})
+	 * to connect to cards with. (if autoconnect is true, see {@link CardAndTerminalManager#setAutoconnect(boolean)})
 	 * the default is PROTOCOL.ANY which allows any protocol.
 	 * @return the currently attempted protocol(s)
 	 */
@@ -328,7 +326,7 @@ public class CardAndTerminalManager implements Runnable {
 
 	/**
 	 * Determines which card protocols this CardAndTerminalsManager will attempt
-	 * to connect to cards with (if autoconnect is true, see {@link CardAndTerminalManager#setAutoconnect(boolean)})
+	 * to connect to cards with. (if autoconnect is true, see {@link CardAndTerminalManager#setAutoconnect(boolean)})
 	 * the default is PROTOCOL.ANY which allows any protocol.
 	 *
 	 * @param newProtocol the card protocol(s) to attempt connection to the cards with

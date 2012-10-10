@@ -20,6 +20,15 @@ package be.fedict.commons.eid.client.spi;
 
 import be.fedict.commons.eid.client.PINPurpose;
 
+/**
+ * An adapter implementing BeIDCardUI with empty default actions.
+ * Intended to be extended by a useful class overriding only those
+ * methods it requires. For example, in an embedded application
+ * having only a secure PINPAD reader, none of the obtain() methods
+ * would ever be called.
+ * @author Frank Marien
+ *
+ */
 public class BeIDCardUIAdapter implements BeIDCardUI {
 
 	private static final String OPERATION_CANCELLED = "operation cancelled.";

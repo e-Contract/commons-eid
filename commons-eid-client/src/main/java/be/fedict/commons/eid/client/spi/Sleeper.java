@@ -18,6 +18,15 @@
 
 package be.fedict.commons.eid.client.spi;
 
+/**
+ * Utility class wrapping the wait/notifyAll mechanism with a guard variable,
+ * and providing it with an independent object to apply to. 
+ * Use when no obvious objects are available to wait() upon, and multiple
+ * occurrences may be waited for, to avoid cluttering such code with
+ * guard variables. 
+ * @author Frank Marien
+ *
+ */
 public class Sleeper {
 	private boolean isAwoken;
 

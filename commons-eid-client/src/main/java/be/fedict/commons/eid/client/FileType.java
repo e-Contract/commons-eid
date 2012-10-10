@@ -18,6 +18,15 @@
 
 package be.fedict.commons.eid.client;
 
+/**
+ * The FileType enum encapsulates the fileID, keyID, and some usage parameters about the files
+ * stored on an BeIDCard. This allows a simple, unified interface to many methods, and auxiliary
+ * information to be derived rather than supplied separately.
+ * 
+ * @author Frank Cornelis
+ * @author Frank Marien
+ *
+ */
 public enum FileType {
 	Identity(new byte[]{0x3F, 0x00, (byte) 0xDF, 0x01, 0x40, 0x31}, 179), IdentitySignature(
 			new byte[]{0x3F, 0x00, (byte) 0xDF, 0x01, 0x40, 0x32}, 128), Address(

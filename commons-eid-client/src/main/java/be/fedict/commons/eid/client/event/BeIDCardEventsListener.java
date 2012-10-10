@@ -21,7 +21,14 @@ package be.fedict.commons.eid.client.event;
 import javax.smartcardio.CardTerminal;
 
 import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.BeIDCardManager;
 
+/**
+ * The BeIDCardEventsListener represents events delivered by an {@link BeIDCardManager}.
+ * Register one or more instances of a class implementing BeIDCardEventsListener to
+ * respond to BeID cards being inserted and removed.
+ * @author Frank Marien
+ */
 public interface BeIDCardEventsListener {
 	void eIDCardEventsInitialized();
 	void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card);

@@ -24,9 +24,11 @@ package be.fedict.commons.eid.client.impl;
 import java.io.File;
 import be.fedict.commons.eid.client.spi.Logger;
 
-/*
+/**
  * Encapsulate fixes regarding the dynamic loading of the pcsclite library on GNU/Linux Systems.
  * statically call LibJ2PCSCGNULinuxFix.fixNativeLibrary() before using a TerminalFactory.
+ * @author Frank Cornelis
+ * @author Frank Marien
  */
 public class LibJ2PCSCGNULinuxFix {
 
@@ -45,7 +47,8 @@ public class LibJ2PCSCGNULinuxFix {
 		NA, PURE32, PURE64, MULTILIB
 	};
 
-	/*
+	/**
+	 * Make sure libpcsclite is found.
 	 * The libj2pcsc.so from the JRE attempts to dlopen using the linker name
 	 * "libpcsclite.so" instead of the appropriate "libpcsclite.so.1". This
 	 * causes libpcsclite not to be found on GNU/Linux distributions that don't

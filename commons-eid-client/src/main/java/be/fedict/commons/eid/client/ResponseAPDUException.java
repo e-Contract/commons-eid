@@ -20,6 +20,12 @@ package be.fedict.commons.eid.client;
 
 import javax.smartcardio.ResponseAPDU;
 
+/**
+ * A ResponseAPDUException encapsulates a ResponseAPDU that lead to the
+ * exception, making it available to the catching code.
+ * @author Frank Marien
+ *
+ */
 public class ResponseAPDUException extends RuntimeException {
 	private static final long serialVersionUID = -3573705690889181394L;
 	private ResponseAPDU apdu;
