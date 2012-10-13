@@ -6,6 +6,17 @@
 	<groupId>be.fedict.commons-eid</groupId>
 	<artifactId>commons-eid-bom</artifactId>
 	<version>0.2.0-SNAPSHOT</version>
+	<distributionManagement>
+		<repository>
+			<id>e-contract-deploy</id>
+			<url>scp://e-contract.be/maven2</url>
+			<uniqueVersion>false</uniqueVersion>
+		</repository>
+		<site>
+			<id>e-contract-site</id>
+			<url>scp://e-contract.be/sites/commons-eid/</url>
+		</site>
+	</distributionManagement>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
