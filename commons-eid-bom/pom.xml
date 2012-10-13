@@ -6,30 +6,27 @@
 	<groupId>be.fedict.commons-eid</groupId>
 	<artifactId>commons-eid-bom</artifactId>
 	<version>0.2.0-SNAPSHOT</version>
-	<properties>
-		<commons-eid.version>${project.version}</commons-eid.version>
-	</properties>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>be.fedict.commons-eid</groupId>
 				<artifactId>commons-eid-client</artifactId>
-				<version>${commons-eid.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>be.fedict.commons-eid</groupId>
 				<artifactId>commons-eid-consumer</artifactId>
-				<version>${commons-eid.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>be.fedict.commons-eid</groupId>
 				<artifactId>commons-eid-dialogs</artifactId>
-				<version>${commons-eid.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>be.fedict.commons-eid</groupId>
 				<artifactId>commons-eid-jca</artifactId>
-				<version>${commons-eid.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
