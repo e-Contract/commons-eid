@@ -42,6 +42,9 @@ I've added the java-formatter plugin to the main pom for this reason.
 
 http://maven-java-formatter-plugin.googlecode.com/svn/site/0.3.1/plugin-info.html
 
+Usage:
+mvn -e com.googlecode.maven-java-formatter-plugin:maven-java-formatter-plugin:format
+
 I use it from a Mercurial Pre-commit hook so as not to forget using it
 before a commit: from my ~/.hgrc
 

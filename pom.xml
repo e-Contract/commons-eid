@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<name>FedICT Commons eID Project</name>
 	<groupId>be.fedict</groupId>
@@ -217,4 +218,13 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<bouncycastle.version>1.47</bouncycastle.version>
 	</properties>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven-java-formatter-plugin</id>
+			<url>http://maven-java-formatter-plugin.googlecode.com/svn/maven2-repo/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
