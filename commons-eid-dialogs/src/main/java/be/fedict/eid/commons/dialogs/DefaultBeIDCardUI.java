@@ -452,7 +452,21 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		if (this.parentComponent != null) {
 			this.secureReaderTransactionFrame
 					.setLocationRelativeTo(this.parentComponent);
+		} else {
+			GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
+					.getLocalGraphicsEnvironment();
+			GraphicsDevice graphicsDevice = graphicsEnvironment
+					.getDefaultScreenDevice();
+			DisplayMode displayMode = graphicsDevice.getDisplayMode();
+			int screenWidth = displayMode.getWidth();
+			int screenHeight = displayMode.getHeight();
+			int dialogWidth = this.secureReaderTransactionFrame.getWidth();
+			int dialogHeight = this.secureReaderTransactionFrame.getHeight();
+			this.secureReaderTransactionFrame.setLocation(
+					(screenWidth - dialogWidth) / 2,
+					(screenHeight - dialogHeight) / 2);
 		}
+
 		this.secureReaderTransactionFrame.setVisible(true);
 	}
 
@@ -497,7 +511,20 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 
 		if (this.parentComponent != null) {
 			this.pinPadFrame.setLocationRelativeTo(this.parentComponent);
+		} else {
+			GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
+					.getLocalGraphicsEnvironment();
+			GraphicsDevice graphicsDevice = graphicsEnvironment
+					.getDefaultScreenDevice();
+			DisplayMode displayMode = graphicsDevice.getDisplayMode();
+			int screenWidth = displayMode.getWidth();
+			int screenHeight = displayMode.getHeight();
+			int dialogWidth = this.pinPadFrame.getWidth();
+			int dialogHeight = this.pinPadFrame.getHeight();
+			this.pinPadFrame.setLocation((screenWidth - dialogWidth) / 2,
+					(screenHeight - dialogHeight) / 2);
 		}
+
 		this.pinPadFrame.setVisible(true);
 	}
 

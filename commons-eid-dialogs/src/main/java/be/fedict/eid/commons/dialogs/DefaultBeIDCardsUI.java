@@ -20,6 +20,8 @@
 package be.fedict.eid.commons.dialogs;
 
 import java.awt.Component;
+import java.awt.DisplayMode;
+import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.util.Collection;
@@ -125,7 +127,20 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 
 		if (this.parentComponent != null) {
 			this.adviseFrame.setLocationRelativeTo(this.parentComponent);
+		} else {
+			GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
+					.getLocalGraphicsEnvironment();
+			GraphicsDevice graphicsDevice = graphicsEnvironment
+					.getDefaultScreenDevice();
+			DisplayMode displayMode = graphicsDevice.getDisplayMode();
+			int screenWidth = displayMode.getWidth();
+			int screenHeight = displayMode.getHeight();
+			int dialogWidth = this.adviseFrame.getWidth();
+			int dialogHeight = this.adviseFrame.getHeight();
+			this.adviseFrame.setLocation((screenWidth - dialogWidth) / 2,
+					(screenHeight - dialogHeight) / 2);
 		}
+
 		this.adviseFrame.setVisible(true);
 	}
 
