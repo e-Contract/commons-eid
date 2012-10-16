@@ -1,7 +1,6 @@
-package be.fedict.eid.commons.dialogs;
 /*
- * eID Applet Project.
- * Copyright (C) 2008-2010 FedICT.
+ * Commons eID Project.
+ * Copyright (C) 2008-2012 FedICT.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -16,6 +15,8 @@ package be.fedict.eid.commons.dialogs;
  * License along with this software; if not, see 
  * http://www.gnu.org/licenses/.
  */
+
+package be.fedict.eid.commons.dialogs;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
