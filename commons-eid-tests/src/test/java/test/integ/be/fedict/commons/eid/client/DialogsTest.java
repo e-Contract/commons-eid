@@ -20,6 +20,8 @@ package test.integ.be.fedict.commons.eid.client;
 
 import java.util.Locale;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
@@ -35,10 +37,12 @@ public class DialogsTest {
 
 	@Test
 	public void testDefaultDialogs() throws Exception {
-		Messages messages = new Messages(new Locale("nl"));
+		Messages messages = new Messages(new Locale("en"));
 		BeIDCardUI beIDCardUI = new DefaultBeIDCardUI(null, messages);
-		char[] pin = beIDCardUI.obtainPIN(-1,
-				PINPurpose.AuthenticationSignature);
+		char[] pin = beIDCardUI
+				.obtainPIN(2, PINPurpose.NonRepudiationSignature);
 		LOG.debug("PIN: " + new String(pin));
+		beIDCardUI.advisePINPadPINEntry(1, PINPurpose.NonRepudiationSignature);
+		JOptionPane.showMessageDialog(null, "Waiting...");
 	}
 }

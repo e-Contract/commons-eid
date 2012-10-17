@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
+import javax.swing.JFrame;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -55,7 +57,10 @@ import be.fedict.eid.commons.dialogs.Messages;
 /**
  * eID based JCA {@link KeyStore}. Used to load eID key material via standard
  * JCA API calls. Supports the eID specific {@link BeIDKeyStoreParameter} key
- * store parameter.
+ * store parameter. You can also let any {@link JFrame} implement the
+ * {@link KeyStore.LoadStoreParameter} interface. If you pass this to
+ * {@link KeyStore#load(LoadStoreParameter)} the keystore will use that Swing
+ * frame as parent for positioning the dialogs.
  * <p/>
  * Usage:
  * 
@@ -262,10 +267,17 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		if (null == param) {
 			return;
 		}
-		if (false == param instanceof BeIDKeyStoreParameter) {
-			throw new NoSuchAlgorithmException();
+		if (param instanceof BeIDKeyStoreParameter) {
+			this.keyStoreParameter = (BeIDKeyStoreParameter) param;
+			return;
 		}
-		this.keyStoreParameter = (BeIDKeyStoreParameter) param;
+		if (param instanceof JFrame) {
+			this.keyStoreParameter = new BeIDKeyStoreParameter();
+			JFrame frame = (JFrame) param;
+			this.keyStoreParameter.setParentComponent(frame);
+			return;
+		}
+		throw new NoSuchAlgorithmException();
 	}
 
 	private BeIDCard getBeIDCard() {
