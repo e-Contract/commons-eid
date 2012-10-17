@@ -22,6 +22,7 @@ import be.fedict.commons.eid.client.PINPurpose;
 
 /**
  * Implement a BeIDCardUI to interact with the user from a BeIDCard instance.
+ * 
  * @author Frank Marien
  *
  */
@@ -31,8 +32,10 @@ public interface BeIDCardUI {
 	 * @param triesLeft the number of attempts left before the PIN is blocked.
 	 * @param type the reason why the PIN code is requested
 	 * @return the PIN code.
+	 * @throws UserCancelledException thrown in case the user cancels the PIN entry.
 	 */
-	char[] obtainPIN(int triesLeft, PINPurpose type);
+	char[] obtainPIN(int triesLeft, PINPurpose type)
+			throws UserCancelledException;
 
 	/**
 	 * get Old and New PIN from the user. (pin change)
