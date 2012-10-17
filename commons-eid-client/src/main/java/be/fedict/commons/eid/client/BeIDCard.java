@@ -47,6 +47,7 @@ import be.fedict.commons.eid.client.impl.CCID;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.commons.eid.client.spi.Logger;
+import be.fedict.commons.eid.client.spi.UserCancelledException;
 
 /**
  * One BeIDCard instance represents one Belgian Electronic Identity Card,
@@ -454,10 +455,12 @@ public class BeIDCard {
 	 * @throws CardException
 	 * @throws IOException
 	 * @throws InterruptedException
+	 * @throws UserCancelledException 
 	 */
 	public byte[] sign(final byte[] digestValue, final BeIDDigest digestAlgo,
 			final FileType fileType, final boolean requireSecureReader)
-			throws CardException, IOException, InterruptedException {
+			throws CardException, IOException, InterruptedException,
+			UserCancelledException {
 		if (!fileType.isCertificateUserCanSignWith()) {
 			throw new IllegalArgumentException(
 					"Not a certificate that can be used for signing: "
@@ -565,10 +568,12 @@ public class BeIDCard {
 	 * @throws CardException
 	 * @throws IOException
 	 * @throws InterruptedException
+	 * @throws UserCancelledException 
 	 */
 	public byte[] signAuthn(final byte[] toBeSigned,
 			final boolean requireSecureReader) throws NoSuchAlgorithmException,
-			CardException, IOException, InterruptedException {
+			CardException, IOException, InterruptedException,
+			UserCancelledException {
 		final MessageDigest messageDigest = BeIDDigest.SHA_1
 				.getMessageDigestInstance();
 		final byte[] digest = messageDigest.digest(toBeSigned);
@@ -586,9 +591,10 @@ public class BeIDCard {
 	 * @throws IOException
 	 * @throws CardException
 	 * @throws InterruptedException
+	 * @throws UserCancelledException 
 	 */
 	public void verifyPin() throws IOException, CardException,
-			InterruptedException {
+			InterruptedException, UserCancelledException {
 		this.verifyPin(PINPurpose.PINTest);
 	}
 
@@ -678,10 +684,11 @@ public class BeIDCard {
 	 * @throws CardException
 	 * @throws IOException
 	 * @throws InterruptedException
+	 * @throws UserCancelledException 
 	 */
 	public byte[] signTransactionMessage(final String transactionMessage,
 			final boolean requireSecureReader) throws CardException,
-			IOException, InterruptedException {
+			IOException, InterruptedException, UserCancelledException {
 		if (getCCID().hasFeature(CCID.FEATURE.EID_PIN_PAD_READER)) {
 			getUI().adviseSecureReaderOperation();
 		}
@@ -1091,7 +1098,7 @@ public class BeIDCard {
 	 */
 
 	private void verifyPin(final PINPurpose purpose) throws IOException,
-			CardException, InterruptedException {
+			CardException, InterruptedException, UserCancelledException {
 		ResponseAPDU responseApdu;
 		int retriesLeft = -1;
 		do {
@@ -1182,7 +1189,8 @@ public class BeIDCard {
 	 */
 
 	private ResponseAPDU verifyPINViaUI(final int retriesLeft,
-			final PINPurpose purpose) throws CardException {
+			final PINPurpose purpose) throws CardException,
+			UserCancelledException {
 		final char[] pin = getUI().obtainPIN(retriesLeft, purpose);
 		final byte[] verifyData = new byte[]{(byte) (0x20 | pin.length),
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,

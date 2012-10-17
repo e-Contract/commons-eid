@@ -47,6 +47,7 @@ import javax.swing.JPasswordField;
 
 import be.fedict.commons.eid.client.PINPurpose;
 import be.fedict.commons.eid.client.spi.BeIDCardUI;
+import be.fedict.commons.eid.client.spi.UserCancelledException;
 import be.fedict.eid.commons.dialogs.Messages.MESSAGE_ID;
 
 /**
@@ -231,7 +232,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	}
 
 	@Override
-	public char[] obtainPIN(final int retriesLeft, final PINPurpose reason) {
+	public char[] obtainPIN(final int retriesLeft, final PINPurpose reason)
+			throws UserCancelledException {
 		// main panel
 		JPanel mainPanel = new JPanel() {
 			private static final long serialVersionUID = 1L;
@@ -366,7 +368,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		if (dialogResult.result == DialogResult.Result.OK) {
 			return passwordField.getPassword();
 		}
-		throw new RuntimeException(OPERATION_CANCELLED);
+		throw new UserCancelledException();
 	}
 
 	@Override
