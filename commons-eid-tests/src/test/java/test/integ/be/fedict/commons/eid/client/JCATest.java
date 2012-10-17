@@ -28,6 +28,7 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyStore.ProtectionParameter;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -161,6 +162,44 @@ public class JCATest {
 		signature.sign();
 	}
 
+	private static class MyFrame extends JFrame
+			implements
+				KeyStore.LoadStoreParameter {
+
+		private static final long serialVersionUID = 1L;
+
+		public MyFrame() {
+			super("Test frame 2");
+			setSize(200, 200);
+			setLocation(300, 300);
+			setVisible(true);
+		}
+
+		@Override
+		public ProtectionParameter getProtectionParameter() {
+			return null;
+		}
+	}
+
+	@Test
+	public void testSwingParent2() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		MyFrame myFrame = new MyFrame();
+
+		final KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(myFrame);
+
+		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+				"Authentication", null);
+		final Signature signature = Signature.getInstance("SHA1withRSA");
+		signature.initSign(authnPrivateKey);
+
+		final byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		signature.sign();
+	}
+
 	@Test
 	public void testBeIDSignature() throws Exception {
 		Security.addProvider(new BeIDProvider());
@@ -256,8 +295,9 @@ public class JCATest {
 		Security.addProvider(new BeIDProvider());
 
 		final KeyStore keyStore = KeyStore.getInstance("BeID");
-		// keyStore.load(null);
-		keyStore.load(null, null);
+		BeIDKeyStoreParameter beIDKeyStoreParameter = new BeIDKeyStoreParameter();
+		beIDKeyStoreParameter.setLocale(new Locale("fr"));
+		keyStore.load(beIDKeyStoreParameter);
 
 		final Enumeration<String> aliases = keyStore.aliases();
 		assertNotNull(aliases);
