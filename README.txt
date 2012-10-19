@@ -49,7 +49,7 @@ I use it from a Mercurial Pre-commit hook so as not to forget using it
 before a commit: from my ~/.hgrc
 
 [hooks]                                                                   
-pre-commit=mvn -e java-formatter:format 
+pre-commit=mvn -e com.googlecode.maven-java-formatter-plugin:maven-java-formatter-plugin:format
 
 Using this leaves everyone free to have their own favourite formatting
 in e.g. IDE's while still having a common formatting in the repository.
