@@ -127,7 +127,7 @@ public class BeIDIntegrity {
 					ex);
 		}
 		if (false == result) {
-			return null;
+			throw new SecurityException("signature integrity error");
 		}
 		final Identity identity = TlvParser.parse(identityFile, Identity.class);
 		if (null != photo) {
@@ -165,7 +165,7 @@ public class BeIDIntegrity {
 					ex);
 		}
 		if (false == result) {
-			return null;
+			throw new SecurityException("address integrity error");
 		}
 		final Address address = TlvParser.parse(addressFile, Address.class);
 		return address;

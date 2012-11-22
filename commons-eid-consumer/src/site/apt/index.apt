@@ -1,6 +1,18 @@
 Commons eID Consumer
 
   This artifact provides the consumer classes for performing eID operations.
+  
+* Verification of identity file integrity
+
+  The integrity of the identity file can be verified via:
+
++---
+BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+Identity identity = beIDIntegrity.getVerifiedIdentity(identityFileData, identitySignatureFileData, rrnCertificate);
++---
+
+  The BeIDIntegrity class combines both the integrity verification as well as the actual parsing of the identity file.
+  This way one has the assurance that you only get access to verified eID information fields.
 
 * Javadoc
     
