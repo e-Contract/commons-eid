@@ -134,7 +134,6 @@ public class TlvParser {
 					throw new IllegalArgumentException(
 							"unsupported field type: " + tlvType.getName());
 				}
-				LOG.debug("setting field: " + tlvField.getName());
 				if (null != tlvField.get(tlvObject)
 						&& false == tlvField.getType().isPrimitive()) {
 					throw new RuntimeException("field was already set: "

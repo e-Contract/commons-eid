@@ -51,8 +51,11 @@ public class BeIDCardsExercise {
 			LOG.debug("card holder is " + identity.getFirstName() + " "
 					+ identity.getName());
 
-			LOG.debug("waiting for card removal");
-			beIDCards.waitUntilCardRemoved(beIDCard);
+			if (beIDCards.getAllBeIDCards().contains(beIDCard)) {
+				// XXX: missing dialog box for card removal
+				LOG.debug("waiting for card removal");
+				beIDCards.waitUntilCardRemoved(beIDCard);
+			}
 			LOG.debug("card removed");
 		} catch (final CancelledException cex) {
 			LOG.error("Cancelled By User");
