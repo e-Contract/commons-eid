@@ -51,42 +51,48 @@ import be.fedict.commons.eid.client.spi.UserCancelledException;
 
 /**
  * One BeIDCard instance represents one Belgian Electronic Identity Card,
- * physically present in a connected javax.smartcardio.CardTerminal.
- * It exposes the publicly accessible features of the BELPIC applet on the card's chip:
+ * physically present in a connected javax.smartcardio.CardTerminal. It exposes
+ * the publicly accessible features of the BELPIC applet on the card's chip:
  * <ul>
- * <li> Reading Certificates and Certificate Chains
- * <li> Signing of digests non-repudiation and authentication purposes
- * <li> Verification and Alteration of the PIN code
- * <li> Reading random bytes from the on-board random generator
- * <li> Creating text message transaction signatures on specialized readers
- * <li> PIN unblocking using PUK codes
+ * <li>Reading Certificates and Certificate Chains
+ * <li>Signing of digests non-repudiation and authentication purposes
+ * <li>Verification and Alteration of the PIN code
+ * <li>Reading random bytes from the on-board random generator
+ * <li>Creating text message transaction signatures on specialized readers
+ * <li>PIN unblocking using PUK codes
  * </ul>
  * <p>
- * BeIDCard instances rely on an instance of BeIDCardUI to support user interaction, such as obtaining
- * PIN and PUK codes for authentication, signing, verifying, changing PIN codes, and for
- * notifying the user of the progress of such operations on a Secure Pinpad Device.
- * A default implementation is available as DefaultBeIDCardUI, and unless replaced by an explicit call
- * to setUI() will automatically be used (when present in the class path).  
+ * BeIDCard instances rely on an instance of BeIDCardUI to support user
+ * interaction, such as obtaining PIN and PUK codes for authentication, signing,
+ * verifying, changing PIN codes, and for notifying the user of the progress of
+ * such operations on a Secure Pinpad Device. A default implementation is
+ * available as DefaultBeIDCardUI, and unless replaced by an explicit call to
+ * setUI() will automatically be used (when present in the class path).
  * <p>
- * BeIDCard instances automatically detect CCID features in the underlying CardTerminal,
- * and will choose the most secure path where several are available, for example, when
- * needing to acquire PIN codes from the user, and the card is in a CCID-compliant Secure Pinpad Reader
- * the PIN entry features of the reader will be used instead of the corresponding "obtain.." feature
- * from the active BeIDCardUI. In that case, the corresponding "advise.." method of the active BeIDCardUI
- * will be called instead, to advise the user to attend to the SPR. 
+ * BeIDCard instances automatically detect CCID features in the underlying
+ * CardTerminal, and will choose the most secure path where several are
+ * available, for example, when needing to acquire PIN codes from the user, and
+ * the card is in a CCID-compliant Secure Pinpad Reader the PIN entry features
+ * of the reader will be used instead of the corresponding "obtain.." feature
+ * from the active BeIDCardUI. In that case, the corresponding "advise.." method
+ * of the active BeIDCardUI will be called instead, to advise the user to attend
+ * to the SPR.
  * <p>
- * To receive notifications of the progress of lengthy operations such as reading 'files' (certificates,
- * photo,..) or signing (which may be lengthy because of user PIN interaction), register an instance of
- * BeIDCardListener using addCardListener(). This is useful, for example, for providing progress indication
- * to the user.
+ * To receive notifications of the progress of lengthy operations such as
+ * reading 'files' (certificates, photo,..) or signing (which may be lengthy
+ * because of user PIN interaction), register an instance of BeIDCardListener
+ * using addCardListener(). This is useful, for example, for providing progress
+ * indication to the user.
  * <p>
- * For detailed progress and error/debug logging, provide an instance of be.fedict.commons.eid.spi.Logger to 
- * BeIDCard's constructor (the default VoidLogger discards all logging and debug messages). 
- * You are advised to provide some form of logging facility, for all but the most trivial applications.
+ * For detailed progress and error/debug logging, provide an instance of
+ * be.fedict.commons.eid.spi.Logger to BeIDCard's constructor (the default
+ * VoidLogger discards all logging and debug messages). You are advised to
+ * provide some form of logging facility, for all but the most trivial
+ * applications.
  * 
  * @author Frank Cornelis
  * @author Frank Marien
- *
+ * 
  */
 
 public class BeIDCard {
@@ -113,14 +119,20 @@ public class BeIDCard {
 	private Locale locale;
 
 	/**
-	 * Instantiate a BeIDCard from an already connected javax.smartcardio.Card, with 
-	 * a Logger implementation to receive logging output.
+	 * Instantiate a BeIDCard from an already connected javax.smartcardio.Card,
+	 * with a Logger implementation to receive logging output.
 	 * 
-	 * @param card 						a javax.smartcardio.Card that you have previously determined to be a BeID Card
-	 * @param logger					an instance of be.fedict.commons.eid.spi.Logger
-	 * @throws IllegalArgumentException when passed a null logger.
-	 * 									to disable logging, call BeIDCard(Card) instead.
-	 * @throws RuntimeException			when no CertificateFactory capable of producing X509 Certificates is available.
+	 * @param card
+	 *            a javax.smartcardio.Card that you have previously determined
+	 *            to be a BeID Card
+	 * @param logger
+	 *            an instance of be.fedict.commons.eid.spi.Logger
+	 * @throws IllegalArgumentException
+	 *             when passed a null logger. to disable logging, call
+	 *             BeIDCard(Card) instead.
+	 * @throws RuntimeException
+	 *             when no CertificateFactory capable of producing X509
+	 *             Certificates is available.
 	 */
 	public BeIDCard(final Card card, final Logger logger) {
 		this.card = card;
@@ -141,24 +153,32 @@ public class BeIDCard {
 	 * Instantiate a BeIDCard from an already connected javax.smartcardio.Card
 	 * no logging information will be available.
 	 * 
-	 * @param card 						a javax.smartcardio.Card that you have previously
-	 * 									determined to be a BeID Card
-	 * @throws RuntimeException			when no CertificateFactory capable of producing X509 Certificates is available.
+	 * @param card
+	 *            a javax.smartcardio.Card that you have previously determined
+	 *            to be a BeID Card
+	 * @throws RuntimeException
+	 *             when no CertificateFactory capable of producing X509
+	 *             Certificates is available.
 	 */
 	public BeIDCard(final Card card) {
 		this(card, new VoidLogger());
 	}
 
 	/**
-	 * Instantiate a BeIDCard from a javax.smartcardio.CardTerminal, with 
-	 * a Logger implementation to receive logging output.
+	 * Instantiate a BeIDCard from a javax.smartcardio.CardTerminal, with a
+	 * Logger implementation to receive logging output.
 	 * 
-	 * @param cardTerminal 				a javax.smartcardio.CardTerminal that you have previously
-	 * 									determined to contain a BeID Card
-	 * @param logger					an instance of be.fedict.commons.eid.spi.Logger
-	 * @throws IllegalArgumentException when passed a null logger.
-	 * 									to disable logging, call public BeIDCard(CardTerminal) instead.
-	 * @throws RuntimeException			when no CertificateFactory capable of producing X509 Certificates is available.
+	 * @param cardTerminal
+	 *            a javax.smartcardio.CardTerminal that you have previously
+	 *            determined to contain a BeID Card
+	 * @param logger
+	 *            an instance of be.fedict.commons.eid.spi.Logger
+	 * @throws IllegalArgumentException
+	 *             when passed a null logger. to disable logging, call public
+	 *             BeIDCard(CardTerminal) instead.
+	 * @throws RuntimeException
+	 *             when no CertificateFactory capable of producing X509
+	 *             Certificates is available.
 	 */
 	public BeIDCard(final CardTerminal cardTerminal, final Logger logger)
 			throws CardException {
@@ -166,21 +186,25 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Instantiate a BeIDCard from a javax.smartcardio.CardTerminal, with 
-	 * no logging information will be available.
+	 * Instantiate a BeIDCard from a javax.smartcardio.CardTerminal, with no
+	 * logging information will be available.
 	 * 
-	 * @param card 						a javax.smartcardio.CardTerminal that you have previously
-	 * 									determined to contain a BeID Card
-	 * @throws RuntimeException			when no CertificateFactory capable of producing X509 Certificates is available.
+	 * @param card
+	 *            a javax.smartcardio.CardTerminal that you have previously
+	 *            determined to contain a BeID Card
+	 * @throws RuntimeException
+	 *             when no CertificateFactory capable of producing X509
+	 *             Certificates is available.
 	 */
 	public BeIDCard(final CardTerminal cardTerminal) throws CardException {
 		this(cardTerminal.connect("T=0"));
 	}
 
 	/**
-	 * close this BeIDCard, when you are done with it, to release any underlying resources.
-	 * All subsequent calls will fail.
-	 @return this BeIDCard instance, to allow method chaining
+	 * close this BeIDCard, when you are done with it, to release any underlying
+	 * resources. All subsequent calls will fail.
+	 * 
+	 * @return this BeIDCard instance, to allow method chaining
 	 */
 	public BeIDCard close() {
 		this.logger.debug("closing eID card");
@@ -196,11 +220,12 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Explicitly set the User Interface to be used for consequent operations. 
-	 * All user interaction is handled through this, and possible SPR features of
-	 * CCID-capable CardReaders.
+	 * Explicitly set the User Interface to be used for consequent operations.
+	 * All user interaction is handled through this, and possible SPR features
+	 * of CCID-capable CardReaders.
 	 * 
-	 * @param userInterface an instance of BeIDCardUI
+	 * @param userInterface
+	 *            an instance of BeIDCardUI
 	 * @return this BeIDCard instance, to allow method chaining
 	 */
 	public final BeIDCard setUI(final BeIDCardUI userInterface) {
@@ -209,14 +234,13 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Explicitly set the Locale to be used for consequent operations.
-	 * This is used to set the display language for Secure Pinpad operations
-	 * so that the user will see any messages on the SPR's display in the
-	 * language given.  
+	 * Explicitly set the Locale to be used for consequent operations. This is
+	 * used to set the display language for Secure Pinpad operations so that the
+	 * user will see any messages on the SPR's display in the language given.
 	 * 
-	 * Only the 3 official Belgian national languages are supported:
-	 * Dutch, French and German. Any other input will set the CCID
-	 * Language code to English.		
+	 * Only the 3 official Belgian national languages are supported: Dutch,
+	 * French and German. Any other input will set the CCID Language code to
+	 * English.
 	 * 
 	 * @param locale
 	 * @return this BeIDCard instance, to allow method chaining
@@ -230,7 +254,8 @@ public class BeIDCard {
 	 * Register a BeIDCardListener to receive updates on any consequent file
 	 * reading/signature operations executed by this BeIDCard.
 	 * 
-	 * @param a beIDCardListener instance
+	 * @param a
+	 *            beIDCardListener instance
 	 * @return this BeIDCard instance, to allow method chaining
 	 */
 	public final BeIDCard addCardListener(
@@ -243,10 +268,11 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Unregister a BeIDCardListener to no longer receive updates on any consequent file
-	 * reading/signature operations executed by this BeIDCard.
+	 * Unregister a BeIDCardListener to no longer receive updates on any
+	 * consequent file reading/signature operations executed by this BeIDCard.
 	 * 
-	 * @param a beIDCardListener instance
+	 * @param a
+	 *            beIDCardListener instance
 	 * @return this BeIDCard instance, to allow method chaining
 	 */
 	public final BeIDCard removeCardListener(
@@ -259,10 +285,11 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Reads a certain certificate from the card. 
-	 * Which certificate to read is determined by the FileType param. 
-	 * Applicable FileTypes are AuthentificationCertificate, NonRepudiationCertificate,
-	 * CACertificate, RootCertificate and RRNCertificate.
+	 * Reads a certain certificate from the card. Which certificate to read is
+	 * determined by the FileType param. Applicable FileTypes are
+	 * AuthentificationCertificate, NonRepudiationCertificate, CACertificate,
+	 * RootCertificate and RRNCertificate.
+	 * 
 	 * @param fileType
 	 * @return the certificate requested
 	 * @throws CertificateException
@@ -279,9 +306,8 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Returns the X509 authentication certificate.
-	 * This is a convenience method for 
-	 * <code>getCertificate(FileType.AuthentificationCertificate)</code>
+	 * Returns the X509 authentication certificate. This is a convenience method
+	 * for <code>getCertificate(FileType.AuthentificationCertificate)</code>
 	 * 
 	 * @return the X509 Authentication Certificate from the card.
 	 * @throws CardException
@@ -295,8 +321,8 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Returns the X509 non-repudiation certificate.
-	 * This is a convencience method for
+	 * Returns the X509 non-repudiation certificate. This is a convencience
+	 * method for
 	 * <code>getCertificate(FileType.NonRepudiationCertificate)</code>
 	 * 
 	 * @return
@@ -311,8 +337,7 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Returns the citizen CA certificate.
-	 * * This is a convencience method for
+	 * Returns the citizen CA certificate. This is a convenience method for
 	 * <code>getCertificate(FileType.CACertificate)</code>
 	 * 
 	 * @return
@@ -327,9 +352,22 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Returns the national registration certificate.
-	 * This is a convencience method for
-	 * <code>getCertificate(FileType.RRNCertificate)</code>
+	 * Returns the Root CA certificate.
+	 * 
+	 * @return the Root CA X509 certificate.
+	 * @throws CertificateException
+	 * @throws CardException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public X509Certificate getRootCACertificate() throws CertificateException,
+			CardException, IOException, InterruptedException {
+		return this.getCertificate(FileType.RootCertificate);
+	}
+
+	/**
+	 * Returns the national registration certificate. This is a convencience
+	 * method for <code>getCertificate(FileType.RRNCertificate)</code>
 	 * 
 	 * @return
 	 * @throws CardException
@@ -344,12 +382,13 @@ public class BeIDCard {
 
 	/**
 	 * Returns the entire certificate chain for a given file type. Of course,
-	 * only file types corresponding with a certificate are accepted.
-	 * Which certificate's chain to return is determined by the FileType param. 
-	 * Applicable FileTypes are AuthentificationCertificate, NonRepudiationCertificate,
-	 * CACertificate, and RRNCertificate.
+	 * only file types corresponding with a certificate are accepted. Which
+	 * certificate's chain to return is determined by the FileType param.
+	 * Applicable FileTypes are AuthentificationCertificate,
+	 * NonRepudiationCertificate, CACertificate, and RRNCertificate.
 	 * 
-	 * @param fileType which certificate's chain to return
+	 * @param fileType
+	 *            which certificate's chain to return
 	 * @return the certificate's chain up to and including the Belgian Root Cert
 	 * @throws CertificateException
 	 * @throws CardException
@@ -375,10 +414,10 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Returns the X509 authentication certificate chain.
-	 * (Authentication -> Citizen CA -> Root)
-	 * This is a convenience method for
+	 * Returns the X509 authentication certificate chain. (Authentication ->
+	 * Citizen CA -> Root) This is a convenience method for
 	 * <code>getCertificateChain(FileType.AuthentificationCertificate)</code>
+	 * 
 	 * @return the authentication certificate chain
 	 * @throws CardException
 	 * @throws IOException
@@ -392,10 +431,10 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Returns the X509 non-repudiation certificate chain.
-	 * (Non-Repudiation -> Citizen CA -> Root)
-	 * This is a convenience method for
+	 * Returns the X509 non-repudiation certificate chain. (Non-Repudiation ->
+	 * Citizen CA -> Root) This is a convenience method for
 	 * <code>getCertificateChain(FileType.NonRepudiationCertificate)</code>
+	 * 
 	 * @return the non-repudiation certificate chain
 	 * @throws CardException
 	 * @throws IOException
@@ -409,10 +448,10 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Returns the Citizen CA X509 certificate chain.
-	 * (Citizen CA -> Root)
-	 * This is a convenience method for
+	 * Returns the Citizen CA X509 certificate chain. (Citizen CA -> Root) This
+	 * is a convenience method for
 	 * <code>getCertificateChain(FileType.CACertificate)</code>
+	 * 
 	 * @return the citizen ca certificate chain
 	 * @throws CardException
 	 * @throws IOException
@@ -425,10 +464,10 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Returns the national registry X509 certificate chain.
-	 * (National Registry -> Root)
-	 * This is a convenience method for
+	 * Returns the national registry X509 certificate chain. (National Registry
+	 * -> Root) This is a convenience method for
 	 * <code>getCertificateChain(FileType.RRNCertificate)</code>
+	 * 
 	 * @return the national registry certificate chain
 	 * @throws CardException
 	 * @throws IOException
@@ -455,7 +494,7 @@ public class BeIDCard {
 	 * @throws CardException
 	 * @throws IOException
 	 * @throws InterruptedException
-	 * @throws UserCancelledException 
+	 * @throws UserCancelledException
 	 */
 	public byte[] sign(final byte[] digestValue, final BeIDDigest digestAlgo,
 			final FileType fileType, final boolean requireSecureReader)
@@ -559,16 +598,20 @@ public class BeIDCard {
 	/**
 	 * Create an authentication signature.
 	 * 
-	 * @param toBeSigned				the data to be signed
-	 * @param requireSecureReader		whether to require a secure pinpad reader to obtain the citizen's PIN
-	 * 								    if false, the current BeIDCardUI will be used in the absence of a secure 
-	 * 									pinpad reader. If true, an exception will be thrown unless a SPR is available
-	 * @return							a SHA-1 digest of the input data signed by the citizen's authentication key
+	 * @param toBeSigned
+	 *            the data to be signed
+	 * @param requireSecureReader
+	 *            whether to require a secure pinpad reader to obtain the
+	 *            citizen's PIN if false, the current BeIDCardUI will be used in
+	 *            the absence of a secure pinpad reader. If true, an exception
+	 *            will be thrown unless a SPR is available
+	 * @return a SHA-1 digest of the input data signed by the citizen's
+	 *         authentication key
 	 * @throws NoSuchAlgorithmException
 	 * @throws CardException
 	 * @throws IOException
 	 * @throws InterruptedException
-	 * @throws UserCancelledException 
+	 * @throws UserCancelledException
 	 */
 	public byte[] signAuthn(final byte[] toBeSigned,
 			final boolean requireSecureReader) throws NoSuchAlgorithmException,
@@ -591,7 +634,7 @@ public class BeIDCard {
 	 * @throws IOException
 	 * @throws CardException
 	 * @throws InterruptedException
-	 * @throws UserCancelledException 
+	 * @throws UserCancelledException
 	 */
 	public void verifyPin() throws IOException, CardException,
 			InterruptedException, UserCancelledException {
@@ -652,8 +695,8 @@ public class BeIDCard {
 	 * Returns random data generated by the eID card itself.
 	 * 
 	 * @param size
-	 *            	the size of the requested random data.
-	 * @return 		size bytes of random data
+	 *            the size of the requested random data.
+	 * @return size bytes of random data
 	 * @throws CardException
 	 */
 	public byte[] getChallenge(final int size) throws CardException {
@@ -684,7 +727,7 @@ public class BeIDCard {
 	 * @throws CardException
 	 * @throws IOException
 	 * @throws InterruptedException
-	 * @throws UserCancelledException 
+	 * @throws UserCancelledException
 	 */
 	public byte[] signTransactionMessage(final String transactionMessage,
 			final boolean requireSecureReader) throws CardException,
@@ -707,9 +750,10 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Discard the citizen's PIN code from the PIN cache. 
-	 * Any subsequent Authentication signatures will require PIN entry.
-	 * (non-repudation signatures are automatically protected)
+	 * Discard the citizen's PIN code from the PIN cache. Any subsequent
+	 * Authentication signatures will require PIN entry. (non-repudation
+	 * signatures are automatically protected)
+	 * 
 	 * @throws Exception
 	 * @return this BeIDCard instance, to allow method chaining
 	 */
@@ -769,9 +813,9 @@ public class BeIDCard {
 	}
 
 	/**
-	 * getATR returns the ATR of the eID Card. 
-	 * If this BeIDCard instance was constructed using the CardReader constructor, 
-	 * this is the only way to get to the ATR.
+	 * getATR returns the ATR of the eID Card. If this BeIDCard instance was
+	 * constructed using the CardReader constructor, this is the only way to get
+	 * to the ATR.
 	 * 
 	 * @return
 	 */
@@ -791,13 +835,15 @@ public class BeIDCard {
 
 	// ===========================================================================================================
 	// low-level card operations
-	// not recommended for general use. 
-	// if you find yourself having to call these, we'd very much like to hear about it.
+	// not recommended for general use.
+	// if you find yourself having to call these, we'd very much like to hear
+	// about it.
 	// ===========================================================================================================
 
 	/**
-	 * Select the BELPIC applet on the chip.
-	 * Since the BELPIC applet is supposed to be all alone on the chip, shouldn't be necessary.
+	 * Select the BELPIC applet on the chip. Since the BELPIC applet is supposed
+	 * to be all alone on the chip, shouldn't be necessary.
+	 * 
 	 * @return this BeIDCard instance, to allow method chaining
 	 * @throws CardException
 	 */
@@ -836,18 +882,20 @@ public class BeIDCard {
 	// --------------------------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * Begin an exclusive transaction with the card. 
-	 * Once this returns, only the calling thread will be able to access the card,
-	 * until it calls endExclusive(). Other threads will receive a CardException.
-	 * Use this when you need to make several calls to the card that depend on each other.
-	 * for example, SELECT FILE and READ BINARY, or SELECT ALGORITHM and COMPUTE SIGNATURE,
-	 * to avoid other threads/processes from interleaving commands that would break your
-	 * transactional logic.
+	 * Begin an exclusive transaction with the card. Once this returns, only the
+	 * calling thread will be able to access the card, until it calls
+	 * endExclusive(). Other threads will receive a CardException. Use this when
+	 * you need to make several calls to the card that depend on each other. for
+	 * example, SELECT FILE and READ BINARY, or SELECT ALGORITHM and COMPUTE
+	 * SIGNATURE, to avoid other threads/processes from interleaving commands
+	 * that would break your transactional logic.
 	 * 
-	 * Called automatically by the higher-level methods in this class. If you end up calling
-	 * this directly, this is either something wrong with your code, or with this class. Please
-	 * let us know. You should really only have to be calling this when using some of the other low-level
-	 * methods (transmitCommand, etc..) *never* in combination with the high-level methods.
+	 * Called automatically by the higher-level methods in this class. If you
+	 * end up calling this directly, this is either something wrong with your
+	 * code, or with this class. Please let us know. You should really only have
+	 * to be calling this when using some of the other low-level methods
+	 * (transmitCommand, etc..) *never* in combination with the high-level
+	 * methods.
 	 * 
 	 * @return this BeIDCard Instance, to allow method chaining.
 	 * @throws CardException
@@ -859,7 +907,9 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Release an exclusive transaction with the card, started by beginExclusive().
+	 * Release an exclusive transaction with the card, started by
+	 * beginExclusive().
+	 * 
 	 * @return this BeIDCard Instance, to allow method chaining.
 	 * @throws CardException
 	 */
@@ -872,13 +922,16 @@ public class BeIDCard {
 	// --------------------------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * Read bytes from a previously selected "File" on the card.
-	 * should be preceded by a call to selectFile so the card knows what you want to read.
+	 * Read bytes from a previously selected "File" on the card. should be
+	 * preceded by a call to selectFile so the card knows what you want to read.
 	 * Consider using one of the higher-level methods, or readFile().
 	 * 
-	 * @param fileType				the file to read (to allow for notification)
-	 * @param estimatedMaxSize		the estimated total size of the file to read (to allow for notification)
-	 * @return					    the data from the file
+	 * @param fileType
+	 *            the file to read (to allow for notification)
+	 * @param estimatedMaxSize
+	 *            the estimated total size of the file to read (to allow for
+	 *            notification)
+	 * @return the data from the file
 	 * @throws CardException
 	 * @throws IOException
 	 * @throws InterruptedException
@@ -926,7 +979,9 @@ public class BeIDCard {
 
 	/**
 	 * Selects a file to read on the card
-	 * @param fileId the file to read
+	 * 
+	 * @param fileId
+	 *            the file to read
 	 * @return this BeIDCard Instance, to allow method chaining.
 	 * @throws CardException
 	 * @throws FileNotFoundException
@@ -956,8 +1011,10 @@ public class BeIDCard {
 
 	/**
 	 * Reads a file from the card.
-	 * @param 	fileType the file to read
-	 * @return 	the data from the file
+	 * 
+	 * @param fileType
+	 *            the file to read
+	 * @return the data from the file
 	 * @throws CardException
 	 * @throws IOException
 	 * @throws InterruptedException
@@ -976,8 +1033,9 @@ public class BeIDCard {
 
 	// ===========================================================================================================
 	// low-level card transmit commands
-	// not recommended for general use. 
-	// if you find yourself having to call these, we'd very much like to hear about it.
+	// not recommended for general use.
+	// if you find yourself having to call these, we'd very much like to hear
+	// about it.
 	// ===========================================================================================================
 
 	protected byte[] transmitCCIDControl(final CCID.FEATURE feature)

@@ -2,6 +2,14 @@ Commons eID JCA
 
   This artifact provides a JCA security provider.
   
+  Once the JCA security provider has been registered you have a new key store available named "BeID".
+  
+  Within this key store you have two key aliases at your disposal:
+  
+  * "Authentication" which gives you access to the eID authentication private key and corresponding certificate chain.
+  
+  * "Signature" which gives you access to the eID non-repudiation private key and corresponding certificate chain.
+  
 * Creating a signature
 
   Creating a signature using the Commons eID JCA provider is as easy as it can get.
@@ -17,6 +25,16 @@ byte[] toBeSigned = "hello world".getBytes();
 signature.update(toBeSigned);
 byte[] signatureValue = signature.sign();
 +---
+
+* Retrieving a certificate chain
+
++---
+Security.addProvider(new BeIDProvider());
+KeyStore keyStore = KeyStore.getInstance("BeID");
+keyStore.init(null);
+Certificate[] certificateChain = keyStore.getCertificateChain("Signature");
++---
+  
 
 * API
     

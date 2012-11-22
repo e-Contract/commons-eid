@@ -91,7 +91,13 @@ public class BeIDProvider extends Provider {
 				BeIDSecureRandom.class.getName()));
 	}
 
-	public static final class BeIDService extends Service {
+	/**
+	 * Inner class used by {@link BeIDProvider}.
+	 * 
+	 * @author Frank Cornelis
+	 * 
+	 */
+	private static final class BeIDService extends Service {
 
 		public BeIDService(final Provider provider, final String type,
 				final String algorithm, final String className) {
