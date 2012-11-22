@@ -24,7 +24,8 @@ import java.util.Locale;
 import javax.net.ssl.ManagerFactoryParameters;
 
 /**
- * eID specific implementation of {@link ManagerFactoryParameters}.
+ * eID specific implementation of {@link ManagerFactoryParameters}. Can be used
+ * to tweak the behavior of the eID handling in the context of mutual SSL.
  * <p/>
  * Usage:
  * 

@@ -34,6 +34,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -197,7 +198,34 @@ public class JCATest {
 
 		final byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);
-		signature.sign();
+		byte[] signatureValue = signature.sign();
+
+		Certificate[] certificateChain = keyStore
+				.getCertificateChain("Authentication");
+		signature.initVerify(certificateChain[0]);
+		signature.update(toBeSigned);
+		assertTrue(signature.verify(signatureValue));
+	}
+
+	@Test
+	public void testCAAliases() throws Exception {
+		// setup
+		Security.addProvider(new BeIDProvider());
+		final KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+
+		// operate
+		X509Certificate citizenCACertificate = (X509Certificate) keyStore
+				.getCertificate("CA");
+		X509Certificate rootCACertificate = (X509Certificate) keyStore
+				.getCertificate("Root");
+
+		// verify
+		assertNotNull(citizenCACertificate);
+		LOG.debug("citizen CA: "
+				+ citizenCACertificate.getSubjectX500Principal());
+		assertNotNull(rootCACertificate);
+		LOG.debug("root CA: " + rootCACertificate.getSubjectX500Principal());
 	}
 
 	@Test

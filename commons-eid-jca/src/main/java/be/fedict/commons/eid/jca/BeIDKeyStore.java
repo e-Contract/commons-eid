@@ -56,8 +56,19 @@ import be.fedict.eid.commons.dialogs.Messages;
 
 /**
  * eID based JCA {@link KeyStore}. Used to load eID key material via standard
- * JCA API calls. Supports the eID specific {@link BeIDKeyStoreParameter} key
- * store parameter. You can also let any {@link JFrame} implement the
+ * JCA API calls. Once the JCA security provider has been registered you have a
+ * new key store available named "BeID". Two key aliases are available:
+ * <ul>
+ * <li>"Authentication" which gives you access to the eID authentication private
+ * key and corresponding certificate chain.</li>
+ * <li>"Signature" which gives you access to the eID non-repudiation private key
+ * and corresponding certificate chain.</li>
+ * </ul>
+ * Further the Citizen CA certificate can be accessed via the "CA" alias and the
+ * Root CA certificate can be accessed via the "Root" alias.
+ * <p/>
+ * Supports the eID specific {@link BeIDKeyStoreParameter} key store parameter.
+ * You can also let any {@link JFrame} implement the
  * {@link KeyStore.LoadStoreParameter} interface. If you pass this to
  * {@link KeyStore#load(LoadStoreParameter)} the keystore will use that Swing
  * frame as parent for positioning the dialogs.
@@ -76,9 +87,11 @@ import be.fedict.eid.commons.dialogs.Messages;
  * 			.getCertificate("Authentication");
  * PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
  * 			"Authentication", null);
+ * Certificate[] signCertificateChain = keyStore.getCertificateChain("Signature");
  * </pre>
  * 
  * @see BeIDKeyStoreParameter
+ * @see BeIDProvider
  * @author Frank Cornelis
  * 
  */
@@ -158,6 +171,22 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				return beIDCard.getAuthenticationCertificate();
 			} catch (final Exception ex) {
 				LOG.warn("error: " + ex.getMessage(), ex);
+				return null;
+			}
+		}
+		if ("CA".equals(alias)) {
+			try {
+				return beIDCard.getCACertificate();
+			} catch (Exception e) {
+				LOG.warn("error: " + e.getMessage(), e);
+				return null;
+			}
+		}
+		if ("Root".equals(alias)) {
+			try {
+				return beIDCard.getRootCACertificate();
+			} catch (Exception e) {
+				LOG.warn("error: " + e.getMessage(), e);
 				return null;
 			}
 		}
