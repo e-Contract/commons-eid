@@ -47,6 +47,7 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -205,6 +206,31 @@ public class JCATest {
 		signature.initVerify(certificateChain[0]);
 		signature.update(toBeSigned);
 		assertTrue(signature.verify(signatureValue));
+	}
+
+	@Test
+	public void testRecoveryAfterRemoval() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+				"Authentication", null);
+		final Signature signature = Signature.getInstance("SHA1withRSA");
+		signature.initSign(authnPrivateKey);
+
+		final byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		byte[] signatureValue = signature.sign();
+
+		JOptionPane.showMessageDialog(null, "Please remove/insert eID card...");
+
+		keyStore.load(null); // reload the keystore.
+		authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		signature.initSign(authnPrivateKey);
+		signature.update(toBeSigned);
+		signature.sign();
 	}
 
 	@Test
@@ -367,7 +393,7 @@ public class JCATest {
 		final TestLogger logger = new TestLogger();
 		final BeIDCards beIDCards = new BeIDCards(logger);
 		final BeIDCard beIDCard = beIDCards.getOneBeIDCard();
-		assertNotNull(beIDCard);;
+		assertNotNull(beIDCard);
 		return beIDCard;
 	}
 }
