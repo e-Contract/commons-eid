@@ -293,6 +293,10 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	public void engineLoad(final LoadStoreParameter param) throws IOException,
 			NoSuchAlgorithmException, CertificateException {
 		LOG.debug("engineLoad");
+		/*
+		 * Allows for a KeyStore to be re-loaded several times.
+		 */
+		this.beIDCard = null;
 		if (null == param) {
 			return;
 		}
