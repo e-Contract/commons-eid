@@ -56,6 +56,8 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	private Locale locale;
 
+	private boolean autoRecovery;
+
 	@Override
 	public ProtectionParameter getProtectionParameter() {
 		return null;
@@ -113,5 +115,20 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	public Locale getLocale() {
 		return this.locale;
+	}
+
+	public boolean getAutoRecovery() {
+		return this.autoRecovery;
+	}
+
+	/**
+	 * Sets whether the private keys retrieved from the key store should feature
+	 * auto-recovery. This means that they can survive eID card
+	 * removal/re-insert events.
+	 * 
+	 * @param autoRecovery
+	 */
+	public void setAutoRecovery(boolean autoRecovery) {
+		this.autoRecovery = autoRecovery;
 	}
 }

@@ -109,19 +109,24 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		LOG.debug("engineGetKey: " + alias);
 		final BeIDCard beIDCard = getBeIDCard();
 		boolean logoff;
+		boolean autoRecovery;
 		if (null == this.keyStoreParameter) {
 			logoff = false;
+			autoRecovery = false;
 		} else {
 			logoff = this.keyStoreParameter.getLogoff();
+			autoRecovery = this.keyStoreParameter.getAutoRecovery();
 		}
 		if ("Authentication".equals(alias)) {
 			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(
-					FileType.AuthentificationCertificate, beIDCard, logoff);
+					FileType.AuthentificationCertificate, beIDCard, logoff,
+					autoRecovery, this);
 			return beIDPrivateKey;
 		}
 		if ("Signature".equals(alias)) {
 			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(
-					FileType.NonRepudiationCertificate, beIDCard, logoff);
+					FileType.NonRepudiationCertificate, beIDCard, logoff,
+					autoRecovery, this);
 			return beIDPrivateKey;
 		}
 		return null;
@@ -314,6 +319,14 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	}
 
 	private BeIDCard getBeIDCard() {
+		return getBeIDCard(false);
+	}
+
+	public BeIDCard getBeIDCard(boolean recover) {
+		if (recover) {
+			LOG.debug("recovering from error");
+			this.beIDCard = null;
+		}
 		if (null != this.beIDCard) {
 			return this.beIDCard;
 		}

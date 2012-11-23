@@ -234,6 +234,31 @@ public class JCATest {
 	}
 
 	@Test
+	public void testAutoRecovery() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
+		keyStoreParameter.setAutoRecovery(true);
+		keyStore.load(keyStoreParameter);
+
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+				"Authentication", null);
+		final Signature signature = Signature.getInstance("SHA1withRSA");
+		signature.initSign(authnPrivateKey);
+
+		final byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		signature.sign();
+
+		JOptionPane.showMessageDialog(null, "Please remove/insert eID card...");
+
+		signature.initSign(authnPrivateKey);
+		signature.update(toBeSigned);
+		signature.sign();
+	}
+
+	@Test
 	public void testCAAliases() throws Exception {
 		// setup
 		Security.addProvider(new BeIDProvider());
