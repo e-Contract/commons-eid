@@ -98,6 +98,7 @@ public class BeIDPrivateKey implements PrivateKey {
 
 	byte[] sign(final byte[] digestValue, final String digestAlgo)
 			throws SignatureException {
+		LOG.debug("auto recovery: " + this.autoRecovery);
 		final BeIDDigest beIDDigest = beIDDigests.get(digestAlgo);
 		if (null == beIDDigest) {
 			throw new SignatureException("unsupported algo: " + digestAlgo);
@@ -111,8 +112,12 @@ public class BeIDPrivateKey implements PrivateKey {
 				 * eID card.
 				 */
 				if (null == this.authenticationCertificate) {
-					this.authenticationCertificate = this.beIDCard
-							.getAuthenticationCertificate();
+					try {
+						this.authenticationCertificate = this.beIDCard
+								.getAuthenticationCertificate();
+					} catch (Exception e) {
+						// don't fail here
+					}
 				}
 			}
 			try {

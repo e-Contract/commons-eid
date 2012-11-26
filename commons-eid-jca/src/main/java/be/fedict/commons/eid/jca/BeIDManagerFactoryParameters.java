@@ -51,6 +51,8 @@ public class BeIDManagerFactoryParameters implements ManagerFactoryParameters {
 
 	private Locale locale;
 
+	private boolean autoRecovery;
+
 	/**
 	 * Default constructor.
 	 */
@@ -82,5 +84,20 @@ public class BeIDManagerFactoryParameters implements ManagerFactoryParameters {
 
 	public Locale getLocale() {
 		return this.locale;
+	}
+
+	/**
+	 * Sets whether the private keys retrieved from the key store should feature
+	 * auto-recovery. This means that they can survive eID card
+	 * removal/re-insert events.
+	 * 
+	 * @param autoRecovery
+	 */
+	public void setAutoRecovery(boolean autoRecovery) {
+		this.autoRecovery = autoRecovery;
+	}
+
+	public boolean getAutoRecovery() {
+		return this.autoRecovery;
 	}
 }

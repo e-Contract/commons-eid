@@ -66,6 +66,7 @@ public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 			beIDKeyStoreParameter.setLocale(beIDSpec.getLocale());
 			beIDKeyStoreParameter.setParentComponent(beIDSpec
 					.getParentComponent());
+			beIDKeyStoreParameter.setAutoRecovery(beIDSpec.getAutoRecovery());
 		}
 		this.keyStore.load(beIDKeyStoreParameter);
 	}

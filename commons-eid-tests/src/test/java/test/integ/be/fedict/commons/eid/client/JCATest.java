@@ -269,6 +269,18 @@ public class JCATest {
 	}
 
 	@Test
+	public void testGetCertificateCaching() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+
+		for (int idx = 0; idx < 100; idx++) {
+			assertNotNull(keyStore.getCertificate("Authentication"));
+		}
+	}
+
+	@Test
 	public void testCAAliases() throws Exception {
 		// setup
 		Security.addProvider(new BeIDProvider());
