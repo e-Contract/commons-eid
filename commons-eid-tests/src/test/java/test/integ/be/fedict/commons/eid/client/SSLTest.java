@@ -44,12 +44,14 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,12 +115,19 @@ public class SSLTest {
 		final Thread thread = new Thread(testRunnable);
 		thread.start();
 
-		final SSLSocket sslSocket = (SSLSocket) sslServerSocket.accept();
+		SSLSocket sslSocket = (SSLSocket) sslServerSocket.accept();
 		LOG.debug("server accepted");
-		final InputStream inputStream = sslSocket.getInputStream();
-		final int result = inputStream.read();
+		InputStream inputStream = sslSocket.getInputStream();
+		int result = inputStream.read();
 		LOG.debug("result: " + result);
 		assertEquals(12, result);
+		SSLSession sslSession = sslSocket.getSession();
+		sslSession.invalidate();
+		sslSocket = (SSLSocket) sslServerSocket.accept();
+		inputStream = sslSocket.getInputStream();
+		result = inputStream.read();
+		LOG.debug("result: " + result);
+		assertEquals(34, result);
 	}
 
 	private static final class TestRunnable implements Runnable {
@@ -154,6 +163,7 @@ public class SSLTest {
 			final BeIDManagerFactoryParameters spec = new BeIDManagerFactoryParameters();
 			spec.setLocale(Locale.FRENCH);
 			spec.setParentComponent(frame);
+			spec.setAutoRecovery(true);
 
 			keyManagerFactory.init(spec);
 			final SecureRandom secureRandom = SecureRandom.getInstance("BeID");
@@ -162,11 +172,19 @@ public class SSLTest {
 					secureRandom);
 			final SSLSocketFactory sslSocketFactory = sslContext
 					.getSocketFactory();
-			final Socket socket = sslSocketFactory.createSocket("localhost",
-					this.serverPort);
+			SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(
+					"localhost", this.serverPort);
 			LOG.debug("socket created");
-			final OutputStream outputStream = socket.getOutputStream();
+			OutputStream outputStream = sslSocket.getOutputStream();
 			outputStream.write(12);
+			SSLSession sslSession = sslSocket.getSession();
+			sslSession.invalidate();
+			JOptionPane.showMessageDialog(null, "Please remove eID card...");
+			sslSocket.close();
+			sslSocket = (SSLSocket) sslSocketFactory.createSocket("localhost",
+					this.serverPort);
+			outputStream = sslSocket.getOutputStream();
+			outputStream.write(34);
 		}
 	}
 

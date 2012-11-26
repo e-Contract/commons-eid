@@ -103,6 +103,18 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	private BeIDCard beIDCard;
 
+	private List<X509Certificate> authnCertificateChain;
+
+	private List<X509Certificate> signCertificateChain;
+
+	private X509Certificate citizenCaCertificate;
+
+	private X509Certificate rootCaCertificate;
+
+	private X509Certificate authnCertificate;
+
+	private X509Certificate signCertificate;
+
 	@Override
 	public Key engineGetKey(final String alias, final char[] password)
 			throws NoSuchAlgorithmException, UnrecoverableKeyException {
@@ -138,23 +150,35 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		final BeIDCard beIDCard = getBeIDCard();
 		if ("Signature".equals(alias)) {
 			try {
-				final List<X509Certificate> signingCertificateChain = beIDCard
-						.getSigningCertificateChain();
-				return signingCertificateChain.toArray(new X509Certificate[]{});
+				if (null == this.signCertificateChain) {
+					this.signCertificateChain = beIDCard
+							.getSigningCertificateChain();
+					this.signCertificate = this.signCertificateChain.get(0);
+					this.citizenCaCertificate = this.signCertificateChain
+							.get(1);
+					this.rootCaCertificate = this.signCertificateChain.get(2);
+				}
 			} catch (final Exception ex) {
 				LOG.error("error: " + ex.getMessage(), ex);
 				return null;
 			}
+			return this.signCertificateChain.toArray(new X509Certificate[]{});
 		}
 		if ("Authentication".equals(alias)) {
 			try {
-				final List<X509Certificate> signingCertificateChain = beIDCard
-						.getAuthenticationCertificateChain();
-				return signingCertificateChain.toArray(new X509Certificate[]{});
+				if (null == this.authnCertificateChain) {
+					this.authnCertificateChain = beIDCard
+							.getAuthenticationCertificateChain();
+					this.authnCertificate = this.authnCertificateChain.get(0);
+					this.citizenCaCertificate = this.authnCertificateChain
+							.get(1);
+					this.rootCaCertificate = this.authnCertificateChain.get(2);
+				}
 			} catch (final Exception ex) {
 				LOG.error("error: " + ex.getMessage(), ex);
 				return null;
 			}
+			return this.authnCertificateChain.toArray(new X509Certificate[]{});
 		}
 		return null;
 	}
@@ -165,35 +189,48 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		final BeIDCard beIDCard = getBeIDCard();
 		if ("Signature".equals(alias)) {
 			try {
-				return beIDCard.getSigningCertificate();
+				if (null == this.signCertificate) {
+					this.signCertificate = beIDCard.getSigningCertificate();
+				}
 			} catch (final Exception ex) {
 				LOG.warn("error: " + ex.getMessage(), ex);
 				return null;
 			}
+			return this.signCertificate;
 		}
 		if ("Authentication".equals(alias)) {
 			try {
-				return beIDCard.getAuthenticationCertificate();
+				if (null == this.authnCertificate) {
+					this.authnCertificate = beIDCard
+							.getAuthenticationCertificate();;
+				}
 			} catch (final Exception ex) {
 				LOG.warn("error: " + ex.getMessage(), ex);
 				return null;
 			}
+			return this.authnCertificate;
 		}
 		if ("CA".equals(alias)) {
 			try {
-				return beIDCard.getCACertificate();
+				if (null == this.citizenCaCertificate) {
+					this.citizenCaCertificate = beIDCard.getCACertificate();;
+				}
 			} catch (Exception e) {
 				LOG.warn("error: " + e.getMessage(), e);
 				return null;
 			}
+			return this.citizenCaCertificate;
 		}
 		if ("Root".equals(alias)) {
 			try {
-				return beIDCard.getRootCACertificate();
+				if (null == this.rootCaCertificate) {
+					this.rootCaCertificate = beIDCard.getRootCACertificate();
+				}
 			} catch (Exception e) {
 				LOG.warn("error: " + e.getMessage(), e);
 				return null;
 			}
+			return this.rootCaCertificate;
 		}
 		return null;
 	}
@@ -302,6 +339,12 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		 * Allows for a KeyStore to be re-loaded several times.
 		 */
 		this.beIDCard = null;
+		this.authnCertificateChain = null;
+		this.signCertificateChain = null;
+		this.authnCertificate = null;
+		this.signCertificate = null;
+		this.citizenCaCertificate = null;
+		this.rootCaCertificate = null;
 		if (null == param) {
 			return;
 		}

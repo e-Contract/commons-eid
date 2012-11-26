@@ -58,10 +58,15 @@ public class BeIDSecureRandom extends SecureRandomSpi {
 	@Override
 	protected void engineNextBytes(final byte[] bytes) {
 		LOG.debug("engineNextBytes: " + bytes.length + " bytes");
-		final BeIDCard beIDCard = getBeIDCard();
+		BeIDCard beIDCard = getBeIDCard();
 		byte[] randomData;
 		try {
-			randomData = beIDCard.getChallenge(bytes.length);
+			try {
+				randomData = beIDCard.getChallenge(bytes.length);
+			} catch (Exception e) {
+				beIDCard = getBeIDCard(true);
+				randomData = beIDCard.getChallenge(bytes.length);
+			}
 		} catch (final CardException e) {
 			throw new RuntimeException(e);
 		}
@@ -79,6 +84,13 @@ public class BeIDSecureRandom extends SecureRandomSpi {
 			throw new RuntimeException(e);
 		}
 		return randomData;
+	}
+
+	private BeIDCard getBeIDCard(boolean autoRecover) {
+		if (autoRecover) {
+			this.beIDCard = null;
+		}
+		return getBeIDCard();
 	}
 
 	private BeIDCard getBeIDCard() {
