@@ -20,6 +20,7 @@ package be.fedict.commons.eid.jca;
 
 import java.security.PrivateKey;
 import java.security.SignatureException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,6 +56,8 @@ public class BeIDPrivateKey implements PrivateKey {
 	private final BeIDKeyStore beIDKeyStore;
 
 	private final static Map<String, BeIDDigest> beIDDigests;
+
+	private X509Certificate authenticationCertificate;
 
 	static {
 		beIDDigests = new HashMap<String, BeIDDigest>();
@@ -101,6 +104,17 @@ public class BeIDPrivateKey implements PrivateKey {
 		}
 		byte[] signatureValue;
 		try {
+			if (this.autoRecovery) {
+				/*
+				 * We keep a copy of the authentication certificate to make sure
+				 * that the automatic recovery only operates against the same
+				 * eID card.
+				 */
+				if (null == this.authenticationCertificate) {
+					this.authenticationCertificate = this.beIDCard
+							.getAuthenticationCertificate();
+				}
+			}
 			try {
 				signatureValue = this.beIDCard.sign(digestValue, beIDDigest,
 						this.certificateFileType, false);
@@ -108,6 +122,14 @@ public class BeIDPrivateKey implements PrivateKey {
 				if (this.autoRecovery) {
 					LOG.debug("trying to recover...");
 					this.beIDCard = this.beIDKeyStore.getBeIDCard(true);
+					if (null != this.authenticationCertificate) {
+						X509Certificate newAuthenticationCertificate = this.beIDCard
+								.getAuthenticationCertificate();
+						if (false == this.authenticationCertificate
+								.equals(newAuthenticationCertificate)) {
+							throw new SignatureException("different eID card");
+						}
+					}
 				}
 				signatureValue = this.beIDCard.sign(digestValue, beIDDigest,
 						this.certificateFileType, false);

@@ -233,6 +233,16 @@ public class JCATest {
 		signature.sign();
 	}
 
+	/**
+	 * Integration test for automatic recovery of a {@link PrivateKey} instance.
+	 * <p/>
+	 * Automatic recovery should work on the same eID card.
+	 * <p/>
+	 * When inserting another eID card however, the automatic recovery should
+	 * fail.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testAutoRecovery() throws Exception {
 		Security.addProvider(new BeIDProvider());
