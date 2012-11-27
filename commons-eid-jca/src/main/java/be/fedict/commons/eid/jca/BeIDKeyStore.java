@@ -24,10 +24,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
 import java.security.KeyStore;
+import java.security.KeyStore.Entry;
 import java.security.KeyStore.LoadStoreParameter;
+import java.security.KeyStore.PrivateKeyEntry;
+import java.security.KeyStore.ProtectionParameter;
 import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -202,7 +207,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			try {
 				if (null == this.authnCertificate) {
 					this.authnCertificate = beIDCard
-							.getAuthenticationCertificate();;
+							.getAuthenticationCertificate();
 				}
 			} catch (final Exception ex) {
 				LOG.warn("error: " + ex.getMessage(), ex);
@@ -213,7 +218,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		if ("CA".equals(alias)) {
 			try {
 				if (null == this.citizenCaCertificate) {
-					this.citizenCaCertificate = beIDCard.getCACertificate();;
+					this.citizenCaCertificate = beIDCard.getCACertificate();
 				}
 			} catch (Exception e) {
 				LOG.warn("error: " + e.getMessage(), e);
@@ -280,6 +285,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	@Override
 	public boolean engineContainsAlias(final String alias) {
+		LOG.debug("engineContainsAlias: " + alias);
 		if ("Authentication".equals(alias)) {
 			return true;
 		}
@@ -296,6 +302,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	@Override
 	public boolean engineIsKeyEntry(final String alias) {
+		LOG.debug("engineIsKeyEntry: " + alias);
 		if ("Authentication".equals(alias)) {
 			return true;
 		}
@@ -307,6 +314,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	@Override
 	public boolean engineIsCertificateEntry(final String alias) {
+		LOG.debug("engineIsCertificateEntry: " + alias);
 		if ("Authentication".equals(alias)) {
 			return true;
 		}
@@ -314,6 +322,42 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void engineStore(LoadStoreParameter param) throws IOException,
+			NoSuchAlgorithmException, CertificateException {
+		LOG.debug("engineStore");
+		super.engineStore(param);
+	}
+
+	@Override
+	public Entry engineGetEntry(String alias, ProtectionParameter protParam)
+			throws KeyStoreException, NoSuchAlgorithmException,
+			UnrecoverableEntryException {
+		LOG.debug("engineGetEntry: " + alias);
+		if ("Authentication".equals(alias) || "Signature".equals(alias)) {
+			PrivateKey privateKey = (PrivateKey) engineGetKey(alias, null);
+			Certificate[] chain = engineGetCertificateChain(alias);
+			PrivateKeyEntry privateKeyEntry = new PrivateKeyEntry(privateKey,
+					chain);
+			return privateKeyEntry;
+		}
+		return super.engineGetEntry(alias, protParam);
+	}
+
+	@Override
+	public void engineSetEntry(String alias, Entry entry,
+			ProtectionParameter protParam) throws KeyStoreException {
+		LOG.debug("engineSetEntry: " + alias);
+		super.engineSetEntry(alias, entry, protParam);
+	}
+
+	@Override
+	public boolean engineEntryInstanceOf(String alias,
+			Class<? extends Entry> entryClass) {
+		LOG.debug("engineEntryInstanceOf: " + alias);
+		return super.engineEntryInstanceOf(alias, entryClass);
 	}
 
 	@Override
