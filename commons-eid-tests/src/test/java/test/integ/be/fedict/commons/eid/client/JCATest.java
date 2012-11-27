@@ -24,10 +24,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore.ProtectionParameter;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -36,6 +41,7 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -49,16 +55,19 @@ import javax.crypto.SecretKey;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 
+import sun.security.pkcs11.SunPKCS11;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.consumer.jca.ProxyPrivateKey;
 import be.fedict.commons.eid.consumer.jca.ProxyProvider;
 import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
+import be.fedict.commons.eid.jca.BeIDPrivateKey;
 import be.fedict.commons.eid.jca.BeIDProvider;
 
 public class JCATest {
@@ -410,6 +419,78 @@ public class JCATest {
 		final X509Certificate authnCertificate = (X509Certificate) keyStore
 				.getCertificate("Authentication");
 		assertNotNull(authnCertificate);
+	}
+
+	@Test
+	public void testGetEntry() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		final KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry(
+				"Authentication", null);
+		assertNotNull(privateKeyEntry);
+		assertTrue(privateKeyEntry.getPrivateKey() instanceof BeIDPrivateKey);
+	}
+
+	@Test
+	public void testPKCS1ViaPKCS11VersusCommonsEID() throws Exception {
+		byte[] toBeSigned = "hello world".getBytes();
+
+		{
+			Security.addProvider(new BeIDProvider());
+			KeyStore keyStore = KeyStore.getInstance("BeID");
+			keyStore.load(null);
+			PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore
+					.getEntry("Authentication", null);
+			PrivateKey privateKey = privateKeyEntry.getPrivateKey();
+			RSAPublicKey publicKey = (RSAPublicKey) keyStore.getCertificate(
+					"Authentication").getPublicKey();
+			Signature signature = Signature.getInstance("SHA1withRSA");
+			signature.initSign(privateKey);
+			signature.update(toBeSigned);
+			byte[] signatureValue = signature.sign();
+			BigInteger signatureValueBigInteger = new BigInteger(signatureValue);
+			BigInteger messageBigInteger = signatureValueBigInteger.modPow(
+					publicKey.getPublicExponent(), publicKey.getModulus());
+			LOG
+					.debug("original message via Commons eID: "
+							+ new String(Hex.encodeHex(messageBigInteger
+									.toByteArray())));
+		}
+
+		{
+			File tmpConfigFile = File.createTempFile("pkcs11-", "conf");
+			tmpConfigFile.deleteOnExit();
+			PrintWriter configWriter = new PrintWriter(new FileOutputStream(
+					tmpConfigFile), true);
+			configWriter.println("name=SmartCard");
+			configWriter.println("library=/usr/lib/libbeidpkcs11.so.0");
+			configWriter.println("slotListIndex=2");
+
+			SunPKCS11 provider = new SunPKCS11(tmpConfigFile.getAbsolutePath());
+			Security.addProvider(provider);
+			KeyStore keyStore = KeyStore.getInstance("PKCS11", provider);
+			keyStore.load(null, null);
+			PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore
+					.getEntry("Authentication", null);
+			PrivateKey privateKey = privateKeyEntry.getPrivateKey();
+			Signature signature = Signature.getInstance("SHA1withRSA");
+			signature.initSign(privateKey);
+			signature.update(toBeSigned);
+			byte[] signatureValue = signature.sign();
+
+			X509Certificate certificate = (X509Certificate) privateKeyEntry
+					.getCertificate();
+			RSAPublicKey publicKey = (RSAPublicKey) certificate.getPublicKey();
+			BigInteger signatureValueBigInteger = new BigInteger(signatureValue);
+			BigInteger messageBigInteger = signatureValueBigInteger.modPow(
+					publicKey.getPublicExponent(), publicKey.getModulus());
+			LOG
+					.debug("original message via PKCS11:      "
+							+ new String(Hex.encodeHex(messageBigInteger
+									.toByteArray())));
+		}
 	}
 
 	private void verifySignatureAlgorithm(final String signatureAlgorithm,
