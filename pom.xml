@@ -4,7 +4,7 @@
 	<name>FedICT Commons eID Project</name>
 	<groupId>be.fedict</groupId>
 	<artifactId>commons-eid</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.2.4</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2012</inceptionYear>
 	<licenses>
@@ -43,7 +43,7 @@
 	</ciManagement>
 	<scm>
 		<connection>scm:hg:https://code.google.com/p/commons-eid/</connection>
-		<tag>HEAD</tag>
+		<tag>commons-eid-0.2.4</tag>
 	</scm>
 	<distributionManagement>
 		<repository>
