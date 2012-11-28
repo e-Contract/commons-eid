@@ -34,6 +34,7 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore.ProtectionParameter;
+import java.security.KeyStore.TrustedCertificateEntry;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -431,6 +432,20 @@ public class JCATest {
 				"Authentication", null);
 		assertNotNull(privateKeyEntry);
 		assertTrue(privateKeyEntry.getPrivateKey() instanceof BeIDPrivateKey);
+
+		TrustedCertificateEntry caEntry = (TrustedCertificateEntry) keyStore
+				.getEntry("CA", null);
+		assertNotNull(caEntry);
+		LOG.debug("CA entry: "
+				+ ((X509Certificate) caEntry.getTrustedCertificate())
+						.getSubjectX500Principal());
+
+		TrustedCertificateEntry rootEntry = (TrustedCertificateEntry) keyStore
+				.getEntry("Root", null);
+		assertNotNull(rootEntry);
+		LOG.debug("root entry: "
+				+ ((X509Certificate) rootEntry.getTrustedCertificate())
+						.getSubjectX500Principal());
 	}
 
 	@Test

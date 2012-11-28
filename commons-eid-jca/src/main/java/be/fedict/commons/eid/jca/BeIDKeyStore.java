@@ -28,6 +28,7 @@ import java.security.KeyStore.Entry;
 import java.security.KeyStore.LoadStoreParameter;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore.ProtectionParameter;
+import java.security.KeyStore.TrustedCertificateEntry;
 import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
 import java.security.NoSuchAlgorithmException;
@@ -342,6 +343,12 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			PrivateKeyEntry privateKeyEntry = new PrivateKeyEntry(privateKey,
 					chain);
 			return privateKeyEntry;
+		}
+		if ("CA".equals(alias) || "Root".equals(alias)) {
+			Certificate certificate = engineGetCertificate(alias);
+			TrustedCertificateEntry trustedCertificateEntry = new TrustedCertificateEntry(
+					certificate);
+			return trustedCertificateEntry;
 		}
 		return super.engineGetEntry(alias, protParam);
 	}
