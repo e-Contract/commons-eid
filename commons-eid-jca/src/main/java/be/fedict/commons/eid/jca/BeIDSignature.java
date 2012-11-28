@@ -39,13 +39,20 @@ import org.apache.commons.logging.LogFactory;
  * signature algorithms:
  * <ul>
  * <li><code>SHA1withRSA</code></li>
+ * <li><code>SHA224withRSA</code></li>
  * <li><code>SHA256withRSA</code></li>
  * <li><code>SHA384withRSA</code></li>
  * <li><code>SHA512withRSA</code></li>
  * <li><code>NONEwithRSA</code>, used for mutual TLS authentication.</li>
+ * <li><code>RIPEMD128withRSA</code></li>
+ * <li><code>RIPEMD160withRSA</code></li>
+ * <li><code>RIPEMD256withRSA</code></li>
  * <li><code>SHA1withRSAandMGF1</code>, supported by future eID cards.</li>
  * <li><code>SHA256withRSAandMGF1</code>, supported by future eID cards.</li>
  * </ul>
+ * <p/>
+ * Some of the more exotic digest algorithms like SHA-224 and RIPEMDxxx will
+ * require an additional security provider like BouncyCastle.
  * 
  * @author Frank Cornelis
  * 
@@ -69,10 +76,14 @@ public class BeIDSignature extends SignatureSpi {
 	static {
 		digestAlgos = new HashMap<String, String>();
 		digestAlgos.put("SHA1withRSA", "SHA-1");
+		digestAlgos.put("SHA224withRSA", "SHA-224");
 		digestAlgos.put("SHA256withRSA", "SHA-256");
 		digestAlgos.put("SHA384withRSA", "SHA-384");
 		digestAlgos.put("SHA512withRSA", "SHA-512");
 		digestAlgos.put("NONEwithRSA", null);
+		digestAlgos.put("RIPEMD128withRSA", "RIPEMD128");
+		digestAlgos.put("RIPEMD160withRSA", "RIPEMD160");
+		digestAlgos.put("RIPEMD256withRSA", "RIPEMD256");
 		digestAlgos.put("SHA1withRSAandMGF1", "SHA-1");
 		digestAlgos.put("SHA256withRSAandMGF1", "SHA-256");
 	}
