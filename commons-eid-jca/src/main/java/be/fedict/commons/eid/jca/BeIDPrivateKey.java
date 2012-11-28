@@ -62,10 +62,14 @@ public class BeIDPrivateKey implements PrivateKey {
 	static {
 		beIDDigests = new HashMap<String, BeIDDigest>();
 		beIDDigests.put("SHA-1", BeIDDigest.SHA_1);
+		beIDDigests.put("SHA-224", BeIDDigest.SHA_224);
 		beIDDigests.put("SHA-256", BeIDDigest.SHA_256);
 		beIDDigests.put("SHA-384", BeIDDigest.SHA_384);
 		beIDDigests.put("SHA-512", BeIDDigest.SHA_512);
 		beIDDigests.put("NONE", BeIDDigest.NONE);
+		beIDDigests.put("RIPEMD128", BeIDDigest.RIPEMD_128);
+		beIDDigests.put("RIPEMD160", BeIDDigest.RIPEMD_160);
+		beIDDigests.put("RIPEMD256", BeIDDigest.RIPEMD_256);
 		beIDDigests.put("SHA-1-PSS", BeIDDigest.SHA_1_PSS);
 		beIDDigests.put("SHA-256-PSS", BeIDDigest.SHA_256_PSS);
 	}

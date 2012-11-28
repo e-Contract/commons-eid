@@ -71,6 +71,8 @@ public class BeIDProvider extends Provider {
 				BeIDPrivateKey.class.getName());
 		putService(new BeIDService(this, "Signature", "SHA1withRSA",
 				BeIDSignature.class.getName(), signatureServiceAttributes));
+		putService(new BeIDService(this, "Signature", "SHA224withRSA",
+				BeIDSignature.class.getName(), signatureServiceAttributes));
 		putService(new BeIDService(this, "Signature", "SHA256withRSA",
 				BeIDSignature.class.getName(), signatureServiceAttributes));
 		putService(new BeIDService(this, "Signature", "SHA384withRSA",
@@ -78,6 +80,12 @@ public class BeIDProvider extends Provider {
 		putService(new BeIDService(this, "Signature", "SHA512withRSA",
 				BeIDSignature.class.getName(), signatureServiceAttributes));
 		putService(new BeIDService(this, "Signature", "NONEwithRSA",
+				BeIDSignature.class.getName(), signatureServiceAttributes));
+		putService(new BeIDService(this, "Signature", "RIPEMD128withRSA",
+				BeIDSignature.class.getName(), signatureServiceAttributes));
+		putService(new BeIDService(this, "Signature", "RIPEMD160withRSA",
+				BeIDSignature.class.getName(), signatureServiceAttributes));
+		putService(new BeIDService(this, "Signature", "RIPEMD256withRSA",
 				BeIDSignature.class.getName(), signatureServiceAttributes));
 		putService(new BeIDService(this, "Signature", "SHA1withRSAandMGF1",
 				BeIDSignature.class.getName(), signatureServiceAttributes));

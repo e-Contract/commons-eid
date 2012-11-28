@@ -312,6 +312,35 @@ public class JCATest {
 	}
 
 	@Test
+	public void testAuthenticationSignatures() throws Exception {
+		Security.addProvider(new BeIDProvider());
+		Security.addProvider(new BouncyCastleProvider());
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore
+				.getCertificate("Authentication");
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+				"Authentication", null);
+
+		verifySignatureAlgorithm("SHA1withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA224withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA256withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA384withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA512withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("RIPEMD128withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("RIPEMD160withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("RIPEMD256withRSA", authnPrivateKey,
+				authnCertificate.getPublicKey());
+	}
+
+	@Test
 	public void testBeIDSignature() throws Exception {
 		Security.addProvider(new BeIDProvider());
 
@@ -530,6 +559,13 @@ public class JCATest {
 		signature.update(toBeSigned);
 		final boolean result = signature.verify(signatureValue);
 		assertTrue(result);
+
+		RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+		BigInteger signatureValueBigInteger = new BigInteger(signatureValue);
+		BigInteger messageBigInteger = signatureValueBigInteger.modPow(
+				rsaPublicKey.getPublicExponent(), rsaPublicKey.getModulus());
+		LOG.debug("Padded DigestInfo: "
+				+ new String(Hex.encodeHex(messageBigInteger.toByteArray())));
 	}
 
 	private BeIDCard getBeIDCard() throws Exception {
