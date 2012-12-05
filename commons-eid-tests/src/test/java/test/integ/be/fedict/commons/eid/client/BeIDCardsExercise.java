@@ -52,7 +52,6 @@ public class BeIDCardsExercise {
 					+ identity.getName());
 
 			if (beIDCards.getAllBeIDCards().contains(beIDCard)) {
-				// XXX: missing dialog box for card removal
 				LOG.debug("waiting for card removal");
 				beIDCards.waitUntilCardRemoved(beIDCard);
 			}

@@ -40,6 +40,10 @@ public class BeIDCardsIUAdapter implements BeIDCardsUI {
 	}
 
 	@Override
+	public void adviseBeIDCardRemovalRequired() {
+	}
+
+	@Override
 	public BeIDCard selectBeIDCard(final Collection<BeIDCard> availableCards) {
 		return availableCards.iterator().next();
 	}
@@ -55,4 +59,5 @@ public class BeIDCardsIUAdapter implements BeIDCardsUI {
 	@Override
 	public void adviseEnd() {
 	}
+
 }

@@ -45,6 +45,11 @@ public interface BeIDCardsUI {
 	void adviseBeIDCardRequired();
 
 	/**
+	 * The user needs to remove a BeID Card for security reasons.
+	 */
+	void adviseBeIDCardRemovalRequired();
+
+	/**
 	 * No more user actions are required, at this point.
 	 */
 	void adviseEnd();
