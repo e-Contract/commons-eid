@@ -34,17 +34,20 @@ import be.fedict.commons.eid.client.spi.Sleeper;
 /**
  * BeIDCards is a synchronous approach to Belgian Identity Cards and their
  * presence in the user's system, as opposed to the asynchronous, event-driven
- * approach of {@link BeIDCardManager} (but BeIDCards uses an underlying {@link BeIDCardManager}
- * to achieve it's goals). It's main purpose is to have a very simple way to get a user's
- * BeIDCard instance, abstracting away and delegating issues such as terminal connection,
- * card insertion, and handling multiple elegible cards.
+ * approach of {@link BeIDCardManager} (but BeIDCards uses an underlying
+ * {@link BeIDCardManager} to achieve it's goals). It's main purpose is to have
+ * a very simple way to get a user's BeIDCard instance, abstracting away and
+ * delegating issues such as terminal connection, card insertion, and handling
+ * multiple eligible cards.
  * <p>
- * BeIDCards handle user interaction (if any) through an instance of BeIDCardsUI, which can be
- * supplied at construction, or left to the supplied default, which will instantiate a 
- * be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI (which needs to be available on the class path)
+ * BeIDCards handle user interaction (if any) through an instance of
+ * BeIDCardsUI, which can be supplied at construction, or left to the supplied
+ * default, which will instantiate a
+ * be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI (which needs to be available
+ * on the class path)
  * 
  * @author Frank Marien
- *
+ * 
  */
 public class BeIDCards {
 	private static final String UI_MISSING_LOG_MESSAGE = "No BeIDCardsUI set and can't load DefaultBeIDCardsUI";
@@ -66,7 +69,10 @@ public class BeIDCards {
 
 	/**
 	 * Instantiate a BeIDCards logging to logger, using the default UI.
-	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be send all the logs
+	 * 
+	 * @param logger
+	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
+	 *            send all the logs
 	 */
 	public BeIDCards(final Logger logger) {
 		this(logger, null);
@@ -74,9 +80,14 @@ public class BeIDCards {
 
 	/**
 	 * a BeIDCards logging to logger, using the supplied BeIDCardsUI.
-	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be send all the logs
-	 * @param ui an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI that will be
-	 * called upon for any user interaction required to handle other calls
+	 * 
+	 * @param logger
+	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
+	 *            send all the logs
+	 * @param ui
+	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
+	 *            that will be called upon for any user interaction required to
+	 *            handle other calls
 	 */
 	public BeIDCards(final Logger logger, final BeIDCardsUI ui) {
 		this.logger = logger;
@@ -146,9 +157,9 @@ public class BeIDCards {
 
 	/**
 	 * Return whether any BeID Cards are currently present.
-	 * @return true if one or more BeID Cards are inserted in
-	 * one or more connected CardTerminals, false if zero BeID Cards
-	 * are present
+	 * 
+	 * @return true if one or more BeID Cards are inserted in one or more
+	 *         connected CardTerminals, false if zero BeID Cards are present
 	 */
 	public boolean hasBeIDCards() {
 		waitUntilInitialized();
@@ -162,6 +173,7 @@ public class BeIDCards {
 	/**
 	 * return Set of all BeID Cards present. Will return empty Set if no BeID
 	 * cards are present at time of call
+	 * 
 	 * @return a (possibly empty) set of all BeID Cards inserted at time of call
 	 */
 	public Set<BeIDCard> getAllBeIDCards() {
@@ -175,15 +187,15 @@ public class BeIDCards {
 	/**
 	 * return exactly one BeID Card.
 	 * 
-	 * This may block when called when no BeID Cards are present, 
-	 * until at least one BeID card is inserted, at which point
-	 * this will be returned. If, at time of call, more than one BeID card is
-	 * present, will request the UI to select between those, and return the
-	 * selected card. If the UI is called upon to request the user to select between
-	 * different cards, or to insert one card, and the user declines, CancelledException
-	 * is thrown.
+	 * This may block when called when no BeID Cards are present, until at least
+	 * one BeID card is inserted, at which point this will be returned. If, at
+	 * time of call, more than one BeID card is present, will request the UI to
+	 * select between those, and return the selected card. If the UI is called
+	 * upon to request the user to select between different cards, or to insert
+	 * one card, and the user declines, CancelledException is thrown.
 	 * 
-	 * @return a BeIDCard instance. The only one present, or one chosen out of several by the user
+	 * @return a BeIDCard instance. The only one present, or one chosen out of
+	 *         several by the user
 	 * @throws CancelledException
 	 */
 	public BeIDCard getOneBeIDCard() throws CancelledException {
@@ -192,8 +204,10 @@ public class BeIDCards {
 		do {
 			waitForAtLeastOneBeIDCard();
 
-			// copy current list of BeID Cards to avoid holding a lock on it during possible selectBeIDCard dialog.
-			// (because we'd deadlock when user inserts/removes a card while selectBeIDCard has not returned)
+			// copy current list of BeID Cards to avoid holding a lock on it
+			// during possible selectBeIDCard dialog.
+			// (because we'd deadlock when user inserts/removes a card while
+			// selectBeIDCard has not returned)
 			Collection<BeIDCard> currentBeIDCards = null;
 			synchronized (this.beIDTerminalsAndCards) {
 				currentBeIDCards = new ArrayList<BeIDCard>(
@@ -206,14 +220,15 @@ public class BeIDCards {
 			} else {
 				// more than one, call upon the UI to obtain a selection
 				try {
-					System.err.println("selecting");
+					this.logger.debug("selecting");
 					this.uiSelectingCard = true;
 					selectedCard = getUI().selectBeIDCard(currentBeIDCards);
 				} catch (final OutOfCardsException oocex) {
-					// if we run out of cards, waitForAtLeastOneBeIDCard will ask for one in the next loop
+					// if we run out of cards, waitForAtLeastOneBeIDCard will
+					// ask for one in the next loop
 				} finally {
 					this.uiSelectingCard = false;
-					System.err.println("no longer selecting");
+					this.logger.debug("no longer selecting");
 				}
 			}
 		} while (selectedCard == null);
@@ -223,15 +238,24 @@ public class BeIDCards {
 
 	/**
 	 * wait for a particular BeID card to be removed. Note that this only works
-	 * with BeID objects that were acquired using either the {@link getOneBeIDCard()} or
-	 * {@link getAllBeIDCards()} methods from the same BeIDCards instance
+	 * with BeID objects that were acquired using either the {@link
+	 * getOneBeIDCard()} or {@link getAllBeIDCards()} methods from the same
+	 * BeIDCards instance. If, at time of call, that particular card is
+	 * present, the UI is called upon to prompt the user to remove that card.
+	 * 
 	 * @return this BeIDCards instance to allow for method chaining
 	 */
 	public BeIDCards waitUntilCardRemoved(final BeIDCard card) {
-		while (this.getAllBeIDCards().contains(card)) {
-			this.beIDSleeper.sleepUntilAwakened();
+		if (this.getAllBeIDCards().contains(card)) {
+			try {
+				this.getUI().adviseBeIDCardRemovalRequired();
+				while (this.getAllBeIDCards().contains(card)) {
+					this.beIDSleeper.sleepUntilAwakened();
+				}
+			} finally {
+				this.getUI().adviseEnd();
+			}
 		}
-
 		return this;
 	}
 

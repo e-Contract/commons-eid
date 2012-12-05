@@ -81,6 +81,13 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	}
 
 	@Override
+	public void adviseBeIDCardRemovalRequired() {
+		showAdvise(this.messages.getMessage(Messages.MESSAGE_ID.REMOVE_CARD),
+				this.messages.getMessage(Messages.MESSAGE_ID.REMOVE_CARD));
+
+	}
+
+	@Override
 	public BeIDCard selectBeIDCard(final Collection<BeIDCard> availableCards)
 			throws CancelledException, OutOfCardsException {
 		try {

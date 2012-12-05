@@ -22,15 +22,18 @@ Commons eID Client
 	Once you have obtained a BeIDCard object, the same BeIDCards instance
 	allows you to block waiting for the user to remove that eID card.
 
+* Logging
+
+	Most classes in commons-eid take an optional Logger instance as a
+  constructor argument. It is recommended for all non-trivial applications,
+	to pass one's own Logger, and allow capture of such events, to allow diagnostics/debugging.  
+
+* Custom User Interface for Blocking API
+
 [images/beidcardscustom.png] BeIDCards Instance with default internal Logger and UI
 
-	The BeIDCards constructor takes 2 optional arguments: a Logger and
-	a BeIDCardsUI. 
-
-	Pass an instance implementing Logger to get all the
-	internal events involved in waiting for an eID card. It is recommended
-	for all non-trivial applications, to pass one's own Logger, and allow
-	capture of such events, to allow diagnostics/debugging. 
+	The BeIDCards constructor takes, apart from the ubiquitous Logger,
+	a BeIDCardsUI argument.
 
 	Pass an instance implementing BeIDCardsUI to override the default
 	on-screen UI with whatever interface is appropriate to your application.
