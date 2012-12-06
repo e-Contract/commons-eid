@@ -159,6 +159,7 @@ public class BeIDCardManager {
 				final BeIDCard beIDCard = BeIDCardManager.this.terminalsAndCards
 						.get(cardTerminal);
 				if (beIDCard != null) {
+					beIDCard.close();
 					synchronized (BeIDCardManager.this.terminalsAndCards) {
 						BeIDCardManager.this.terminalsAndCards
 								.remove(cardTerminal);
@@ -222,7 +223,7 @@ public class BeIDCardManager {
 
 				Set<CardEventsListener> copyOfOtherCardEventsListeners = null;
 
-				synchronized (BeIDCardManager.this.beIdListeners) {
+				synchronized (BeIDCardManager.this.otherCardListeners) {
 					copyOfOtherCardEventsListeners = new HashSet<CardEventsListener>(
 							BeIDCardManager.this.otherCardListeners);
 				}

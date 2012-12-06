@@ -55,6 +55,7 @@ public class BeIDCardsExercise {
 				LOG.debug("waiting for card removal");
 				beIDCards.waitUntilCardRemoved(beIDCard);
 			}
+
 			LOG.debug("card removed");
 		} catch (final CancelledException cex) {
 			LOG.error("Cancelled By User");
