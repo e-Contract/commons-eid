@@ -18,6 +18,7 @@
 
 package test.integ.be.fedict.commons.eid.client;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import javax.smartcardio.CardTerminal;
@@ -52,11 +53,12 @@ public class BeIDCardsSpecificTerminalExercise {
 			final CardTerminal terminal = beIDCard.getCardTerminal();
 
 			LOG.debug("reading identity file");
-			final byte[] identityFile = beIDCard.readFile(FileType.Identity);
-			final Identity identity = TlvParser.parse(identityFile,
+			byte[] identityFile = beIDCard.readFile(FileType.Identity);
+			Identity identity = TlvParser.parse(identityFile,
 					Identity.class);
 			LOG.debug("card holder is " + identity.getFirstName() + " "
 					+ identity.getName());
+            String userId = identity.getNationalNumber();
 
 			if (beIDCards.getAllBeIDCards().contains(beIDCard)) {
 				LOG.debug("waiting for card removal");
@@ -67,6 +69,11 @@ public class BeIDCardsSpecificTerminalExercise {
 					.debug("We want only a card from our imprinted CardTerminal back");
 			beIDCard = beIDCards.getOneBeIDCard(terminal);
 			assertNotNull(beIDCard);
+
+            identityFile = beIDCard.readFile(FileType.Identity);
+            identity = TlvParser.parse(identityFile,
+                    Identity.class);
+            assertEquals(userId, identity.getNationalNumber());
 
 		} catch (final CancelledException cex) {
 			LOG.error("Cancelled By User");
