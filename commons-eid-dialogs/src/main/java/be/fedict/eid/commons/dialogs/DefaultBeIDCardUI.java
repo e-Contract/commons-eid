@@ -493,8 +493,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		warningBox.add(warningLabel);
 		warningBox.add(Box.createHorizontalGlue());
 		warningBox.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-				.createDashedBorder(Color.red, (float) 6.0, (float) 4.0),
-				BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+				.createLineBorder(Color.red, 1), BorderFactory
+				.createEmptyBorder(8, 8, 8, 8)));
 		return warningBox;
 	}
 
