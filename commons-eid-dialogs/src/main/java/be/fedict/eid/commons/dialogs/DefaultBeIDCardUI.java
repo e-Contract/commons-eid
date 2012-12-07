@@ -28,6 +28,7 @@ import java.awt.Frame;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
+import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -35,15 +36,20 @@ import java.awt.event.KeyListener;
 import java.util.Arrays;
 import java.util.Locale;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 
 import be.fedict.commons.eid.client.PINPurpose;
 import be.fedict.commons.eid.client.spi.BeIDCardUI;
@@ -160,15 +166,12 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		final Box mainPanel = Box.createVerticalBox();
 
 		if (-1 != retriesLeft) {
-			final Box retriesPanel = Box.createHorizontalBox();
-			final JLabel retriesLabel = new JLabel(this.messages
+			mainPanel.add(Box.createVerticalStrut(4));
+			final Box retriesPanel = createWarningBox(this.messages
 					.getMessage(MESSAGE_ID.RETRIES_LEFT)
 					+ ": " + retriesLeft);
-			retriesLabel.setForeground(Color.RED);
-			retriesPanel.add(retriesLabel);
-			retriesPanel.add(Box.createHorizontalGlue());
 			mainPanel.add(retriesPanel);
-			mainPanel.add(Box.createVerticalStrut(5));
+			mainPanel.add(Box.createVerticalStrut(24));
 		}
 
 		final JPasswordField oldPinField = new JPasswordField(MAX_PIN_SIZE);
@@ -255,18 +258,12 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		reasonPanel.add(reasonLabel);
 		reasonPanel.add(Box.createHorizontalGlue());
 		mainPanel.add(reasonPanel);
-		mainPanel.add(Box.createVerticalStrut(10));
+		mainPanel.add(Box.createVerticalStrut(16));
 
 		if (-1 != retriesLeft) {
-			final Box retriesPanel = Box.createHorizontalBox();
-			final JLabel retriesLabel = new JLabel(this.messages
+			addWarningBox(mainPanel, this.messages
 					.getMessage(MESSAGE_ID.RETRIES_LEFT)
 					+ ": " + retriesLeft);
-			retriesLabel.setForeground(Color.RED);
-			retriesPanel.add(retriesLabel);
-			retriesPanel.add(Box.createHorizontalGlue());
-			mainPanel.add(retriesPanel);
-			mainPanel.add(Box.createVerticalStrut(10));
 		}
 
 		final Box passwordPanel = Box.createHorizontalBox();
@@ -278,6 +275,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		final JPasswordField passwordField = new JPasswordField(MAX_PIN_SIZE);
 		promptLabel.setLabelFor(passwordField);
 		passwordPanel.add(passwordField);
+		passwordPanel.setBorder(createGenerousLowerBevelBorder());
 		mainPanel.add(passwordPanel);
 
 		// button panel
@@ -376,15 +374,9 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		final Box mainPanel = Box.createVerticalBox();
 
 		if (-1 != retriesLeft) {
-			final Box retriesPanel = Box.createHorizontalBox();
-			final JLabel retriesLabel = new JLabel(this.messages
+			addWarningBox(mainPanel, this.messages
 					.getMessage(MESSAGE_ID.RETRIES_LEFT)
 					+ ": " + retriesLeft);
-			retriesLabel.setForeground(Color.RED);
-			retriesPanel.add(retriesLabel);
-			retriesPanel.add(Box.createHorizontalGlue());
-			mainPanel.add(retriesPanel);
-			mainPanel.add(Box.createVerticalStrut(5));
 		}
 
 		final JPasswordField puk1Field = new JPasswordField(8);
@@ -481,6 +473,37 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	 * **********************************************************************************************************************
 	 */
 
+	private Box addWarningBox(final JComponent parent,
+			final String warningMessage) {
+		parent.add(Box.createVerticalStrut(4));
+		final Box retriesPanel = createWarningBox(warningMessage);
+		parent.add(retriesPanel);
+		parent.add(Box.createVerticalStrut(24));
+		return retriesPanel;
+	}
+
+	private Box createWarningBox(final String warningText) {
+		final Box warningBox = Box.createHorizontalBox();
+		final JLabel warningLabel = new JLabel(warningText);
+		warningLabel.setForeground(Color.RED);
+		final Icon warningIcon = UIManager.getIcon("OptionPane.warningIcon");
+		if (warningIcon != null) {
+			warningLabel.setIcon(warningIcon);
+		}
+		warningBox.add(warningLabel);
+		warningBox.add(Box.createHorizontalGlue());
+		warningBox.setBorder(BorderFactory.createCompoundBorder(BorderFactory
+				.createDashedBorder(Color.red, (float) 6.0, (float) 4.0),
+				BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+		return warningBox;
+	}
+
+	private Border createGenerousLowerBevelBorder() {
+		return BorderFactory.createCompoundBorder(BorderFactory
+				.createLoweredBevelBorder(), BorderFactory.createEmptyBorder(
+				16, 16, 16, 16));
+	}
+
 	private void showPINPadFrame(final int retriesLeft, final String title,
 			final String... messages) {
 		if (null != this.pinPadFrame) {
@@ -490,24 +513,36 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		JPanel panel = new JPanel() {
 			private static final long serialVersionUID = 1L;
 
-			@Override
-			public Insets getInsets() {
-				return new Insets(10, 30, 10, 30);
-			}
+			//			@Override
+			//			public Insets getInsets() {
+			//				return new Insets(10, 30, 10, 30);
+			//			}
 		};
 		final BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
 		panel.setLayout(boxLayout);
+		panel.setBorder(BorderFactory.createEmptyBorder(32, 32, 32, 32));
+
+		if (messages.length > 0) {
+			final JLabel label = new JLabel(messages[0]);
+			label.setAlignmentX((float) 0.5);
+			panel.add(label);
+		}
 
 		if (-1 != retriesLeft) {
-			final JLabel retriesLabel = new JLabel(this.messages
+			panel.add(Box.createVerticalStrut(24));
+			final Box warningBox = this.createWarningBox(this.messages
 					.getMessage(MESSAGE_ID.RETRIES_LEFT)
 					+ ": " + retriesLeft);
-			retriesLabel.setForeground(Color.RED);
-			panel.add(retriesLabel);
+			panel.add(warningBox);
+			panel.add(Box.createVerticalStrut(24));
 		}
-		for (String message : messages) {
-			panel.add(new JLabel(message));
+
+		for (int i = 1; i < messages.length; i++) {
+			final JLabel label = new JLabel(messages[i]);
+			label.setAlignmentX((float) 0.5);
+			panel.add(label);
 		}
+
 		this.pinPadFrame.getContentPane().add(panel);
 		this.pinPadFrame.pack();
 
