@@ -1,0 +1,60 @@
+Commons eID JCA
+
+  This artifact provides a JCA security provider.
+  
+  Once the JCA security provider has been registered you have a new key store available named "BeID".
+  
+  Within this key store you have two key aliases at your disposal:
+  
+  * "Authentication" which gives you access to the eID authentication private key and corresponding certificate chain.
+  
+  * "Signature" which gives you access to the eID non-repudiation private key and corresponding certificate chain.
+  
+* Creating a signature
+
+  Creating a signature using the Commons eID JCA provider is as easy as it can get.
+
++---
+Security.addProvider(new BeIDProvider());
+KeyStore keyStore = KeyStore.getInstance("BeID");
+keyStore.init(null);
+PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+Signature signature = Signature.getInstance("SHA1withRSA");
+signature.initSign(authnPrivateKey);
+byte[] toBeSigned = "hello world".getBytes();
+signature.update(toBeSigned);
+byte[] signatureValue = signature.sign();
++---
+
+* Retrieving a certificate chain
+
++---
+Security.addProvider(new BeIDProvider());
+KeyStore keyStore = KeyStore.getInstance("BeID");
+keyStore.init(null);
+Certificate[] certificateChain = keyStore.getCertificateChain("Signature");
++---
+
+* Automatic recovery from eID card removal events
+
+  When using multiple eID applications at the same time, 
+  it might be possible that the PrivateKey instance all of the sudden no longer refers to a valid eID card instance.
+  Normally in that case one has to reload the KeyStore to acquire a new valid PrivateKey instance.
+  
+  To make it even easier for developers, the Commons eID JCA key store implementation features an automatic recovery.
+  The following example demonstrates how to activate this automatic recovery mechanism:
+  
++---
+Security.addProvider(new BeIDProvider());
+KeyStore keyStore = KeyStore.getInstance("BeID");
+BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
+keyStoreParameter.setAutoRecovery(true);
+keyStore.load(keyStoreParameter);
+PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
++---
+
+  The acquired PrivateKey instance now features an automatic recovery without the need to reload the KeyStore.
+
+* API
+    
+  {{{./apidocs/index.html}Javadoc API documentation}}
