@@ -405,6 +405,40 @@ public class JCATest {
 	}
 
 	@Test
+	public void testPSSPrefix() throws Exception {
+		Security.addProvider(new BeIDProvider());
+		Security.addProvider(new BouncyCastleProvider());
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+				"Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore
+				.getCertificate("Authentication");
+		PublicKey authnPublicKey = authnCertificate.getPublicKey();
+
+		Signature signature = Signature.getInstance("SHA1withRSAandMGF1");
+		signature.initSign(authnPrivateKey);
+
+		byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		byte[] signatureValue = signature.sign();
+
+		signature.initVerify(authnPublicKey);
+		signature.update(toBeSigned);
+		boolean result = signature.verify(signatureValue);
+		assertTrue(result);
+
+		RSAPublicKey rsaPublicKey = (RSAPublicKey) authnPublicKey;
+		BigInteger signatureValueBigInteger = new BigInteger(signatureValue);
+		BigInteger messageBigInteger = signatureValueBigInteger.modPow(
+				rsaPublicKey.getPublicExponent(), rsaPublicKey.getModulus());
+		String paddedMessage = new String(Hex.encodeHex(messageBigInteger
+				.toByteArray()));
+		LOG.debug("padded message: " + paddedMessage);
+		assertTrue(paddedMessage.endsWith("bc"));
+	}
+
+	@Test
 	public void testSoftwareRSAKeyWrapping() throws Exception {
 		final KeyPairGenerator keyPairGenerator = KeyPairGenerator
 				.getInstance("RSA");
