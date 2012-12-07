@@ -182,7 +182,7 @@ public class BeIDCards {
 
 			@Override
 			public void eIDCardEventsInitialized() {
-				BeIDCards.this.logger.debug("*** eIDCardEventsInitialized");
+				BeIDCards.this.logger.debug("eIDCardEventsInitialized");
 				BeIDCards.this.cardsInitialized = true;
 				BeIDCards.this.cardManagerInitSleeper.awaken();
 			}
@@ -198,10 +198,28 @@ public class BeIDCards {
 	 *         connected CardTerminals, false if zero BeID Cards are present
 	 */
 	public boolean hasBeIDCards() {
+		return hasBeIDCards(null);
+	}
+
+	/**
+	 * Return whether any BeID Cards are currently present.
+	 * 
+	 * @param terminal if not null, only this terminal will be considered in determining
+	 * whether beID Cards are present.
+	 * 
+	 * @return true if one or more BeID Cards are inserted in one or more
+	 *         connected CardTerminals, false if zero BeID Cards are present
+	 */
+	public boolean hasBeIDCards(CardTerminal terminal) {
 		waitUntilCardsInitialized();
 		boolean has;
+
 		synchronized (this.beIDTerminalsAndCards) {
-			has = (!this.beIDTerminalsAndCards.isEmpty());
+			if (terminal != null) {
+				has = this.beIDTerminalsAndCards.containsKey(terminal);
+			} else {
+				has = !this.beIDTerminalsAndCards.isEmpty();
+			}
 		}
 		this.logger.debug("hasBeIDCards returns " + has);
 		return has;
@@ -236,31 +254,63 @@ public class BeIDCards {
 	 * @throws CancelledException
 	 */
 	public BeIDCard getOneBeIDCard() throws CancelledException {
+		return this.getOneBeIDCard(null);
+	}
+
+	/**
+	 * return a BeID Card inserted into a given CardTerminal
+	 * 
+	 * @param terminal if not null, only BeID Cards in this particular CardTerminal will 
+	 * be considered.
+	 * 
+	 * May block when called when no BeID Cards are present, until at least
+	 * one BeID card is inserted, at which point this will be returned. If, at
+	 * time of call, more than one BeID card is present, will request the UI to
+	 * select between those, and return the selected card. If the UI is called
+	 * upon to request the user to select between different cards, or to insert
+	 * one card, and the user declines, CancelledException is thrown.
+	 * 
+	 * @return a BeIDCard instance. The only one present, or one chosen out of
+	 *         several by the user
+	 * @throws CancelledException
+	 */
+	public BeIDCard getOneBeIDCard(CardTerminal terminal)
+			throws CancelledException {
 		BeIDCard selectedCard = null;
 
 		do {
 			waitForAtLeastOneCardTerminal();
-			waitForAtLeastOneBeIDCard();
+			waitForAtLeastOneBeIDCard(terminal);
 
 			// copy current list of BeID Cards to avoid holding a lock on it
 			// during possible selectBeIDCard dialog.
 			// (because we'd deadlock when user inserts/removes a card while
 			// selectBeIDCard has not returned)
-			Collection<BeIDCard> currentBeIDCards = null;
+
+			Map<CardTerminal, BeIDCard> currentBeIDCards = null;
 			synchronized (this.beIDTerminalsAndCards) {
-				currentBeIDCards = new ArrayList<BeIDCard>(
-						this.beIDTerminalsAndCards.values());
+				currentBeIDCards = new HashMap<CardTerminal, BeIDCard>(
+						this.beIDTerminalsAndCards);
 			}
 
-			if (currentBeIDCards.size() == 1) {
-				// only one BeID card. return it.
-				selectedCard = currentBeIDCards.iterator().next();
+			if (terminal != null) {
+				// if selecting by terminal and we have a card in the requested
+				// one,
+				// return that immediately. (this will return null if the
+				// terminal we want doesn't
+				// have a card, and continue the loop.
+				selectedCard = currentBeIDCards.get(terminal);
+			} else if (currentBeIDCards.size() == 1) {
+
+				// we have only one BeID card. return it.
+				selectedCard = currentBeIDCards.values().iterator().next();
 			} else {
 				// more than one, call upon the UI to obtain a selection
 				try {
 					this.logger.debug("selecting");
 					this.uiSelectingCard = true;
-					selectedCard = getUI().selectBeIDCard(currentBeIDCards);
+					selectedCard = getUI().selectBeIDCard(
+							currentBeIDCards.values());
 				} catch (final OutOfCardsException oocex) {
 					// if we run out of cards, waitForAtLeastOneBeIDCard will
 					// ask for one in the next loop
@@ -278,8 +328,8 @@ public class BeIDCards {
 	 * wait for a particular BeID card to be removed. Note that this only works
 	 * with BeID objects that were acquired using either the {@link
 	 * getOneBeIDCard()} or {@link getAllBeIDCards()} methods from the same
-	 * BeIDCards instance. If, at time of call, that particular card is
-	 * present, the UI is called upon to prompt the user to remove that card.
+	 * BeIDCards instance. If, at time of call, that particular card is present,
+	 * the UI is called upon to prompt the user to remove that card.
 	 * 
 	 * @return this BeIDCards instance to allow for method chaining
 	 */
@@ -355,11 +405,11 @@ public class BeIDCards {
 		}
 	}
 
-	private void waitForAtLeastOneBeIDCard() {
-		if (!this.hasBeIDCards()) {
+	private void waitForAtLeastOneBeIDCard(CardTerminal terminal) {
+		if (!this.hasBeIDCards(terminal)) {
 			try {
 				this.getUI().adviseBeIDCardRequired();
-				while (!this.hasBeIDCards()) {
+				while (!this.hasBeIDCards(terminal)) {
 					this.beIDSleeper.sleepUntilAwakened();
 				}
 			} finally {
@@ -380,9 +430,11 @@ public class BeIDCards {
 			}
 
 			// if we just found our first CardTerminal, give us 100ms
-			// to get notified about any eID cards that may already present in that CardTerminal
-			// we'll get notified about any cards much faster than 100ms, 
-			// and worst case, 100ms is not noticeable. Better than calling adviseBeIDCardRequired and adviseEnd
+			// to get notified about any eID cards that may already present in
+			// that CardTerminal
+			// we'll get notified about any cards much faster than 100ms,
+			// and worst case, 100ms is not noticeable. Better than calling
+			// adviseBeIDCardRequired and adviseEnd
 			// with a few seconds in between.
 			if (!this.hasBeIDCards()) {
 				try {

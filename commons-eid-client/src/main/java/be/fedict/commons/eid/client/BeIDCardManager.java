@@ -112,6 +112,7 @@ public class BeIDCardManager {
 				if (card != null && matchesEidAtr(card.getATR())) {
 					final BeIDCard beIDCard = new BeIDCard(card,
 							BeIDCardManager.this.logger);
+					beIDCard.setCardTerminal(cardTerminal);
 
 					synchronized (BeIDCardManager.this.terminalsAndCards) {
 						BeIDCardManager.this.terminalsAndCards.put(
