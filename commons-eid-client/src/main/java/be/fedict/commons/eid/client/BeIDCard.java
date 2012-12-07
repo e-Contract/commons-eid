@@ -117,6 +117,7 @@ public class BeIDCard {
 	private CCID ccid;
 	private BeIDCardUI ui;
 	private Locale locale;
+	private CardTerminal cardTerminal;
 
 	/**
 	 * Instantiate a BeIDCard from an already connected javax.smartcardio.Card,
@@ -197,7 +198,8 @@ public class BeIDCard {
 	 *             Certificates is available.
 	 */
 	public BeIDCard(final CardTerminal cardTerminal) throws CardException {
-		this(cardTerminal.connect("T=0"));
+		this(cardTerminal.connect("T=0"), null);
+		setCardTerminal(cardTerminal);
 	}
 
 	/**
@@ -208,6 +210,7 @@ public class BeIDCard {
 	 */
 	public BeIDCard close() {
 		this.logger.debug("closing eID card");
+		setCardTerminal(null);
 
 		try {
 			this.card.disconnect(true);
@@ -1490,15 +1493,32 @@ public class BeIDCard {
 		return this.ui;
 	}
 
+	/**
+	 * Return the CardTerminal that held this BeIdCard when it was detected
+	 * Will return null if the physical Card that we represent was removed.
+	 * 
+	 * @return the cardTerminal this BeIDCard was in when detected, or null
+	 */
+	public CardTerminal getCardTerminal() {
+		return cardTerminal;
+	}
+
+	/**
+	 * 
+	 * @param cardTerminal
+	 */
+	public void setCardTerminal(CardTerminal cardTerminal) {
+		this.cardTerminal = cardTerminal;
+	}
+
 	/*
 	 * BeIDCommandAPDU encapsulates values sent in CommandAPDU's, to make these
 	 * more readable in BeIDCard.
 	 */
-
 	private enum BeIDCommandAPDU {
-		SELECT_APPLET_0(0x00, 0xA4, 0x04, 0x0C),
+		SELECT_APPLET_0(0x00, 0xA4, 0x04, 0x0C), // TODO these are the same?
 
-		SELECT_APPLET_1(0x00, 0xA4, 0x04, 0x0C),
+		SELECT_APPLET_1(0x00, 0xA4, 0x04, 0x0C), // TODO see above
 
 		SELECT_FILE(0x00, 0xA4, 0x08, 0x0C),
 
