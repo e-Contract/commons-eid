@@ -37,12 +37,31 @@ public class DialogsTest {
 
 	@Test
 	public void testDefaultDialogs() throws Exception {
-		Messages messages = new Messages(new Locale("en"));
+		Messages messages = new Messages(new Locale("fr"));
 		BeIDCardUI beIDCardUI = new DefaultBeIDCardUI(null, messages);
+
 		char[] pin = beIDCardUI
 				.obtainPIN(2, PINPurpose.NonRepudiationSignature);
 		LOG.debug("PIN: " + new String(pin));
 		beIDCardUI.advisePINPadPINEntry(1, PINPurpose.NonRepudiationSignature);
+
 		JOptionPane.showMessageDialog(null, "Waiting...");
+
+		beIDCardUI.advisePINPadPINEntry(-1, PINPurpose.NonRepudiationSignature);
+
+		JOptionPane.showMessageDialog(null, "Waiting...");
+
+		beIDCardUI.advisePINPadOperationEnd();
+
+		beIDCardUI.obtainPIN(-1, PINPurpose.PINTest);
+		beIDCardUI.obtainPIN(2, PINPurpose.PINTest);
+		beIDCardUI.obtainPIN(1, PINPurpose.PINTest);
+		beIDCardUI.obtainPIN(-1, PINPurpose.AuthenticationSignature);
+		beIDCardUI.obtainPIN(2, PINPurpose.AuthenticationSignature);
+		beIDCardUI.obtainPIN(1, PINPurpose.AuthenticationSignature);
+		beIDCardUI.obtainPIN(-1, PINPurpose.NonRepudiationSignature);
+		beIDCardUI.obtainPIN(2, PINPurpose.NonRepudiationSignature);
+		beIDCardUI.obtainPIN(1, PINPurpose.NonRepudiationSignature);
+
 	}
 }
