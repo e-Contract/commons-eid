@@ -53,6 +53,8 @@ public class BeIDManagerFactoryParameters implements ManagerFactoryParameters {
 
 	private boolean autoRecovery;
 
+	private boolean cardReaderStickiness;
+
 	/**
 	 * Default constructor.
 	 */
@@ -99,5 +101,19 @@ public class BeIDManagerFactoryParameters implements ManagerFactoryParameters {
 
 	public boolean getAutoRecovery() {
 		return this.autoRecovery;
+	}
+
+	public boolean getCardReaderStickiness() {
+		return this.cardReaderStickiness;
+	}
+
+	/**
+	 * Sets whether the auto recovery should use card reader stickiness.
+	 * If set to true, the auto recovery will try to recover using the same card reader.
+	 *
+	 * @param cardReaderStickiness
+	 */
+	public void setCardReaderStickiness(boolean cardReaderStickiness) {
+		this.cardReaderStickiness = cardReaderStickiness;
 	}
 }
