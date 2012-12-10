@@ -164,9 +164,11 @@ public class SSLTest {
 			spec.setLocale(Locale.FRENCH);
 			spec.setParentComponent(frame);
 			spec.setAutoRecovery(true);
+			spec.setCardReaderStickiness(true);
 
 			keyManagerFactory.init(spec);
-			final SecureRandom secureRandom = SecureRandom.getInstance("BeID");
+			//SecureRandom secureRandom = SecureRandom.getInstance("BeID");
+			SecureRandom secureRandom = new SecureRandom();
 			sslContext.init(keyManagerFactory.getKeyManagers(),
 					new TrustManager[]{new ClientTestX509TrustManager()},
 					secureRandom);

@@ -67,6 +67,8 @@ public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 			beIDKeyStoreParameter.setParentComponent(beIDSpec
 					.getParentComponent());
 			beIDKeyStoreParameter.setAutoRecovery(beIDSpec.getAutoRecovery());
+			beIDKeyStoreParameter.setCardReaderStickiness(beIDSpec
+					.getCardReaderStickiness());
 		}
 		this.keyStore.load(beIDKeyStoreParameter);
 	}
