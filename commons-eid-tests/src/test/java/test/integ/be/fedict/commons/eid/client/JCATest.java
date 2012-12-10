@@ -555,12 +555,20 @@ public class JCATest {
 					tmpConfigFile), true);
 			configWriter.println("name=SmartCard");
 			configWriter.println("library=/usr/lib/libbeidpkcs11.so.0");
-			configWriter.println("slotListIndex=2");
+			configWriter.println("slotListIndex=1");
 
 			SunPKCS11 provider = new SunPKCS11(tmpConfigFile.getAbsolutePath());
 			Security.addProvider(provider);
 			KeyStore keyStore = KeyStore.getInstance("PKCS11", provider);
 			keyStore.load(null, null);
+			Enumeration<String> aliases = keyStore.aliases();
+			while (aliases.hasMoreElements()) {
+				String alias = aliases.nextElement();
+				LOG.debug("PKCS#11 alias: " + alias);
+				LOG.debug("is certificate entry: "
+						+ keyStore.isCertificateEntry(alias));
+				LOG.debug("is key entry: " + keyStore.isKeyEntry(alias));
+			}
 			PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore
 					.getEntry("Authentication", null);
 			PrivateKey privateKey = privateKeyEntry.getPrivateKey();
