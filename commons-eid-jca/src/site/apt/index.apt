@@ -54,6 +54,42 @@ PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null
 +---
 
   The acquired PrivateKey instance now features an automatic recovery without the need to reload the KeyStore.
+  Automatic recovery will check whether the same eID card has been re-inserted.
+
+  Sometimes multiple eID cards, and thus multiple card readers, are available within the system.
+  To be able to deal with such situations, one can enable card reader stickiness in combination with automatic recovery.
+  The following example demonstrates how to activate both card reader stickiness and automatic recovery:
+
++---
+Security.addProvider(new BeIDProvider());
+KeyStore keyStore = KeyStore.getInstance("BeID");
+BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
+keyStoreParameter.setAutoRecovery(true);
+keyStoreParameter.setCardReaderStickiness(true);
+keyStore.load(keyStoreParameter);
+PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
++---
+
+  In this case the key store will only try to recover using the original smart card reader.
+
+* Mutual SSL with automatic recovery and card reader stickiness
+
+  The JCA security provider also features an eID specific KeyManagerFactory.
+  The initialisation of this KeyManagerFactory can be configured via some specific parameter.
+  The following example demonstrates how to use the KeyManagerFactory with a configuration that features both card reader stickiness and automatic recovery:
+
++---
+Security.addProvider(new BeIDProvider());
+KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("BeID");
+BeIDManagerFactoryParameters spec = new BeIDManagerFactoryParameters();
+spec.setAutoRecovery(true);
+spec.setCardReaderStickiness(true);
+keyManagerFactory.init(spec);
+
+SecureRandom secureRandom = new SecureRandom();
+sslContext.init(keyManagerFactory.getKeyManagers(), null, secureRandom);
+SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
++---
 
 * API
     
