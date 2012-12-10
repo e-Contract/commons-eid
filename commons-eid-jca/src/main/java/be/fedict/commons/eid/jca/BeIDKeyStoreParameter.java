@@ -31,7 +31,7 @@ import be.fedict.commons.eid.client.BeIDCard;
  * loading the keystore, a default behavior will be used.
  * <p/>
  * Usage:
- * 
+ * <p/>
  * <pre>
  * import java.security.KeyStore;
  * ...
@@ -40,11 +40,10 @@ import be.fedict.commons.eid.client.BeIDCard;
  * keyStoreParameter.set...
  * keyStore.load(keyStoreParameter);
  * </pre>
- * 
+ *
+ * @author Frank Cornelis
  * @see KeyStore
  * @see BeIDKeyStore
- * @author Frank Cornelis
- * 
  */
 public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
@@ -58,6 +57,8 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	private boolean autoRecovery;
 
+	private boolean cardReaderStickiness;
+
 	@Override
 	public ProtectionParameter getProtectionParameter() {
 		return null;
@@ -66,7 +67,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	/**
 	 * Sets the {@link BeIDCard} to be used by the corresponding
 	 * {@link KeyStore}.
-	 * 
+	 *
 	 * @param beIDCard
 	 */
 	public void setBeIDCard(final BeIDCard beIDCard) {
@@ -80,7 +81,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	/**
 	 * Set to <code>true</code> if you want an eID logoff to be issued after
 	 * each PIN entry.
-	 * 
+	 *
 	 * @param logoff
 	 */
 	public void setLogoff(final boolean logoff) {
@@ -93,7 +94,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	/**
 	 * Sets the parent component used to position the default eID dialogs.
-	 * 
+	 *
 	 * @param parentComponent
 	 */
 	public void setParentComponent(final Component parentComponent) {
@@ -106,7 +107,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	/**
 	 * Sets the locale used for the default eID dialogs.
-	 * 
+	 *
 	 * @param locale
 	 */
 	public void setLocale(final Locale locale) {
@@ -125,10 +126,24 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	 * Sets whether the private keys retrieved from the key store should feature
 	 * auto-recovery. This means that they can survive eID card
 	 * removal/re-insert events.
-	 * 
+	 *
 	 * @param autoRecovery
 	 */
 	public void setAutoRecovery(boolean autoRecovery) {
 		this.autoRecovery = autoRecovery;
+	}
+
+	public boolean getCardReaderStickiness() {
+		return this.cardReaderStickiness;
+	}
+
+	/**
+	 * Sets whether the auto recovery should use card reader stickiness.
+	 * If set to true, the auto recovery will try to recover using the same card reader.
+	 *
+	 * @param cardReaderStickiness
+	 */
+	public void setCardReaderStickiness(boolean cardReaderStickiness) {
+		this.cardReaderStickiness = cardReaderStickiness;
 	}
 }

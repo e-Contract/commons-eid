@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
+import javax.smartcardio.CardTerminal;
 import javax.swing.JFrame;
 
 import org.apache.commons.logging.Log;
@@ -80,12 +81,12 @@ import be.fedict.eid.commons.dialogs.Messages;
  * frame as parent for positioning the dialogs.
  * <p/>
  * Usage:
- * 
+ * <p/>
  * <pre>
  * import java.security.KeyStore;
  * import java.security.cert.X509Certificate;
  * import java.security.PrivateKey;
- * 
+ *
  * ...
  * KeyStore keyStore = KeyStore.getInstance("BeID");
  * keyStore.load(null);
@@ -95,11 +96,10 @@ import be.fedict.eid.commons.dialogs.Messages;
  * 			"Authentication", null);
  * Certificate[] signCertificateChain = keyStore.getCertificateChain("Signature");
  * </pre>
- * 
+ *
+ * @author Frank Cornelis
  * @see BeIDKeyStoreParameter
  * @see BeIDProvider
- * @author Frank Cornelis
- * 
  */
 public class BeIDKeyStore extends KeyStoreSpi {
 
@@ -120,6 +120,8 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	private X509Certificate authnCertificate;
 
 	private X509Certificate signCertificate;
+
+	private CardTerminal cardTerminal;
 
 	@Override
 	public Key engineGetKey(final String alias, final char[] password)
@@ -385,10 +387,9 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	@Override
 	public void engineLoad(final LoadStoreParameter param) throws IOException,
 			NoSuchAlgorithmException, CertificateException {
-		LOG.debug("engineLoad");
-		/*
-		 * Allows for a KeyStore to be re-loaded several times.
-		 */
+		LOG.debug("engineLoad"); /*
+									 * Allows for a KeyStore to be re-loaded several times.
+									 */
 		this.beIDCard = null;
 		this.authnCertificateChain = null;
 		this.signCertificateChain = null;
@@ -417,6 +418,13 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	}
 
 	public BeIDCard getBeIDCard(boolean recover) {
+		boolean cardReaderStickiness;
+		if (null != this.keyStoreParameter) {
+			cardReaderStickiness = this.keyStoreParameter
+					.getCardReaderStickiness();
+		} else {
+			cardReaderStickiness = false;
+		}
 		if (recover) {
 			LOG.debug("recovering from error");
 			this.beIDCard = null;
@@ -446,7 +454,17 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		final BeIDCardsUI ui = new DefaultBeIDCardsUI(parentComponent, messages);
 		final BeIDCards beIDCards = new BeIDCards(new VoidLogger(), ui);
 		try {
-			this.beIDCard = beIDCards.getOneBeIDCard();
+			CardTerminal stickyCardTerminal;
+			if (cardReaderStickiness) {
+				stickyCardTerminal = this.cardTerminal;
+			} else {
+				stickyCardTerminal = null;
+			}
+			this.beIDCard = beIDCards.getOneBeIDCard(stickyCardTerminal);
+			if (cardReaderStickiness) {
+				this.cardTerminal = this.beIDCard.getCardTerminal();
+				LOG.debug("sticky card reader: " + this.cardTerminal.getName());
+			}
 			final BeIDCardUI userInterface = new DefaultBeIDCardUI(
 					parentComponent, messages);
 			this.beIDCard.setUI(userInterface);

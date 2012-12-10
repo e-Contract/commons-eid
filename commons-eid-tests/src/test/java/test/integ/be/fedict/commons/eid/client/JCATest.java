@@ -260,22 +260,33 @@ public class JCATest {
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
 		keyStoreParameter.setAutoRecovery(true);
+		keyStoreParameter.setCardReaderStickiness(true);
 		keyStore.load(keyStoreParameter);
 
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
 				"Authentication", null);
+		PublicKey authnPublicKey = keyStore.getCertificate("Authentication")
+				.getPublicKey();
 		final Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(authnPrivateKey);
 
 		final byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);
-		signature.sign();
+		byte[] signatureValue = signature.sign();
+
+		signature.initVerify(authnPublicKey);
+		signature.update(toBeSigned);
+		assertTrue(signature.verify(signatureValue));
 
 		JOptionPane.showMessageDialog(null, "Please remove/insert eID card...");
 
 		signature.initSign(authnPrivateKey);
 		signature.update(toBeSigned);
-		signature.sign();
+		signatureValue = signature.sign();
+
+		signature.initVerify(authnPublicKey);
+		signature.update(toBeSigned);
+		assertTrue(signature.verify(signatureValue));
 	}
 
 	@Test

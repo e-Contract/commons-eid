@@ -54,11 +54,10 @@ public class BeIDCardsSpecificTerminalExercise {
 
 			LOG.debug("reading identity file");
 			byte[] identityFile = beIDCard.readFile(FileType.Identity);
-			Identity identity = TlvParser.parse(identityFile,
-					Identity.class);
+			Identity identity = TlvParser.parse(identityFile, Identity.class);
 			LOG.debug("card holder is " + identity.getFirstName() + " "
 					+ identity.getName());
-            String userId = identity.getNationalNumber();
+			String userId = identity.getNationalNumber();
 
 			if (beIDCards.getAllBeIDCards().contains(beIDCard)) {
 				LOG.debug("waiting for card removal");
@@ -70,10 +69,9 @@ public class BeIDCardsSpecificTerminalExercise {
 			beIDCard = beIDCards.getOneBeIDCard(terminal);
 			assertNotNull(beIDCard);
 
-            identityFile = beIDCard.readFile(FileType.Identity);
-            identity = TlvParser.parse(identityFile,
-                    Identity.class);
-            assertEquals(userId, identity.getNationalNumber());
+			identityFile = beIDCard.readFile(FileType.Identity);
+			identity = TlvParser.parse(identityFile, Identity.class);
+			assertEquals(userId, identity.getNationalNumber());
 
 		} catch (final CancelledException cex) {
 			LOG.error("Cancelled By User");
