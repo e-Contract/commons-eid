@@ -34,10 +34,9 @@ import be.fedict.commons.eid.client.impl.BeIDDigest;
 /**
  * eID based JCA private key. Should not be used directly, but via the
  * {@link BeIDKeyStore}.
- * 
- * @see BeIDKeyStore
+ *
  * @author Frank Cornelis
- * 
+ * @see BeIDKeyStore
  */
 public class BeIDPrivateKey implements PrivateKey {
 
@@ -74,6 +73,15 @@ public class BeIDPrivateKey implements PrivateKey {
 		beIDDigests.put("SHA-256-PSS", BeIDDigest.SHA_256_PSS);
 	}
 
+	/**
+	 * Main constructor.
+	 *
+	 * @param certificateFileType
+	 * @param beIDCard
+	 * @param logoff
+	 * @param autoRecovery
+	 * @param beIDKeyStore
+	 */
 	public BeIDPrivateKey(final FileType certificateFileType,
 			final BeIDCard beIDCard, final boolean logoff,
 			boolean autoRecovery, BeIDKeyStore beIDKeyStore) {
