@@ -283,6 +283,8 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		final Vector<String> aliases = new Vector<String>();
 		aliases.add("Authentication");
 		aliases.add("Signature");
+		aliases.add("CA");
+		aliases.add("Root");
 		return aliases.elements();
 	}
 
@@ -293,6 +295,12 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			return true;
 		}
 		if ("Signature".equals(alias)) {
+			return true;
+		}
+		if ("Root".equals(alias)) {
+			return true;
+		}
+		if ("CA".equals(alias)) {
 			return true;
 		}
 		return false;
@@ -318,10 +326,10 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	@Override
 	public boolean engineIsCertificateEntry(final String alias) {
 		LOG.debug("engineIsCertificateEntry: " + alias);
-		if ("Authentication".equals(alias)) {
+		if ("Root".equals(alias)) {
 			return true;
 		}
-		if ("Signature".equals(alias)) {
+		if ("CA".equals(alias)) {
 			return true;
 		}
 		return false;
