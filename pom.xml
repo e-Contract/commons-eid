@@ -221,6 +221,13 @@
 		<bouncycastle.version>1.47</bouncycastle.version>
 	</properties>
 	<pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <url>http://repo.maven.apache.org/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
 		<pluginRepository>
 			<id>maven-java-formatter-plugin</id>
 			<url>http://maven-java-formatter-plugin.googlecode.com/svn/maven2-repo/</url>
