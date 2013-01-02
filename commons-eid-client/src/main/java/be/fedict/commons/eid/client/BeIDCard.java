@@ -1245,6 +1245,11 @@ public class BeIDCard {
 				transmitCCIDControl(CCID.FEATURE.VERIFY_PIN_FINISH));
 	}
 
+	private boolean isWindows8() {
+		String osName = System.getProperty("os.name");
+		return osName.contains("Windows 8");
+	}
+
 	/*
 	 * Verify PIN code by obtaining it from the current UI
 	 */
@@ -1252,7 +1257,14 @@ public class BeIDCard {
 	private ResponseAPDU verifyPINViaUI(final int retriesLeft,
 			final PINPurpose purpose) throws CardException,
 			UserCancelledException {
+		boolean windows8 = isWindows8();
+		if (windows8) {
+			this.endExclusive();
+		}
 		final char[] pin = getUI().obtainPIN(retriesLeft, purpose);
+		if (windows8) {
+			this.beginExclusive();
+		}
 		final byte[] verifyData = new byte[]{(byte) (0x20 | pin.length),
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
