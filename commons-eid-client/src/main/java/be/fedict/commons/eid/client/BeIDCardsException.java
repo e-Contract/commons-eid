@@ -20,7 +20,7 @@ package be.fedict.commons.eid.client;
 
 /**
  * BeIDCardsException groups all BeIDCard Event-related exceptions, 
- * so they can be more convenieniently thrown and caught
+ * so they can be more conveniently thrown and caught
  * 
  * @author Frank Marien
  *

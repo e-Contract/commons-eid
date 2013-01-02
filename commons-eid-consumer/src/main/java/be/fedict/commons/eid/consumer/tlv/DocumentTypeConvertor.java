@@ -34,6 +34,7 @@ public class DocumentTypeConvertor implements DataConvertor<DocumentType> {
 	private static final Log LOG = LogFactory
 			.getLog(DocumentTypeConvertor.class);
 
+	@Override
 	public DocumentType convert(final byte[] value)
 			throws DataConvertorException {
 		LOG.debug("# bytes for document type field: " + value.length);

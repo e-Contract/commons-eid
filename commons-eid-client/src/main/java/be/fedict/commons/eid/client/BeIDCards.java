@@ -327,7 +327,7 @@ public class BeIDCards {
 	/**
 	 * wait for a particular BeID card to be removed. Note that this only works
 	 * with BeID objects that were acquired using either the {@link
-	 * getOneBeIDCard()} or {@link getAllBeIDCards()} methods from the same
+	 * #getOneBeIDCard()} or {@link #getAllBeIDCards()} methods from the same
 	 * BeIDCards instance. If, at time of call, that particular card is present,
 	 * the UI is called upon to prompt the user to remove that card.
 	 * 

@@ -37,6 +37,7 @@ public class DateOfBirthDataConvertor
 	private static final Log LOG = LogFactory
 			.getLog(DateOfBirthDataConvertor.class);
 
+	@Override
 	public GregorianCalendar convert(final byte[] value)
 			throws DataConvertorException {
 		String dateOfBirthStr;

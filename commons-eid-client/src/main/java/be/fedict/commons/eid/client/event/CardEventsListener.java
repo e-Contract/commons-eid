@@ -28,7 +28,7 @@ import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
 
 /**
- * The CardEventsListener represents events delivered by a {@link CardAndTerminalManager}.
+ * The CardEventsListener represents events delivered by a {@link be.fedict.commons.eid.client.CardAndTerminalManager}.
  * Register one or more instances of a class implementing CardEventsListener to
  * respond to any type of smartcards being inserted and removed.
  * @author Frank Marien

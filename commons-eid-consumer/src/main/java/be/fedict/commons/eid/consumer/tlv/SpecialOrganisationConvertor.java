@@ -38,6 +38,7 @@ public class SpecialOrganisationConvertor
 	private static final Log LOG = LogFactory
 			.getLog(SpecialOrganisationConvertor.class);
 
+	@Override
 	public SpecialOrganisation convert(final byte[] value)
 			throws DataConvertorException {
 		if (null == value) {

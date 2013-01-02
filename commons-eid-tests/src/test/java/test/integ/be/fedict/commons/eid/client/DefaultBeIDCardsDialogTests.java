@@ -37,7 +37,7 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
 import be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI;
 
-public class DefaultBeIDCardsDailogTests {
+public class DefaultBeIDCardsDialogTests {
 	private static final int numberOfCards = 3;
 	private List<BeIDCard> simulatedBeIDCards;
 
