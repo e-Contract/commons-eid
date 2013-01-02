@@ -1447,16 +1447,16 @@ public class BeIDCard {
 		final char[] puk1 = puks[0];
 		final char[] puk2 = puks[1];
 
-		final char[] fullPuk = new char[puks.length];
+		final char[] fullPuk = new char[puk1.length + puk2.length];
 		System.arraycopy(puk2, 0, fullPuk, 0, puk2.length);
 		Arrays.fill(puk2, (char) 0);
 		System.arraycopy(puk1, 0, fullPuk, puk2.length, puk1.length);
 		Arrays.fill(puk1, (char) 0);
 
 		final byte[] unblockPinData = new byte[]{
-				(byte) (0x20 | ((byte) (puks.length))), (byte) 0xFF,
+				(byte) (0x20 | ((byte) (puk1.length + puk2.length))),
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF};
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
 
 		for (int idx = 0; idx < fullPuk.length; idx += 2) {
 			final char digit1 = fullPuk[idx];

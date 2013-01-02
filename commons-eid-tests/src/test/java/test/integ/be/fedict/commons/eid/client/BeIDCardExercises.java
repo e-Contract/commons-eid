@@ -145,6 +145,16 @@ public class BeIDCardExercises {
 	}
 
 	@Test
+	public void testUnblockPIN() throws Exception {
+		BeIDCard beIDCard = getBeIDCard();
+		try {
+			beIDCard.unblockPin(false);
+		} finally {
+			beIDCard.close();
+		}
+	}
+
+	@Test
 	public void testNonRepSignature() throws Exception {
 		final byte[] toBeSigned = new byte[10];
 		final SecureRandom secureRandom = new SecureRandom();
