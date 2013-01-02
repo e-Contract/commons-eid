@@ -78,7 +78,7 @@ public class Messages {
 		public String getId() {
 			return this.id;
 		}
-	};
+	}
 
 	public Messages(final Locale locale) {
 		this.locale = locale;

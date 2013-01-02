@@ -28,6 +28,7 @@ import be.fedict.commons.eid.consumer.SpecialStatus;
  */
 public class SpecialStatusConvertor implements DataConvertor<SpecialStatus> {
 
+	@Override
 	public SpecialStatus convert(final byte[] value)
 			throws DataConvertorException {
 		final String strValue = new String(value);

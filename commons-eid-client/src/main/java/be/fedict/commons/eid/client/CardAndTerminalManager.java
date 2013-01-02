@@ -106,8 +106,7 @@ public class CardAndTerminalManager implements Runnable {
 	 * and without any logging. In normal operation, you would use the constructor that 
 	 * takes no CardTerminals parameter, but using this one you could, for example
 	 * obtain a CardTerminals instance from a different TerminalFactory, or from your
-	 * own implementation. 
-	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be send all the logs
+	 * own implementation.
 	 * @param cardTerminals instance to obtain terminal and card events from
 	 */
 	public CardAndTerminalManager(final CardTerminals cardTerminals) {
@@ -119,7 +118,8 @@ public class CardAndTerminalManager implements Runnable {
 	 * and that logs to the given Logger.In normal operation, you would use the constructor that 
 	 * takes no CardTerminals parameter, but using this one you could, for example
 	 * obtain a CardTerminals instance from a different TerminalFactory, or from your
-	 * own implementation. 
+	 * own implementation.
+	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be send all the logs
 	 * @param cardTerminals instance to obtain terminal and card events from
 	 */
 	public CardAndTerminalManager(final Logger logger,
@@ -151,7 +151,7 @@ public class CardAndTerminalManager implements Runnable {
 
 	/**
 	 * Register a CardTerminalEventsListener instance. This will subsequently
-	 * be called for any Terminal Attachs/Detaches on CardTerminals that we're not ignoring 
+	 * be called for any Terminal Attaches/Detaches on CardTerminals that we're not ignoring
 	 * @see #ignoreCardEventsFor(String)
 	 * @param listener the CardTerminalEventsListener to be registered
 	 * @return this CardAndTerminalManager to allow for method chaining.
@@ -201,7 +201,7 @@ public class CardAndTerminalManager implements Runnable {
 	// --------------------------------------------------------------------------------------------------
 
 	/**
-	 * Unregister a CardTerminalEventsListener instance. 
+	 * Unregister a CardTerminalEventsListener instance.
 	 * @param listener the CardTerminalEventsListener to be unregistered
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
@@ -516,7 +516,7 @@ public class CardAndTerminalManager implements Runnable {
 
 	// return to the uninitialized state
 	private void clear() {
-		// if we were already intialized, we may have sent attached and insert
+		// if we were already initialized, we may have sent attached and insert
 		// events we now pretend to remove and detach all that we know of, for
 		// consistency
 		if (this.subSystemInitialized) {

@@ -30,6 +30,7 @@ public class ValidityDateDataConvertor
 		implements
 			DataConvertor<GregorianCalendar> {
 
+	@Override
 	public GregorianCalendar convert(final byte[] value)
 			throws DataConvertorException {
 		final String dateStr = new String(value);

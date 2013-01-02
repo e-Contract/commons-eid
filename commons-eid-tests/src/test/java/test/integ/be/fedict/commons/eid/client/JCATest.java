@@ -232,7 +232,7 @@ public class JCATest {
 
 		final byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);
-		byte[] signatureValue = signature.sign();
+		signature.sign();
 
 		JOptionPane.showMessageDialog(null, "Please remove/insert eID card...");
 

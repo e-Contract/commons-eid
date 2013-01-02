@@ -34,7 +34,7 @@ import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
-public class DefaultBeIDCardsDailogExercises {
+public class DefaultBeIDCardsDialogExercises {
 	@Test
 	public void testCardSelection() throws Exception {
 		final BeIDCard card = new BeIDCards().getOneBeIDCard();
