@@ -375,12 +375,12 @@ public class JCATest {
 		assertNotNull(keyStore.getCreationDate("Signature"));
 		assertNotNull(keyStore.getCreationDate("Authentication"));
 
-		assertTrue(keyStore.isCertificateEntry("Signature"));
+		assertTrue(keyStore.isKeyEntry("Signature"));
 		final X509Certificate signCertificate = (X509Certificate) keyStore
 				.getCertificate("Signature");
 		assertNotNull(signCertificate);
 
-		assertTrue(keyStore.isCertificateEntry("Authentication"));
+		assertTrue(keyStore.isKeyEntry("Authentication"));
 		final X509Certificate authnCertificate = (X509Certificate) keyStore
 				.getCertificate("Authentication");
 		assertNotNull(authnCertificate);
