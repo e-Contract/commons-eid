@@ -190,7 +190,7 @@ public class BeIDCard {
 	 * Instantiate a BeIDCard from a javax.smartcardio.CardTerminal, with no
 	 * logging information will be available.
 	 * 
-	 * @param card
+	 * @param cardTerminal
 	 *            a javax.smartcardio.CardTerminal that you have previously
 	 *            determined to contain a BeID Card
 	 * @throws RuntimeException
@@ -245,7 +245,7 @@ public class BeIDCard {
 	 * French and German. Any other input will set the CCID Language code to
 	 * English.
 	 * 
-	 * @param locale
+	 * @param newLocale
 	 * @return this BeIDCard instance, to allow method chaining
 	 */
 	public final BeIDCard setLocale(final Locale newLocale) {
@@ -257,8 +257,8 @@ public class BeIDCard {
 	 * Register a BeIDCardListener to receive updates on any consequent file
 	 * reading/signature operations executed by this BeIDCard.
 	 * 
-	 * @param a
-	 *            beIDCardListener instance
+	 * @param beIDCardListener
+	 *            a beIDCardListener instance
 	 * @return this BeIDCard instance, to allow method chaining
 	 */
 	public final BeIDCard addCardListener(
@@ -274,8 +274,8 @@ public class BeIDCard {
 	 * Unregister a BeIDCardListener to no longer receive updates on any
 	 * consequent file reading/signature operations executed by this BeIDCard.
 	 * 
-	 * @param a
-	 *            beIDCardListener instance
+	 * @param beIDCardListener
+	 *            a beIDCardListener instance
 	 * @return this BeIDCard instance, to allow method chaining
 	 */
 	public final BeIDCard removeCardListener(
