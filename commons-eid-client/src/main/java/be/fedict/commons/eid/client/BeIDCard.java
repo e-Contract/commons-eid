@@ -1233,7 +1233,7 @@ public class BeIDCard {
 		getUI().advisePINPadPINEntry(retriesLeft, purpose);
 
 		try {
-			transmitCCIDControl(CCID.FEATURE.GET_KEY_PRESSED, getCCID()
+			transmitCCIDControl(CCID.FEATURE.VERIFY_PIN_START, getCCID()
 					.createPINVerificationDataStructure(getLocale(),
 							CCID.INS.VERIFY_PIN));
 			getCCID().waitForOK();
