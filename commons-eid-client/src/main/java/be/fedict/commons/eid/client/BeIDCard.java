@@ -1477,7 +1477,7 @@ public class BeIDCard {
 
 	private CCID getCCID() {
 		if (this.ccid == null) {
-			this.ccid = new CCID(this.card);
+			this.ccid = new CCID(this.card, this.logger);
 		}
 		return this.ccid;
 	}
