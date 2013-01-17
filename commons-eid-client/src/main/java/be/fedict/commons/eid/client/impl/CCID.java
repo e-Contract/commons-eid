@@ -104,6 +104,7 @@ public class CCID {
 						featureBytes));
 			}
 		} catch (final CardException cex) {
+			this.logger.error(cex.getMessage());
 			// intentionally empty.. this.features exists and any gets will fail
 			// to find features
 		}
