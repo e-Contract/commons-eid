@@ -22,6 +22,10 @@ Commons eID Client
 	Once you have obtained a BeIDCard object, the same BeIDCards instance
 	allows you to block waiting for the user to remove that eID card.
 
+	Several methods in BeIDCards take an optional argument "CardTerminal":
+	In situations with multiple card readers, this allows you to limit the
+	call to that particular card reader.
+
 * Logging
 
 	Most classes in commons-eid take an optional Logger instance as a
