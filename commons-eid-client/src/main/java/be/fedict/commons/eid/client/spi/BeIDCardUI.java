@@ -18,6 +18,8 @@
 
 package be.fedict.commons.eid.client.spi;
 
+import java.util.Locale;
+
 import be.fedict.commons.eid.client.PINPurpose;
 
 /**
@@ -27,6 +29,16 @@ import be.fedict.commons.eid.client.PINPurpose;
  *
  */
 public interface BeIDCardUI {
+	/**
+	 * set Locale for subsequent operations.
+	 * Implementations MUST ensure that after this call, any of the obtainXXX
+	 * and adviseXXX methods for the same instance respect the locale set here.
+	 * Implementations MAY choose to update any interface elements already 
+	 * facing the user at time of call, but this is not required.
+	 * @param newLocale
+	 */
+	void setLocale(Locale newLocale);
+
 	/**
 	 * get PIN from the user
 	 * @param triesLeft the number of attempts left before the PIN is blocked.

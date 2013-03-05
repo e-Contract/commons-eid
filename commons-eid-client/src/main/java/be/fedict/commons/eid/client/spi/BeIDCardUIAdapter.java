@@ -18,6 +18,8 @@
 
 package be.fedict.commons.eid.client.spi;
 
+import java.util.Locale;
+
 import be.fedict.commons.eid.client.PINPurpose;
 
 /**
@@ -32,6 +34,11 @@ import be.fedict.commons.eid.client.PINPurpose;
 public class BeIDCardUIAdapter implements BeIDCardUI {
 
 	private static final String OPERATION_CANCELLED = "operation cancelled.";
+	private Locale locale;
+
+	@Override
+	public void setLocale(Locale newLocale) {
+	}
 
 	@Override
 	public char[] obtainPIN(final int triesLeft, final PINPurpose type) {

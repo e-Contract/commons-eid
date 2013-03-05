@@ -28,7 +28,6 @@ import java.awt.Frame;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
-import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -92,6 +91,11 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 			throw new UnsupportedOperationException(
 					"DefaultBeIDCardUI is a GUI and hence requires an interactive GraphicsEnvironment");
 		}
+	}
+
+	@Override
+	public void setLocale(final Locale newLocale) {
+		this.messages.setLocale(newLocale);
 	}
 
 	@Override
@@ -594,5 +598,4 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 
 		public Result result = null;
 	}
-
 }
