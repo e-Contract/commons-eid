@@ -233,6 +233,9 @@ public class BeIDCard {
 	 */
 	public final BeIDCard setUI(final BeIDCardUI userInterface) {
 		this.ui = userInterface;
+		if (this.locale != null) {
+			this.ui.setLocale(getLocale());
+		}
 		return this;
 	}
 
@@ -240,16 +243,20 @@ public class BeIDCard {
 	 * Explicitly set the Locale to be used for consequent operations. This is
 	 * used to set the display language for Secure Pinpad operations so that the
 	 * user will see any messages on the SPR's display in the language given.
+	 * It is also set on any BeIDCardUI instances
 	 * 
-	 * Only the 3 official Belgian national languages are supported: Dutch,
-	 * French and German. Any other input will set the CCID Language code to
-	 * English.
+	 * For CCID and the DefaultBeIDCardUI, only the 3 official Belgian 
+	 * national languages are supported: Dutch, French and German. 
+	 * Any other input will set the CCID Language code to English.
 	 * 
 	 * @param newLocale
 	 * @return this BeIDCard instance, to allow method chaining
 	 */
 	public final BeIDCard setLocale(final Locale newLocale) {
 		this.locale = newLocale;
+		if (this.ui != null) {
+			this.ui.setLocale(newLocale);
+		}
 		return this;
 	}
 
@@ -547,7 +554,6 @@ public class BeIDCard {
 					.getKeyId()) {
 				this.logger
 						.debug("non-repudiation key detected, immediate PIN verify");
-				verifyPin(PINPurpose.NonRepudiationSignature);
 			}
 
 			final ByteArrayOutputStream digestInfo = new ByteArrayOutputStream();
@@ -827,7 +833,7 @@ public class BeIDCard {
 	}
 
 	/**
-	 * @return the current Locale used in CCID SPR operations
+	 * @return the current Locale used in CCID SPR operations and UI
 	 */
 	public Locale getLocale() {
 		if (this.locale != null) {
@@ -1495,6 +1501,9 @@ public class BeIDCard {
 				final Class<?> uiClass = classLoader
 						.loadClass(DEFAULT_UI_IMPLEMENTATION);
 				this.ui = (BeIDCardUI) uiClass.newInstance();
+				if (this.locale != null) {
+					this.ui.setLocale(this.locale);
+				}
 			} catch (final Exception e) {
 				this.logger.error(UI_MISSING_LOG_MESSAGE);
 				throw new UnsupportedOperationException(UI_MISSING_LOG_MESSAGE,

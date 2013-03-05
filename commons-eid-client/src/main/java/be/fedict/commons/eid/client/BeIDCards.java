@@ -18,12 +18,12 @@
 
 package be.fedict.commons.eid.client;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
 import javax.smartcardio.CardTerminal;
 
 import be.fedict.commons.eid.client.CardAndTerminalManager.PROTOCOL;
@@ -52,6 +52,7 @@ import be.fedict.commons.eid.client.spi.Sleeper;
  * @author Frank Marien
  * 
  */
+
 public class BeIDCards {
 	private static final String UI_MISSING_LOG_MESSAGE = "No BeIDCardsUI set and can't load DefaultBeIDCardsUI";
 	private static final String DEFAULT_UI_IMPLEMENTATION = "be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI";
@@ -65,27 +66,80 @@ public class BeIDCards {
 	private Sleeper cardManagerInitSleeper, beIDSleeper;
 	private BeIDCardsUI ui;
 	private int cardTerminalsAttached;
+	private Locale locale;
 
 	/**
-	 * Instantiate a BeIDCards with a default (void) logger using the default UI
+	 * a BeIDCards without logging, using the default BeIDCardsUI and locale
 	 */
 	public BeIDCards() {
-		this(new VoidLogger());
+		this(new VoidLogger(), null, Locale.getDefault());
 	}
 
 	/**
-	 * Instantiate a BeIDCards logging to logger, using the default UI.
+	 * a BeIDCards without logging, using the default BeIDCardsUI and supplied locale
+	 * 
+	 * @param locale
+	 *           the locale that will be used in any UI interaction, and set
+	 *           on all BeIDCard instances returned.
+	 */
+	public BeIDCards(Locale locale) {
+		this(new VoidLogger(), null, locale);
+	}
+
+	/**
+	 * a BeIDCards without logging, using the supplied BeIDCardsUI and default locale
+	 * 
+	 * @param ui
+	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
+	 *            that will be called upon for any user interaction required to
+	 *            handle other calls
+	 */
+	public BeIDCards(final BeIDCardsUI ui) {
+		this(new VoidLogger(), ui, Locale.getDefault());
+	}
+
+	/**
+	 * a BeIDCards without logging, using the supplied BeIDCardsUI and locale
+	 *
+	 * @param ui
+	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
+	 *            that will be called upon for any user interaction required to
+	 *            handle other calls
+	 * @param locale
+	 *           the locale that will be used in any UI interaction, and set
+	 *           on all BeIDCard instances returned.
+	 */
+	public BeIDCards(final BeIDCardsUI ui, final Locale locale) {
+		this(new VoidLogger(), ui, locale);
+	}
+
+	/**
+	 * a BeIDCards logging to logger, using the default BeIDCardsUI and locale
 	 * 
 	 * @param logger
 	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
 	 *            send all the logs
 	 */
 	public BeIDCards(final Logger logger) {
-		this(logger, null);
+		this(logger, null, Locale.getDefault());
 	}
 
 	/**
-	 * a BeIDCards logging to logger, using the supplied BeIDCardsUI.
+	 * a BeIDCards logging to logger, using the supplied locale
+	 * 
+	 * @param logger
+	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
+	 *            send all the logs
+	 * @param locale
+	 *           the locale that will be used in any UI interaction, and set
+	 *           on all BeIDCard instances returned.
+	 */
+	public BeIDCards(final Logger logger, final Locale locale) {
+		this(logger, null, locale);
+	}
+
+	/**
+	 * a BeIDCards logging to logger, using the supplied BeIDCardsUI and the default locale
 	 * 
 	 * @param logger
 	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
@@ -96,8 +150,28 @@ public class BeIDCards {
 	 *            handle other calls
 	 */
 	public BeIDCards(final Logger logger, final BeIDCardsUI ui) {
+		this(logger, ui, Locale.getDefault());
+	}
+
+	/**
+	 * a BeIDCards logging to logger, using the supplied BeIDCardsUI and locale
+	 * 
+	 * @param logger
+	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
+	 *            send all the logs
+	 * @param ui
+	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
+	 *            that will be called upon for any user interaction required to
+	 *            handle other calls
+	 * @param locale
+	 *           the locale that will be used in any UI interaction, and set
+	 *           on all BeIDCard instances returned.
+	 */
+	public BeIDCards(final Logger logger, final BeIDCardsUI ui,
+			final Locale locale) {
 		this.logger = logger;
 		this.ui = ui;
+		this.locale = locale;
 		this.cardAndTerminalManager = new CardAndTerminalManager(logger);
 		this.cardAndTerminalManager.setProtocol(PROTOCOL.T0);
 		this.cardManager = new BeIDCardManager(logger,
@@ -188,7 +262,28 @@ public class BeIDCards {
 			}
 		});
 
+		if (this.locale != null) {
+			this.cardManager.setLocale(this.locale);
+		}
+
 		this.cardAndTerminalManager.start();
+	}
+
+	/**
+	 * set the Locale of all BeIDCard instances returned by all subsequent
+	 * getXXX calls. This is the equivalent of calling setLocale() on each
+	 * BeIDCard instance returned.
+	 * 
+	 * @param newLocale
+	 * @return this BeIDCards instance, to allow method chaining
+	 */
+	public final BeIDCards setLocale(final Locale newLocale) {
+		this.locale = newLocale;
+		this.cardManager.setLocale(newLocale);
+		if (this.ui != null) {
+			this.ui.setLocale(newLocale);
+		}
+		return this;
 	}
 
 	/**
@@ -198,14 +293,15 @@ public class BeIDCards {
 	 *         connected CardTerminals, false if zero BeID Cards are present
 	 */
 	public boolean hasBeIDCards() {
-		return hasBeIDCards(null);
+		return this.hasBeIDCards();
 	}
 
 	/**
 	 * Return whether any BeID Cards are currently present.
 	 * 
-	 * @param terminal if not null, only this terminal will be considered in determining
-	 * whether beID Cards are present.
+	 * @param terminal
+	 *            if not null, only this terminal will be considered in
+	 *            determining whether beID Cards are present.
 	 * 
 	 * @return true if one or more BeID Cards are inserted in one or more
 	 *         connected CardTerminals, false if zero BeID Cards are present
@@ -260,15 +356,17 @@ public class BeIDCards {
 	/**
 	 * return a BeID Card inserted into a given CardTerminal
 	 * 
-	 * @param terminal if not null, only BeID Cards in this particular CardTerminal will 
-	 * be considered.
+	 * @param terminal
+	 *            if not null, only BeID Cards in this particular CardTerminal
+	 *            will be considered.
 	 * 
-	 * May block when called when no BeID Cards are present, until at least
-	 * one BeID card is inserted, at which point this will be returned. If, at
-	 * time of call, more than one BeID card is present, will request the UI to
-	 * select between those, and return the selected card. If the UI is called
-	 * upon to request the user to select between different cards, or to insert
-	 * one card, and the user declines, CancelledException is thrown.
+	 *            May block when called when no BeID Cards are present, until at
+	 *            least one BeID card is inserted, at which point this will be
+	 *            returned. If, at time of call, more than one BeID card is
+	 *            present, will request the UI to select between those, and
+	 *            return the selected card. If the UI is called upon to request
+	 *            the user to select between different cards, or to insert one
+	 *            card, and the user declines, CancelledException is thrown.
 	 * 
 	 * @return a BeIDCard instance. The only one present, or one chosen out of
 	 *         several by the user
@@ -326,10 +424,10 @@ public class BeIDCards {
 
 	/**
 	 * wait for a particular BeID card to be removed. Note that this only works
-	 * with BeID objects that were acquired using either the {@link
-	 * #getOneBeIDCard()} or {@link #getAllBeIDCards()} methods from the same
-	 * BeIDCards instance. If, at time of call, that particular card is present,
-	 * the UI is called upon to prompt the user to remove that card.
+	 * with BeID objects that were acquired using either the
+	 * {@link #getOneBeIDCard()} or {@link #getAllBeIDCards()} methods from the
+	 * same BeIDCards instance. If, at time of call, that particular card is
+	 * present, the UI is called upon to prompt the user to remove that card.
 	 * 
 	 * @return this BeIDCards instance to allow for method chaining
 	 */
@@ -375,6 +473,9 @@ public class BeIDCards {
 				final Class<?> uiClass = classLoader
 						.loadClass(DEFAULT_UI_IMPLEMENTATION);
 				this.ui = (BeIDCardsUI) uiClass.newInstance();
+				if (this.locale != null) {
+					this.ui.setLocale(this.locale);
+				}
 			} catch (final Exception e) {
 				this.logger.error(UI_MISSING_LOG_MESSAGE);
 				throw new UnsupportedOperationException(UI_MISSING_LOG_MESSAGE,

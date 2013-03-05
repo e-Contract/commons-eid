@@ -19,6 +19,8 @@
 package be.fedict.commons.eid.client.spi;
 
 import java.util.Collection;
+import java.util.Locale;
+
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.OutOfCardsException;
@@ -32,6 +34,15 @@ import be.fedict.commons.eid.client.CancelledException;
  * 
  */
 public interface BeIDCardsUI {
+	/**
+	 * set Locale for subsequent operations.
+	 * Implementations MUST ensure that after this call, any of the other methods
+	 * for the same instance respect the locale set here.
+	 * Implementations MAY choose to update any interface elements already 
+	 * facing the user at time of call, but this is not required.
+	 * @param newLocale
+	 */
+	void setLocale(Locale newLocale);
 
 	/**
 	 * The user needs to connect a Card Terminal, since there are none

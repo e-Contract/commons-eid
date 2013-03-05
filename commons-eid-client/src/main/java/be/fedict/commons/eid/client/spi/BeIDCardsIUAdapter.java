@@ -19,6 +19,8 @@
 package be.fedict.commons.eid.client.spi;
 
 import java.util.Collection;
+import java.util.Locale;
+
 import be.fedict.commons.eid.client.BeIDCard;
 
 /**
@@ -30,6 +32,10 @@ import be.fedict.commons.eid.client.BeIDCard;
  *
  */
 public class BeIDCardsIUAdapter implements BeIDCardsUI {
+
+	@Override
+	public void setLocale(Locale newLocale) {
+	}
 
 	@Override
 	public void adviseCardTerminalRequired() {
@@ -59,5 +65,4 @@ public class BeIDCardsIUAdapter implements BeIDCardsUI {
 	@Override
 	public void adviseEnd() {
 	}
-
 }

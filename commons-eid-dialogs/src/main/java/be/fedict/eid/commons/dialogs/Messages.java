@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
 import javax.swing.UIManager;
 
 /**
- * Util class to manage the i18n messages used within the eID Applet BeIDCardUI.
+ * Util class to manage the i18n messages used within the BeIDCardUI.
  * 
  * @author Frank Cornelis
  * 
@@ -33,9 +33,9 @@ public class Messages {
 
 	public static final String RESOURCE_BUNDLE_NAME = "be.fedict.eid.commons.dialogs.Messages";
 
-	private final ResourceBundle resourceBundle;
+	private ResourceBundle resourceBundle;
 
-	private final Locale locale;
+	private Locale locale;
 
 	/**
 	 * Enumeration of all possible message identifiers.
@@ -81,7 +81,28 @@ public class Messages {
 	}
 
 	public Messages(final Locale locale) {
-		this.locale = locale;
+		setLocale(locale);
+	}
+
+	public String getMessage(final MESSAGE_ID messageId) {
+		return this.resourceBundle.getString(messageId.id);
+	}
+
+	public String getMessage(final MESSAGE_ID messageId, final String variant) {
+		return this.resourceBundle.getString(messageId.id + "_" + variant);
+	}
+
+	public Locale getLocale() {
+		return this.locale;
+	}
+
+	public Messages setLocale(final Locale newLocale) {
+		this.locale = newLocale;
+		initLocale();
+		return this;
+	}
+
+	private void initLocale() {
 		ResourceBundle bundle;
 		try {
 			bundle = ResourceBundle
@@ -96,25 +117,13 @@ public class Messages {
 		}
 		this.resourceBundle = bundle;
 
-		UIManager.put("OptionPane.cancelButtonText",
-				getMessage(MESSAGE_ID.CANCEL_BUTTON));
-		UIManager.put("OptionPane.noButtonText",
-				getMessage(MESSAGE_ID.NO_BUTTON));
-		UIManager.put("OptionPane.okButtonText",
-				getMessage(MESSAGE_ID.OK_BUTTON));
-		UIManager.put("OptionPane.yesButtonText",
-				getMessage(MESSAGE_ID.YES_BUTTON));
-	}
-
-	public String getMessage(final MESSAGE_ID messageId) {
-		return this.resourceBundle.getString(messageId.id);
-	}
-
-	public String getMessage(final MESSAGE_ID messageId, final String variant) {
-		return this.resourceBundle.getString(messageId.id + "_" + variant);
-	}
-
-	public Locale getLocale() {
-		return this.locale;
+		UIManager.put("OptionPane.cancelButtonText", this
+				.getMessage(MESSAGE_ID.CANCEL_BUTTON));
+		UIManager.put("OptionPane.noButtonText", this
+				.getMessage(MESSAGE_ID.NO_BUTTON));
+		UIManager.put("OptionPane.okButtonText", this
+				.getMessage(MESSAGE_ID.OK_BUTTON));
+		UIManager.put("OptionPane.yesButtonText", this
+				.getMessage(MESSAGE_ID.YES_BUTTON));
 	}
 }

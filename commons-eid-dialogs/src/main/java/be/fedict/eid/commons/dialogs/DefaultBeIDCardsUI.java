@@ -66,6 +66,11 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	}
 
 	@Override
+	public void setLocale(final Locale newLocale) {
+		this.messages.setLocale(newLocale);
+	}
+
+	@Override
 	public void adviseCardTerminalRequired() {
 		showAdvise(
 				this.messages.getMessage(Messages.MESSAGE_ID.CONNECT_READER),
