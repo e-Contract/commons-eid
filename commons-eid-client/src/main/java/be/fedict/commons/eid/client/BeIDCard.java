@@ -242,12 +242,12 @@ public class BeIDCard {
 	/**
 	 * Explicitly set the Locale to be used for consequent operations. This is
 	 * used to set the display language for Secure Pinpad operations so that the
-	 * user will see any messages on the SPR's display in the language given.
-	 * It is also set on any BeIDCardUI instances
+	 * user will see any messages on the SPR's display in the language given. It
+	 * is also set on any BeIDCardUI instances
 	 * 
-	 * For CCID and the DefaultBeIDCardUI, only the 3 official Belgian 
-	 * national languages are supported: Dutch, French and German. 
-	 * Any other input will set the CCID Language code to English.
+	 * For CCID and the DefaultBeIDCardUI, only the 3 official Belgian national
+	 * languages are supported: Dutch, French and German. Any other input will
+	 * set the CCID Language code to English.
 	 * 
 	 * @param newLocale
 	 * @return this BeIDCard instance, to allow method chaining
@@ -554,6 +554,7 @@ public class BeIDCard {
 					.getKeyId()) {
 				this.logger
 						.debug("non-repudiation key detected, immediate PIN verify");
+				verifyPin(PINPurpose.NonRepudiationSignature);
 			}
 
 			final ByteArrayOutputStream digestInfo = new ByteArrayOutputStream();
@@ -1515,8 +1516,8 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Return the CardTerminal that held this BeIdCard when it was detected
-	 * Will return null if the physical Card that we represent was removed.
+	 * Return the CardTerminal that held this BeIdCard when it was detected Will
+	 * return null if the physical Card that we represent was removed.
 	 * 
 	 * @return the cardTerminal this BeIDCard was in when detected, or null
 	 */
