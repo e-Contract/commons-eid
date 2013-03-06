@@ -24,6 +24,7 @@ import java.security.KeyStore.ProtectionParameter;
 import java.util.Locale;
 
 import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.spi.Logger;
 
 /**
  * An eID specific {@link KeyStore} parameter. Used to influence how the eID
@@ -32,6 +33,7 @@ import be.fedict.commons.eid.client.BeIDCard;
  * <p/>
  * Usage:
  * <p/>
+ * 
  * <pre>
  * import java.security.KeyStore;
  * ...
@@ -40,7 +42,7 @@ import be.fedict.commons.eid.client.BeIDCard;
  * keyStoreParameter.set...
  * keyStore.load(keyStoreParameter);
  * </pre>
- *
+ * 
  * @author Frank Cornelis
  * @see KeyStore
  * @see BeIDKeyStore
@@ -59,6 +61,8 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	private boolean cardReaderStickiness;
 
+	private Logger logger;
+
 	@Override
 	public ProtectionParameter getProtectionParameter() {
 		return null;
@@ -67,7 +71,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	/**
 	 * Sets the {@link BeIDCard} to be used by the corresponding
 	 * {@link KeyStore}.
-	 *
+	 * 
 	 * @param beIDCard
 	 */
 	public void setBeIDCard(final BeIDCard beIDCard) {
@@ -81,7 +85,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	/**
 	 * Set to <code>true</code> if you want an eID logoff to be issued after
 	 * each PIN entry.
-	 *
+	 * 
 	 * @param logoff
 	 */
 	public void setLogoff(final boolean logoff) {
@@ -94,7 +98,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	/**
 	 * Sets the parent component used to position the default eID dialogs.
-	 *
+	 * 
 	 * @param parentComponent
 	 */
 	public void setParentComponent(final Component parentComponent) {
@@ -107,7 +111,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	/**
 	 * Sets the locale used for the default eID dialogs.
-	 *
+	 * 
 	 * @param locale
 	 */
 	public void setLocale(final Locale locale) {
@@ -126,7 +130,7 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	 * Sets whether the private keys retrieved from the key store should feature
 	 * auto-recovery. This means that they can survive eID card
 	 * removal/re-insert events.
-	 *
+	 * 
 	 * @param autoRecovery
 	 */
 	public void setAutoRecovery(boolean autoRecovery) {
@@ -138,12 +142,26 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	}
 
 	/**
-	 * Sets whether the auto recovery should use card reader stickiness.
-	 * If set to true, the auto recovery will try to recover using the same card reader.
-	 *
+	 * Sets whether the auto recovery should use card reader stickiness. If set
+	 * to true, the auto recovery will try to recover using the same card
+	 * reader.
+	 * 
 	 * @param cardReaderStickiness
 	 */
 	public void setCardReaderStickiness(boolean cardReaderStickiness) {
 		this.cardReaderStickiness = cardReaderStickiness;
+	}
+
+	/**
+	 * Sets the logger to be used within the BeIDCard sub-system.
+	 * 
+	 * @param logger
+	 */
+	public void setLogger(Logger logger) {
+		this.logger = logger;
+	}
+
+	public Logger getLogger() {
+		return this.logger;
 	}
 }

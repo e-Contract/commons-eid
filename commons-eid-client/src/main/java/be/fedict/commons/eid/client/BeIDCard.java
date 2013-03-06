@@ -234,7 +234,7 @@ public class BeIDCard {
 	public final BeIDCard setUI(final BeIDCardUI userInterface) {
 		this.ui = userInterface;
 		if (this.locale != null) {
-			this.ui.setLocale(getLocale());
+			this.ui.setLocale(this.locale);
 		}
 		return this;
 	}

@@ -352,6 +352,26 @@ public class JCATest {
 	}
 
 	@Test
+	public void testLocale() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		BeIDKeyStoreParameter beIDKeyStoreParameter = new BeIDKeyStoreParameter();
+		beIDKeyStoreParameter.setLocale(Locale.FRENCH);
+		beIDKeyStoreParameter.setLogger(new TestLogger());
+		keyStore.load(beIDKeyStoreParameter);
+
+		PrivateKey privateKey = (PrivateKey) keyStore.getKey("Signature", null);
+
+		Signature signature = Signature.getInstance("SHA1withRSA");
+		signature.initSign(privateKey);
+
+		byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		signature.sign();
+	}
+
+	@Test
 	public void testBeIDSignature() throws Exception {
 		Security.addProvider(new BeIDProvider());
 
