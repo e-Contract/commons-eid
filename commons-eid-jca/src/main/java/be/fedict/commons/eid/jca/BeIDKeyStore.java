@@ -57,6 +57,7 @@ import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
+import be.fedict.commons.eid.client.spi.Logger;
 import be.fedict.eid.commons.dialogs.DefaultBeIDCardUI;
 import be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI;
 import be.fedict.eid.commons.dialogs.Messages;
@@ -82,11 +83,12 @@ import be.fedict.eid.commons.dialogs.Messages;
  * <p/>
  * Usage:
  * <p/>
+ * 
  * <pre>
  * import java.security.KeyStore;
  * import java.security.cert.X509Certificate;
  * import java.security.PrivateKey;
- *
+ * 
  * ...
  * KeyStore keyStore = KeyStore.getInstance("BeID");
  * keyStore.load(null);
@@ -96,7 +98,7 @@ import be.fedict.eid.commons.dialogs.Messages;
  * 			"Authentication", null);
  * Certificate[] signCertificateChain = keyStore.getCertificateChain("Signature");
  * </pre>
- *
+ * 
  * @author Frank Cornelis
  * @see BeIDKeyStoreParameter
  * @see BeIDProvider
@@ -396,7 +398,8 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	public void engineLoad(final LoadStoreParameter param) throws IOException,
 			NoSuchAlgorithmException, CertificateException {
 		LOG.debug("engineLoad"); /*
-									 * Allows for a KeyStore to be re-loaded several times.
+									 * Allows for a KeyStore to be re-loaded several
+									 * times.
 									 */
 		this.beIDCard = null;
 		this.authnCertificateChain = null;
@@ -448,19 +451,26 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		}
 		Component parentComponent;
 		Locale locale;
+		Logger logger;
 		if (null != this.keyStoreParameter) {
 			parentComponent = this.keyStoreParameter.getParentComponent();
 			locale = this.keyStoreParameter.getLocale();
+			logger = this.keyStoreParameter.getLogger();
 		} else {
 			parentComponent = null;
 			locale = null;
+			logger = null;
 		}
 		if (null == locale) {
 			locale = Locale.getDefault();
 		}
+		if (null == logger) {
+			logger = new VoidLogger();
+		}
 		final Messages messages = new Messages(locale);
 		final BeIDCardsUI ui = new DefaultBeIDCardsUI(parentComponent, messages);
-		final BeIDCards beIDCards = new BeIDCards(new VoidLogger(), ui);
+		final BeIDCards beIDCards = new BeIDCards(logger, ui);
+		beIDCards.setLocale(locale);
 		try {
 			CardTerminal stickyCardTerminal;
 			if (cardReaderStickiness) {
