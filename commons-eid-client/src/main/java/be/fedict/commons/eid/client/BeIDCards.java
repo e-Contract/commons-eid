@@ -293,7 +293,7 @@ public class BeIDCards {
 	 *         connected CardTerminals, false if zero BeID Cards are present
 	 */
 	public boolean hasBeIDCards() {
-		return this.hasBeIDCards();
+		return this.hasBeIDCards(null);
 	}
 
 	/**
