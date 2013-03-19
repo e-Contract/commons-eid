@@ -32,3 +32,39 @@ Introduction
 ** Commons eID BOM
 
   This artifact delivers a bill of materials POM for the Commons eID project.
+
+
+* Maven
+
+  In your <<<pom.xml you>>> put the following under the <<<repositories>>> element:
+  
++---
+<repository>
+	<id>e-Contract.be</id>
+	<url>https://www.e-contract.be/maven2/</url>
+	<releases>
+		<enabled>true</enabled>
+	</releases>
+</repository>
++---
+
+  Put the following under the <<<dependencyManagement>>> element of your <<<pom.xml>>>:
+
++---
+<dependency>
+	<groupId>be.fedict.commons-eid</groupId>
+	<artifactId>commons-eid-bom</artifactId>
+	<version>${project.version}</version>
+	<type>pom</type>
+	<scope>import</scope>
+</dependency>
++---
+
+  Now you can include a Commons eID module within the <<<dependencies>>> element of your <<<pom.xml>>> as follows:
+
++---
+<dependency>
+	<groupId>be.fedict.commons-eid</groupId>
+	<artifactId>commons-eid-jca</artifactId>
+</dependency>
++---
