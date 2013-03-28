@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
 import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
@@ -31,6 +32,7 @@ import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.CardAndTerminalManager.PROTOCOL;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.event.CardEventsListener;
+import be.fedict.commons.eid.client.impl.LocaleManager;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.Logger;
 
@@ -55,7 +57,6 @@ public class BeIDCardManager {
 	private Map<CardTerminal, BeIDCard> terminalsAndCards;
 	private Set<BeIDCardEventsListener> beIdListeners;
 	private Set<CardEventsListener> otherCardListeners;
-	private Locale locale;
 	private final Logger logger;
 
 	/**
@@ -126,9 +127,7 @@ public class BeIDCardManager {
 					final BeIDCard beIDCard = new BeIDCard(card,
 							BeIDCardManager.this.logger);
 					beIDCard.setCardTerminal(cardTerminal);
-					if (BeIDCardManager.this.locale != null) {
-						beIDCard.setLocale(BeIDCardManager.this.locale);
-					}
+					beIDCard.setLocale(LocaleManager.getLocale());
 
 					synchronized (BeIDCardManager.this.terminalsAndCards) {
 						BeIDCardManager.this.terminalsAndCards.put(
@@ -366,24 +365,6 @@ public class BeIDCardManager {
 		return this;
 	}
 
-	/**
-	 * set the Locale of all BeIDCard instances returned by all subsequent
-	 * eIDCardInserted events. This is the equivalent of calling setLocale() on
-	 * each BeIDCard instance returned.
-	 * 
-	 * @param newLocale
-	 * @return this BeIDCard instance, to allow method chaining
-	 */
-	public final BeIDCardManager setLocale(final Locale newLocale) {
-		this.locale = newLocale;
-		synchronized (this.terminalsAndCards) {
-			for (BeIDCard card : this.terminalsAndCards.values()) {
-				card.setLocale(newLocale);
-			}
-		}
-		return this;
-	}
-
 	/*
 	 * Private Support methods. Shamelessly copied from eid-applet-core
 	 */
@@ -407,5 +388,14 @@ public class BeIDCardManager {
 			return true;
 		}
 		return false;
+	}
+
+	public BeIDCardManager setLocale(Locale newLocale) {
+		LocaleManager.setLocale(newLocale);
+		return this;
+	}
+
+	public Locale getLocale() {
+		return LocaleManager.getLocale();
 	}
 }

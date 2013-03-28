@@ -71,31 +71,32 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	// TODO can pinPadFrame and secureReaderTransactionFrame be on-screen at the
 	// same time? if not can be one member var and one dispose method
 	private Component parentComponent;
-	private Messages messages;
 	private JFrame pinPadFrame;
 	private JFrame secureReaderTransactionFrame;
+	private Locale locale;
+	private Messages messages;
 
 	public DefaultBeIDCardUI() {
-		this(null, new Messages(Locale.getDefault()));
+		this(null);
 	}
 
-	public DefaultBeIDCardUI(final Component parentComponent) {
-		this(parentComponent, new Messages(Locale.getDefault()));
+	public DefaultBeIDCardUI(Messages messages) {
+		this(null, messages);
 	}
 
-	public DefaultBeIDCardUI(final Component parentComponent,
-			final Messages messages) {
-		this.parentComponent = parentComponent;
-		this.messages = messages;
+	public DefaultBeIDCardUI(final Component parentComponent, Messages messages) {
 		if (GraphicsEnvironment.isHeadless()) {
 			throw new UnsupportedOperationException(
 					"DefaultBeIDCardUI is a GUI and hence requires an interactive GraphicsEnvironment");
 		}
-	}
+		this.parentComponent = parentComponent;
 
-	@Override
-	public void setLocale(final Locale newLocale) {
-		this.messages.setLocale(newLocale);
+		if (messages != null) {
+			this.messages = messages;
+		} else {
+			this.messages = Messages.getInstance();
+		}
+
 	}
 
 	@Override
@@ -517,10 +518,10 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		JPanel panel = new JPanel() {
 			private static final long serialVersionUID = 1L;
 
-			//			@Override
-			//			public Insets getInsets() {
-			//				return new Insets(10, 30, 10, 30);
-			//			}
+			// @Override
+			// public Insets getInsets() {
+			// return new Insets(10, 30, 10, 30);
+			// }
 		};
 		final BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
 		panel.setLayout(boxLayout);
@@ -597,5 +598,15 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		};
 
 		public Result result = null;
+	}
+
+	@Override
+	public void setLocale(Locale newLocale) {
+		this.locale = newLocale;
+		this.messages = Messages.getInstance(newLocale);
+	}
+
+	public Locale getLocale() {
+		return locale;
 	}
 }

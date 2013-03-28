@@ -18,7 +18,9 @@
 
 package be.fedict.eid.commons.dialogs;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import javax.swing.UIManager;
@@ -32,9 +34,13 @@ import javax.swing.UIManager;
 public class Messages {
 
 	public static final String RESOURCE_BUNDLE_NAME = "be.fedict.eid.commons.dialogs.Messages";
+	private static Map<Locale, Messages> instances;
+
+	static {
+		instances = new HashMap<Locale, Messages>();
+	}
 
 	private ResourceBundle resourceBundle;
-
 	private Locale locale;
 
 	/**
@@ -80,9 +86,22 @@ public class Messages {
 		}
 	}
 
-	public Messages(final Locale locale) {
-		setLocale(locale);
+	// --------------------------------------------------------------------
+
+	public static Messages getInstance() {
+		return getInstance(Locale.getDefault());
 	}
+
+	public static Messages getInstance(Locale locale) {
+		Messages messages = Messages.instances.get(locale);
+		if (messages == null) {
+			messages = new Messages(locale);
+			Messages.instances.put(locale, messages);
+		}
+		return messages;
+	}
+
+	// --------------------------------------------------------------------
 
 	public String getMessage(final MESSAGE_ID messageId) {
 		return this.resourceBundle.getString(messageId.id);
@@ -92,21 +111,19 @@ public class Messages {
 		return this.resourceBundle.getString(messageId.id + "_" + variant);
 	}
 
+	// --------------------------------------------------------------------
+
 	public Locale getLocale() {
-		return this.locale;
+		return locale;
 	}
 
-	public Messages setLocale(final Locale newLocale) {
-		this.locale = newLocale;
-		initLocale();
-		return this;
-	}
+	// --------------------------------------------------------------------
 
-	private void initLocale() {
+	private Messages(final Locale locale) {
+		this.locale = locale;
 		ResourceBundle bundle;
 		try {
-			bundle = ResourceBundle
-					.getBundle(RESOURCE_BUNDLE_NAME, this.locale);
+			bundle = ResourceBundle.getBundle(RESOURCE_BUNDLE_NAME, locale);
 		} catch (final MissingResourceException mre) {
 			/*
 			 * In case the selected locale and default system locale are not
@@ -126,4 +143,5 @@ public class Messages {
 		UIManager.put("OptionPane.yesButtonText", this
 				.getMessage(MESSAGE_ID.YES_BUTTON));
 	}
+
 }

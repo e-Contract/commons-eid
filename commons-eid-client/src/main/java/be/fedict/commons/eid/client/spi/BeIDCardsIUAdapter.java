@@ -24,18 +24,17 @@ import java.util.Locale;
 import be.fedict.commons.eid.client.BeIDCard;
 
 /**
- * An adapter implementing empty or simple implementations of the BeIDCardsUI interface.
- * Intended to be extended by a useful class without having to implement unused methods.
- * For example, in an embedded application where only one card reader is possible,
- * only adviseBeIDCardRequired() and adviseEnd() would ever be called.
+ * An adapter implementing empty or simple implementations of the BeIDCardsUI
+ * interface. Intended to be extended by a useful class without having to
+ * implement unused methods. For example, in an embedded application where only
+ * one card reader is possible, only adviseBeIDCardRequired() and adviseEnd()
+ * would ever be called.
+ * 
  * @author Frank Marien
- *
+ * 
  */
 public class BeIDCardsIUAdapter implements BeIDCardsUI {
-
-	@Override
-	public void setLocale(Locale newLocale) {
-	}
+	protected Locale locale;
 
 	@Override
 	public void adviseCardTerminalRequired() {
@@ -64,5 +63,15 @@ public class BeIDCardsIUAdapter implements BeIDCardsUI {
 
 	@Override
 	public void adviseEnd() {
+	}
+
+	@Override
+	public void setLocale(Locale newLocale) {
+		this.locale = newLocale;
+	}
+
+	@Override
+	public Locale getLocale() {
+		return this.locale;
 	}
 }

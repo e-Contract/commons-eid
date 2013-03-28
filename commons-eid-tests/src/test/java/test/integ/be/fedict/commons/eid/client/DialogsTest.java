@@ -37,7 +37,7 @@ public class DialogsTest {
 
 	@Test
 	public void testDefaultDialogs() throws Exception {
-		Messages messages = new Messages(new Locale("fr"));
+		Messages messages = Messages.getInstance(new Locale("fr"));
 		BeIDCardUI beIDCardUI = new DefaultBeIDCardUI(null, messages);
 
 		char[] pin = beIDCardUI
