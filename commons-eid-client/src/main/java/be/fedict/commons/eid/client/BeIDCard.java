@@ -44,6 +44,7 @@ import javax.smartcardio.ResponseAPDU;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
 import be.fedict.commons.eid.client.impl.CCID;
+import be.fedict.commons.eid.client.impl.LocaleManager;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.commons.eid.client.spi.Logger;
@@ -116,8 +117,8 @@ public class BeIDCard {
 
 	private CCID ccid;
 	private BeIDCardUI ui;
-	private Locale locale;
 	private CardTerminal cardTerminal;
+	private Locale locale;
 
 	/**
 	 * Instantiate a BeIDCard from an already connected javax.smartcardio.Card,
@@ -225,7 +226,9 @@ public class BeIDCard {
 	/**
 	 * Explicitly set the User Interface to be used for consequent operations.
 	 * All user interaction is handled through this, and possible SPR features
-	 * of CCID-capable CardReaders.
+	 * of CCID-capable CardReaders. This will also modify the Locale setting of this
+	 * beIDCard instance to match the UI's Locale, so the language in any SPR 
+	 * messages displayed will be consistent with the UI's language.
 	 * 
 	 * @param userInterface
 	 *            an instance of BeIDCardUI
@@ -233,29 +236,8 @@ public class BeIDCard {
 	 */
 	public final BeIDCard setUI(final BeIDCardUI userInterface) {
 		this.ui = userInterface;
-		if (this.locale != null) {
-			this.ui.setLocale(this.locale);
-		}
-		return this;
-	}
-
-	/**
-	 * Explicitly set the Locale to be used for consequent operations. This is
-	 * used to set the display language for Secure Pinpad operations so that the
-	 * user will see any messages on the SPR's display in the language given. It
-	 * is also set on any BeIDCardUI instances
-	 * 
-	 * For CCID and the DefaultBeIDCardUI, only the 3 official Belgian national
-	 * languages are supported: Dutch, French and German. Any other input will
-	 * set the CCID Language code to English.
-	 * 
-	 * @param newLocale
-	 * @return this BeIDCard instance, to allow method chaining
-	 */
-	public final BeIDCard setLocale(final Locale newLocale) {
-		this.locale = newLocale;
-		if (this.ui != null) {
-			this.ui.setLocale(newLocale);
+		if (this.locale == null) {
+			setLocale(userInterface.getLocale());
 		}
 		return this;
 	}
@@ -840,7 +822,25 @@ public class BeIDCard {
 		if (this.locale != null) {
 			return this.locale;
 		}
-		return Locale.getDefault();
+		return LocaleManager.getLocale();
+	}
+
+	/**
+	 * set the Locale to use for subsequent UI and CCID operations.
+	 * this will modify the Locale of any explicitly set UI, as well.
+	 * BeIDCard instances, while using the global Locale settings made in 
+	 * BeIDCards and/or BeIDCardManager by default, may have their own individual
+	 * Locale settings that may override those global settings.
+	 * 
+	 * @param locale
+	 * @return this BeIDCard instance, to allow method chaining
+	 */
+	public BeIDCard setLocale(Locale newLocale) {
+		this.locale = newLocale;
+		if (this.locale != null && this.ui != null) {
+			this.ui.setLocale(this.locale);
+		}
+		return this;
 	}
 
 	// ===========================================================================================================

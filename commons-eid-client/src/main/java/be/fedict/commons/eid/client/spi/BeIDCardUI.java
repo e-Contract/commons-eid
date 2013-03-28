@@ -26,39 +26,53 @@ import be.fedict.commons.eid.client.PINPurpose;
  * Implement a BeIDCardUI to interact with the user from a BeIDCard instance.
  * 
  * @author Frank Marien
- *
+ * 
  */
 public interface BeIDCardUI {
 	/**
 	 * set Locale for subsequent operations.
-	 * Implementations MUST ensure that after this call, any of the obtainXXX
-	 * and adviseXXX methods for the same instance respect the locale set here.
-	 * Implementations MAY choose to update any interface elements already 
+	 * Implementations MUST ensure that after this call, any of the other methods
+	 * for the same instance respect the locale set here.
+	 * Implementations MAY choose to update any interface elements already
 	 * facing the user at time of call, but this is not required.
 	 * @param newLocale
 	 */
 	void setLocale(Locale newLocale);
 
 	/**
+	 * get the Locale currently set. 
+	 * @return the current Locale for this UI
+	 */
+	Locale getLocale();
+
+	/**
 	 * get PIN from the user
-	 * @param triesLeft the number of attempts left before the PIN is blocked.
-	 * @param type the reason why the PIN code is requested
+	 * 
+	 * @param triesLeft
+	 *            the number of attempts left before the PIN is blocked.
+	 * @param type
+	 *            the reason why the PIN code is requested
 	 * @return the PIN code.
-	 * @throws UserCancelledException thrown in case the user cancels the PIN entry.
+	 * @throws UserCancelledException
+	 *             thrown in case the user cancels the PIN entry.
 	 */
 	char[] obtainPIN(int triesLeft, PINPurpose type)
 			throws UserCancelledException;
 
 	/**
 	 * get Old and New PIN from the user. (pin change)
-	 * @param triesLeft the number of attempts left before the PIN is blocked.
+	 * 
+	 * @param triesLeft
+	 *            the number of attempts left before the PIN is blocked.
 	 * @return old and new PIN codes
 	 */
 	char[][] obtainOldAndNewPIN(int triesLeft);
 
 	/**
 	 * get PUK Codes from the user (PIN unblock)
-	 * @param triesLeft the number of attempts left before the card is blocked.
+	 * 
+	 * @param triesLeft
+	 *            the number of attempts left before the card is blocked.
 	 * @return PUK1 and PUK2 codes
 	 */
 	char[][] obtainPUKCodes(int triesLeft);
@@ -80,38 +94,51 @@ public interface BeIDCardUI {
 
 	/**
 	 * user can enter PIN on Secure PINPad
-	 * @param retriesLeft the number of attempts left before the PIN is blocked.
-	 * @param type the reason why the PIN code is requested
+	 * 
+	 * @param retriesLeft
+	 *            the number of attempts left before the PIN is blocked.
+	 * @param type
+	 *            the reason why the PIN code is requested
 	 */
 	void advisePINPadPINEntry(int retriesLeft, PINPurpose type);
 
 	/**
 	 * user can enter PUK on PINPad
-	 * @param retriesLeft the number of attempts left before the card is blocked.
+	 * 
+	 * @param retriesLeft
+	 *            the number of attempts left before the card is blocked.
 	 */
 	void advisePINPadPUKEntry(int retriesLeft);
 
 	/**
 	 * user can change PIN (old, new, new-again) on PIN Pad
-	 * @param retriesLeft the number of attempts left before the PIN is blocked.
+	 * 
+	 * @param retriesLeft
+	 *            the number of attempts left before the PIN is blocked.
 	 */
 	void advisePINPadChangePIN(int retriesLeft);
 
 	/**
 	 * user can enter old PIN on PINPad
-	 * @param retriesLeft the number of attempts left before the PIN is blocked.
+	 * 
+	 * @param retriesLeft
+	 *            the number of attempts left before the PIN is blocked.
 	 */
 	void advisePINPadOldPINEntry(int retriesLeft);
 
 	/**
 	 * user can enter new PIN on PINPad
-	 * @param retriesLeft the number of attempts left before the PIN is blocked.
+	 * 
+	 * @param retriesLeft
+	 *            the number of attempts left before the PIN is blocked.
 	 */
 	void advisePINPadNewPINEntry(int retriesLeft);
 
 	/**
 	 * user can enter new PIN on PINPad again
-	 * @param retriesLeft the number of attempts left before the PIN is blocked.
+	 * 
+	 * @param retriesLeft
+	 *            the number of attempts left before the PIN is blocked.
 	 */
 	void advisePINPadNewPINEntryAgain(int retriesLeft);
 
@@ -121,8 +148,8 @@ public interface BeIDCardUI {
 	void advisePINPadOperationEnd();
 
 	/**
-	 * user needs to attend some operation on a secure reader
-	 * (more instuctions are available from the reader's own user interface)
+	 * user needs to attend some operation on a secure reader (more instuctions
+	 * are available from the reader's own user interface)
 	 */
 	void adviseSecureReaderOperation();
 

@@ -18,6 +18,8 @@
 
 package test.integ.be.fedict.commons.eid.client;
 
+import java.util.Locale;
+
 import javax.smartcardio.CardTerminal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +36,7 @@ public class BeIDCardManagerTest {
 	public void testListenerModification() throws Exception {
 		final TestLogger logger = new TestLogger();
 		final BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
+		beIDCardManager.setLocale(Locale.FRENCH);
 		final Object waitObject = new Object();
 		beIDCardManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
@@ -54,6 +57,7 @@ public class BeIDCardManagerTest {
 	public void testExceptionsInListener() throws Exception {
 		final TestLogger logger = new TestLogger();
 		final BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
+		beIDCardManager.setLocale(Locale.GERMAN);
 		final Object waitObject = new Object();
 		beIDCardManager
 				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
@@ -109,6 +113,7 @@ public class BeIDCardManagerTest {
 		public void eIDCardInserted(final CardTerminal cardTerminal,
 				final BeIDCard card) {
 			LOG.debug("eID card added");
+			LOG.debug("locale:" + card.getLocale());
 			if (this.removeAfterCardInserted) {
 				this.manager.removeBeIDCardListener(this);
 			}

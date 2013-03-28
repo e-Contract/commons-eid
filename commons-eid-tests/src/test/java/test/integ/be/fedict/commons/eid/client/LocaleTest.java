@@ -26,20 +26,31 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
+import be.fedict.commons.eid.client.spi.BeIDCardsUI;
+import be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI;
 
 public class LocaleTest {
 	@Test
 	public void testLocale() throws Exception {
-		final BeIDCards cards = new BeIDCards(Locale.FRENCH);
+		BeIDCards cards = new BeIDCards();
+		cards.setLocale(Locale.FRENCH);
 
+		// french, because the BeIDCards is set to French
 		BeIDCard card = cards.getOneBeIDCard();
 		card.sign(new byte[]{0x00, 0x00, 0x00, 0x00}, BeIDDigest.PLAIN_TEXT,
 				FileType.NonRepudiationCertificate, false);
-		card.setLocale(new Locale("nl"));
+		cards.close();
+
+		// german, because we pass a UI set to german
+		BeIDCardsUI ui = new DefaultBeIDCardsUI();
+		ui.setLocale(Locale.GERMAN);
+		cards = new BeIDCards(ui);
+		card = cards.getOneBeIDCard();
 		card.sign(new byte[]{0x00, 0x00, 0x00, 0x00}, BeIDDigest.PLAIN_TEXT,
 				FileType.NonRepudiationCertificate, false);
 
-		cards.setLocale(Locale.GERMAN);
+		// dutch, because we set the card to dutch
+		card.setLocale(new Locale("nl"));
 		card = cards.getOneBeIDCard();
 		card.sign(new byte[]{0x00, 0x00, 0x00, 0x00}, BeIDDigest.PLAIN_TEXT,
 				FileType.NonRepudiationCertificate, false);

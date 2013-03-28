@@ -29,6 +29,7 @@ import javax.smartcardio.CardTerminal;
 import be.fedict.commons.eid.client.CardAndTerminalManager.PROTOCOL;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
+import be.fedict.commons.eid.client.impl.LocaleManager;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
 import be.fedict.commons.eid.client.spi.Logger;
@@ -66,91 +67,38 @@ public class BeIDCards {
 	private Sleeper cardManagerInitSleeper, beIDSleeper;
 	private BeIDCardsUI ui;
 	private int cardTerminalsAttached;
-	private Locale locale;
 
 	/**
-	 * a BeIDCards without logging, using the default BeIDCardsUI and locale
+	 * a BeIDCards without logging, using the default BeIDCardsUI
 	 */
 	public BeIDCards() {
-		this(new VoidLogger(), null, Locale.getDefault());
+		this(new VoidLogger(), null);
 	}
 
 	/**
-	 * a BeIDCards without logging, using the default BeIDCardsUI and supplied locale
-	 * 
-	 * @param locale
-	 *           the locale that will be used in any UI interaction, and set
-	 *           on all BeIDCard instances returned.
-	 */
-	public BeIDCards(Locale locale) {
-		this(new VoidLogger(), null, locale);
-	}
-
-	/**
-	 * a BeIDCards without logging, using the supplied BeIDCardsUI and default locale
+	 * a BeIDCards without logging, using the supplied BeIDCardsUI
 	 * 
 	 * @param ui
 	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
 	 *            that will be called upon for any user interaction required to
-	 *            handle other calls
+	 *            handle other calls.  The UI's Locale will be used globally for
+	 *            subsequent UI actions, as if setLocale() was called, except 
+	 *            where the Locale is explicity set for individual BeIDCard
+	 *            instances.
 	 */
 	public BeIDCards(final BeIDCardsUI ui) {
-		this(new VoidLogger(), ui, Locale.getDefault());
+		this(new VoidLogger(), ui);
 	}
 
 	/**
-	 * a BeIDCards without logging, using the supplied BeIDCardsUI and locale
-	 *
-	 * @param ui
-	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
-	 *            that will be called upon for any user interaction required to
-	 *            handle other calls
-	 * @param locale
-	 *           the locale that will be used in any UI interaction, and set
-	 *           on all BeIDCard instances returned.
-	 */
-	public BeIDCards(final BeIDCardsUI ui, final Locale locale) {
-		this(new VoidLogger(), ui, locale);
-	}
-
-	/**
-	 * a BeIDCards logging to logger, using the default BeIDCardsUI and locale
+	 * a BeIDCards logging to supplied logger, using the default BeIDCardsUI
 	 * 
 	 * @param logger
 	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
 	 *            send all the logs
 	 */
-	public BeIDCards(final Logger logger) {
-		this(logger, null, Locale.getDefault());
-	}
-
-	/**
-	 * a BeIDCards logging to logger, using the supplied locale
-	 * 
-	 * @param logger
-	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
-	 *            send all the logs
-	 * @param locale
-	 *           the locale that will be used in any UI interaction, and set
-	 *           on all BeIDCard instances returned.
-	 */
-	public BeIDCards(final Logger logger, final Locale locale) {
-		this(logger, null, locale);
-	}
-
-	/**
-	 * a BeIDCards logging to logger, using the supplied BeIDCardsUI and the default locale
-	 * 
-	 * @param logger
-	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
-	 *            send all the logs
-	 * @param ui
-	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
-	 *            that will be called upon for any user interaction required to
-	 *            handle other calls
-	 */
-	public BeIDCards(final Logger logger, final BeIDCardsUI ui) {
-		this(logger, ui, Locale.getDefault());
+	public BeIDCards(Logger logger) {
+		this(logger, null);
 	}
 
 	/**
@@ -162,16 +110,14 @@ public class BeIDCards {
 	 * @param ui
 	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
 	 *            that will be called upon for any user interaction required to
-	 *            handle other calls
-	 * @param locale
-	 *           the locale that will be used in any UI interaction, and set
-	 *           on all BeIDCard instances returned.
+	 *            handle other calls. The UI's Locale will be used globally for
+	 *            subsequent UI actions, as if setLocale() was called, except 
+	 *            where the Locale is explicity set for individual BeIDCard
+	 *            instances.
 	 */
-	public BeIDCards(final Logger logger, final BeIDCardsUI ui,
-			final Locale locale) {
+	public BeIDCards(final Logger logger, final BeIDCardsUI ui) {
+
 		this.logger = logger;
-		this.ui = ui;
-		this.locale = locale;
 		this.cardAndTerminalManager = new CardAndTerminalManager(logger);
 		this.cardAndTerminalManager.setProtocol(PROTOCOL.T0);
 		this.cardManager = new BeIDCardManager(logger,
@@ -184,6 +130,7 @@ public class BeIDCards {
 		this.terminalsInitialized = false;
 		this.cardsInitialized = false;
 		this.uiSelectingCard = false;
+		setUI(ui);
 
 		this.cardAndTerminalManager
 				.addCardTerminalListener(new CardTerminalEventsListener() {
@@ -262,28 +209,7 @@ public class BeIDCards {
 			}
 		});
 
-		if (this.locale != null) {
-			this.cardManager.setLocale(this.locale);
-		}
-
 		this.cardAndTerminalManager.start();
-	}
-
-	/**
-	 * set the Locale of all BeIDCard instances returned by all subsequent
-	 * getXXX calls. This is the equivalent of calling setLocale() on each
-	 * BeIDCard instance returned.
-	 * 
-	 * @param newLocale
-	 * @return this BeIDCards instance, to allow method chaining
-	 */
-	public final BeIDCards setLocale(final Locale newLocale) {
-		this.locale = newLocale;
-		this.cardManager.setLocale(newLocale);
-		if (this.ui != null) {
-			this.ui.setLocale(newLocale);
-		}
-		return this;
 	}
 
 	/**
@@ -461,10 +387,50 @@ public class BeIDCards {
 		return this;
 	}
 
+	/**
+	 * Set the Locale to use for subsequent UI operations. 
+	 * BeIDCards and BeIDCardManager share the same global Locale,
+	 * so this will impact and and all instances of either.
+	 * BeIDCard instances may have individual, per-instance Locale settings, 
+	 * however.
+	 * @param newLocale will be used globally for
+	 *        subsequent UI actions, as if setLocale() was called, except 
+	 *        where the Locale is explicity set for individual BeIDCard
+	 *        instances.
+	 * @return this BeIDCards, to allow method chaining
+	 */
+	public BeIDCards setLocale(Locale newLocale) {
+		LocaleManager.setLocale(newLocale);
+
+		synchronized (beIDTerminalsAndCards) {
+
+			for (BeIDCard card : beIDTerminalsAndCards.values()) {
+				card.setLocale(newLocale);
+			}
+		}
+
+		return this;
+	}
+
+	/**
+	 * 
+	 * @return the currently set Locale
+	 */
+	public Locale getLocale() {
+		return LocaleManager.getLocale();
+	}
+
 	/*
 	 * Private, supporting methods
 	 * **********************************************
 	 */
+
+	private final void setUI(BeIDCardsUI ui) {
+		this.ui = ui;
+		if (this.ui != null) {
+			setLocale(ui.getLocale());
+		}
+	}
 
 	private BeIDCardsUI getUI() {
 		if (this.ui == null) {
@@ -472,10 +438,7 @@ public class BeIDCards {
 				final ClassLoader classLoader = BeIDCard.class.getClassLoader();
 				final Class<?> uiClass = classLoader
 						.loadClass(DEFAULT_UI_IMPLEMENTATION);
-				this.ui = (BeIDCardsUI) uiClass.newInstance();
-				if (this.locale != null) {
-					this.ui.setLocale(this.locale);
-				}
+				setUI((BeIDCardsUI) uiClass.newInstance());
 			} catch (final Exception e) {
 				this.logger.error(UI_MISSING_LOG_MESSAGE);
 				throw new UnsupportedOperationException(UI_MISSING_LOG_MESSAGE,

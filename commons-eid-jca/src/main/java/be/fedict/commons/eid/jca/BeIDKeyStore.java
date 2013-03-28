@@ -467,7 +467,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		if (null == logger) {
 			logger = new VoidLogger();
 		}
-		final Messages messages = new Messages(locale);
+		final Messages messages = Messages.getInstance(locale);
 		final BeIDCardsUI ui = new DefaultBeIDCardsUI(parentComponent, messages);
 		final BeIDCards beIDCards = new BeIDCards(logger, ui);
 		beIDCards.setLocale(locale);

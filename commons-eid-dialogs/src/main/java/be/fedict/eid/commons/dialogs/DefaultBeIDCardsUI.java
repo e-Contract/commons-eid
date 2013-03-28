@@ -26,13 +26,16 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.util.Collection;
 import java.util.Locale;
+
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 import be.fedict.commons.eid.client.BeIDCard;
-import be.fedict.commons.eid.client.OutOfCardsException;
 import be.fedict.commons.eid.client.CancelledException;
+import be.fedict.commons.eid.client.OutOfCardsException;
+import be.fedict.commons.eid.client.impl.LocaleManager;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
 
 /**
@@ -46,13 +49,14 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	private Messages messages;
 	private JFrame adviseFrame;
 	private BeIDSelector selectionDialog;
+	private Locale locale;
 
 	public DefaultBeIDCardsUI() {
-		this(null, new Messages(Locale.getDefault()));
+		this(null);
 	}
 
 	public DefaultBeIDCardsUI(final Component parentComponent) {
-		this(parentComponent, new Messages(Locale.getDefault()));
+		this(parentComponent, null);
 	}
 
 	public DefaultBeIDCardsUI(final Component parentComponent,
@@ -63,11 +67,13 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 			throw new UnsupportedOperationException(
 					"DefaultBeIDCardsUI is a GUI and cannot run in a headless environment");
 		}
-	}
 
-	@Override
-	public void setLocale(final Locale newLocale) {
-		this.messages.setLocale(newLocale);
+		if (messages != null) {
+			this.messages = messages;
+			setLocale(messages.getLocale());
+		} else {
+			this.messages = Messages.getInstance(getLocale());
+		}
 	}
 
 	@Override
@@ -169,4 +175,20 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 			this.selectionDialog.removeEIDCard(card);
 		}
 	}
+
+	@Override
+	public void setLocale(Locale newLocale) {
+		this.locale = newLocale;
+		this.messages = Messages.getInstance(newLocale);
+
+	}
+
+	@Override
+	public Locale getLocale() {
+		if (this.locale != null) {
+			return this.locale;
+		}
+		return LocaleManager.getLocale();
+	}
+
 }

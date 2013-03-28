@@ -23,22 +23,18 @@ import java.util.Locale;
 import be.fedict.commons.eid.client.PINPurpose;
 
 /**
- * An adapter implementing BeIDCardUI with empty default actions.
- * Intended to be extended by a useful class overriding only those
- * methods it requires. For example, in an embedded application
- * having only a secure PINPAD reader, none of the obtain() methods
- * would ever be called.
+ * An adapter implementing BeIDCardUI with empty default actions. Intended to be
+ * extended by a useful class overriding only those methods it requires. For
+ * example, in an embedded application having only a secure PINPAD reader, none
+ * of the obtain() methods would ever be called.
+ * 
  * @author Frank Marien
- *
+ * 
  */
 public class BeIDCardUIAdapter implements BeIDCardUI {
 
 	private static final String OPERATION_CANCELLED = "operation cancelled.";
-	private Locale locale;
-
-	@Override
-	public void setLocale(Locale newLocale) {
-	}
+	protected Locale locale;
 
 	@Override
 	public char[] obtainPIN(final int triesLeft, final PINPurpose type) {
@@ -101,5 +97,15 @@ public class BeIDCardUIAdapter implements BeIDCardUI {
 
 	@Override
 	public void adviseSecureReaderOperationEnd() {
+	}
+
+	@Override
+	public void setLocale(Locale newLocale) {
+		this.locale = newLocale;
+	}
+
+	@Override
+	public Locale getLocale() {
+		return this.locale;
 	}
 }
