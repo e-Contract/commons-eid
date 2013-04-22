@@ -170,9 +170,8 @@ public class JCATest {
 		signature.sign();
 	}
 
-	private static class MyFrame extends JFrame
-			implements
-				KeyStore.LoadStoreParameter {
+	private static class MyFrame extends JFrame implements
+			KeyStore.LoadStoreParameter {
 
 		private static final long serialVersionUID = 1L;
 
@@ -348,6 +347,25 @@ public class JCATest {
 	}
 
 	@Test
+	public void testNonRepudiationSignature() throws Exception {
+		Security.addProvider(new BeIDProvider());
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature",
+				null);
+		Signature signature = Signature.getInstance("SHA1withRSA");
+		signature.initSign(signPrivateKey);
+		byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		byte[] signatureValue = signature.sign();
+		assertNotNull(signatureValue);
+
+		Certificate[] signCertificateChain = keyStore
+				.getCertificateChain("Signature");
+		assertNotNull(signCertificateChain);
+	}
+
+	@Test
 	public void testLocale() throws Exception {
 		Security.addProvider(new BeIDProvider());
 
@@ -477,9 +495,7 @@ public class JCATest {
 
 		final Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.WRAP_MODE, keyPair.getPublic());
-		LOG
-				.debug("cipher security provider: "
-						+ cipher.getProvider().getName());
+		LOG.debug("cipher security provider: " + cipher.getProvider().getName());
 		LOG.debug("cipher type: " + cipher.getClass().getName());
 		final byte[] wrappedKey = cipher.wrap(secretKey);
 
