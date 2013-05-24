@@ -97,6 +97,7 @@ import be.fedict.commons.eid.client.spi.UserCancelledException;
  */
 
 public class BeIDCard {
+
 	private static final String UI_MISSING_LOG_MESSAGE = "No BeIDCardUI set and can't load DefaultBeIDCardUI";
 	private static final String UI_DEFAULT_REQUIRES_HEAD = "No BeIDCardUI set and DefaultBeIDCardUI requires a graphical environment";
 	private static final String DEFAULT_UI_IMPLEMENTATION = "be.fedict.eid.commons.dialogs.DefaultBeIDCardUI";
@@ -107,6 +108,7 @@ public class BeIDCard {
 			0x00, 0x00, 0x30, 0x29, 0x05, 0x70, 0x00, (byte) 0xAD, 0x13, 0x10,
 			0x01, 0x01, (byte) 0xFF,};
 	private static final int BLOCK_SIZE = 0xff;
+	private static final int GET_CARD_DATA_UNSIGNED = 0x1c;
 
 	private final CardChannel cardChannel;
 	private final List<BeIDCardListener> cardListeners;
@@ -226,9 +228,9 @@ public class BeIDCard {
 	/**
 	 * Explicitly set the User Interface to be used for consequent operations.
 	 * All user interaction is handled through this, and possible SPR features
-	 * of CCID-capable CardReaders. This will also modify the Locale setting of this
-	 * beIDCard instance to match the UI's Locale, so the language in any SPR 
-	 * messages displayed will be consistent with the UI's language.
+	 * of CCID-capable CardReaders. This will also modify the Locale setting of
+	 * this beIDCard instance to match the UI's Locale, so the language in any
+	 * SPR messages displayed will be consistent with the UI's language.
 	 * 
 	 * @param userInterface
 	 *            an instance of BeIDCardUI
@@ -826,11 +828,11 @@ public class BeIDCard {
 	}
 
 	/**
-	 * set the Locale to use for subsequent UI and CCID operations.
-	 * this will modify the Locale of any explicitly set UI, as well.
-	 * BeIDCard instances, while using the global Locale settings made in 
-	 * BeIDCards and/or BeIDCardManager by default, may have their own individual
-	 * Locale settings that may override those global settings.
+	 * set the Locale to use for subsequent UI and CCID operations. this will
+	 * modify the Locale of any explicitly set UI, as well. BeIDCard instances,
+	 * while using the global Locale settings made in BeIDCards and/or
+	 * BeIDCardManager by default, may have their own individual Locale settings
+	 * that may override those global settings.
 	 * 
 	 * @param locale
 	 * @return this BeIDCard instance, to allow method chaining
@@ -1041,6 +1043,21 @@ public class BeIDCard {
 		}
 	}
 
+	/**
+	 * Reads "some useful information about the card and the current application."
+	 * as documented in the BELPIC APPLICATION V2.0
+	 * @return the binary CARD DATA structure as read. 
+	 * @throws CardException
+	 */
+	public byte[] getCardData() throws CardException {
+		ResponseAPDU responseAPDU = this.transmitCommand(
+				BeIDCommandAPDU.GET_CARD_DATA, GET_CARD_DATA_UNSIGNED);
+		if (0x9000 != responseAPDU.getSW()) {
+			throw new ResponseAPDUException(responseAPDU);
+		}
+		return responseAPDU.getData();
+	}
+
 	// ===========================================================================================================
 	// low-level card transmit commands
 	// not recommended for general use.
@@ -1062,6 +1079,12 @@ public class BeIDCard {
 	protected byte[] transmitControlCommand(final int controlCode,
 			final byte[] command) throws CardException {
 		return this.card.transmitControlCommand(controlCode, command);
+	}
+
+	protected ResponseAPDU transmitCommand(final BeIDCommandAPDU apdu,
+			final int le) throws CardException {
+		return transmit(new CommandAPDU(apdu.getCla(), apdu.getIns(), apdu
+				.getP1(), apdu.getP2(), le));
 	}
 
 	protected ResponseAPDU transmitCommand(final BeIDCommandAPDU apdu,
@@ -1564,7 +1587,9 @@ public class BeIDCard {
 		// COMMAND
 		RESET_PIN(0x00, 0x2C, 0x00, 0x01),
 
-		GET_CHALLENGE(0x00, 0x84, 0x00, 0x00);
+		GET_CHALLENGE(0x00, 0x84, 0x00, 0x00),
+
+		GET_CARD_DATA(0x80, 0xE4, 0x00, 0x00);
 
 		private final int cla;
 		private final int ins;
