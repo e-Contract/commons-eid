@@ -181,6 +181,13 @@ public class BeIDCardExercises {
 		assertTrue(result);
 	}
 
+	@Test
+	public void testCardData() throws Exception {
+		final BeIDCard beIDCard = getBeIDCard();
+		final byte[] cardData = beIDCard.getCardData();
+		assertTrue(cardData.length == 28);
+	}
+
 	// @Test
 	// public void testUnblockPIN() throws Exception
 	// {
