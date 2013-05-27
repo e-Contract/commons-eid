@@ -1045,12 +1045,17 @@ public class BeIDCard {
 
 	/**
 	 * Reads "some useful information about the card and the current application."
-	 * as documented in the BELPIC APPLICATION V2.0
+	 * as documented in the BELPIC APPLICATION V2.0 specs.
+	 * This returns the raw binary data, use a ByteArrayParser to convert this
+	 * into a more convenient CardData instance.
+	 * CAUTION: values inconsistent with application behavior have been observed,
+	 *          e.g. Application Life Cycle byte returned as 0x0f (DEACTIVATED) in an
+	 *          active card. 
 	 * @return the binary CARD DATA structure as read. 
 	 * @throws CardException
 	 */
 	public byte[] getCardData() throws CardException {
-		ResponseAPDU responseAPDU = this.transmitCommand(
+		final ResponseAPDU responseAPDU = this.transmitCommand(
 				BeIDCommandAPDU.GET_CARD_DATA, GET_CARD_DATA_UNSIGNED);
 		if (0x9000 != responseAPDU.getSW()) {
 			throw new ResponseAPDUException(responseAPDU);

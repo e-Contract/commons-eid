@@ -20,8 +20,10 @@ package test.integ.be.fedict.commons.eid.client;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -40,7 +42,9 @@ import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
+import be.fedict.commons.eid.consumer.CardData;
 import be.fedict.commons.eid.consumer.Identity;
+import be.fedict.commons.eid.consumer.tlv.ByteArrayParser;
 
 public class BeIDCardExercises {
 	private static final Log LOG = LogFactory.getLog(BeIDCardExercises.class);
@@ -104,6 +108,11 @@ public class BeIDCardExercises {
 	@Test
 	public void testPSSSignature() throws Exception {
 		final BeIDCard beIDCard = getBeIDCard();
+
+		// skip if card doesn't support PSS in the first place
+		final CardData cardData = ByteArrayParser.parse(beIDCard.getCardData(),
+				CardData.class);
+		assumeTrue(cardData.isRSASSAPSSSupported());
 
 		final byte[] toBeSigned = new byte[10];
 		final SecureRandom secureRandom = new SecureRandom();
@@ -186,6 +195,7 @@ public class BeIDCardExercises {
 		final BeIDCard beIDCard = getBeIDCard();
 		final byte[] cardData = beIDCard.getCardData();
 		assertTrue(cardData.length == 28);
+		LOG.info(new BigInteger(cardData).toString(16));
 	}
 
 	// @Test

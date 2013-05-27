@@ -18,7 +18,6 @@
 
 package be.fedict.commons.eid.consumer.tlv;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
@@ -27,7 +26,6 @@ import java.nio.ByteBuffer;
  * slices, unsigned 8 and 16-bit values from byte array integers
  * 
  * @author Frank Marien
- * 
  */
 public class ByteArrayParser {
 
@@ -56,8 +54,7 @@ public class ByteArrayParser {
 	}
 
 	private static <T> T parseThrowing(final byte[] data, final Class<T> baClass)
-			throws InstantiationException, IllegalAccessException,
-			DataConvertorException, UnsupportedEncodingException {
+			throws InstantiationException, IllegalAccessException {
 		final Field[] fields = baClass.getDeclaredFields();
 
 		final T baObject = baClass.newInstance();
