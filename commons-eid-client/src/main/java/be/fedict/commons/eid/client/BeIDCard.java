@@ -1063,6 +1063,15 @@ public class BeIDCard {
 		return responseAPDU.getData();
 	}
 
+	/**
+	 * test for CCID Features in the card reader this BeIDCard is inserted into
+	 * @param feature the feature to test for (CCID.FEATURE)
+	 * @return true if the given feature is available, false if not
+	 */
+	public boolean cardTerminalHasCCIDFeature(CCID.FEATURE feature) {
+		return this.getCCID().hasFeature(feature);
+	}
+
 	// ===========================================================================================================
 	// low-level card transmit commands
 	// not recommended for general use.
