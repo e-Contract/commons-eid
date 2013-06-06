@@ -94,10 +94,12 @@ public class BeIDIntegrity {
 	 * @param identitySignatureFile
 	 * @param rrnCertificate
 	 * @return
+	 * @throws NoSuchAlgorithmException 
 	 */
 	public Identity getVerifiedIdentity(final byte[] identityFile,
 			final byte[] identitySignatureFile,
-			final X509Certificate rrnCertificate) {
+			final X509Certificate rrnCertificate)
+			throws NoSuchAlgorithmException {
 		final Identity identity = this.getVerifiedIdentity(identityFile,
 				identitySignatureFile, null, rrnCertificate);
 		return identity;
@@ -112,15 +114,17 @@ public class BeIDIntegrity {
 	 * @param photo
 	 * @param rrnCertificate
 	 * @return
+	 * @throws NoSuchAlgorithmException 
 	 */
 	public Identity getVerifiedIdentity(final byte[] identityFile,
 			final byte[] identitySignatureFile, final byte[] photo,
-			final X509Certificate rrnCertificate) {
+			final X509Certificate rrnCertificate)
+			throws NoSuchAlgorithmException {
 		final PublicKey publicKey = rrnCertificate.getPublicKey();
 		boolean result;
 		try {
-			result = verifySignature(identitySignatureFile, publicKey,
-					identityFile);
+			result = verifySignature(rrnCertificate.getSigAlgName(),
+					identitySignatureFile, publicKey, identityFile);
 		} catch (final Exception ex) {
 			throw new SecurityException(
 					"identity signature verification error: " + ex.getMessage(),
@@ -132,7 +136,9 @@ public class BeIDIntegrity {
 		final Identity identity = TlvParser.parse(identityFile, Identity.class);
 		if (null != photo) {
 			final byte[] expectedPhotoDigest = identity.getPhotoDigest();
-			final byte[] actualPhotoDigest = digest(photo);
+			final byte[] actualPhotoDigest = digest(
+					guessSHAAlgoNameFromHashSize(expectedPhotoDigest.length),
+					photo);
 			if (false == Arrays.equals(expectedPhotoDigest, actualPhotoDigest)) {
 				throw new SecurityException("photo digest mismatch");
 			}
@@ -157,8 +163,9 @@ public class BeIDIntegrity {
 		final PublicKey publicKey = rrnCertificate.getPublicKey();
 		boolean result;
 		try {
-			result = verifySignature(addressSignatureFile, publicKey,
-					trimmedAddressFile, identitySignatureFile);
+			result = verifySignature(rrnCertificate.getSigAlgName(),
+					addressSignatureFile, publicKey, trimmedAddressFile,
+					identitySignatureFile);
 		} catch (final Exception ex) {
 			throw new SecurityException(
 					"address signature verification error: " + ex.getMessage(),
@@ -217,12 +224,12 @@ public class BeIDIntegrity {
 		return result;
 	}
 
-	private byte[] digest(final byte[] data) {
+	private byte[] digest(final String algoName, final byte[] data) {
 		MessageDigest messageDigest;
 		try {
-			messageDigest = MessageDigest.getInstance("SHA1");
+			messageDigest = MessageDigest.getInstance(algoName);
 		} catch (final NoSuchAlgorithmException nsaex) {
-			throw new RuntimeException("SHA1");
+			throw new RuntimeException(algoName);
 		}
 		final byte[] digestValue = messageDigest.digest(data);
 		return digestValue;
@@ -322,5 +329,25 @@ public class BeIDIntegrity {
 
 		final byte[] actualDigestValue = actualSignatureDigestInfo.getDigest();
 		return Arrays.equals(expectedDigestValue, actualDigestValue);
+	}
+
+	private String guessSHAAlgoNameFromHashSize(final int hashSize)
+			throws NoSuchAlgorithmException {
+		switch (hashSize) {
+			case 20 :
+				return "SHA-1";
+			case 28 :
+				return "SHA-224";
+			case 32 :
+				return "SHA-256";
+			case 48 :
+				return "SHA-384";
+			case 64 :
+				return "SHA-512";
+		}
+
+		throw new NoSuchAlgorithmException(
+				"Failed to find guess algorithm for hash size of " + hashSize
+						+ " bytes");
 	}
 }

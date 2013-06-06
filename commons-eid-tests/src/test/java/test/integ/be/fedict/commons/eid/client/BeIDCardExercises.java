@@ -41,6 +41,7 @@ import be.fedict.commons.eid.client.BeIDCardsException;
 import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
+import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
 import be.fedict.commons.eid.consumer.CardData;
 import be.fedict.commons.eid.consumer.Identity;
@@ -63,6 +64,8 @@ public class BeIDCardExercises {
 		LOG.debug("reading RRN certificate file");
 		final byte[] rrnCertificateFile = beIDCard
 				.readFile(FileType.RRNCertificate);
+		LOG.debug("reading Photo file");
+		final byte[] photoFile = beIDCard.readFile(FileType.Photo);
 
 		final CertificateFactory certificateFactory = CertificateFactory
 				.getInstance("X.509");
@@ -74,10 +77,43 @@ public class BeIDCardExercises {
 
 		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		final Identity identity = beIDIntegrity.getVerifiedIdentity(
-				identityFile, identitySignatureFile, rrnCertificate);
+				identityFile, identitySignatureFile, photoFile, rrnCertificate);
 
 		assertNotNull(identity);
 		assertNotNull(identity.getNationalNumber());
+	}
+
+	@Test
+	public void testAddressFileValidation() throws Exception {
+		final BeIDCard beIDCard = getBeIDCard();
+		beIDCard.addCardListener(new TestBeIDCardListener());
+
+		LOG.debug("reading address file");
+		final byte[] addressFile = beIDCard.readFile(FileType.Address);
+		LOG.debug("reading address signature file");
+		final byte[] addressSignatureFile = beIDCard
+				.readFile(FileType.AddressSignature);
+		LOG.debug("reading identity signature file");
+		final byte[] identitySignatureFile = beIDCard
+				.readFile(FileType.IdentitySignature);
+		LOG.debug("reading RRN certificate file");
+		final byte[] rrnCertificateFile = beIDCard
+				.readFile(FileType.RRNCertificate);
+
+		final CertificateFactory certificateFactory = CertificateFactory
+				.getInstance("X.509");
+		final X509Certificate rrnCertificate = (X509Certificate) certificateFactory
+				.generateCertificate(new ByteArrayInputStream(
+						rrnCertificateFile));
+
+		beIDCard.close();
+
+		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		final Address address = beIDIntegrity.getVerifiedAddress(addressFile,
+				identitySignatureFile, addressSignatureFile, rrnCertificate);
+
+		assertNotNull(address);
+		assertNotNull(address.getMunicipality());
 	}
 
 	@Test
