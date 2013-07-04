@@ -30,8 +30,7 @@ import be.fedict.commons.eid.client.spi.Logger;
  * @author Frank Cornelis
  * @author Frank Marien
  */
-public class LibJ2PCSCGNULinuxFix {
-
+public final class LibJ2PCSCGNULinuxFix {
 	private static final int PCSC_LIBRARY_VERSION = 1;
 	private static final String SMARTCARDIO_LIBRARY_PROPERTY = "sun.security.smartcardio.library";
 	private static final String LIBRARY_PATH_PROPERTY = "java.library.path";
@@ -46,6 +45,10 @@ public class LibJ2PCSCGNULinuxFix {
 	private static enum UbuntuBitness {
 		NA, PURE32, PURE64, MULTILIB
 	};
+
+	private LibJ2PCSCGNULinuxFix() {
+		super();
+	}
 
 	/**
 	 * Make sure libpcsclite is found.
@@ -90,11 +93,12 @@ public class LibJ2PCSCGNULinuxFix {
 	 * Determine Ubuntu-type multilib configuration
 	 */
 	private static UbuntuBitness getUbuntuBitness() {
-		boolean has32 = false, has64 = false;
+		boolean has32 = false;
+		boolean has64 = false;
 		File multilibdir = new File(UBUNTU_MULTILIB_32_PATH);
-		has32 = (multilibdir != null && multilibdir.isDirectory());
+		has32 = multilibdir != null && multilibdir.isDirectory();
 		multilibdir = new File(UBUNTU_MULTILIB_64_PATH);
-		has64 = (multilibdir != null && multilibdir.isDirectory());
+		has64 = multilibdir != null && multilibdir.isDirectory();
 
 		if (has32 && (!has64)) {
 			return UbuntuBitness.PURE32;
@@ -111,12 +115,12 @@ public class LibJ2PCSCGNULinuxFix {
 	 * return the path with extension appended, if it wasn't already contained
 	 * in the path
 	 */
-	private static String extendLibraryPath(final String lib_path,
+	private static String extendLibraryPath(final String libPath,
 			final String extension) {
-		if (lib_path.contains(extension)) {
-			return lib_path;
+		if (libPath.contains(extension)) {
+			return libPath;
 		}
-		return lib_path + ":" + extension;
+		return libPath + ":" + extension;
 	}
 
 	/*

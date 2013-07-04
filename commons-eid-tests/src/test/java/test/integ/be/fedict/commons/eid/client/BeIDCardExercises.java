@@ -145,11 +145,6 @@ public class BeIDCardExercises {
 	public void testPSSSignature() throws Exception {
 		final BeIDCard beIDCard = getBeIDCard();
 
-		// skip if card doesn't support PSS in the first place
-		final CardData cardData = ByteArrayParser.parse(beIDCard.getCardData(),
-				CardData.class);
-		assumeTrue(cardData.isRSASSAPSSSupported());
-
 		final byte[] toBeSigned = new byte[10];
 		final SecureRandom secureRandom = new SecureRandom();
 		secureRandom.nextBytes(toBeSigned);
@@ -224,14 +219,6 @@ public class BeIDCardExercises {
 		final boolean result = beIDIntegrity.verifyNonRepSignature(digestValue,
 				signatureValue, signingCertificate);
 		assertTrue(result);
-	}
-
-	@Test
-	public void testCardData() throws Exception {
-		final BeIDCard beIDCard = getBeIDCard();
-		final byte[] cardData = beIDCard.getCardData();
-		assertTrue(cardData.length == 28);
-		LOG.info(new BigInteger(cardData).toString(16));
 	}
 
 	// @Test

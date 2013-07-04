@@ -52,6 +52,14 @@ import be.fedict.commons.eid.client.spi.Logger;
  */
 
 public class BeIDCardManager {
+
+	private static final byte[] ATR_PATTERN = new byte[]{0x3b, (byte) 0x98,
+			0x00, 0x40, 0x00, (byte) 0x00, 0x00, 0x00, 0x01, 0x01, (byte) 0xad,
+			0x13, 0x10,};
+	private static final byte[] ATR_MASK = new byte[]{(byte) 0xff, (byte) 0xff,
+			0x00, (byte) 0xff, 0x00, 0x00, 0x00, 0x00, (byte) 0xff,
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xf0,};
+
 	private CardAndTerminalManager cardAndTerminalManager;
 	private boolean terminalManagerIsPrivate;
 	private Map<CardTerminal, BeIDCard> terminalsAndCards;
@@ -368,13 +376,6 @@ public class BeIDCardManager {
 	/*
 	 * Private Support methods. Shamelessly copied from eid-applet-core
 	 */
-
-	private final static byte[] ATR_PATTERN = new byte[]{0x3b, (byte) 0x98,
-			0x00, 0x40, 0x00, (byte) 0x00, 0x00, 0x00, 0x01, 0x01, (byte) 0xad,
-			0x13, 0x10};
-	private final static byte[] ATR_MASK = new byte[]{(byte) 0xff, (byte) 0xff,
-			0x00, (byte) 0xff, 0x00, 0x00, 0x00, 0x00, (byte) 0xff,
-			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xf0};
 
 	private boolean matchesEidAtr(final ATR atr) {
 		final byte[] atrBytes = atr.getBytes();

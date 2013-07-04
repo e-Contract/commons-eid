@@ -402,9 +402,9 @@ public class BeIDCards {
 	public BeIDCards setLocale(Locale newLocale) {
 		LocaleManager.setLocale(newLocale);
 
-		synchronized (beIDTerminalsAndCards) {
+		synchronized (this.beIDTerminalsAndCards) {
 
-			for (BeIDCard card : beIDTerminalsAndCards.values()) {
+			for (BeIDCard card : this.beIDTerminalsAndCards.values()) {
 				card.setLocale(newLocale);
 			}
 		}

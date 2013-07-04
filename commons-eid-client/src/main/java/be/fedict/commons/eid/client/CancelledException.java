@@ -24,5 +24,9 @@ package be.fedict.commons.eid.client;
  * respond (e.g. by closing the requesting dialog)
  */
 public class CancelledException extends BeIDCardsException {
-	private static final long serialVersionUID = -4460739679363065683L;
+	private static final long serialVersionUID = 1782770311681651884L;
+
+	public CancelledException() {
+		super();
+	}
 }
