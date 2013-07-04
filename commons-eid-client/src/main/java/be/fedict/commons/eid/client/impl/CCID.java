@@ -34,7 +34,7 @@ import be.fedict.commons.eid.client.spi.Logger;
  */
 public class CCID {
 	public static final int GET_FEATURES = 0x42000D48;
-	public static final int GET_FEATURES_MICROSOFT = (0x31 << 16 | (3400) << 2);
+	public static final int GET_FEATURES_MICROSOFT = 0x31 << 16 | 3400 << 2;
 	public static final int MIN_PIN_SIZE = 4;
 	public static final int MAX_PIN_SIZE = 12;
 
@@ -280,7 +280,7 @@ public class CCID {
 				0x01, // P2
 				0x08, // Lc = 8 bytes in command data
 				(byte) 0x20, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,};
 		verifyCommand.write(verifyApdu.length & 0xff); // ulDataLength[0]
 		verifyCommand.write(0x00); // ulDataLength[1]
 		verifyCommand.write(0x00); // ulDataLength[2]
@@ -397,7 +397,7 @@ public class CCID {
 				(byte) 0x20, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0x20, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,};
 		modifyCommand.write(modifyApdu.length & 0xff); // ulDataLength[0]
 		modifyCommand.write(0x00); // ulDataLength[1]
 		modifyCommand.write(0x00); // ulDataLength[2]

@@ -2,8 +2,13 @@ package be.fedict.commons.eid.client.impl;
 
 import java.util.Locale;
 
-public class LocaleManager {
+public final class LocaleManager {
+
 	private static Locale locale;
+
+	private LocaleManager() {
+		super();
+	}
 
 	public static void setLocale(Locale newLocale) {
 		LocaleManager.locale = newLocale;

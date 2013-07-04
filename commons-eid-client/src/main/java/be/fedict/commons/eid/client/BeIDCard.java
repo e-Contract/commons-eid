@@ -108,7 +108,6 @@ public class BeIDCard {
 			0x00, 0x00, 0x30, 0x29, 0x05, 0x70, 0x00, (byte) 0xAD, 0x13, 0x10,
 			0x01, 0x01, (byte) 0xFF,};
 	private static final int BLOCK_SIZE = 0xff;
-	private static final int GET_CARD_DATA_UNSIGNED = 0x1c;
 
 	private final CardChannel cardChannel;
 	private final List<BeIDCardListener> cardListeners;
@@ -1044,26 +1043,6 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Reads "some useful information about the card and the current application."
-	 * as documented in the BELPIC APPLICATION V2.0 specs.
-	 * This returns the raw binary data, use a ByteArrayParser to convert this
-	 * into a more convenient CardData instance.
-	 * CAUTION: values inconsistent with application behavior have been observed,
-	 *          e.g. Application Life Cycle byte returned as 0x0f (DEACTIVATED) in an
-	 *          active card. 
-	 * @return the binary CARD DATA structure as read. 
-	 * @throws CardException
-	 */
-	public byte[] getCardData() throws CardException {
-		final ResponseAPDU responseAPDU = this.transmitCommand(
-				BeIDCommandAPDU.GET_CARD_DATA, GET_CARD_DATA_UNSIGNED);
-		if (0x9000 != responseAPDU.getSW()) {
-			throw new ResponseAPDUException(responseAPDU);
-		}
-		return responseAPDU.getData();
-	}
-
-	/**
 	 * test for CCID Features in the card reader this BeIDCard is inserted into
 	 * @param feature the feature to test for (CCID.FEATURE)
 	 * @return true if the given feature is available, false if not
@@ -1245,9 +1224,9 @@ public class BeIDCard {
 		getUI().advisePINPadPINEntry(retriesLeft, purpose);
 		byte[] result;
 		try {
-			result = transmitCCIDControl(CCID.FEATURE.VERIFY_PIN_DIRECT,
-					getCCID().createPINVerificationDataStructure(getLocale(),
-							CCID.INS.VERIFY_PIN));
+			result = this.transmitCCIDControl(CCID.FEATURE.VERIFY_PIN_DIRECT,
+					getCCID().createPINVerificationDataStructure(
+							this.getLocale(), CCID.INS.VERIFY_PIN));
 		} finally {
 			getUI().advisePINPadOperationEnd();
 		}
@@ -1277,20 +1256,20 @@ public class BeIDCard {
 		getUI().advisePINPadPINEntry(retriesLeft, purpose);
 
 		try {
-			transmitCCIDControl(CCID.FEATURE.VERIFY_PIN_START, getCCID()
-					.createPINVerificationDataStructure(getLocale(),
+			this.transmitCCIDControl(CCID.FEATURE.VERIFY_PIN_START, getCCID()
+					.createPINVerificationDataStructure(this.getLocale(),
 							CCID.INS.VERIFY_PIN));
 			getCCID().waitForOK();
 		} finally {
 			getUI().advisePINPadOperationEnd();
 		}
 
-		return new ResponseAPDU(
-				transmitCCIDControl(CCID.FEATURE.VERIFY_PIN_FINISH));
+		return new ResponseAPDU(this
+				.transmitCCIDControl(CCID.FEATURE.VERIFY_PIN_FINISH));
 	}
 
 	private boolean isWindows8() {
-		String osName = System.getProperty("os.name");
+		final String osName = System.getProperty("os.name");
 		return osName.contains("Windows 8");
 	}
 
@@ -1301,7 +1280,7 @@ public class BeIDCard {
 	private ResponseAPDU verifyPINViaUI(final int retriesLeft,
 			final PINPurpose purpose) throws CardException,
 			UserCancelledException {
-		boolean windows8 = isWindows8();
+		final boolean windows8 = this.isWindows8();
 		if (windows8) {
 			this.endExclusive();
 		}
@@ -1311,7 +1290,7 @@ public class BeIDCard {
 		}
 		final byte[] verifyData = new byte[]{(byte) (0x20 | pin.length),
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,};
 		for (int idx = 0; idx < pin.length; idx += 2) {
 			final char digit1 = pin[idx];
 			final char digit2;
@@ -1327,7 +1306,7 @@ public class BeIDCard {
 
 		this.logger.debug("verifying PIN...");
 		try {
-			return transmitCommand(BeIDCommandAPDU.VERIFY_PIN, verifyData);
+			return this.transmitCommand(BeIDCommandAPDU.VERIFY_PIN, verifyData);
 		} finally {
 			Arrays.fill(verifyData, (byte) 0); // minimize exposure
 		}
@@ -1344,9 +1323,9 @@ public class BeIDCard {
 		byte[] result;
 
 		try {
-			result = transmitCCIDControl(CCID.FEATURE.MODIFY_PIN_DIRECT,
-					getCCID().createPINModificationDataStructure(getLocale(),
-							CCID.INS.MODIFY_PIN));
+			result = this.transmitCCIDControl(CCID.FEATURE.MODIFY_PIN_DIRECT,
+					this.getCCID().createPINModificationDataStructure(
+							this.getLocale(), CCID.INS.MODIFY_PIN));
 		} finally {
 			getUI().advisePINPadOperationEnd();
 		}
@@ -1374,8 +1353,8 @@ public class BeIDCard {
 
 	private ResponseAPDU changePINViaCCIDStartFinish(final int retriesLeft)
 			throws IOException, CardException, InterruptedException {
-		transmitCCIDControl(CCID.FEATURE.MODIFY_PIN_START, getCCID()
-				.createPINModificationDataStructure(getLocale(),
+		this.transmitCCIDControl(CCID.FEATURE.MODIFY_PIN_START, getCCID()
+				.createPINModificationDataStructure(this.getLocale(),
 						CCID.INS.MODIFY_PIN));
 
 		try {
@@ -1396,8 +1375,8 @@ public class BeIDCard {
 			getUI().advisePINPadOperationEnd();
 		}
 
-		return new ResponseAPDU(
-				transmitCCIDControl(CCID.FEATURE.MODIFY_PIN_FINISH));
+		return new ResponseAPDU(this
+				.transmitCCIDControl(CCID.FEATURE.MODIFY_PIN_FINISH));
 	}
 
 	/*
@@ -1414,7 +1393,8 @@ public class BeIDCard {
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) (0x20 | newPin.length), (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+				(byte) 0xFF,};
 
 		for (int idx = 0; idx < oldPin.length; idx += 2) {
 			final char digit1 = oldPin[idx];
@@ -1443,7 +1423,8 @@ public class BeIDCard {
 		Arrays.fill(newPin, (char) 0); // minimize exposure
 
 		try {
-			return transmitCommand(BeIDCommandAPDU.CHANGE_PIN, changePinData);
+			return this.transmitCommand(BeIDCommandAPDU.CHANGE_PIN,
+					changePinData);
 		} finally {
 			Arrays.fill(changePinData, (byte) 0);
 		}
@@ -1459,9 +1440,9 @@ public class BeIDCard {
 		getUI().advisePINPadPUKEntry(retriesLeft);
 		byte[] result;
 		try {
-			result = transmitCCIDControl(CCID.FEATURE.VERIFY_PIN_DIRECT,
-					getCCID().createPINVerificationDataStructure(getLocale(),
-							CCID.INS.VERIFY_PUK));
+			result = this.transmitCCIDControl(CCID.FEATURE.VERIFY_PIN_DIRECT,
+					this.getCCID().createPINVerificationDataStructure(
+							this.getLocale(), CCID.INS.VERIFY_PUK));
 		} finally {
 			getUI().advisePINPadOperationEnd();
 		}
@@ -1500,7 +1481,7 @@ public class BeIDCard {
 		final byte[] unblockPinData = new byte[]{
 				(byte) (0x20 | ((byte) (puk1.length + puk2.length))),
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,};
 
 		for (int idx = 0; idx < fullPuk.length; idx += 2) {
 			final char digit1 = fullPuk[idx];
@@ -1511,7 +1492,8 @@ public class BeIDCard {
 		Arrays.fill(fullPuk, (char) 0); // minimize exposure
 
 		try {
-			return transmitCommand(BeIDCommandAPDU.RESET_PIN, unblockPinData);
+			return this.transmitCommand(BeIDCommandAPDU.RESET_PIN,
+					unblockPinData);
 		} finally {
 			Arrays.fill(unblockPinData, (byte) 0);
 		}
@@ -1559,7 +1541,7 @@ public class BeIDCard {
 	 * @return the cardTerminal this BeIDCard was in when detected, or null
 	 */
 	public CardTerminal getCardTerminal() {
-		return cardTerminal;
+		return this.cardTerminal;
 	}
 
 	/**
