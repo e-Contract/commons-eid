@@ -333,16 +333,16 @@ public class BeIDIntegrity {
 	private String getDigestAlgo(final int hashSize)
 			throws NoSuchAlgorithmException {
 		switch (hashSize) {
-		case 20:
-			return "SHA-1";
-		case 28:
-			return "SHA-224";
-		case 32:
-			return "SHA-256";
-		case 48:
-			return "SHA-384";
-		case 64:
-			return "SHA-512";
+			case 20 :
+				return "SHA-1";
+			case 28 :
+				return "SHA-224";
+			case 32 :
+				return "SHA-256";
+			case 48 :
+				return "SHA-384";
+			case 64 :
+				return "SHA-512";
 		}
 
 		throw new NoSuchAlgorithmException(
