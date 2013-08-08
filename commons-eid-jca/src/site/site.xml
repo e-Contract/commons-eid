@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="FedICT Commons eID JCA">
+<project name="Commons eID JCA">
 	<body>
 		<menu name="Overview" inherit="top">
 			<item name="Introduction" href="index.html" />
 		</menu>
+		<menu ref="parent" />
 		<menu ref="reports" />
 	</body>
 </project>

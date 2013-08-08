@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="FedICT Commons eID Client">
+<project name="Commons eID Client">
 	<body>
 		<menu name="Overview" inherit="top">
 			<item name="Introduction" href="index.html" />
 		</menu>
+		<menu ref="parent" />
 		<menu ref="reports" />
 	</body>
 </project>
