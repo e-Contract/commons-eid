@@ -94,7 +94,7 @@ public class BeIDIntegrity {
 	 * @param identitySignatureFile
 	 * @param rrnCertificate
 	 * @return
-	 * @throws NoSuchAlgorithmException 
+	 * @throws NoSuchAlgorithmException
 	 */
 	public Identity getVerifiedIdentity(final byte[] identityFile,
 			final byte[] identitySignatureFile,
@@ -114,7 +114,7 @@ public class BeIDIntegrity {
 	 * @param photo
 	 * @param rrnCertificate
 	 * @return
-	 * @throws NoSuchAlgorithmException 
+	 * @throws NoSuchAlgorithmException
 	 */
 	public Identity getVerifiedIdentity(final byte[] identityFile,
 			final byte[] identitySignatureFile, final byte[] photo,
@@ -137,8 +137,7 @@ public class BeIDIntegrity {
 		if (null != photo) {
 			final byte[] expectedPhotoDigest = identity.getPhotoDigest();
 			final byte[] actualPhotoDigest = digest(
-					guessSHAAlgoNameFromHashSize(expectedPhotoDigest.length),
-					photo);
+					getDigestAlgo(expectedPhotoDigest.length), photo);
 			if (false == Arrays.equals(expectedPhotoDigest, actualPhotoDigest)) {
 				throw new SecurityException("photo digest mismatch");
 			}
@@ -331,19 +330,19 @@ public class BeIDIntegrity {
 		return Arrays.equals(expectedDigestValue, actualDigestValue);
 	}
 
-	private String guessSHAAlgoNameFromHashSize(final int hashSize)
+	private String getDigestAlgo(final int hashSize)
 			throws NoSuchAlgorithmException {
 		switch (hashSize) {
-			case 20 :
-				return "SHA-1";
-			case 28 :
-				return "SHA-224";
-			case 32 :
-				return "SHA-256";
-			case 48 :
-				return "SHA-384";
-			case 64 :
-				return "SHA-512";
+		case 20:
+			return "SHA-1";
+		case 28:
+			return "SHA-224";
+		case 32:
+			return "SHA-256";
+		case 48:
+			return "SHA-384";
+		case 64:
+			return "SHA-512";
 		}
 
 		throw new NoSuchAlgorithmException(
