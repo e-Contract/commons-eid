@@ -29,8 +29,8 @@ import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
-public class BeIDCardsExercise {
-	private static final Log LOG = LogFactory.getLog(BeIDCardsExercise.class);
+public class BeIDCardsTest {
+	private static final Log LOG = LogFactory.getLog(BeIDCardsTest.class);
 
 	@Test
 	public void waitInsertAndRemove() throws Exception {

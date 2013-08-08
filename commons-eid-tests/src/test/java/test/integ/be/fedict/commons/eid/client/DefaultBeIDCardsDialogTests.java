@@ -27,14 +27,22 @@
  */
 
 package test.integ.be.fedict.commons.eid.client;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.smartcardio.ATR;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import test.integ.be.fedict.commons.eid.client.simulation.SimulatedCard;
 import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.BeIDCards;
+import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
+import be.fedict.commons.eid.consumer.Identity;
+import be.fedict.commons.eid.consumer.tlv.TlvParser;
 import be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI;
 
 public class DefaultBeIDCardsDialogTests {
@@ -46,9 +54,9 @@ public class DefaultBeIDCardsDialogTests {
 		this.simulatedBeIDCards = new ArrayList<BeIDCard>(numberOfCards);
 		for (int i = 0; i < numberOfCards; i++) {
 			this.simulatedBeIDCards.add(new BeIDCard(new SimulatedCard(new ATR(
-					new byte[]{0x3b, (byte) 0x98, (byte) i, 0x40, (byte) i,
+					new byte[] { 0x3b, (byte) 0x98, (byte) i, 0x40, (byte) i,
 							(byte) i, (byte) i, (byte) i, 0x01, 0x01,
-							(byte) 0xad, 0x13, 0x10}))));
+							(byte) 0xad, 0x13, 0x10 }))));
 		}
 	}
 
@@ -56,5 +64,14 @@ public class DefaultBeIDCardsDialogTests {
 	public void testCardSelection() throws Exception {
 		final BeIDCardsUI ui = new DefaultBeIDCardsUI();
 		ui.selectBeIDCard(this.simulatedBeIDCards);
+	}
+
+	@Test
+	public void testCardSelection2() throws Exception {
+		final BeIDCard card = new BeIDCards().getOneBeIDCard();
+		final byte[] identityData = card.readFile(FileType.Identity);
+		final Identity identity = TlvParser.parse(identityData, Identity.class);
+		System.out.println("chose " + identity.getName() + ", "
+				+ identity.getFirstName() + " " + identity.getMiddleName());
 	}
 }

@@ -31,8 +31,8 @@ import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.CCID;
 
-public class CCIDExercises {
-	private static final Log LOG = LogFactory.getLog(CCIDExercises.class);
+public class CCIDTest {
+	private static final Log LOG = LogFactory.getLog(CCIDTest.class);
 	private BeIDCards beIDCards;
 
 	@Test

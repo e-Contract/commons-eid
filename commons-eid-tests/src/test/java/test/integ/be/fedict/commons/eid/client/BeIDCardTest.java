@@ -47,8 +47,8 @@ import be.fedict.commons.eid.consumer.CardData;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.ByteArrayParser;
 
-public class BeIDCardExercises {
-	private static final Log LOG = LogFactory.getLog(BeIDCardExercises.class);
+public class BeIDCardTest {
+	private static final Log LOG = LogFactory.getLog(BeIDCardTest.class);
 	private BeIDCards beIDCards;
 
 	@Test
