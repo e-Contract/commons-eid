@@ -47,7 +47,7 @@ import be.fedict.commons.eid.client.spi.Sleeper;
  * BeIDCards handle user interaction (if any) through an instance of
  * BeIDCardsUI, which can be supplied at construction, or left to the supplied
  * default, which will instantiate a
- * be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI (which needs to be available
+ * be.fedict.commons.eid.dialogs.DefaultBeIDCardsUI (which needs to be available
  * on the class path)
  * 
  * @author Frank Marien
@@ -56,7 +56,7 @@ import be.fedict.commons.eid.client.spi.Sleeper;
 
 public class BeIDCards {
 	private static final String UI_MISSING_LOG_MESSAGE = "No BeIDCardsUI set and can't load DefaultBeIDCardsUI";
-	private static final String DEFAULT_UI_IMPLEMENTATION = "be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI";
+	private static final String DEFAULT_UI_IMPLEMENTATION = "be.fedict.commons.eid.dialogs.DefaultBeIDCardsUI";
 
 	private final Logger logger;
 	private CardAndTerminalManager cardAndTerminalManager;

@@ -100,7 +100,7 @@ public class BeIDCard {
 
 	private static final String UI_MISSING_LOG_MESSAGE = "No BeIDCardUI set and can't load DefaultBeIDCardUI";
 	private static final String UI_DEFAULT_REQUIRES_HEAD = "No BeIDCardUI set and DefaultBeIDCardUI requires a graphical environment";
-	private static final String DEFAULT_UI_IMPLEMENTATION = "be.fedict.eid.commons.dialogs.DefaultBeIDCardUI";
+	private static final String DEFAULT_UI_IMPLEMENTATION = "be.fedict.commons.eid.dialogs.DefaultBeIDCardUI";
 
 	private static final byte[] BELPIC_AID = new byte[]{(byte) 0xA0, 0x00,
 			0x00, 0x01, 0x77, 0x50, 0x4B, 0x43, 0x53, 0x2D, 0x31, 0x35,};
