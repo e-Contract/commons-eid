@@ -58,9 +58,9 @@ import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
 import be.fedict.commons.eid.client.spi.Logger;
-import be.fedict.eid.commons.dialogs.DefaultBeIDCardUI;
-import be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI;
-import be.fedict.eid.commons.dialogs.Messages;
+import be.fedict.commons.eid.dialogs.DefaultBeIDCardUI;
+import be.fedict.commons.eid.dialogs.DefaultBeIDCardsUI;
+import be.fedict.commons.eid.dialogs.Messages;
 
 /**
  * eID based JCA {@link KeyStore}. Used to load eID key material via standard

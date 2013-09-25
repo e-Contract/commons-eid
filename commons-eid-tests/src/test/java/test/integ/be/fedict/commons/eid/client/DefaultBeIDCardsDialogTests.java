@@ -43,7 +43,7 @@ import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
-import be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI;
+import be.fedict.commons.eid.dialogs.DefaultBeIDCardsUI;
 
 public class DefaultBeIDCardsDialogTests {
 	private static final int numberOfCards = 3;

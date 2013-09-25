@@ -27,7 +27,7 @@ import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
-import be.fedict.eid.commons.dialogs.DefaultBeIDCardsUI;
+import be.fedict.commons.eid.dialogs.DefaultBeIDCardsUI;
 
 public class LocaleTest {
 	@Test
