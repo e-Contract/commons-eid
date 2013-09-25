@@ -16,7 +16,7 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.eid.commons.dialogs;
+package be.fedict.commons.eid.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

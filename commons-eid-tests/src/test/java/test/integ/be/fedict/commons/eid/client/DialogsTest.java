@@ -28,8 +28,8 @@ import org.junit.Test;
 
 import be.fedict.commons.eid.client.PINPurpose;
 import be.fedict.commons.eid.client.spi.BeIDCardUI;
-import be.fedict.eid.commons.dialogs.DefaultBeIDCardUI;
-import be.fedict.eid.commons.dialogs.Messages;
+import be.fedict.commons.eid.dialogs.DefaultBeIDCardUI;
+import be.fedict.commons.eid.dialogs.Messages;
 
 public class DialogsTest {
 

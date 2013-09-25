@@ -16,7 +16,7 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.eid.commons.dialogs;
+package be.fedict.commons.eid.dialogs;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -33,7 +33,7 @@ import javax.swing.UIManager;
  */
 public class Messages {
 
-	public static final String RESOURCE_BUNDLE_NAME = "be.fedict.eid.commons.dialogs.Messages";
+	public static final String RESOURCE_BUNDLE_NAME = "be.fedict.commons.eid.dialogs.Messages";
 	private static Map<Locale, Messages> instances;
 
 	static {

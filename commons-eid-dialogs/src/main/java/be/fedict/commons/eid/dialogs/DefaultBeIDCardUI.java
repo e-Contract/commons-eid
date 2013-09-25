@@ -17,7 +17,7 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.eid.commons.dialogs;
+package be.fedict.commons.eid.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -53,7 +53,7 @@ import javax.swing.border.Border;
 import be.fedict.commons.eid.client.PINPurpose;
 import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.commons.eid.client.spi.UserCancelledException;
-import be.fedict.eid.commons.dialogs.Messages.MESSAGE_ID;
+import be.fedict.commons.eid.dialogs.Messages.MESSAGE_ID;
 
 /**
  * Default Implementation of BeIDCardUI Interface
