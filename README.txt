@@ -1,5 +1,5 @@
-README for FedICT Commons eID Project
-=====================================
+README for Commons eID Project
+==============================
 
 === 1. Introduction
 
