@@ -6,7 +6,7 @@
 		<artifactId>commons-eid</artifactId>
 		<version>0.5.1-SNAPSHOT</version>
 	</parent>
-	<name>Commons eID JCA</name>
+	<name>Commons eID JCA All</name>
 	<groupId>be.fedict.commons-eid</groupId>
 	<artifactId>commons-eid-jca-all</artifactId>
 	<description>eID based JCA security provider (shaded)</description>
