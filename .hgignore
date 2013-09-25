@@ -6,5 +6,6 @@ target
 *~
 *.iml
 .idea
+commons-eid-jca-all/dependency-reduced-pom.xml
 
 syntax: regexp
