@@ -16,7 +16,7 @@
  * http://www.gnu.org/licenses/.
  */
 
-package test.integ.be.fedict.commons.eid.consumer;
+package test.unit.be.fedict.commons.eid.consumer;
 
 import java.math.BigInteger;
 
