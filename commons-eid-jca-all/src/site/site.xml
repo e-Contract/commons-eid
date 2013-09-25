@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Commons eID JCA">
+<project name="Commons eID JCA All">
 	<body>
 		<menu name="Overview" inherit="top">
 			<item name="Introduction" href="index.html" />
