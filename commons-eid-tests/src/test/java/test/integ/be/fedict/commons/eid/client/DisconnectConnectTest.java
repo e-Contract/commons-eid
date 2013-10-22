@@ -42,7 +42,7 @@ public class DisconnectConnectTest {
 	@Test
 	public void testDisconnectConnect() throws Exception {
 		JOptionPane.showMessageDialog(null, "Connect card");
-		BeIDCards cards = new BeIDCards();
+		BeIDCards cards = new BeIDCards(new TestLogger());
 		// we ask all cards to avoid going through the default UI
 		BeIDCard card1 = cards.getAllBeIDCards().iterator().next();
 		Identity identity1 = readIdentity(card1);
