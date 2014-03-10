@@ -39,23 +39,31 @@ public class CCIDExercises {
 	public void listCCIDFeatures() throws Exception {
 		final BeIDCard beIDCard = getBeIDCard();
 		beIDCard.addCardListener(new TestBeIDCardListener());
-		
+
 		for (CCID.FEATURE feature : CCID.FEATURE.values()) {
-			LOG.info(feature.name() + "\t" + (beIDCard.cardTerminalHasCCIDFeature(feature)?"AVAILABLE":"NOT AVAILABLE"));
+			LOG.info(feature.name()
+					+ "\t"
+					+ (beIDCard.cardTerminalHasCCIDFeature(feature)
+							? "AVAILABLE"
+							: "NOT AVAILABLE"));
 		}
 	}
-	
+
 	@Test
-  public void listCCIDFeaturesWithPPDU() throws Exception {
-	  CCID.riskPPDU(true);
-    final BeIDCard beIDCard = getBeIDCard();
-    beIDCard.addCardListener(new TestBeIDCardListener());
-    
-    for (CCID.FEATURE feature : CCID.FEATURE.values()) {
-      LOG.info(feature.name() + "\t" + (beIDCard.cardTerminalHasCCIDFeature(feature)?"AVAILABLE":"NOT AVAILABLE"));
-    }
-  }
-		
+	public void listCCIDFeaturesWithPPDU() throws Exception {
+		CCID.riskPPDU(true);
+		final BeIDCard beIDCard = getBeIDCard();
+		beIDCard.addCardListener(new TestBeIDCardListener());
+
+		for (CCID.FEATURE feature : CCID.FEATURE.values()) {
+			LOG.info(feature.name()
+					+ "\t"
+					+ (beIDCard.cardTerminalHasCCIDFeature(feature)
+							? "AVAILABLE"
+							: "NOT AVAILABLE"));
+		}
+	}
+
 	protected BeIDCard getBeIDCard() {
 		this.beIDCards = new BeIDCards(new TestLogger());
 		BeIDCard beIDCard = null;

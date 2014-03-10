@@ -22,9 +22,9 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.impl.CCID;
 
 public class BeIDCardTestPPDU extends BeIDCardTest {
-	
+
 	protected BeIDCard getBeIDCard() {
-	  CCID.riskPPDU(true);
+		CCID.riskPPDU(true);
 		return super.getBeIDCard();
 	}
 }
