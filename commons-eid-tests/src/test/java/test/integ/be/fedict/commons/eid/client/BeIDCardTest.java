@@ -49,7 +49,7 @@ import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.ByteArrayParser;
 
 public class BeIDCardTest {
-  protected static final Log LOG = LogFactory.getLog(BeIDCardTest.class);
+	protected static final Log LOG = LogFactory.getLog(BeIDCardTest.class);
 	protected BeIDCards beIDCards;
 
 	@Test
