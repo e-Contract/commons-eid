@@ -41,6 +41,7 @@ import be.fedict.commons.eid.client.BeIDCardsException;
 import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
+import be.fedict.commons.eid.client.impl.CCID;
 import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
 import be.fedict.commons.eid.consumer.CardData;
@@ -48,8 +49,8 @@ import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.ByteArrayParser;
 
 public class BeIDCardTest {
-	private static final Log LOG = LogFactory.getLog(BeIDCardTest.class);
-	private BeIDCards beIDCards;
+  protected static final Log LOG = LogFactory.getLog(BeIDCardTest.class);
+	protected BeIDCards beIDCards;
 
 	@Test
 	public void testReadFiles() throws Exception {
@@ -228,7 +229,7 @@ public class BeIDCardTest {
 	// beIDCard.unblockPin(true);
 	// }
 
-	private BeIDCard getBeIDCard() {
+	protected BeIDCard getBeIDCard() {
 		this.beIDCards = new BeIDCards(new TestLogger());
 		BeIDCard beIDCard = null;
 		try {
