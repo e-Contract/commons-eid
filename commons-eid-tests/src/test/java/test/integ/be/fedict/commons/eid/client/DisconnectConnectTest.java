@@ -46,8 +46,8 @@ public class DisconnectConnectTest {
 		// we ask all cards to avoid going through the default UI
 		BeIDCard card1 = cards.getAllBeIDCards().iterator().next();
 		Identity identity1 = readIdentity(card1);
-		JOptionPane.showMessageDialog(null,
-				"Card read: " + identity1.getFirstName());
+		JOptionPane.showMessageDialog(null, "Card read: "
+				+ identity1.getFirstName());
 		card1.close();
 		cards.close();
 		JOptionPane.showMessageDialog(null,
@@ -55,8 +55,8 @@ public class DisconnectConnectTest {
 		cards = new BeIDCards();
 		BeIDCard card2 = cards.getAllBeIDCards().iterator().next();
 		Identity identity2 = readIdentity(card2);
-		JOptionPane.showMessageDialog(null,
-				"Card read: " + identity2.getFirstName());
+		JOptionPane.showMessageDialog(null, "Card read: "
+				+ identity2.getFirstName());
 		cards.close();
 	}
 
