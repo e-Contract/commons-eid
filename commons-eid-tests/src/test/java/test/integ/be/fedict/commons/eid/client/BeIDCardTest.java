@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2014 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -20,10 +21,8 @@ package test.integ.be.fedict.commons.eid.client;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
 
 import java.io.ByteArrayInputStream;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -41,12 +40,9 @@ import be.fedict.commons.eid.client.BeIDCardsException;
 import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
-import be.fedict.commons.eid.client.impl.CCID;
 import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
-import be.fedict.commons.eid.consumer.CardData;
 import be.fedict.commons.eid.consumer.Identity;
-import be.fedict.commons.eid.consumer.tlv.ByteArrayParser;
 
 public class BeIDCardTest {
 	protected static final Log LOG = LogFactory.getLog(BeIDCardTest.class);
@@ -168,8 +164,41 @@ public class BeIDCardTest {
 
 		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		final boolean result = beIDIntegrity.verifySignature(
-				"SHA1withRSAandMGF1", signatureValue, authnCertificate
-						.getPublicKey(), toBeSigned);
+				"SHA1withRSAandMGF1", signatureValue,
+				authnCertificate.getPublicKey(), toBeSigned);
+
+		assertTrue(result);
+	}
+
+	@Test
+	public void testPSSSignatureSHA256() throws Exception {
+		final BeIDCard beIDCard = getBeIDCard();
+
+		final byte[] toBeSigned = new byte[10];
+		final SecureRandom secureRandom = new SecureRandom();
+		secureRandom.nextBytes(toBeSigned);
+
+		final X509Certificate authnCertificate = beIDCard
+				.getAuthenticationCertificate();
+
+		final MessageDigest messageDigest = MessageDigest
+				.getInstance("SHA-256");
+		final byte[] digestValue = messageDigest.digest(toBeSigned);
+
+		byte[] signatureValue;
+		try {
+			signatureValue = beIDCard.sign(digestValue, BeIDDigest.SHA_256_PSS,
+					FileType.AuthentificationCertificate, false);
+		} finally {
+			beIDCard.close();
+		}
+
+		Security.addProvider(new BouncyCastleProvider());
+
+		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		final boolean result = beIDIntegrity.verifySignature(
+				"SHA256withRSAandMGF1", signatureValue,
+				authnCertificate.getPublicKey(), toBeSigned);
 
 		assertTrue(result);
 	}
@@ -247,16 +276,14 @@ public class BeIDCardTest {
 				@Override
 				public void notifySigningBegin(final FileType keyType) {
 					LOG.debug("signing with "
-							+ (keyType == FileType.AuthentificationCertificate
-									? "authentication"
+							+ (keyType == FileType.AuthentificationCertificate ? "authentication"
 									: "non-repudiation") + " key has begun");
 				}
 
 				@Override
 				public void notifySigningEnd(final FileType keyType) {
 					LOG.debug("signing with "
-							+ (keyType == FileType.AuthentificationCertificate
-									? "authentication"
+							+ (keyType == FileType.AuthentificationCertificate ? "authentication"
 									: "non-repudiation") + " key has ended");
 				}
 			});
