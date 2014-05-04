@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2014 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -170,9 +171,8 @@ public class JCATest {
 		signature.sign();
 	}
 
-	private static class MyFrame extends JFrame
-			implements
-				KeyStore.LoadStoreParameter {
+	private static class MyFrame extends JFrame implements
+			KeyStore.LoadStoreParameter {
 
 		private static final long serialVersionUID = 1L;
 
@@ -485,6 +485,31 @@ public class JCATest {
 	}
 
 	@Test
+	public void testPSS256() throws Exception {
+		Security.addProvider(new BeIDProvider());
+		Security.addProvider(new BouncyCastleProvider());
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+				"Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore
+				.getCertificate("Authentication");
+		PublicKey authnPublicKey = authnCertificate.getPublicKey();
+
+		Signature signature = Signature.getInstance("SHA256withRSAandMGF1");
+		signature.initSign(authnPrivateKey);
+
+		byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		byte[] signatureValue = signature.sign();
+
+		signature.initVerify(authnPublicKey);
+		signature.update(toBeSigned);
+		boolean result = signature.verify(signatureValue);
+		assertTrue(result);
+	}
+
+	@Test
 	public void testSoftwareRSAKeyWrapping() throws Exception {
 		final KeyPairGenerator keyPairGenerator = KeyPairGenerator
 				.getInstance("RSA");
@@ -496,9 +521,7 @@ public class JCATest {
 
 		final Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.WRAP_MODE, keyPair.getPublic());
-		LOG
-				.debug("cipher security provider: "
-						+ cipher.getProvider().getName());
+		LOG.debug("cipher security provider: " + cipher.getProvider().getName());
 		LOG.debug("cipher type: " + cipher.getClass().getName());
 		final byte[] wrappedKey = cipher.wrap(secretKey);
 
