@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2014 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -33,6 +34,7 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -84,6 +86,32 @@ public class SSLTest {
 	private static final Log LOG = LogFactory.getLog(SSLTest.class);
 
 	@Test
+	public void testTestEIDBelgiumBe() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		SSLContext sslContext = SSLContext.getInstance("TLS");
+		KeyManagerFactory keyManagerFactory = KeyManagerFactory
+				.getInstance("BeID");
+
+		keyManagerFactory.init(null);
+		SecureRandom secureRandom = new SecureRandom();
+		sslContext.init(keyManagerFactory.getKeyManagers(),
+				new TrustManager[] { new ClientTestX509TrustManager() },
+				secureRandom);
+		SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+		SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(
+				"test.eid.belgium.be", 443);
+		LOG.debug("socket created");
+		SSLSession sslSession = sslSocket.getSession();
+		Certificate[] peerCertificates = sslSession.getPeerCertificates();
+		for (Certificate peerCertificate : peerCertificates) {
+			LOG.debug("peer certificate: "
+					+ ((X509Certificate) peerCertificate)
+							.getSubjectX500Principal());
+		}
+	}
+
+	@Test
 	public void testMutualSSL() throws Exception {
 
 		Security.addProvider(new BeIDProvider());
@@ -99,8 +127,8 @@ public class SSLTest {
 				serverPrivateKey, serverCertificate);
 		final TrustManager trustManager = new ServerTestX509TrustManager();
 		final SSLContext sslContext = SSLContext.getInstance("TLS");
-		sslContext.init(new KeyManager[]{keyManager},
-				new TrustManager[]{trustManager}, new SecureRandom());
+		sslContext.init(new KeyManager[] { keyManager },
+				new TrustManager[] { trustManager }, new SecureRandom());
 
 		final SSLServerSocketFactory sslServerSocketFactory = sslContext
 				.getServerSocketFactory();
@@ -167,10 +195,10 @@ public class SSLTest {
 			spec.setCardReaderStickiness(true);
 
 			keyManagerFactory.init(spec);
-			//SecureRandom secureRandom = SecureRandom.getInstance("BeID");
+			// SecureRandom secureRandom = SecureRandom.getInstance("BeID");
 			SecureRandom secureRandom = new SecureRandom();
 			sslContext.init(keyManagerFactory.getKeyManagers(),
-					new TrustManager[]{new ClientTestX509TrustManager()},
+					new TrustManager[] { new ClientTestX509TrustManager() },
 					secureRandom);
 			final SSLSocketFactory sslSocketFactory = sslContext
 					.getSocketFactory();
@@ -190,9 +218,8 @@ public class SSLTest {
 		}
 	}
 
-	private static final class ClientTestX509TrustManager
-			implements
-				X509TrustManager {
+	private static final class ClientTestX509TrustManager implements
+			X509TrustManager {
 
 		private static final Log LOG = LogFactory
 				.getLog(ClientTestX509TrustManager.class);
@@ -217,9 +244,8 @@ public class SSLTest {
 
 	}
 
-	private static final class ServerTestX509TrustManager
-			implements
-				X509TrustManager {
+	private static final class ServerTestX509TrustManager implements
+			X509TrustManager {
 
 		private static final Log LOG = LogFactory
 				.getLog(ServerTestX509TrustManager.class);
@@ -240,14 +266,13 @@ public class SSLTest {
 		@Override
 		public X509Certificate[] getAcceptedIssuers() {
 			LOG.debug("getAcceptedIssuers");
-			return new X509Certificate[]{};
+			return new X509Certificate[] {};
 		}
 
 	}
 
-	private static final class ServerTestX509KeyManager
-			implements
-				X509KeyManager {
+	private static final class ServerTestX509KeyManager implements
+			X509KeyManager {
 		private static final Log LOG = LogFactory
 				.getLog(ServerTestX509KeyManager.class);
 
@@ -284,7 +309,7 @@ public class SSLTest {
 			if (false == alias.equals("test-server")) {
 				return null;
 			}
-			return new X509Certificate[]{this.serverCertificate};
+			return new X509Certificate[] { this.serverCertificate };
 		}
 
 		@Override
