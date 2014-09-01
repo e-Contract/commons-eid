@@ -10,12 +10,12 @@
 	<distributionManagement>
 		<repository>
 			<id>e-contract-deploy</id>
-			<url>scp://e-contract.be/maven2</url>
+			<url>sftp://e-contract.be/maven2</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
 		<site>
 			<id>e-contract-site</id>
-			<url>scp://e-contract.be/sites/commons-eid/</url>
+			<url>sftp://e-contract.be/sites/commons-eid/</url>
 		</site>
 	</distributionManagement>
 	<build>
@@ -29,17 +29,17 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>2.4.1</version>
+					<version>2.5</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.7</version>
+					<version>2.8.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>2.2.1</version>
+					<version>2.3</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -52,7 +52,7 @@
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
 				<artifactId>wagon-ssh</artifactId>
-				<version>2.4</version>
+				<version>2.6</version>
 			</extension>
 		</extensions>
 	</build>
