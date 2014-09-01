@@ -139,6 +139,16 @@ public class BeIDCardTest {
 	}
 
 	@Test
+	public void testRRNCertificate() throws Exception {
+		final BeIDCard beIDCard = getBeIDCard();
+
+		final X509Certificate rrnCertificate = beIDCard.getRRNCertificate();
+
+		assertNotNull(rrnCertificate);
+		LOG.debug("RRN certificate: " + rrnCertificate);
+	}
+
+	@Test
 	public void testPSSSignature() throws Exception {
 		final BeIDCard beIDCard = getBeIDCard();
 

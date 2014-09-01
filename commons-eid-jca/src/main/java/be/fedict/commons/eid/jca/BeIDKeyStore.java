@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2014 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -72,8 +73,9 @@ import be.fedict.commons.eid.dialogs.Messages;
  * <li>"Signature" which gives you access to the eID non-repudiation private key
  * and corresponding certificate chain.</li>
  * </ul>
- * Further the Citizen CA certificate can be accessed via the "CA" alias and the
- * Root CA certificate can be accessed via the "Root" alias.
+ * Further the Citizen CA certificate can be accessed via the "CA" alias, the
+ * Root CA certificate can be accessed via the "Root" alias, and the national
+ * registration certificate can be accessed via the "RRN" alias.
  * <p/>
  * Supports the eID specific {@link BeIDKeyStoreParameter} key store parameter.
  * You can also let any {@link JFrame} implement the
@@ -115,6 +117,8 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	private List<X509Certificate> signCertificateChain;
 
+	private List<X509Certificate> rrnCertificateChain;
+
 	private X509Certificate citizenCaCertificate;
 
 	private X509Certificate rootCaCertificate;
@@ -122,6 +126,8 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	private X509Certificate authnCertificate;
 
 	private X509Certificate signCertificate;
+
+	private X509Certificate rrnCertificate;
 
 	private CardTerminal cardTerminal;
 
@@ -172,7 +178,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				LOG.error("error: " + ex.getMessage(), ex);
 				return null;
 			}
-			return this.signCertificateChain.toArray(new X509Certificate[]{});
+			return this.signCertificateChain.toArray(new X509Certificate[] {});
 		}
 		if ("Authentication".equals(alias)) {
 			try {
@@ -188,7 +194,21 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				LOG.error("error: " + ex.getMessage(), ex);
 				return null;
 			}
-			return this.authnCertificateChain.toArray(new X509Certificate[]{});
+			return this.authnCertificateChain.toArray(new X509Certificate[] {});
+		}
+		if ("RRN".equals(alias)) {
+			if (null == this.rrnCertificateChain) {
+				try {
+					this.rrnCertificateChain = beIDCard
+							.getRRNCertificateChain();
+				} catch (Exception e) {
+					LOG.error("error: " + e.getMessage(), e);
+					return null;
+				}
+				this.rrnCertificate = this.rrnCertificateChain.get(0);
+				this.rootCaCertificate = this.rrnCertificateChain.get(1);
+			}
+			return this.rrnCertificateChain.toArray(new X509Certificate[] {});
 		}
 		return null;
 	}
@@ -242,6 +262,17 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			}
 			return this.rootCaCertificate;
 		}
+		if ("RRN".equals(alias)) {
+			try {
+				if (null == this.rrnCertificate) {
+					this.rrnCertificate = beIDCard.getRRNCertificate();
+				}
+			} catch (Exception e) {
+				LOG.warn("error: " + e.getMessage(), e);
+				return null;
+			}
+			return this.rrnCertificate;
+		}
 		return null;
 	}
 
@@ -287,6 +318,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		aliases.add("Signature");
 		aliases.add("CA");
 		aliases.add("Root");
+		aliases.add("RRN");
 		return aliases.elements();
 	}
 
@@ -303,6 +335,9 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			return true;
 		}
 		if ("CA".equals(alias)) {
+			return true;
+		}
+		if ("RRN".equals(alias)) {
 			return true;
 		}
 		return false;
@@ -334,6 +369,9 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		if ("CA".equals(alias)) {
 			return true;
 		}
+		if ("RRN".equals(alias)) {
+			return true;
+		}
 		return false;
 	}
 
@@ -356,7 +394,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 					chain);
 			return privateKeyEntry;
 		}
-		if ("CA".equals(alias) || "Root".equals(alias)) {
+		if ("CA".equals(alias) || "Root".equals(alias) || "RRN".equals(alias)) {
 			Certificate certificate = engineGetCertificate(alias);
 			TrustedCertificateEntry trustedCertificateEntry = new TrustedCertificateEntry(
 					certificate);
@@ -398,16 +436,18 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	public void engineLoad(final LoadStoreParameter param) throws IOException,
 			NoSuchAlgorithmException, CertificateException {
 		LOG.debug("engineLoad"); /*
-									 * Allows for a KeyStore to be re-loaded several
-									 * times.
-									 */
+								 * Allows for a KeyStore to be re-loaded several
+								 * times.
+								 */
 		this.beIDCard = null;
 		this.authnCertificateChain = null;
 		this.signCertificateChain = null;
+		this.rrnCertificateChain = null;
 		this.authnCertificate = null;
 		this.signCertificate = null;
 		this.citizenCaCertificate = null;
 		this.rootCaCertificate = null;
+		this.rrnCertificate = null;
 		if (null == param) {
 			return;
 		}
