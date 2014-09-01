@@ -10,8 +10,8 @@ The source code is hosted at: http://code.google.com/p/commons-eid/
 === 2. Requirements
 
 The following is required for compiling the Commons eID software:
-* Oracle Java 1.6.0_45
-* Apache Maven 3.1.0
+* Oracle Java 1.7.0_67
+* Apache Maven 3.2.2
 * Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy
 
 
