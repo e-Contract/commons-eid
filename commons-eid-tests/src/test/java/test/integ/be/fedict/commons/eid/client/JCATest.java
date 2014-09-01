@@ -30,6 +30,7 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyStore.Entry;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore.ProtectionParameter;
 import java.security.KeyStore.TrustedCertificateEntry;
@@ -309,6 +310,8 @@ public class JCATest {
 				.getCertificate("CA");
 		X509Certificate rootCACertificate = (X509Certificate) keyStore
 				.getCertificate("Root");
+		X509Certificate rrnCertificate = (X509Certificate) keyStore
+				.getCertificate("RRN");
 
 		// verify
 		assertNotNull(citizenCACertificate);
@@ -316,6 +319,44 @@ public class JCATest {
 				+ citizenCACertificate.getSubjectX500Principal());
 		assertNotNull(rootCACertificate);
 		LOG.debug("root CA: " + rootCACertificate.getSubjectX500Principal());
+		assertNotNull(rrnCertificate);
+		assertTrue(rrnCertificate.getSubjectX500Principal().toString()
+				.contains("RRN"));
+	}
+
+	@Test
+	public void testRRNCertificate() throws Exception {
+		// setup
+		Security.addProvider(new BeIDProvider());
+		final KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+
+		// operate
+		assertTrue(keyStore.containsAlias("RRN"));
+		Entry entry = keyStore.getEntry("RRN", null);
+		assertNotNull(entry);
+		assertTrue(entry instanceof TrustedCertificateEntry);
+		TrustedCertificateEntry trustedCertificateEntry = (TrustedCertificateEntry) entry;
+		assertNotNull(trustedCertificateEntry.getTrustedCertificate());
+		assertTrue(((X509Certificate) trustedCertificateEntry
+				.getTrustedCertificate()).getSubjectX500Principal().toString()
+				.contains("RRN"));
+		assertNotNull(keyStore.getCertificate("RRN"));
+		Certificate[] certificateChain = keyStore.getCertificateChain("RRN");
+		assertNotNull(certificateChain);
+		assertEquals(2, certificateChain.length);
+		LOG.debug("RRN subject: "
+				+ ((X509Certificate) certificateChain[0])
+						.getSubjectX500Principal());
+		LOG.debug("RRN issuer: "
+				+ ((X509Certificate) certificateChain[0])
+						.getIssuerX500Principal());
+		LOG.debug("root subject: "
+				+ ((X509Certificate) certificateChain[1])
+						.getSubjectX500Principal());
+		LOG.debug("root issuer: "
+				+ ((X509Certificate) certificateChain[1])
+						.getIssuerX500Principal());
 	}
 
 	@Test
