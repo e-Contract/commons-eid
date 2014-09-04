@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2012-2013 FedICT.
+ * Copyright (C) 2014 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -37,7 +38,8 @@ public class BeIDCardUIAdapter implements BeIDCardUI {
 	protected Locale locale;
 
 	@Override
-	public char[] obtainPIN(final int triesLeft, final PINPurpose type) {
+	public char[] obtainPIN(final int triesLeft, final PINPurpose type)
+			throws UserCancelledException {
 		throw new RuntimeException(OPERATION_CANCELLED);
 	}
 
