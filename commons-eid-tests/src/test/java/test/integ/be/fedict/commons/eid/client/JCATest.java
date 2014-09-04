@@ -63,6 +63,7 @@ import org.junit.Test;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
+import be.fedict.commons.eid.client.impl.CCID;
 import be.fedict.commons.eid.consumer.jca.ProxyPrivateKey;
 import be.fedict.commons.eid.consumer.jca.ProxyProvider;
 import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
@@ -390,6 +391,28 @@ public class JCATest {
 
 	@Test
 	public void testNonRepudiationSignature() throws Exception {
+		Security.addProvider(new BeIDProvider());
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature",
+				null);
+		Signature signature = Signature.getInstance("SHA1withRSA");
+		signature.initSign(signPrivateKey);
+		byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		byte[] signatureValue = signature.sign();
+		assertNotNull(signatureValue);
+
+		Certificate[] signCertificateChain = keyStore
+				.getCertificateChain("Signature");
+		assertNotNull(signCertificateChain);
+	}
+	
+	@Test
+	public void testNonRepudiationSignaturePPDU() throws Exception {
+		
+		CCID.riskPPDU(true);
+		
 		Security.addProvider(new BeIDProvider());
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
