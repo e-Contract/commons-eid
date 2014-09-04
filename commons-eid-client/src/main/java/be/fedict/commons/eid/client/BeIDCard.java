@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2014 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -1088,7 +1089,7 @@ public class BeIDCard {
 		if (responseAPDU.getSW() != 0x9000)
 			throw new CardException("PPDU Command Failed: ResponseAPDU="
 					+ responseAPDU.getSW());
-		return responseAPDU.getData();
+		return responseAPDU.getBytes();
 	}
 
 	protected ResponseAPDU transmitCommand(final BeIDCommandAPDU apdu,
