@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2014 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -260,7 +261,7 @@ public class CCID {
 			final byte[] command) throws CardException {
 		ResponseAPDU responseAPDU = card.getBasicChannel().transmit(
 				new CommandAPDU((byte) 0xff, (byte) 0xc2, 0x01, controlCode,
-						command, 32));
+						command));
 		if (responseAPDU.getSW() != 0x9000)
 			throw new CardException("PPDU Command Failed: ResponseAPDU="
 					+ responseAPDU.getSW());
