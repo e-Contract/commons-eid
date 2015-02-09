@@ -92,8 +92,9 @@ public class JCATest {
 		signature.sign();
 	}
 
-	private static class MyFrame extends JFrame implements
-			KeyStore.LoadStoreParameter {
+	private static class MyFrame extends JFrame
+			implements
+				KeyStore.LoadStoreParameter {
 
 		private static final long serialVersionUID = 1L;
 

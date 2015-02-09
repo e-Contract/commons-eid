@@ -90,7 +90,7 @@ public class DateOfBirthDataConvertor
 
 	private static final String[][] MONTHS = new String[][]{
 			new String[]{"JAN"}, new String[]{"FEV", "FEB"},
-			new String[]{"MARS", "MAAR", "M??R"}, new String[]{"AVR", "APR"},
+			new String[]{"MARS", "MAAR", "MÄR"}, new String[]{"AVR", "APR"},
 			new String[]{"MAI", "MEI"}, new String[]{"JUIN", "JUN"},
 			new String[]{"JUIL", "JUL"}, new String[]{"AOUT", "AUG"},
 			new String[]{"SEPT", "SEP"}, new String[]{"OCT", "OKT"},

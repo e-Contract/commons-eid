@@ -108,9 +108,10 @@ public class BeIDManagerFactoryParameters implements ManagerFactoryParameters {
 	}
 
 	/**
-	 * Sets whether the auto recovery should use card reader stickiness.
-	 * If set to true, the auto recovery will try to recover using the same card reader.
-	 *
+	 * Sets whether the auto recovery should use card reader stickiness. If set
+	 * to true, the auto recovery will try to recover using the same card
+	 * reader.
+	 * 
 	 * @param cardReaderStickiness
 	 */
 	public void setCardReaderStickiness(boolean cardReaderStickiness) {

@@ -40,62 +40,71 @@ public class MixedDetectionExamples
 			CardEventsListener,
 			CardTerminalEventsListener {
 	private void demonstrate() throws InterruptedException {
-		//-------------------------------------------------------------------------------------------------------
-		// instantiate a CardAndTerminalManager with default settings (no logging, default timeout)
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// instantiate a CardAndTerminalManager with default settings (no
+		// logging, default timeout)
+		// -------------------------------------------------------------------------------------------------------
 		final CardAndTerminalManager cardAndTerminalManager = new CardAndTerminalManager();
 
-		//-------------------------------------------------------------------------------------------------------
-		// instantiate a BeIDCardManager, pass it our CardAndTerminalManager to use
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// instantiate a BeIDCardManager, pass it our CardAndTerminalManager to
+		// use
+		// -------------------------------------------------------------------------------------------------------
 		final BeIDCardManager beIDCardManager = new BeIDCardManager(
 				cardAndTerminalManager);
 
-		//-------------------------------------------------------------------------------------------------------	
-		// register ourselves as BeIDCardEventsListener to get BeID card insert and remove events
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// register ourselves as BeIDCardEventsListener to get BeID card insert
+		// and remove events
+		// -------------------------------------------------------------------------------------------------------
 		beIDCardManager.addBeIDCardEventListener(this);
 
-		//-------------------------------------------------------------------------------------------------------	
-		// register ourselves as CardEventsListener to the BeIDCardManager, to get events of *other* cards
-		// being inserted/removed (if we would register ourselves to the CardAndTerminalManager
-		// for this, we would get 2 events when a BeID was inserted, one for the BeID, one for the Card by itself,
-		// because CardAndTerminalManager cannot distinguish between them, and BeIDCardManager can)
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// register ourselves as CardEventsListener to the BeIDCardManager, to
+		// get events of *other* cards
+		// being inserted/removed (if we would register ourselves to the
+		// CardAndTerminalManager
+		// for this, we would get 2 events when a BeID was inserted, one for the
+		// BeID, one for the Card by itself,
+		// because CardAndTerminalManager cannot distinguish between them, and
+		// BeIDCardManager can)
+		// -------------------------------------------------------------------------------------------------------
 		beIDCardManager.addOtherCardEventListener(this);
-		//  ^^^^^^^^^^^^^^^  // see above	
+		// ^^^^^^^^^^^^^^^ // see above
 
-		//-------------------------------------------------------------------------------------------------------	
-		// register ourselves as CardTerminalEventsListener to get CardTerminal attach and detach events
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// register ourselves as CardTerminalEventsListener to get CardTerminal
+		// attach and detach events
+		// -------------------------------------------------------------------------------------------------------
 		cardAndTerminalManager.addCardTerminalListener(this);
 
 		System.out
 				.println("First, you'll see events for terminals and Cards that were already present");
 
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
 		// start the BeIDCardManager instance
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
 		beIDCardManager.start();
 
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
 		// start the CardAndTerminalManager
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
 		cardAndTerminalManager.start();
 
-		//-------------------------------------------------------------------------------------------------------
-		// the main thread goes off and does other things (for this example, just loop and sleep)
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// the main thread goes off and does other things (for this example,
+		// just loop and sleep)
+		// -------------------------------------------------------------------------------------------------------
 		for (;;) {
 			Thread.sleep(2000);
 		}
 	}
 
-	//------------------------------------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------------
 
-	//------------------------------------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------------
 	// these respond to CardTerminals being attached and detached
-	//------------------------------------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------------
 
 	@Override
 	public void terminalAttached(final CardTerminal cardTerminal) {
@@ -115,9 +124,9 @@ public class MixedDetectionExamples
 				.println("From now on you'll see terminals being Attached/Detached");
 	}
 
-	//------------------------------------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------------
 	// these respond to BeID cards being inserted and removed
-	//------------------------------------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------------
 
 	@Override
 	public void eIDCardRemoved(final CardTerminal cardTerminal,
@@ -139,10 +148,11 @@ public class MixedDetectionExamples
 				.println("From now on you'll see BeID Cards being Inserted/Removed");
 	}
 
-	//------------------------------------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------------
 	// these respond to non-BeID cards being inserted and removed
-	// (because we registered with a BeIDCardManager, not a CardAndTerminalManager)
-	//------------------------------------------------------------------------------------------------------------
+	// (because we registered with a BeIDCardManager, not a
+	// CardAndTerminalManager)
+	// ------------------------------------------------------------------------------------------------------------
 
 	@Override
 	public void cardInserted(final CardTerminal cardTerminal, final Card card) {
@@ -169,7 +179,7 @@ public class MixedDetectionExamples
 				.println("From now on you'll see Non-BeID Cards being Inserted/Removed");
 	}
 
-	//-------------------------------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------------------------------
 
 	public static void main(final String[] args) throws InterruptedException {
 		new MixedDetectionExamples().demonstrate();

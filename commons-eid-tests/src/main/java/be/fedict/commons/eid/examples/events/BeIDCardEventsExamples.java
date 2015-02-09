@@ -26,18 +26,20 @@ import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 public class BeIDCardEventsExamples {
 
 	/*
-	 * get information about BeID cards being inserted and removed, while doing something else:
+	 * get information about BeID cards being inserted and removed, while doing
+	 * something else:
 	 */
 	public BeIDCardEventsExamples demonstrate_basic_asynchronous_usage()
 			throws InterruptedException {
-		//-------------------------------------------------------------------------------------------------------
-		// instantiate a BeIDCardManager with default settings (no logging, private CardAndTerminalManager)
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// instantiate a BeIDCardManager with default settings (no logging,
+		// private CardAndTerminalManager)
+		// -------------------------------------------------------------------------------------------------------
 		final BeIDCardManager beIDCardManager = new BeIDCardManager();
 
-		//-------------------------------------------------------------------------------------------------------	
+		// -------------------------------------------------------------------------------------------------------
 		// register a BeIDCardManagerListener
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
 		beIDCardManager.addBeIDCardEventListener(new BeIDCardEventsListener() {
 			@Override
 			public void eIDCardRemoved(final CardTerminal cardTerminal,
@@ -63,20 +65,21 @@ public class BeIDCardEventsExamples {
 		System.out
 				.println("First, you'll see Inserted events for BeID Cards that were already inserted");
 
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
 		// start the BeIDCardManager instance.
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
 		beIDCardManager.start();
 
-		//-------------------------------------------------------------------------------------------------------
-		// the main thread goes off and does other things (for this example, just loop and sleep)
-		//-------------------------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------
+		// the main thread goes off and does other things (for this example,
+		// just loop and sleep)
+		// -------------------------------------------------------------------------------------------------------
 		for (;;) {
 			Thread.sleep(2000);
 		}
 	}
 
-	//-------------------------------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------------------------------
 
 	public static void main(final String[] args) throws InterruptedException {
 		final BeIDCardEventsExamples examples = new BeIDCardEventsExamples();

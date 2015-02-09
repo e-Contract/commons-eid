@@ -50,8 +50,8 @@ public class CMSTest {
 		X509Certificate certificate = (X509Certificate) keyStore
 				.getCertificate("Authentication");
 
-		CMSTypedData msg = new CMSProcessableByteArray("Hello world!"
-				.getBytes());
+		CMSTypedData msg = new CMSProcessableByteArray(
+				"Hello world!".getBytes());
 
 		CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
 		ContentSigner sha1Signer = new JcaContentSignerBuilder("SHA1withRSA")

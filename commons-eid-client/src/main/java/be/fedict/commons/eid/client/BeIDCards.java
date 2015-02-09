@@ -81,8 +81,8 @@ public class BeIDCards {
 	 * @param ui
 	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
 	 *            that will be called upon for any user interaction required to
-	 *            handle other calls.  The UI's Locale will be used globally for
-	 *            subsequent UI actions, as if setLocale() was called, except 
+	 *            handle other calls. The UI's Locale will be used globally for
+	 *            subsequent UI actions, as if setLocale() was called, except
 	 *            where the Locale is explicity set for individual BeIDCard
 	 *            instances.
 	 */
@@ -111,7 +111,7 @@ public class BeIDCards {
 	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
 	 *            that will be called upon for any user interaction required to
 	 *            handle other calls. The UI's Locale will be used globally for
-	 *            subsequent UI actions, as if setLocale() was called, except 
+	 *            subsequent UI actions, as if setLocale() was called, except
 	 *            where the Locale is explicity set for individual BeIDCard
 	 *            instances.
 	 */
@@ -388,15 +388,15 @@ public class BeIDCards {
 	}
 
 	/**
-	 * Set the Locale to use for subsequent UI operations. 
-	 * BeIDCards and BeIDCardManager share the same global Locale,
-	 * so this will impact and and all instances of either.
-	 * BeIDCard instances may have individual, per-instance Locale settings, 
-	 * however.
-	 * @param newLocale will be used globally for
-	 *        subsequent UI actions, as if setLocale() was called, except 
-	 *        where the Locale is explicity set for individual BeIDCard
-	 *        instances.
+	 * Set the Locale to use for subsequent UI operations. BeIDCards and
+	 * BeIDCardManager share the same global Locale, so this will impact and and
+	 * all instances of either. BeIDCard instances may have individual,
+	 * per-instance Locale settings, however.
+	 * 
+	 * @param newLocale
+	 *            will be used globally for subsequent UI actions, as if
+	 *            setLocale() was called, except where the Locale is explicity
+	 *            set for individual BeIDCard instances.
 	 * @return this BeIDCards, to allow method chaining
 	 */
 	public BeIDCards setLocale(Locale newLocale) {
@@ -469,7 +469,8 @@ public class BeIDCards {
 		}
 	}
 
-	private void waitForAtLeastOneBeIDCard(CardTerminal terminal) {
+	private void waitForAtLeastOneBeIDCard(CardTerminal terminal)
+			throws CancelledException {
 		if (!this.hasBeIDCards(terminal)) {
 			try {
 				this.getUI().adviseBeIDCardRequired();

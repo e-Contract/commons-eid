@@ -127,9 +127,7 @@ public class SimulatedCard extends Card {
 		final byte[] response = new byte[lengthToReturn + 2];
 
 		// copy the bytes from the selected file..
-		System
-				.arraycopy(this.selectedFile, offset, response, 0,
-						lengthToReturn);
+		System.arraycopy(this.selectedFile, offset, response, 0, lengthToReturn);
 
 		// add the trailer with OK response
 		response[lengthToReturn] = (byte) 0x90;

@@ -24,8 +24,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a field as being a ByteArray field to be filled out
- * by a ByteArrayParser
+ * Marks a field as being a ByteArray field to be filled out by a
+ * ByteArrayParser
  * 
  * @author Frank Marien
  */

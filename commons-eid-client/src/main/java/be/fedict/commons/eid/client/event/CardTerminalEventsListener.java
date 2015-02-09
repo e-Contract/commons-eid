@@ -21,9 +21,11 @@ package be.fedict.commons.eid.client.event;
 import javax.smartcardio.CardTerminal;
 
 /**
- * The CardTerminalEventsListener represents events delivered by a {@link be.fedict.commons.eid.client.CardAndTerminalManager}.
- * Register one or more instances of a class implementing CardTerminalEventsListener to
- * respond to any type of Card Terminals being attached and detached.
+ * The CardTerminalEventsListener represents events delivered by a
+ * {@link be.fedict.commons.eid.client.CardAndTerminalManager}. Register one or
+ * more instances of a class implementing CardTerminalEventsListener to respond
+ * to any type of Card Terminals being attached and detached.
+ * 
  * @author Frank Marien
  */
 public interface CardTerminalEventsListener {

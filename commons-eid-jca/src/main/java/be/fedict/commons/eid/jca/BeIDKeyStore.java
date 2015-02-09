@@ -178,7 +178,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				LOG.error("error: " + ex.getMessage(), ex);
 				return null;
 			}
-			return this.signCertificateChain.toArray(new X509Certificate[] {});
+			return this.signCertificateChain.toArray(new X509Certificate[]{});
 		}
 		if ("Authentication".equals(alias)) {
 			try {
@@ -194,7 +194,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				LOG.error("error: " + ex.getMessage(), ex);
 				return null;
 			}
-			return this.authnCertificateChain.toArray(new X509Certificate[] {});
+			return this.authnCertificateChain.toArray(new X509Certificate[]{});
 		}
 		if ("RRN".equals(alias)) {
 			if (null == this.rrnCertificateChain) {
@@ -208,7 +208,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				this.rrnCertificate = this.rrnCertificateChain.get(0);
 				this.rootCaCertificate = this.rrnCertificateChain.get(1);
 			}
-			return this.rrnCertificateChain.toArray(new X509Certificate[] {});
+			return this.rrnCertificateChain.toArray(new X509Certificate[]{});
 		}
 		return null;
 	}

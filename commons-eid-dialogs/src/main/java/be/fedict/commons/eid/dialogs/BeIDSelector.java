@@ -61,10 +61,11 @@ import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
 /**
  * Dynamically changing dialog listing BeIDCards by photo and main identity data
- * part of the DefaultBeIDCardsUI. Based on the original, static BeID selector dialog
- * from eid-applet.
+ * part of the DefaultBeIDCardsUI. Based on the original, static BeID selector
+ * dialog from eid-applet.
+ * 
  * @author Frank Marien
- *
+ * 
  */
 public class BeIDSelector {
 	private JDialog dialog;
@@ -182,8 +183,10 @@ public class BeIDSelector {
 
 		// dialog is modal so setVisible will block until dispose is called.
 		// mouseListener calls dispose after setting selection, on double-click
-		// removeFromList calls dispose after setting outOfCards when last card removed
-		// user closing dialog will have no selection and outOfCards not set indicating cancel
+		// removeFromList calls dispose after setting outOfCards when last card
+		// removed
+		// user closing dialog will have no selection and outOfCards not set
+		// indicating cancel
 
 		if (this.outOfCards) {
 			throw new OutOfCardsException();
@@ -432,11 +435,11 @@ public class BeIDSelector {
 				gbc.ipady = 4;
 				final DateFormat dateFormat = DateFormat.getDateInstance(
 						DateFormat.DEFAULT, Locale.getDefault());
-				add(new JLabel(identity.getPlaceOfBirth()
-						+ " "
-						+ dateFormat
-								.format(identity.getDateOfBirth().getTime())),
-						gbc);
+				add(new JLabel(
+						identity.getPlaceOfBirth()
+								+ " "
+								+ dateFormat.format(identity.getDateOfBirth()
+										.getTime())), gbc);
 
 				gbc = new GridBagConstraints();
 				gbc.gridy = 4;
@@ -458,8 +461,8 @@ public class BeIDSelector {
 				gbc.gridy = 7;
 				gbc.anchor = GridBagConstraints.LINE_START;
 				gbc.ipady = 4;
-				add(new JLabel(Format
-						.formatCardNumber(identity.getCardNumber())), gbc);
+				add(new JLabel(
+						Format.formatCardNumber(identity.getCardNumber())), gbc);
 			}
 		}
 	}
@@ -498,8 +501,9 @@ public class BeIDSelector {
 			setWorkerName(null, "Reading Identity");
 
 			try {
-				identity = TlvParser.parse(this.listData.getCard().readFile(
-						FileType.Identity), Identity.class);
+				identity = TlvParser.parse(
+						this.listData.getCard().readFile(FileType.Identity),
+						Identity.class);
 				this.listData.setIdentity(identity);
 				this.selectionDialog.updateListData(this, this.listData);
 				setWorkerName(identity, "Identity Read");
