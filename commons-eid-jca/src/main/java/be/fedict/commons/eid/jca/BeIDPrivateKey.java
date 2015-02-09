@@ -34,7 +34,7 @@ import be.fedict.commons.eid.client.impl.BeIDDigest;
 /**
  * eID based JCA private key. Should not be used directly, but via the
  * {@link BeIDKeyStore}.
- *
+ * 
  * @author Frank Cornelis
  * @see BeIDKeyStore
  */
@@ -75,7 +75,7 @@ public class BeIDPrivateKey implements PrivateKey {
 
 	/**
 	 * Main constructor.
-	 *
+	 * 
 	 * @param certificateFileType
 	 * @param beIDCard
 	 * @param logoff

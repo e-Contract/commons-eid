@@ -46,7 +46,8 @@ public interface BeIDCardsUI {
 	void setLocale(Locale newLocale);
 
 	/**
-	 * get the Locale currently set. 
+	 * get the Locale currently set.
+	 * 
 	 * @return the current Locale for this UI
 	 */
 	Locale getLocale();
@@ -60,7 +61,7 @@ public interface BeIDCardsUI {
 	 * The user needs to insert a BeID Card. There are card terminals, but none
 	 * currently holds a BeID card.
 	 */
-	void adviseBeIDCardRequired();
+	void adviseBeIDCardRequired() throws CancelledException;
 
 	/**
 	 * The user needs to remove a BeID Card for security reasons.

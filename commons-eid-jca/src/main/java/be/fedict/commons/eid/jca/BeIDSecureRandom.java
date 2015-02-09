@@ -31,7 +31,8 @@ import be.fedict.commons.eid.client.CancelledException;
 
 /**
  * eID based implementation of a secure random generator. Can be used to seed
- * for example a mutual SSL handshake. This secure random generator does not feature eID auto recovery.
+ * for example a mutual SSL handshake. This secure random generator does not
+ * feature eID auto recovery.
  * <p/>
  * Usage:
  * 

@@ -36,8 +36,8 @@ import javax.smartcardio.ResponseAPDU;
 import be.fedict.commons.eid.client.spi.Logger;
 
 /**
- * CCID I/O according to the USB Smart card CCID 1.1 specifications.
- * FrankM added PPDU support
+ * CCID I/O according to the USB Smart card CCID 1.1 specifications. FrankM
+ * added PPDU support
  * 
  * @author Frank Cornelis
  * @author Frank Marien
@@ -265,7 +265,11 @@ public class CCID {
 		if (responseAPDU.getSW() != 0x9000)
 			throw new CardException("PPDU Command Failed: ResponseAPDU="
 					+ responseAPDU.getSW());
-		return responseAPDU.getData();
+
+		if (responseAPDU.getData().length == 0)
+			return responseAPDU.getBytes();
+		else
+			return responseAPDU.getData();
 	}
 
 	protected byte[] transmitControlCommand(final int controlCode,
@@ -278,8 +282,8 @@ public class CCID {
 	public void waitForOK() throws CardException, InterruptedException {
 		// wait for key pressed
 		loop : while (true) {
-			final byte[] getKeyPressedResult = transmitControlCommand(this
-					.getFeature(FEATURE.GET_KEY_PRESSED), new byte[0]);
+			final byte[] getKeyPressedResult = transmitControlCommand(
+					this.getFeature(FEATURE.GET_KEY_PRESSED), new byte[0]);
 			final byte key = getKeyPressedResult[0];
 			switch (key) {
 				case 0x00 :
@@ -382,8 +386,8 @@ public class CCID {
 		 */
 		verifyCommand.write(0x02); // bEntryValidationCondition
 		/*
-		 * 0x02 = validation key pressed. So the user must press the green button on
-		 * his pinpad.
+		 * 0x02 = validation key pressed. So the user must press the green
+		 * button on his pinpad.
 		 */
 		verifyCommand.write(0x01); // bNumberMessage
 		/*
@@ -457,13 +461,14 @@ public class CCID {
 
 		modifyCommand.write(0x00); // bInsertionOffsetOld
 		/*
-		 * bInsertionOffsetOld: Insertion position offset in bytes for the current
-		 * PIN
+		 * bInsertionOffsetOld: Insertion position offset in bytes for the
+		 * current PIN
 		 */
 
 		modifyCommand.write(0x8); // bInsertionOffsetNew
 		/*
-		 * bInsertionOffsetNew: Insertion position offset in bytes for the new PIN
+		 * bInsertionOffsetNew: Insertion position offset in bytes for the new
+		 * PIN
 		 */
 
 		modifyCommand
@@ -481,8 +486,8 @@ public class CCID {
 
 		modifyCommand.write(0x02); // bEntryValidationCondition
 		/*
-		 * 0x02 = validation key pressed. So the user must press the green button on
-		 * his pinpad.
+		 * 0x02 = validation key pressed. So the user must press the green
+		 * button on his pinpad.
 		 */
 
 		modifyCommand.write(0x03); // bNumberMessage

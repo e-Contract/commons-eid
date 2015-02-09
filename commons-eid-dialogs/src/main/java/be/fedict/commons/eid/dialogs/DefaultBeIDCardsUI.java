@@ -85,8 +85,9 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 
 	@Override
 	public void adviseBeIDCardRequired() {
-		showAdvise(this.messages
-				.getMessage(Messages.MESSAGE_ID.INSERT_CARD_QUESTION),
+		showAdvise(
+				this.messages
+						.getMessage(Messages.MESSAGE_ID.INSERT_CARD_QUESTION),
 				this.messages
 						.getMessage(Messages.MESSAGE_ID.INSERT_CARD_QUESTION));
 	}

@@ -19,7 +19,7 @@
 package be.fedict.commons.eid.consumer.text;
 
 /**
- *
+ * 
  * @author Frank Marien
  */
 public class Format {
@@ -30,11 +30,11 @@ public class Format {
 
 	// format a national number into YY.MM.DD-S&G.CS
 	public static String formatNationalNumber(final String nationalNumber) {
-		//YY MM DD S&G CS
-		//01 23 45 678 9A
+		// YY MM DD S&G CS
+		// 01 23 45 678 9A
 
-		final StringBuilder formatted = new StringBuilder(nationalNumber
-				.substring(0, 2));
+		final StringBuilder formatted = new StringBuilder(
+				nationalNumber.substring(0, 2));
 		formatted.append('.');
 		formatted.append(nationalNumber.substring(2, 4));
 		formatted.append('.');
@@ -47,20 +47,20 @@ public class Format {
 	}
 
 	/*
-	 *  format a card number into XXX-YYYYYYYY-ZZ
+	 * format a card number into XXX-YYYYYYYY-ZZ
 	 */
 	public static String formatCardNumber(final String cardNumber) {
 		final StringBuilder formatted = new StringBuilder();
 
 		if (cardNumber.length() == 10 && cardNumber.startsWith("B")) {
-			//B 0123456 78
+			// B 0123456 78
 			formatted.append(cardNumber.substring(0, 1));
 			formatted.append(' ');
 			formatted.append(cardNumber.substring(1, 7));
 			formatted.append(' ');
 			formatted.append(cardNumber.substring(8));
 		} else if (cardNumber.length() == 12) {
-			//012-3456789-01
+			// 012-3456789-01
 			formatted.append(cardNumber.substring(0, 3));
 			formatted.append('-');
 			formatted.append(cardNumber.substring(3, 10));
