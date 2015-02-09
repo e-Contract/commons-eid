@@ -134,14 +134,14 @@ public class Messages {
 		}
 		this.resourceBundle = bundle;
 
-		UIManager.put("OptionPane.cancelButtonText", this
-				.getMessage(MESSAGE_ID.CANCEL_BUTTON));
-		UIManager.put("OptionPane.noButtonText", this
-				.getMessage(MESSAGE_ID.NO_BUTTON));
-		UIManager.put("OptionPane.okButtonText", this
-				.getMessage(MESSAGE_ID.OK_BUTTON));
-		UIManager.put("OptionPane.yesButtonText", this
-				.getMessage(MESSAGE_ID.YES_BUTTON));
+		UIManager.put("OptionPane.cancelButtonText",
+				this.getMessage(MESSAGE_ID.CANCEL_BUTTON));
+		UIManager.put("OptionPane.noButtonText",
+				this.getMessage(MESSAGE_ID.NO_BUTTON));
+		UIManager.put("OptionPane.okButtonText",
+				this.getMessage(MESSAGE_ID.OK_BUTTON));
+		UIManager.put("OptionPane.yesButtonText",
+				this.getMessage(MESSAGE_ID.YES_BUTTON));
 	}
 
 }

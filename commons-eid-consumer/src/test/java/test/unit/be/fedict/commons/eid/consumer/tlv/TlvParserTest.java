@@ -365,8 +365,8 @@ public class TlvParserTest {
 		LOG.debug("duplicate: " + identity.getDuplicate());
 		LOG.debug("special organisation: \""
 				+ identity.getSpecialOrganisation() + "\"");
-		assertEquals(SpecialOrganisation.UNSPECIFIED, identity
-				.getSpecialOrganisation());
+		assertEquals(SpecialOrganisation.UNSPECIFIED,
+				identity.getSpecialOrganisation());
 	}
 
 	@Test
@@ -460,15 +460,15 @@ public class TlvParserTest {
 
 		// verify
 		LOG.debug("document type: " + identity.getDocumentType());
-		assertEquals(DocumentType.EUROPEAN_BLUE_CARD_H, identity
-				.getDocumentType());
+		assertEquals(DocumentType.EUROPEAN_BLUE_CARD_H,
+				identity.getDocumentType());
 		LOG.debug("duplicate: " + identity.getDuplicate());
 		assertEquals("01", identity.getDuplicate());
 		assertTrue(identity.isMemberOfFamily());
 		LOG.debug("special organisation: \""
 				+ identity.getSpecialOrganisation() + "\"");
-		assertEquals(SpecialOrganisation.UNSPECIFIED, identity
-				.getSpecialOrganisation());
+		assertEquals(SpecialOrganisation.UNSPECIFIED,
+				identity.getSpecialOrganisation());
 	}
 
 	@Test
@@ -490,7 +490,7 @@ public class TlvParserTest {
 		assertTrue(identity.isMemberOfFamily());
 		LOG.debug("special organisation: \""
 				+ identity.getSpecialOrganisation() + "\"");
-		assertEquals(SpecialOrganisation.RESEARCHER, identity
-				.getSpecialOrganisation());
+		assertEquals(SpecialOrganisation.RESEARCHER,
+				identity.getSpecialOrganisation());
 	}
 }

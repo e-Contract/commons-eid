@@ -30,17 +30,19 @@ import be.fedict.commons.eid.client.PINPurpose;
  */
 public interface BeIDCardUI {
 	/**
-	 * set Locale for subsequent operations.
-	 * Implementations MUST ensure that after this call, any of the other methods
-	 * for the same instance respect the locale set here.
-	 * Implementations MAY choose to update any interface elements already
-	 * facing the user at time of call, but this is not required.
+	 * set Locale for subsequent operations. Implementations MUST ensure that
+	 * after this call, any of the other methods for the same instance respect
+	 * the locale set here. Implementations MAY choose to update any interface
+	 * elements already facing the user at time of call, but this is not
+	 * required.
+	 * 
 	 * @param newLocale
 	 */
 	void setLocale(Locale newLocale);
 
 	/**
-	 * get the Locale currently set. 
+	 * get the Locale currently set.
+	 * 
 	 * @return the current Locale for this UI
 	 */
 	Locale getLocale();

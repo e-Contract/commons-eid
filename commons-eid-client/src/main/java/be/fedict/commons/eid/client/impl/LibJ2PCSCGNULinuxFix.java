@@ -25,8 +25,10 @@ import java.io.File;
 import be.fedict.commons.eid.client.spi.Logger;
 
 /**
- * Encapsulate fixes regarding the dynamic loading of the pcsclite library on GNU/Linux Systems.
- * statically call LibJ2PCSCGNULinuxFix.fixNativeLibrary() before using a TerminalFactory.
+ * Encapsulate fixes regarding the dynamic loading of the pcsclite library on
+ * GNU/Linux Systems. statically call LibJ2PCSCGNULinuxFix.fixNativeLibrary()
+ * before using a TerminalFactory.
+ * 
  * @author Frank Cornelis
  * @author Frank Marien
  */
@@ -51,13 +53,13 @@ public final class LibJ2PCSCGNULinuxFix {
 	}
 
 	/**
-	 * Make sure libpcsclite is found.
-	 * The libj2pcsc.so from the JRE attempts to dlopen using the linker name
-	 * "libpcsclite.so" instead of the appropriate "libpcsclite.so.1". This
-	 * causes libpcsclite not to be found on GNU/Linux distributions that don't
-	 * have the libpcsclite.so symbolic link. This method finds the library and
-	 * forces the JRE to use it instead of attempting to locate it by itself.
-	 * See also: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=529339
+	 * Make sure libpcsclite is found. The libj2pcsc.so from the JRE attempts to
+	 * dlopen using the linker name "libpcsclite.so" instead of the appropriate
+	 * "libpcsclite.so.1". This causes libpcsclite not to be found on GNU/Linux
+	 * distributions that don't have the libpcsclite.so symbolic link. This
+	 * method finds the library and forces the JRE to use it instead of
+	 * attempting to locate it by itself. See also:
+	 * http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=529339
 	 * 
 	 * Does nothing if not on a GNU/Linux system
 	 */
@@ -75,8 +77,8 @@ public final class LibJ2PCSCGNULinuxFix {
 			if (libPcscLite != null) {
 				logger.debug("Setting [" + SMARTCARDIO_LIBRARY_PROPERTY
 						+ "] to [" + libPcscLite.getAbsolutePath() + "]");
-				System.setProperty(SMARTCARDIO_LIBRARY_PROPERTY, libPcscLite
-						.getAbsolutePath());
+				System.setProperty(SMARTCARDIO_LIBRARY_PROPERTY,
+						libPcscLite.getAbsolutePath());
 			}
 		} else {
 			logger.debug("OS is [" + osName
@@ -135,16 +137,14 @@ public final class LibJ2PCSCGNULinuxFix {
 		switch (getUbuntuBitness()) {
 			case PURE32 :
 				// pure 32-bit Ubuntu. Add the 32-bit lib dir.
-				logger
-						.debug("pure 32-bit Ubuntu detected, using 32-bit multilib path: "
-								+ UBUNTU_MULTILIB_32_PATH);
+				logger.debug("pure 32-bit Ubuntu detected, using 32-bit multilib path: "
+						+ UBUNTU_MULTILIB_32_PATH);
 				return extendLibraryPath(libraryPath, UBUNTU_MULTILIB_32_PATH);
 
 			case PURE64 :
 				// pure 64-bit Ubuntu. Add the 64-bit lib dir.
-				logger
-						.debug("pure 64-bit Ubuntu detected, using 64-bit multilib path: "
-								+ UBUNTU_MULTILIB_64_PATH);
+				logger.debug("pure 64-bit Ubuntu detected, using 64-bit multilib path: "
+						+ UBUNTU_MULTILIB_64_PATH);
 				return extendLibraryPath(libraryPath, UBUNTU_MULTILIB_64_PATH);
 
 			case MULTILIB : {

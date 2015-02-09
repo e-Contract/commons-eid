@@ -286,14 +286,16 @@ public class BeIDCardTest {
 				@Override
 				public void notifySigningBegin(final FileType keyType) {
 					LOG.debug("signing with "
-							+ (keyType == FileType.AuthentificationCertificate ? "authentication"
+							+ (keyType == FileType.AuthentificationCertificate
+									? "authentication"
 									: "non-repudiation") + " key has begun");
 				}
 
 				@Override
 				public void notifySigningEnd(final FileType keyType) {
 					LOG.debug("signing with "
-							+ (keyType == FileType.AuthentificationCertificate ? "authentication"
+							+ (keyType == FileType.AuthentificationCertificate
+									? "authentication"
 									: "non-repudiation") + " key has ended");
 				}
 			});

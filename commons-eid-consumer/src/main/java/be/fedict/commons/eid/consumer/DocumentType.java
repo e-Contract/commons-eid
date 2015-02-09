@@ -34,7 +34,8 @@ public enum DocumentType implements Serializable {
 			"8"),
 
 	/**
-	 * Bewijs van inschrijving in het vreemdelingenregister ??? Tijdelijk verblijf
+	 * Bewijs van inschrijving in het vreemdelingenregister ??? Tijdelijk
+	 * verblijf
 	 */
 	FOREIGNER_A("11"),
 

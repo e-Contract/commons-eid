@@ -64,8 +64,7 @@ public class BeIDCardsSpecificTerminalTest {
 				beIDCards.waitUntilCardRemoved(beIDCard);
 			}
 
-			LOG
-					.debug("We want only a card from our imprinted CardTerminal back");
+			LOG.debug("We want only a card from our imprinted CardTerminal back");
 			beIDCard = beIDCards.getOneBeIDCard(terminal);
 			assertNotNull(beIDCard);
 

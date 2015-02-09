@@ -53,7 +53,8 @@ public class BeIDCardsExample {
 			final BeIDCard card = beIDCards.getOneBeIDCard();
 
 			// -------------------------------------------------------------------------------------------------------
-			// read identity file, decode it and print something containing card holder's first name
+			// read identity file, decode it and print something containing card
+			// holder's first name
 			// -------------------------------------------------------------------------------------------------------
 			try {
 				final byte[] idData = card.readFile(FileType.Identity);

@@ -19,9 +19,10 @@
 package be.fedict.commons.eid.client;
 
 /**
- * a PINPurpose encapsulates the different reasons why the user's PIN code may be
- * requested: an authentication signature, a non-repudiation signature, or a user-requested 
- * test of their PIN code.
+ * a PINPurpose encapsulates the different reasons why the user's PIN code may
+ * be requested: an authentication signature, a non-repudiation signature, or a
+ * user-requested test of their PIN code.
+ * 
  * @author Frank Marien
  */
 public enum PINPurpose {
@@ -39,9 +40,11 @@ public enum PINPurpose {
 	}
 
 	/**
-	 * Determine the likely reason for a PIN request by checking the certificate chain
-	 * involved.
-	 * @param fileType the File on the BeID that is involved in the operation
+	 * Determine the likely reason for a PIN request by checking the certificate
+	 * chain involved.
+	 * 
+	 * @param fileType
+	 *            the File on the BeID that is involved in the operation
 	 * @return the PIN Purpose associated with this type of file
 	 */
 	public static PINPurpose fromFileType(final FileType fileType) {
