@@ -17,7 +17,7 @@
 		<name>FedICT</name>
 		<url>http://www.fedict.belgium.be/</url>
 	</organization>
-	<url>http://code.google.com/p/commons-eid/</url>
+	<url>https://github.com/e-Contract/commons-eid</url>
 	<developers>
 		<developer>
 			<id>fcorneli</id>
@@ -31,7 +31,7 @@
 		</developer>
 	</developers>
 	<issueManagement>
-		<url>http://code.google.com/p/commons-eid/issues/list</url>
+		<url>https://github.com/e-Contract/commons-eid/issues</url>
 	</issueManagement>
 	<mailingLists>
 		<mailingList>
@@ -42,18 +42,18 @@
 		<url>https://www.e-contract.be/jenkins/job/commons-eid/</url>
 	</ciManagement>
 	<scm>
-		<connection>scm:hg:https://code.google.com/p/commons-eid/</connection>
+		<connection>scm:git:https://github.com/e-Contract/commons-eid.git</connection>
 		<tag>HEAD</tag>
 	</scm>
 	<distributionManagement>
 		<repository>
 			<id>e-contract-deploy</id>
-			<url>sftp://e-contract.be/maven2</url>
+			<url>sftp://192.168.100.1/maven2</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
 		<site>
 			<id>e-contract-site</id>
-			<url>sftp://e-contract.be/sites/commons-eid/</url>
+			<url>sftp://192.168.100.1/sites/commons-eid/</url>
 		</site>
 	</distributionManagement>
 	<modules>
