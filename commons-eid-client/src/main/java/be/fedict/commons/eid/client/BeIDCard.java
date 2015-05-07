@@ -1132,8 +1132,9 @@ public class BeIDCard {
 
 	private ResponseAPDU transmit(final CommandAPDU commandApdu,
 			final int attempt) throws CardException {
-		if (attempt >= 32)
+		if (attempt >= 32) {
 			throw new CardException("Could not obtain response.");
+		}
 
 		ResponseAPDU responseApdu = this.cardChannel.transmit(commandApdu);
 		if (0x6c == responseApdu.getSW1()) {
@@ -1149,20 +1150,21 @@ public class BeIDCard {
 				throw new RuntimeException("cannot sleep");
 			}
 			CommandAPDU newCommandApdu = new CommandAPDU(commandApdu.getCLA(),
-				commandApdu.getINS(), commandApdu.getP1(), commandApdu.getP2(),
-				commandApdu.getData(), responseApdu.getSW2());
+					commandApdu.getINS(), commandApdu.getP1(),
+					commandApdu.getP2(), commandApdu.getData(),
+					responseApdu.getSW2());
 			responseApdu = transmit(newCommandApdu, attempt + 1);
 		} else if (0x61 == responseApdu.getSW1()) {
 			/*
 			 * Issue a GET RESPONSE command to retrieve the remaining data.
 			 */
 			int le = responseApdu.getSW2();
-			if (le == 0)
+			if (le == 0) {
 				le = 0xff;
+			}
 			CommandAPDU newCommandApdu = new CommandAPDU(0x00, 0xC0, 0x00,
 					0x00, le);
-			ResponseAPDU newResponseApdu = transmit(newCommandApdu,
-					attempt + 1);
+			ResponseAPDU newResponseApdu = transmit(newCommandApdu, attempt + 1);
 
 			/*
 			 * Combine the previously received data with the new response.
