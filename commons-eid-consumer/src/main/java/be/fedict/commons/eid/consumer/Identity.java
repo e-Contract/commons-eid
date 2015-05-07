@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -122,6 +123,9 @@ public class Identity implements Serializable {
 	@TlvField(20)
 	public boolean memberOfFamily;
 
+	@TlvField(21)
+	public String dateAndCountryOfProtection;
+
 	@OriginalData
 	public byte[] data;
 
@@ -208,6 +212,10 @@ public class Identity implements Serializable {
 
 	public SpecialOrganisation getSpecialOrganisation() {
 		return this.specialOrganisation;
+	}
+
+	public String getDateAndCountryOfProtection() {
+		return this.dateAndCountryOfProtection;
 	}
 
 	public byte[] getData() {
