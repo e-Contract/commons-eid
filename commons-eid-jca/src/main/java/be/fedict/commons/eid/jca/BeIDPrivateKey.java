@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -147,9 +148,11 @@ public class BeIDPrivateKey implements PrivateKey {
 							throw new SignatureException("different eID card");
 						}
 					}
+					signatureValue = this.beIDCard.sign(digestValue,
+							beIDDigest, this.certificateFileType, false);
+				} else {
+					throw e;
 				}
-				signatureValue = this.beIDCard.sign(digestValue, beIDDigest,
-						this.certificateFileType, false);
 			}
 			if (this.logoff) {
 				this.beIDCard.logoff();
