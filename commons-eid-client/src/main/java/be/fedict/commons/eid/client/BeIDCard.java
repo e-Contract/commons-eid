@@ -1127,6 +1127,15 @@ public class BeIDCard {
 
 	private ResponseAPDU transmit(final CommandAPDU commandApdu)
 			throws CardException {
+		return transmit(commandApdu, 0);
+	}
+
+	private ResponseAPDU transmit(final CommandAPDU commandApdu,
+			final int attempt) throws CardException {
+		if (attempt >= 32) {
+			throw new CardException("Could not obtain response.");
+		}
+
 		ResponseAPDU responseApdu = this.cardChannel.transmit(commandApdu);
 		if (0x6c == responseApdu.getSW1()) {
 			/*
@@ -1140,7 +1149,33 @@ public class BeIDCard {
 			} catch (final InterruptedException e) {
 				throw new RuntimeException("cannot sleep");
 			}
-			responseApdu = this.cardChannel.transmit(commandApdu);
+			CommandAPDU newCommandApdu = new CommandAPDU(commandApdu.getCLA(),
+					commandApdu.getINS(), commandApdu.getP1(),
+					commandApdu.getP2(), commandApdu.getData(),
+					responseApdu.getSW2());
+			responseApdu = transmit(newCommandApdu, attempt + 1);
+		} else if (0x61 == responseApdu.getSW1()) {
+			/*
+			 * Issue a GET RESPONSE command to retrieve the remaining data.
+			 */
+			int le = responseApdu.getSW2();
+			if (le == 0) {
+				le = 0xff;
+			}
+			CommandAPDU newCommandApdu = new CommandAPDU(0x00, 0xC0, 0x00,
+					0x00, le);
+			ResponseAPDU newResponseApdu = transmit(newCommandApdu, attempt + 1);
+
+			/*
+			 * Combine the previously received data with the new response.
+			 */
+			byte[] oldData = responseApdu.getData();
+			byte[] newResponse = newResponseApdu.getBytes();
+			byte[] combined = new byte[oldData.length + newResponse.length];
+			System.arraycopy(oldData, 0, combined, 0, oldData.length);
+			System.arraycopy(newResponse, 0, combined, oldData.length,
+					newResponse.length);
+			responseApdu = new ResponseAPDU(combined);
 		}
 		return responseApdu;
 	}
