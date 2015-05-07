@@ -130,6 +130,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 
 		this.adviseFrame = new JFrame(title);
 		this.adviseFrame.setAlwaysOnTop(true);
+		this.adviseFrame.setResizable(false);
 		JPanel panel = new JPanel() {
 			private static final long serialVersionUID = 1L;
 
