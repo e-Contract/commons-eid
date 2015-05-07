@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014 e-Contract.be BVBA.
+ * Copyright (C) 2014-2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -23,6 +23,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
 import java.security.Key;
@@ -37,6 +38,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.Signature;
+import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
@@ -58,6 +60,7 @@ import org.junit.Test;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.impl.CCID;
+import be.fedict.commons.eid.client.spi.UserCancelledException;
 import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
 import be.fedict.commons.eid.jca.BeIDPrivateKey;
 import be.fedict.commons.eid.jca.BeIDProvider;
@@ -368,6 +371,35 @@ public class JCATest {
 		byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);
 		signature.sign();
+	}
+
+	@Test
+	public void testCancelOperation() throws Exception {
+		Security.addProvider(new BeIDProvider());
+
+		final KeyStore keyStore = KeyStore.getInstance("BeID");
+		final BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
+		final BeIDCard beIDCard = getBeIDCard();
+		keyStoreParameter.setBeIDCard(beIDCard);
+		keyStoreParameter.setLogoff(true);
+		keyStore.load(keyStoreParameter);
+
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+				"Authentication", null);
+
+		Signature signature = Signature.getInstance("SHA1withRSA");
+		signature.initSign(authnPrivateKey);
+		assertTrue(signature.getProvider() instanceof BeIDProvider);
+
+		final byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		try {
+			signature.sign();
+			fail();
+		} catch (SignatureException e) {
+			// expected
+			assertTrue(e.getCause() instanceof UserCancelledException);
+		}
 	}
 
 	@Test

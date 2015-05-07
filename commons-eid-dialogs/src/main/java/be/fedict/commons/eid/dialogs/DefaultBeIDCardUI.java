@@ -301,6 +301,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		// dialog box
 		final JDialog dialog = new JDialog((Frame) null,
 				this.messages.getMessage(MESSAGE_ID.ENTER_PIN), true);
+		dialog.setAlwaysOnTop(true);
 		dialog.setLayout(new BorderLayout());
 		dialog.getContentPane().add(mainPanel, BorderLayout.CENTER);
 		dialog.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
@@ -430,6 +431,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		}
 		this.secureReaderTransactionFrame = new JFrame(
 				"Transaction Confirmation");
+		this.secureReaderTransactionFrame.setAlwaysOnTop(true);
 		JPanel panel = new JPanel() {
 			private static final long serialVersionUID = 1L;
 
@@ -513,6 +515,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 			disposePINPadFrame();
 		}
 		this.pinPadFrame = new JFrame(title);
+		this.pinPadFrame.setAlwaysOnTop(true);
 		JPanel panel = new JPanel() {
 			private static final long serialVersionUID = 1L;
 
