@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014 e-Contract.be BVBA.
+ * Copyright (C) 2014-2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -21,7 +21,6 @@ package be.fedict.commons.eid.client.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -57,8 +56,7 @@ public class CCID {
 	public static final int GERMAN_LANGUAGE_CODE = 0x07;
 	public static final int ENGLISH_LANGUAGE_CODE = 0x09;
 
-	public static boolean riskPPDU = false;
-	public static Set<String> ppduExceptions = null;
+	public static Set<String> ppduNames = new HashSet<String>();
 
 	private final Logger logger;
 	private final Card card;
@@ -95,36 +93,18 @@ public class CCID {
 		}
 	}
 
-	/*
-	 * **********************************************************************************************************
-	 */
-
-	public static void riskPPDU(boolean riskPPDU) {
-		CCID.riskPPDU = riskPPDU;
+	public static void addPPDUName(String name) {
+		ppduNames.add(name.toLowerCase());
 	}
 
-	public static void setPPDUExceptions(Collection<String> ppduExceptions) {
-		CCID.ppduExceptions = new HashSet<String>(ppduExceptions);
-	}
-
-	public static void addPPDUException(String terminalName) {
-		if (CCID.ppduExceptions == null)
-			CCID.ppduExceptions = new HashSet<String>();
-		CCID.ppduExceptions.add(terminalName);
-	}
-
-	public static void removePPDUException(String terminalName) {
-		if (CCID.ppduExceptions == null)
-			return;
-		CCID.ppduExceptions.remove(terminalName);
-	}
-
-	private static boolean riskPPDUForCardTerminal(String name) {
-		if (CCID.ppduExceptions == null)
-			return CCID.riskPPDU;
-		return CCID.riskPPDU
-				? (!CCID.ppduExceptions.contains(name))
-				: (CCID.ppduExceptions.contains(name));
+	private boolean isPPDUCardTerminal(String name) {
+		name = name.toLowerCase();
+		for (String ppduName : ppduNames) {
+			if (name.contains(ppduName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean usesPPDU() {
@@ -153,7 +133,7 @@ public class CCID {
 			this.logger
 					.debug("GET_FEATURES over standard control command failed: "
 							+ cexInNormal.getMessage());
-			if (onMSWindows && riskPPDUForCardTerminal(cardTerminal.getName())) {
+			if (onMSWindows && isPPDUCardTerminal(cardTerminal.getName())) {
 				this.logger
 						.debug("Attempting To get CCID FEATURES using Pseudo-APDU Fallback Strategy");
 				try {

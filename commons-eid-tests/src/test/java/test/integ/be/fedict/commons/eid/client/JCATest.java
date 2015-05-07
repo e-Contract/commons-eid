@@ -333,12 +333,15 @@ public class JCATest {
 
 	@Test
 	public void testNonRepudiationSignaturePPDU() throws Exception {
-
-		CCID.riskPPDU(true);
-
 		Security.addProvider(new BeIDProvider());
+
+		BeIDKeyStoreParameter beIDKeyStoreParameter = new BeIDKeyStoreParameter();
+		beIDKeyStoreParameter.addPPDUName("digipass 870");
+		beIDKeyStoreParameter.addPPDUName("digipass 875");
+		beIDKeyStoreParameter.addPPDUName("digipass 920");
+
 		KeyStore keyStore = KeyStore.getInstance("BeID");
-		keyStore.load(null);
+		keyStore.load(beIDKeyStoreParameter);
 		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature",
 				null);
 		Signature signature = Signature.getInstance("SHA1withRSA");

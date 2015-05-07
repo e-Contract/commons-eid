@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -24,6 +25,7 @@ import java.security.KeyStore.ProtectionParameter;
 import java.util.Locale;
 
 import be.fedict.commons.eid.client.BeIDCard;
+import be.fedict.commons.eid.client.impl.CCID;
 import be.fedict.commons.eid.client.spi.Logger;
 
 /**
@@ -163,5 +165,15 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	public Logger getLogger() {
 		return this.logger;
+	}
+
+	/**
+	 * Adds a name of a card terminal on which we should use the PPDU interface.
+	 * 
+	 * @param ppduName
+	 *            the card name terminal (or a fraction of it).
+	 */
+	public void addPPDUName(String ppduName) {
+		CCID.addPPDUName(ppduName);
 	}
 }

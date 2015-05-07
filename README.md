@@ -63,3 +63,4 @@ If required, we could include a custom config XML at some point..
 When using the Eclipse code formatter on default settings, according to
 the docs, you should be OK without this plugin, as well. In practice
 I've noticed there are small differences, mostly in empty line handling.
+

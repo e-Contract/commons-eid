@@ -51,7 +51,9 @@ public class CCIDExercises {
 
 	@Test
 	public void listCCIDFeaturesWithPPDU() throws Exception {
-		CCID.riskPPDU(true);
+		CCID.addPPDUName("digipass 870");
+		CCID.addPPDUName("digipass 875");
+		CCID.addPPDUName("digipass 920");
 		final BeIDCard beIDCard = getBeIDCard();
 		beIDCard.addCardListener(new TestBeIDCardListener());
 
