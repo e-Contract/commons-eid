@@ -4,7 +4,7 @@ README for Commons eID Project
 === 1. Introduction
 
 This project contains the source code tree of Commons eID.
-The source code is hosted at: http://code.google.com/p/commons-eid/
+The source code is hosted at: https://github.com/e-Contract/commons-eid
 
 
 === 2. Requirements
