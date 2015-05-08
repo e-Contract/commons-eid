@@ -43,7 +43,7 @@
 		<url>https://www.e-contract.be/jenkins/job/commons-eid/</url>
 	</ciManagement>
 	<scm>
-		<connection>scm:git:https://github.com/e-Contract/commons-eid.git</connection>
+		<connection>scm:git:git@github.com:e-Contract/commons-eid.git</connection>
 		<tag>HEAD</tag>
 	</scm>
 	<distributionManagement>
