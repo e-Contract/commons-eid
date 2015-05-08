@@ -57,6 +57,8 @@ public class BeIDPrivateKey implements PrivateKey {
 
 	private final static Map<String, BeIDDigest> beIDDigests;
 
+	private final String applicationName;
+
 	private X509Certificate authenticationCertificate;
 
 	static {
@@ -82,16 +84,19 @@ public class BeIDPrivateKey implements PrivateKey {
 	 * @param logoff
 	 * @param autoRecovery
 	 * @param beIDKeyStore
+	 * @param applicationName
 	 */
 	public BeIDPrivateKey(final FileType certificateFileType,
 			final BeIDCard beIDCard, final boolean logoff,
-			boolean autoRecovery, BeIDKeyStore beIDKeyStore) {
+			boolean autoRecovery, BeIDKeyStore beIDKeyStore,
+			String applicationName) {
 		LOG.debug("constructor: " + certificateFileType);
 		this.certificateFileType = certificateFileType;
 		this.beIDCard = beIDCard;
 		this.logoff = logoff;
 		this.autoRecovery = autoRecovery;
 		this.beIDKeyStore = beIDKeyStore;
+		this.applicationName = applicationName;
 	}
 
 	@Override
@@ -135,7 +140,7 @@ public class BeIDPrivateKey implements PrivateKey {
 			}
 			try {
 				signatureValue = this.beIDCard.sign(digestValue, beIDDigest,
-						this.certificateFileType, false);
+						this.certificateFileType, false, this.applicationName);
 			} catch (Exception e) {
 				if (this.autoRecovery) {
 					LOG.debug("trying to recover...");
@@ -149,7 +154,8 @@ public class BeIDPrivateKey implements PrivateKey {
 						}
 					}
 					signatureValue = this.beIDCard.sign(digestValue,
-							beIDDigest, this.certificateFileType, false);
+							beIDDigest, this.certificateFileType, false,
+							this.applicationName);
 				} else {
 					throw e;
 				}

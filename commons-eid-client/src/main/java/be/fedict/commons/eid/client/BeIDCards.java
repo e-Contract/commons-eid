@@ -62,7 +62,7 @@ public class BeIDCards {
 	private CardAndTerminalManager cardAndTerminalManager;
 	private BeIDCardManager cardManager;
 	private boolean terminalsInitialized, cardsInitialized, uiSelectingCard;
-	private Map<CardTerminal, BeIDCard> beIDTerminalsAndCards;
+	private final Map<CardTerminal, BeIDCard> beIDTerminalsAndCards;
 	private Sleeper terminalManagerInitSleeper, cardTerminalSleeper;
 	private Sleeper cardManagerInitSleeper, beIDSleeper;
 	private BeIDCardsUI ui;
@@ -311,7 +311,7 @@ public class BeIDCards {
 			// (because we'd deadlock when user inserts/removes a card while
 			// selectBeIDCard has not returned)
 
-			Map<CardTerminal, BeIDCard> currentBeIDCards = null;
+			Map<CardTerminal, BeIDCard> currentBeIDCards;
 			synchronized (this.beIDTerminalsAndCards) {
 				currentBeIDCards = new HashMap<CardTerminal, BeIDCard>(
 						this.beIDTerminalsAndCards);
@@ -355,6 +355,7 @@ public class BeIDCards {
 	 * same BeIDCards instance. If, at time of call, that particular card is
 	 * present, the UI is called upon to prompt the user to remove that card.
 	 * 
+	 * @param card
 	 * @return this BeIDCards instance to allow for method chaining
 	 */
 	public BeIDCards waitUntilCardRemoved(final BeIDCard card) {
@@ -381,6 +382,9 @@ public class BeIDCards {
 
 	/**
 	 * call close() if you no longer need this BeIDCards instance.
+	 * 
+	 * @return this
+	 * @throws InterruptedException
 	 */
 	public BeIDCards close() throws InterruptedException {
 		this.cardManager.stop();
@@ -425,7 +429,7 @@ public class BeIDCards {
 	 * **********************************************
 	 */
 
-	private final void setUI(BeIDCardsUI ui) {
+	private void setUI(BeIDCardsUI ui) {
 		this.ui = ui;
 		if (this.ui != null) {
 			setLocale(ui.getLocale());

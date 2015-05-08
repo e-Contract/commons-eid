@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -54,11 +55,13 @@ public interface BeIDCardUI {
 	 *            the number of attempts left before the PIN is blocked.
 	 * @param type
 	 *            the reason why the PIN code is requested
+	 * @param applicationName
+	 *            the optional application name.
 	 * @return the PIN code.
 	 * @throws UserCancelledException
 	 *             thrown in case the user cancels the PIN entry.
 	 */
-	char[] obtainPIN(int triesLeft, PINPurpose type)
+	char[] obtainPIN(int triesLeft, PINPurpose type, String applicationName)
 			throws UserCancelledException;
 
 	/**
@@ -101,8 +104,11 @@ public interface BeIDCardUI {
 	 *            the number of attempts left before the PIN is blocked.
 	 * @param type
 	 *            the reason why the PIN code is requested
+	 * @param applicationName
+	 *            the optional application name.
 	 */
-	void advisePINPadPINEntry(int retriesLeft, PINPurpose type);
+	void advisePINPadPINEntry(int retriesLeft, PINPurpose type,
+			String applicationName);
 
 	/**
 	 * user can enter PUK on PINPad

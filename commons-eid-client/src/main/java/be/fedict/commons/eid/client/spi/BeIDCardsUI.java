@@ -60,6 +60,8 @@ public interface BeIDCardsUI {
 	/**
 	 * The user needs to insert a BeID Card. There are card terminals, but none
 	 * currently holds a BeID card.
+	 * 
+	 * @throws CancelledException
 	 */
 	void adviseBeIDCardRequired() throws CancelledException;
 
@@ -77,6 +79,11 @@ public interface BeIDCardsUI {
 	 * user has multiple eID Cards inserted and needs to choose exactly one.
 	 * throws CancelledException if user cancels throws OutOfCardsException if
 	 * all cards removed before selection could me made.
+	 * 
+	 * @param availableCards
+	 * @return
+	 * @throws be.fedict.commons.eid.client.CancelledException
+	 * @throws be.fedict.commons.eid.client.OutOfCardsException
 	 */
 	BeIDCard selectBeIDCard(Collection<BeIDCard> availableCards)
 			throws CancelledException, OutOfCardsException;

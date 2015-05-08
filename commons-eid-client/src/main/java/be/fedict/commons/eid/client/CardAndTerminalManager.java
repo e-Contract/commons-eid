@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -63,9 +64,9 @@ public class CardAndTerminalManager implements Runnable {
 	private Thread worker;
 	private Set<CardTerminal> terminalsPresent, terminalsWithCards;
 	private CardTerminals cardTerminals;
-	private Set<String> terminalsToIgnoreCardEventsFor;
-	private Set<CardTerminalEventsListener> cardTerminalEventsListeners;
-	private Set<CardEventsListener> cardEventsListeners;
+	private final Set<String> terminalsToIgnoreCardEventsFor;
+	private final Set<CardTerminalEventsListener> cardTerminalEventsListeners;
+	private final Set<CardEventsListener> cardEventsListeners;
 	private int delay;
 	private Logger logger;
 	private PROTOCOL protocol;
@@ -290,6 +291,7 @@ public class CardAndTerminalManager implements Runnable {
 	 * listeners will receive any more events.
 	 * 
 	 * @return this CardAndTerminalManager to allow for method chaining.
+	 * @throws InterruptedException
 	 */
 	public CardAndTerminalManager stop() throws InterruptedException {
 		this.logger
@@ -339,6 +341,7 @@ public class CardAndTerminalManager implements Runnable {
 	 * Set whether this CardAndTerminalsManager will automatically connect() to
 	 * any cards inserted.
 	 * 
+	 * @param newAutoConnect
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
 	public CardAndTerminalManager setAutoconnect(final boolean newAutoConnect) {

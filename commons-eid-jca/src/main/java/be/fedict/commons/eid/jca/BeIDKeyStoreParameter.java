@@ -65,6 +65,8 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	private Logger logger;
 
+	private String applicationName;
+
 	@Override
 	public ProtectionParameter getProtectionParameter() {
 		return null;
@@ -175,5 +177,19 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 	 */
 	public void addPPDUName(String ppduName) {
 		CCID.addPPDUName(ppduName);
+	}
+
+	public String getApplicationName() {
+		return this.applicationName;
+	}
+
+	/**
+	 * Sets the application name. Will be displayed within the PIN dialogs.
+	 * 
+	 * @param applicationName
+	 *            the optional application name.
+	 */
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
 	}
 }

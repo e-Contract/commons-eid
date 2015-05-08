@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2009 e-Contract.be BVBA.
+ * Copyright (C) 2009-2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -146,13 +146,24 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 
 	@Override
 	public void advisePINPadPINEntry(final int retriesLeft,
-			final PINPurpose purpose) {
-		showPINPadFrame(
-				retriesLeft,
-				"PIN",
-				this.messages.getMessage(MESSAGE_ID.PIN_REASON,
-						purpose.getType()),
-				this.messages.getMessage(MESSAGE_ID.PIN_PAD));
+			final PINPurpose purpose, String applicationName) {
+		if (null == applicationName) {
+			showPINPadFrame(
+					retriesLeft,
+					"PIN",
+					this.messages.getMessage(MESSAGE_ID.PIN_REASON,
+							purpose.getType()),
+					this.messages.getMessage(MESSAGE_ID.PIN_PAD));
+		} else {
+			showPINPadFrame(
+					retriesLeft,
+					"PIN",
+					this.messages.getMessage(MESSAGE_ID.PIN_REASON,
+							purpose.getType()),
+					this.messages.getMessage(MESSAGE_ID.APPLICATION) + ": "
+							+ applicationName,
+					this.messages.getMessage(MESSAGE_ID.PIN_PAD));
+		}
 	}
 
 	@Override
@@ -239,8 +250,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	}
 
 	@Override
-	public char[] obtainPIN(final int retriesLeft, final PINPurpose reason)
-			throws UserCancelledException {
+	public char[] obtainPIN(final int retriesLeft, final PINPurpose reason,
+			String applicationName) throws UserCancelledException {
 		// main panel
 		JPanel mainPanel = new JPanel() {
 			private static final long serialVersionUID = 1L;
@@ -263,6 +274,17 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		reasonPanel.add(Box.createHorizontalGlue());
 		mainPanel.add(reasonPanel);
 		mainPanel.add(Box.createVerticalStrut(16));
+
+		if (null != applicationName) {
+			Box applicationBox = Box.createHorizontalBox();
+			JLabel applicationLabel = new JLabel(
+					this.messages.getMessage(MESSAGE_ID.APPLICATION) + ": "
+							+ applicationName);
+			applicationBox.add(applicationLabel);
+			applicationBox.add(Box.createHorizontalGlue());
+			mainPanel.add(applicationBox);
+			mainPanel.add(Box.createVerticalStrut(16));
+		}
 
 		if (-1 != retriesLeft) {
 			addWarningBox(mainPanel,
@@ -309,18 +331,21 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		final DialogResult dialogResult = new DialogResult();
 
 		okButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(final ActionEvent event) {
 				dialogResult.result = DialogResult.Result.OK;
 				dialog.dispose();
 			}
 		});
 		cancelButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(final ActionEvent event) {
 				dialogResult.result = DialogResult.Result.CANCEL;
 				dialog.dispose();
 			}
 		});
 		passwordField.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(final ActionEvent event) {
 				final int pinSize = passwordField.getPassword().length;
 				if (MIN_PIN_SIZE <= pinSize && pinSize <= MAX_PIN_SIZE) {
@@ -331,9 +356,11 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		});
 		passwordField.addKeyListener(new KeyListener() {
 
+			@Override
 			public void keyPressed(final KeyEvent e) {
 			}
 
+			@Override
 			public void keyReleased(final KeyEvent e) {
 				final int pinSize = passwordField.getPassword().length;
 				if (MIN_PIN_SIZE <= pinSize && pinSize <= MAX_PIN_SIZE) {
@@ -343,6 +370,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 				}
 			}
 
+			@Override
 			public void keyTyped(final KeyEvent e) {
 			}
 		});
@@ -516,14 +544,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		}
 		this.pinPadFrame = new JFrame(title);
 		this.pinPadFrame.setAlwaysOnTop(true);
-		JPanel panel = new JPanel() {
-			private static final long serialVersionUID = 1L;
-
-			// @Override
-			// public Insets getInsets() {
-			// return new Insets(10, 30, 10, 30);
-			// }
-		};
+		this.pinPadFrame.setResizable(false);
+		JPanel panel = new JPanel();
 		final BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
 		panel.setLayout(boxLayout);
 		panel.setBorder(BorderFactory.createEmptyBorder(32, 32, 32, 32));
@@ -606,6 +628,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		this.messages = Messages.getInstance(newLocale);
 	}
 
+	@Override
 	public Locale getLocale() {
 		return locale;
 	}

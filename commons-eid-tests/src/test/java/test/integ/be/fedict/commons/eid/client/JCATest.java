@@ -529,6 +529,34 @@ public class JCATest {
 	}
 
 	@Test
+	public void testAuthenticationWithApplicationName() throws Exception {
+		Security.addProvider(new BeIDProvider());
+		Security.addProvider(new BouncyCastleProvider());
+		BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
+		keyStoreParameter.setApplicationName("Commons eID Integration Test");
+		keyStoreParameter.setLogoff(true);
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(keyStoreParameter);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
+				"Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore
+				.getCertificate("Authentication");
+		PublicKey authnPublicKey = authnCertificate.getPublicKey();
+
+		Signature signature = Signature.getInstance("SHA1withRSA");
+		signature.initSign(authnPrivateKey);
+
+		byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		byte[] signatureValue = signature.sign();
+
+		signature.initVerify(authnPublicKey);
+		signature.update(toBeSigned);
+		boolean result = signature.verify(signatureValue);
+		assertTrue(result);
+	}
+
+	@Test
 	public void testSoftwareRSAKeyWrapping() throws Exception {
 		final KeyPairGenerator keyPairGenerator = KeyPairGenerator
 				.getInstance("RSA");

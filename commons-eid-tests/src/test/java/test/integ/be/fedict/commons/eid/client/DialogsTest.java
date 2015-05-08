@@ -40,28 +40,30 @@ public class DialogsTest {
 		Messages messages = Messages.getInstance(new Locale("fr"));
 		BeIDCardUI beIDCardUI = new DefaultBeIDCardUI(null, messages);
 
-		char[] pin = beIDCardUI
-				.obtainPIN(2, PINPurpose.NonRepudiationSignature);
+		char[] pin = beIDCardUI.obtainPIN(2,
+				PINPurpose.NonRepudiationSignature, "DSS");
 		LOG.debug("PIN: " + new String(pin));
-		beIDCardUI.advisePINPadPINEntry(1, PINPurpose.NonRepudiationSignature);
+		beIDCardUI.advisePINPadPINEntry(1, PINPurpose.NonRepudiationSignature,
+				"DSS");
 
 		JOptionPane.showMessageDialog(null, "Waiting...");
 
-		beIDCardUI.advisePINPadPINEntry(-1, PINPurpose.NonRepudiationSignature);
+		beIDCardUI.advisePINPadPINEntry(-1, PINPurpose.NonRepudiationSignature,
+				"DSS");
 
 		JOptionPane.showMessageDialog(null, "Waiting...");
 
 		beIDCardUI.advisePINPadOperationEnd();
 
-		beIDCardUI.obtainPIN(-1, PINPurpose.PINTest);
-		beIDCardUI.obtainPIN(2, PINPurpose.PINTest);
-		beIDCardUI.obtainPIN(1, PINPurpose.PINTest);
-		beIDCardUI.obtainPIN(-1, PINPurpose.AuthenticationSignature);
-		beIDCardUI.obtainPIN(2, PINPurpose.AuthenticationSignature);
-		beIDCardUI.obtainPIN(1, PINPurpose.AuthenticationSignature);
-		beIDCardUI.obtainPIN(-1, PINPurpose.NonRepudiationSignature);
-		beIDCardUI.obtainPIN(2, PINPurpose.NonRepudiationSignature);
-		beIDCardUI.obtainPIN(1, PINPurpose.NonRepudiationSignature);
+		beIDCardUI.obtainPIN(-1, PINPurpose.PINTest, null);
+		beIDCardUI.obtainPIN(2, PINPurpose.PINTest, null);
+		beIDCardUI.obtainPIN(1, PINPurpose.PINTest, null);
+		beIDCardUI.obtainPIN(-1, PINPurpose.AuthenticationSignature, "eID IdP");
+		beIDCardUI.obtainPIN(2, PINPurpose.AuthenticationSignature, "eID IdP");
+		beIDCardUI.obtainPIN(1, PINPurpose.AuthenticationSignature, "eID IdP");
+		beIDCardUI.obtainPIN(-1, PINPurpose.NonRepudiationSignature, "DSS");
+		beIDCardUI.obtainPIN(2, PINPurpose.NonRepudiationSignature, "DSS");
+		beIDCardUI.obtainPIN(1, PINPurpose.NonRepudiationSignature, "DSS");
 
 	}
 }

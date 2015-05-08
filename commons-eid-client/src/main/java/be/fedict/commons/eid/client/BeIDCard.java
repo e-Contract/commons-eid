@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -182,6 +183,8 @@ public class BeIDCard {
 	 * @throws RuntimeException
 	 *             when no CertificateFactory capable of producing X509
 	 *             Certificates is available.
+	 * @throws CardException
+	 *             in case of a smart card I/O error.
 	 */
 	public BeIDCard(final CardTerminal cardTerminal, final Logger logger)
 			throws CardException {
@@ -198,6 +201,8 @@ public class BeIDCard {
 	 * @throws RuntimeException
 	 *             when no CertificateFactory capable of producing X509
 	 *             Certificates is available.
+	 * @throws CardException
+	 *             in case of a smart card I/O error.
 	 */
 	public BeIDCard(final CardTerminal cardTerminal) throws CardException {
 		this(cardTerminal.connect("T=0"), null);
@@ -493,6 +498,33 @@ public class BeIDCard {
 			final FileType fileType, final boolean requireSecureReader)
 			throws CardException, IOException, InterruptedException,
 			UserCancelledException {
+		return sign(digestValue, digestAlgo, fileType, requireSecureReader,
+				null);
+	}
+
+	/**
+	 * Sign a given digest value.
+	 * 
+	 * @param digestValue
+	 *            the digest value to be signed.
+	 * @param digestAlgo
+	 *            the algorithm used to calculate the given digest value.
+	 * @param fileType
+	 *            the certificate's file type.
+	 * @param requireSecureReader
+	 *            <code>true</code> if a secure pinpad reader is required.
+	 * @param applicationName
+	 *            the optional application name.
+	 * @return
+	 * @throws CardException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws UserCancelledException
+	 */
+	public byte[] sign(final byte[] digestValue, final BeIDDigest digestAlgo,
+			final FileType fileType, final boolean requireSecureReader,
+			final String applicationName) throws CardException, IOException,
+			InterruptedException, UserCancelledException {
 		if (!fileType.isCertificateUserCanSignWith()) {
 			throw new IllegalArgumentException(
 					"Not a certificate that can be used for signing: "
@@ -537,7 +569,7 @@ public class BeIDCard {
 					.getKeyId()) {
 				this.logger
 						.debug("non-repudiation key detected, immediate PIN verify");
-				verifyPin(PINPurpose.NonRepudiationSignature);
+				verifyPin(PINPurpose.NonRepudiationSignature, applicationName);
 			}
 
 			final ByteArrayOutputStream digestInfo = new ByteArrayOutputStream();
@@ -568,7 +600,7 @@ public class BeIDCard {
 			 * verification before retrying.
 			 */
 			this.logger.debug("PIN verification required...");
-			verifyPin(PINPurpose.fromFileType(fileType));
+			verifyPin(PINPurpose.fromFileType(fileType), applicationName);
 
 			this.logger
 					.debug("computing digital signature (attempt #2 after PIN verification)...");
@@ -610,11 +642,39 @@ public class BeIDCard {
 			final boolean requireSecureReader) throws NoSuchAlgorithmException,
 			CardException, IOException, InterruptedException,
 			UserCancelledException {
+		return signAuthn(toBeSigned, requireSecureReader, null);
+	}
+
+	/**
+	 * Create an authentication signature.
+	 * 
+	 * @param toBeSigned
+	 *            the data to be signed
+	 * @param requireSecureReader
+	 *            whether to require a secure pinpad reader to obtain the
+	 *            citizen's PIN if false, the current BeIDCardUI will be used in
+	 *            the absence of a secure pinpad reader. If true, an exception
+	 *            will be thrown unless a SPR is available
+	 * @param applicationName
+	 *            the optional application name.
+	 * @return a SHA-1 digest of the input data signed by the citizen's
+	 *         authentication key
+	 * @throws NoSuchAlgorithmException
+	 * @throws CardException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws UserCancelledException
+	 */
+	public byte[] signAuthn(final byte[] toBeSigned,
+			final boolean requireSecureReader, final String applicationName)
+			throws NoSuchAlgorithmException, CardException, IOException,
+			InterruptedException, UserCancelledException {
 		final MessageDigest messageDigest = BeIDDigest.SHA_1
 				.getMessageDigestInstance();
 		final byte[] digest = messageDigest.digest(toBeSigned);
 		return this.sign(digest, BeIDDigest.SHA_1,
-				FileType.AuthentificationCertificate, requireSecureReader);
+				FileType.AuthentificationCertificate, requireSecureReader,
+				applicationName);
 	}
 
 	/**
@@ -631,7 +691,26 @@ public class BeIDCard {
 	 */
 	public void verifyPin() throws IOException, CardException,
 			InterruptedException, UserCancelledException {
-		this.verifyPin(PINPurpose.PINTest);
+		verifyPin(null);
+	}
+
+	/**
+	 * Verifying PIN Code (without other actions, for testing PIN), using the
+	 * most secure method available. Note that this still has the side effect of
+	 * loading a successfully tests PIN into the PIN cache, so that unless the
+	 * card is removed, a subsequent authentication attempt will not request the
+	 * PIN, but proceed with the PIN given here.
+	 * 
+	 * @param applicationName
+	 *            the optional application name.
+	 * @throws IOException
+	 * @throws CardException
+	 * @throws InterruptedException
+	 * @throws UserCancelledException
+	 */
+	public void verifyPin(String applicationName) throws IOException,
+			CardException, InterruptedException, UserCancelledException {
+		this.verifyPin(PINPurpose.PINTest, applicationName);
 	}
 
 	/**
@@ -725,6 +804,30 @@ public class BeIDCard {
 	public byte[] signTransactionMessage(final String transactionMessage,
 			final boolean requireSecureReader) throws CardException,
 			IOException, InterruptedException, UserCancelledException {
+		return signTransactionMessage(transactionMessage, requireSecureReader,
+				null);
+	}
+
+	/**
+	 * Create a text message transaction signature. The FedICT eID aware secure
+	 * pinpad readers can visualize such type of text message transactions on
+	 * their hardware display.
+	 * 
+	 * @param transactionMessage
+	 *            the transaction message to be signed.
+	 * @param requireSecureReader
+	 * @param applicationName
+	 *            the optional application name.
+	 * @return
+	 * @throws CardException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws UserCancelledException
+	 */
+	public byte[] signTransactionMessage(final String transactionMessage,
+			final boolean requireSecureReader, final String applicationName)
+			throws CardException, IOException, InterruptedException,
+			UserCancelledException {
 		if (getCCID().hasFeature(CCID.FEATURE.EID_PIN_PAD_READER)) {
 			getUI().adviseSecureReaderOperation();
 		}
@@ -733,7 +836,8 @@ public class BeIDCard {
 		try {
 			signature = this.sign(transactionMessage.getBytes(),
 					BeIDDigest.PLAIN_TEXT,
-					FileType.AuthentificationCertificate, requireSecureReader);
+					FileType.AuthentificationCertificate, requireSecureReader,
+					applicationName);
 		} finally {
 			if (getCCID().hasFeature(CCID.FEATURE.EID_PIN_PAD_READER)) {
 				getUI().adviseSecureReaderOperationEnd();
@@ -833,7 +937,7 @@ public class BeIDCard {
 	 * BeIDCardManager by default, may have their own individual Locale settings
 	 * that may override those global settings.
 	 * 
-	 * @param locale
+	 * @param newLocale
 	 * @return this BeIDCard instance, to allow method chaining
 	 */
 	public BeIDCard setLocale(Locale newLocale) {
@@ -975,8 +1079,8 @@ public class BeIDCard {
 			if (0x9000 != sw) {
 				final IOException ioEx = new IOException(
 						"BeIDCommandAPDU response error: "
-								+ responseApdu.getSW());
-				ioEx.initCause(new ResponseAPDUException(responseApdu));
+								+ responseApdu.getSW(),
+						new ResponseAPDUException(responseApdu));
 				throw ioEx;
 			}
 
@@ -1242,17 +1346,21 @@ public class BeIDCard {
 	 * be the UI, will pass purpose to the UI.
 	 */
 
-	private void verifyPin(final PINPurpose purpose) throws IOException,
-			CardException, InterruptedException, UserCancelledException {
+	private void verifyPin(final PINPurpose purpose,
+			final String applicationName) throws IOException, CardException,
+			InterruptedException, UserCancelledException {
 		ResponseAPDU responseApdu;
 		int retriesLeft = -1;
 		do {
 			if (getCCID().hasFeature(CCID.FEATURE.VERIFY_PIN_DIRECT)) {
-				responseApdu = verifyPINViaCCIDDirect(retriesLeft, purpose);
+				responseApdu = verifyPINViaCCIDDirect(retriesLeft, purpose,
+						applicationName);
 			} else if (getCCID().hasFeature(CCID.FEATURE.VERIFY_PIN_START)) {
-				responseApdu = verifyPINViaCCIDStartFinish(retriesLeft, purpose);
+				responseApdu = verifyPINViaCCIDStartFinish(retriesLeft,
+						purpose, applicationName);
 			} else {
-				responseApdu = verifyPINViaUI(retriesLeft, purpose);
+				responseApdu = verifyPINViaUI(retriesLeft, purpose,
+						applicationName);
 			}
 
 			if (0x9000 != responseApdu.getSW()) {
@@ -1280,9 +1388,10 @@ public class BeIDCard {
 	 */
 
 	private ResponseAPDU verifyPINViaCCIDDirect(final int retriesLeft,
-			PINPurpose purpose) throws IOException, CardException {
+			PINPurpose purpose, String applicationName) throws IOException,
+			CardException {
 		this.logger.debug("direct PIN verification...");
-		getUI().advisePINPadPINEntry(retriesLeft, purpose);
+		getUI().advisePINPadPINEntry(retriesLeft, purpose, applicationName);
 		byte[] result;
 		try {
 			result = this.transmitCCIDControl(
@@ -1297,9 +1406,7 @@ public class BeIDCard {
 		if (0x6401 == responseApdu.getSW()) {
 			this.logger.debug("canceled by user");
 			final SecurityException securityException = new SecurityException(
-					"canceled by user");
-			securityException
-					.initCause(new ResponseAPDUException(responseApdu));
+					"canceled by user", new ResponseAPDUException(responseApdu));
 			throw securityException;
 		} else if (0x6400 == responseApdu.getSW()) {
 			this.logger.debug("PIN pad timeout");
@@ -1312,11 +1419,11 @@ public class BeIDCard {
 	 */
 
 	private ResponseAPDU verifyPINViaCCIDStartFinish(final int retriesLeft,
-			PINPurpose purpose) throws IOException, CardException,
-			InterruptedException {
+			PINPurpose purpose, String applicationName) throws IOException,
+			CardException, InterruptedException {
 		this.logger.debug("CCID verify PIN start/end sequence...");
 
-		getUI().advisePINPadPINEntry(retriesLeft, purpose);
+		getUI().advisePINPadPINEntry(retriesLeft, purpose, applicationName);
 
 		try {
 			this.transmitCCIDControl(
@@ -1343,13 +1450,14 @@ public class BeIDCard {
 	 */
 
 	private ResponseAPDU verifyPINViaUI(final int retriesLeft,
-			final PINPurpose purpose) throws CardException,
-			UserCancelledException {
+			final PINPurpose purpose, final String applicationName)
+			throws CardException, UserCancelledException {
 		final boolean windows8 = this.isWindows8();
 		if (windows8) {
 			this.endExclusive();
 		}
-		final char[] pin = getUI().obtainPIN(retriesLeft, purpose);
+		final char[] pin = getUI().obtainPIN(retriesLeft, purpose,
+				applicationName);
 		if (windows8) {
 			this.beginExclusive();
 		}
@@ -1403,9 +1511,7 @@ public class BeIDCard {
 		} else if (0x6401 == responseApdu.getSW()) {
 			this.logger.debug("canceled by user");
 			final SecurityException securityException = new SecurityException(
-					"canceled by user");
-			securityException
-					.initCause(new ResponseAPDUException(responseApdu));
+					"canceled by user", new ResponseAPDUException(responseApdu));
 			throw securityException;
 		} else if (0x6400 == responseApdu.getSW()) {
 			this.logger.debug("PIN pad timeout");
@@ -1522,9 +1628,7 @@ public class BeIDCard {
 		if (0x6401 == responseApdu.getSW()) {
 			this.logger.debug("canceled by user");
 			final SecurityException securityException = new SecurityException(
-					"canceled by user");
-			securityException
-					.initCause(new ResponseAPDUException(responseApdu));
+					"canceled by user", new ResponseAPDUException(responseApdu));
 			throw securityException;
 		} else if (0x6400 == responseApdu.getSW()) {
 			this.logger.debug("PIN pad timeout");

@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -23,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
 import javax.swing.UIManager;
 
 /**
@@ -50,30 +52,113 @@ public class Messages {
 	 * 
 	 */
 	public static enum MESSAGE_ID {
-		LOADING("loading"), SECURITY_ERROR("securityError"), CARD_ERROR(
-				"cardError"), GENERIC_ERROR("genericError"), DETECTING_CARD(
-				"detectingCard"), INSERT_CARD_QUESTION("insertCardQuestion"), READING_IDENTITY(
-				"readingIdentity"), TRANSMITTING_IDENTITY(
-				"transmittingIdentity"), DONE("done"), PRIVACY_QUESTION(
-				"privacyQuestion"), AUTHENTICATING("authenticating"), REMOVE_CARD(
-				"removeCard"), SIGNING("signing"), SELECT_FILES("selectFiles"), DIGESTING_FILES(
-				"digestingFiles"), COPY_ALL("copyAll"), MAIL("mail"), NO_MIDDLEWARE_ERROR(
-				"noMiddlewareError"), PIN_BLOCKED("pinBlocked"), PIN_CHANGED(
-				"pinChanged"), PIN_UNBLOCKED("pinUnblocked"), RETRIES_LEFT(
-				"retriesLeft"), PIN_INCORRECT("pinIncorrect"), CONNECT_READER(
-				"connectReader"), PIN_PAD("pinPad"), CURRENT_PIN("currentPin"), NEW_PIN(
-				"newPin"), OK("ok"), CANCEL("cancel"), PUK_PAD("pukPad"), PIN_PAD_CHANGE(
-				"pinPadChange"), KIOSK_MODE("kioskMode"), ENTER_PIN("enterPin"), LABEL_PIN(
-				"labelPin"), PIN_CHANGE("pinChange"), PIN_UNBLOCK("pinUnblock"), PIN_PAD_MODIFY_OLD(
-				"pinPadModifyOld"), PIN_PAD_MODIFY_NEW("pinPadModifyNew"), PIN_PAD_MODIFY_NEW_AGAIN(
-				"pinPadModifyNewAgain"), DIAGNOSTIC_MODE("diagnosticMode"), CERTIFICATE_EXPIRED_ERROR(
-				"certificateExpiredError"), CERTIFICATE_REVOKED_ERROR(
-				"certificateRevokedError"), IDENTITY_INFO("identityInfo"), IDENTITY_IDENTITY(
-				"identityIdentity"), IDENTITY_ADDRESS("identityAddress"), IDENTITY_PHOTO(
-				"identityPhoto"), DETAILS_BUTTON("detailsButtonText"), CANCEL_BUTTON(
-				"cancelButtonText"), NO_BUTTON("noButtonText"), OK_BUTTON(
-				"okButtonText"), YES_BUTTON("yesButtonText"), CERTIFICATE_NOT_TRUSTED(
-				"certificateNotTrusted"), PIN_REASON("pinReason");
+		LOADING("loading"),
+
+		SECURITY_ERROR("securityError"),
+
+		CARD_ERROR("cardError"),
+
+		GENERIC_ERROR("genericError"),
+
+		DETECTING_CARD("detectingCard"),
+
+		INSERT_CARD_QUESTION("insertCardQuestion"),
+
+		READING_IDENTITY("readingIdentity"),
+
+		TRANSMITTING_IDENTITY("transmittingIdentity"),
+
+		DONE("done"),
+
+		PRIVACY_QUESTION("privacyQuestion"),
+
+		AUTHENTICATING("authenticating"),
+
+		REMOVE_CARD("removeCard"),
+
+		SIGNING("signing"),
+
+		SELECT_FILES("selectFiles"),
+
+		DIGESTING_FILES("digestingFiles"),
+
+		COPY_ALL("copyAll"),
+
+		MAIL("mail"),
+
+		NO_MIDDLEWARE_ERROR("noMiddlewareError"),
+
+		PIN_BLOCKED("pinBlocked"),
+
+		PIN_CHANGED("pinChanged"),
+
+		PIN_UNBLOCKED("pinUnblocked"),
+
+		RETRIES_LEFT("retriesLeft"),
+
+		PIN_INCORRECT("pinIncorrect"),
+
+		CONNECT_READER("connectReader"),
+
+		PIN_PAD("pinPad"),
+
+		CURRENT_PIN("currentPin"),
+
+		NEW_PIN("newPin"),
+
+		OK("ok"),
+
+		CANCEL("cancel"),
+
+		PUK_PAD("pukPad"),
+
+		PIN_PAD_CHANGE("pinPadChange"),
+
+		KIOSK_MODE("kioskMode"),
+
+		ENTER_PIN("enterPin"),
+
+		LABEL_PIN("labelPin"),
+
+		PIN_CHANGE("pinChange"),
+
+		PIN_UNBLOCK("pinUnblock"),
+
+		PIN_PAD_MODIFY_OLD("pinPadModifyOld"),
+
+		PIN_PAD_MODIFY_NEW("pinPadModifyNew"),
+
+		PIN_PAD_MODIFY_NEW_AGAIN("pinPadModifyNewAgain"),
+
+		DIAGNOSTIC_MODE("diagnosticMode"),
+
+		CERTIFICATE_EXPIRED_ERROR("certificateExpiredError"),
+
+		CERTIFICATE_REVOKED_ERROR("certificateRevokedError"),
+
+		IDENTITY_INFO("identityInfo"),
+
+		IDENTITY_IDENTITY("identityIdentity"),
+
+		IDENTITY_ADDRESS("identityAddress"),
+
+		IDENTITY_PHOTO("identityPhoto"),
+
+		DETAILS_BUTTON("detailsButtonText"),
+
+		CANCEL_BUTTON("cancelButtonText"),
+
+		NO_BUTTON("noButtonText"),
+
+		OK_BUTTON("okButtonText"),
+
+		YES_BUTTON("yesButtonText"),
+
+		CERTIFICATE_NOT_TRUSTED("certificateNotTrusted"),
+
+		PIN_REASON("pinReason"),
+
+		APPLICATION("application");
 
 		private final String id;
 

@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -60,11 +61,11 @@ public class BeIDCardManager {
 			0x00, (byte) 0xff, 0x00, 0x00, 0x00, 0x00, (byte) 0xff,
 			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xf0,};
 
-	private CardAndTerminalManager cardAndTerminalManager;
+	private final CardAndTerminalManager cardAndTerminalManager;
 	private boolean terminalManagerIsPrivate;
-	private Map<CardTerminal, BeIDCard> terminalsAndCards;
-	private Set<BeIDCardEventsListener> beIdListeners;
-	private Set<CardEventsListener> otherCardListeners;
+	private final Map<CardTerminal, BeIDCard> terminalsAndCards;
+	private final Set<BeIDCardEventsListener> beIdListeners;
+	private final Set<CardEventsListener> otherCardListeners;
 	private final Logger logger;
 
 	/**
@@ -142,7 +143,7 @@ public class BeIDCardManager {
 								cardTerminal, beIDCard);
 					}
 
-					Set<BeIDCardEventsListener> copyOfListeners = null;
+					Set<BeIDCardEventsListener> copyOfListeners;
 
 					synchronized (BeIDCardManager.this.beIdListeners) {
 						copyOfListeners = new HashSet<BeIDCardEventsListener>(
@@ -159,7 +160,7 @@ public class BeIDCardManager {
 						}
 					}
 				} else {
-					Set<CardEventsListener> copyOfListeners = null;
+					Set<CardEventsListener> copyOfListeners;
 
 					synchronized (BeIDCardManager.this.otherCardListeners) {
 						copyOfListeners = new HashSet<CardEventsListener>(
@@ -189,7 +190,7 @@ public class BeIDCardManager {
 								.remove(cardTerminal);
 					}
 
-					Set<BeIDCardEventsListener> copyOfListeners = null;
+					Set<BeIDCardEventsListener> copyOfListeners;
 
 					synchronized (BeIDCardManager.this.beIdListeners) {
 						copyOfListeners = new HashSet<BeIDCardEventsListener>(
@@ -207,7 +208,7 @@ public class BeIDCardManager {
 
 					}
 				} else {
-					Set<CardEventsListener> copyOfListeners = null;
+					Set<CardEventsListener> copyOfListeners;
 
 					synchronized (BeIDCardManager.this.otherCardListeners) {
 						copyOfListeners = new HashSet<CardEventsListener>(
@@ -228,7 +229,7 @@ public class BeIDCardManager {
 
 			@Override
 			public void cardEventsInitialized() {
-				Set<BeIDCardEventsListener> copyOfBeIDCardEventsListeners = null;
+				Set<BeIDCardEventsListener> copyOfBeIDCardEventsListeners;
 
 				synchronized (BeIDCardManager.this.beIdListeners) {
 					copyOfBeIDCardEventsListeners = new HashSet<BeIDCardEventsListener>(
@@ -245,7 +246,7 @@ public class BeIDCardManager {
 					}
 				}
 
-				Set<CardEventsListener> copyOfOtherCardEventsListeners = null;
+				Set<CardEventsListener> copyOfOtherCardEventsListeners;
 
 				synchronized (BeIDCardManager.this.otherCardListeners) {
 					copyOfOtherCardEventsListeners = new HashSet<CardEventsListener>(
@@ -365,6 +366,7 @@ public class BeIDCardManager {
 	 * CardAndTerminalManager was given at construction, this has no effect.
 	 * 
 	 * @return this BeIDCardManager to allow for method chaining
+	 * @throws InterruptedException
 	 */
 	public BeIDCardManager stop() throws InterruptedException {
 		if (this.terminalManagerIsPrivate) {
