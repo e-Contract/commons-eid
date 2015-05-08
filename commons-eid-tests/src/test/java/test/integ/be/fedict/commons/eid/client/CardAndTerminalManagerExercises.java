@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -34,11 +35,17 @@ import org.junit.Test;
 import be.fedict.commons.eid.client.CardAndTerminalManager;
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class CardAndTerminalManagerExercises
 		implements
 			CardTerminalEventsListener,
 			CardEventsListener {
+
+	private static final Log LOG = LogFactory
+			.getLog(CardAndTerminalManagerExercises.class);
+
 	private CardAndTerminalManager cardAndTerminalManager;
 
 	// ---------------------------------------------------------------------------------------------
@@ -107,7 +114,7 @@ public class CardAndTerminalManagerExercises
 			}
 		};
 
-		System.err.println("main thread running.. do some card tricks..");
+		LOG.debug("main thread running.. do some card tricks..");
 
 		for (;;) {
 			System.err.print("+");
@@ -137,7 +144,6 @@ public class CardAndTerminalManagerExercises
 				new TestLogger());
 		this.cardAndTerminalManager.addCardTerminalListener(this);
 		this.cardAndTerminalManager.addCardListener(this);
-		this.cardAndTerminalManager.start();
 
 		for (;;) {
 			System.err.print("+");
@@ -154,43 +160,39 @@ public class CardAndTerminalManagerExercises
 
 	@Override
 	public void terminalAttached(final CardTerminal terminalAttached) {
-		System.err.println("Terminal Attached [" + terminalAttached.getName()
-				+ "]");
+		LOG.debug("Terminal Attached [" + terminalAttached.getName() + "]");
 	}
 
 	@Override
 	public void terminalDetached(final CardTerminal terminalDetached) {
-		System.err.println("Terminal Detached [" + terminalDetached.getName()
-				+ "]");
+		LOG.debug("Terminal Detached [" + terminalDetached.getName() + "]");
 	}
 
 	@Override
 	public void cardInserted(final CardTerminal cardTerminal, final Card card) {
 		if (card != null) {
-			System.err.println("Card ["
-					+ StringUtils.atrToString(card.getATR())
+			LOG.debug("Card [" + StringUtils.atrToString(card.getATR())
 					+ "] Inserted Into Terminal [" + cardTerminal.getName()
 					+ "]");
 		} else {
-			System.err.println("Card present but failed to connect()");
+			LOG.debug("Card present but failed to connect()");
 		}
 	}
 
 	@Override
 	public void cardRemoved(final CardTerminal terminalWithCardRemoved) {
-		System.err.println("Card Removed From ["
-				+ terminalWithCardRemoved.getName() + "]");
+		LOG.debug("Card Removed From [" + terminalWithCardRemoved.getName()
+				+ "]");
 	}
 
 	@Override
 	public void cardEventsInitialized() {
-		System.out.println("Card Events Initialised");
+		LOG.debug("Card Events Initialised");
 
 	}
 
 	@Override
 	public void terminalEventsInitialized() {
-		System.out.println("Terminal Events Initialised");
-
+		LOG.debug("Terminal Events Initialised");
 	}
 }

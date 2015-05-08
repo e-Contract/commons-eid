@@ -210,6 +210,9 @@ public class CardAndTerminalManager implements Runnable {
 	public CardAndTerminalManager start() {
 		this.logger
 				.debug("CardAndTerminalManager worker thread start requested.");
+		if (null != this.worker) {
+			throw new IllegalStateException("already started");
+		}
 		this.worker = new Thread(this, "CardAndTerminalManager");
 		this.worker.setDaemon(true);
 		this.worker.start();
@@ -299,6 +302,7 @@ public class CardAndTerminalManager implements Runnable {
 		this.running = false;
 		this.worker.interrupt();
 		this.worker.join();
+		this.worker = null;
 		return this;
 	}
 
