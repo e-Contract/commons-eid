@@ -352,7 +352,7 @@ public class BeIDCardManager {
 	 * @return this BeIDCardManager to allow for method chaining
 	 */
 	public BeIDCardManager removeOtherCardEventListener(
-			final BeIDCardEventsListener listener) {
+			final CardEventsListener listener) {
 		synchronized (this.otherCardListeners) {
 			this.otherCardListeners.remove(listener);
 		}
