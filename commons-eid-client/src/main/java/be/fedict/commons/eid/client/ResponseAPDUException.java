@@ -28,7 +28,9 @@ import javax.smartcardio.ResponseAPDU;
  * 
  */
 public class ResponseAPDUException extends RuntimeException {
-	private static final long serialVersionUID = -3573705690889181394L;
+
+	private static final long serialVersionUID = 1;
+
 	private final ResponseAPDU apdu;
 
 	public ResponseAPDUException(final ResponseAPDU apdu) {

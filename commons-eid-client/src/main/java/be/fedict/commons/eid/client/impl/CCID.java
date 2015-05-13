@@ -43,6 +43,7 @@ import be.fedict.commons.eid.client.spi.Logger;
  * 
  */
 public class CCID {
+
 	public static final int GET_FEATURES = 0x42000D48;
 	public static final int GET_FEATURES_MICROSOFT = 0x31 << 16 | 3400 << 2;
 	public static final int MIN_PIN_SIZE = 4;
@@ -64,9 +65,21 @@ public class CCID {
 	private boolean usesPPDU;
 
 	public enum FEATURE {
-		VERIFY_PIN_START(0x01), VERIFY_PIN_FINISH(0x02), VERIFY_PIN_DIRECT(0x06), MODIFY_PIN_START(
-				0x03), MODIFY_PIN_FINISH(0x04), MODIFY_PIN_DIRECT(0x07), GET_KEY_PRESSED(
-				0x05), EID_PIN_PAD_READER(0x80);
+		VERIFY_PIN_START(0x01),
+
+		VERIFY_PIN_FINISH(0x02),
+
+		VERIFY_PIN_DIRECT(0x06),
+
+		MODIFY_PIN_START(0x03),
+
+		MODIFY_PIN_FINISH(0x04),
+
+		MODIFY_PIN_DIRECT(0x07),
+
+		GET_KEY_PRESSED(0x05),
+
+		EID_PIN_PAD_READER(0x80);
 
 		private final byte tag;
 
@@ -80,7 +93,11 @@ public class CCID {
 	}
 
 	public enum INS {
-		VERIFY_PIN(0x20), MODIFY_PIN(0x24), VERIFY_PUK(0x2C);
+		VERIFY_PIN(0x20),
+
+		MODIFY_PIN(0x24),
+
+		VERIFY_PUK(0x2C);
 
 		private final int ins;
 

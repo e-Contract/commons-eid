@@ -35,6 +35,7 @@ import be.fedict.commons.eid.client.PINPurpose;
 public class BeIDCardUIAdapter implements BeIDCardUI {
 
 	private static final String OPERATION_CANCELLED = "operation cancelled.";
+
 	protected Locale locale;
 
 	@Override

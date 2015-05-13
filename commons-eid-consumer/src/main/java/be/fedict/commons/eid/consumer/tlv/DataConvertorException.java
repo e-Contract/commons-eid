@@ -26,6 +26,7 @@ package be.fedict.commons.eid.consumer.tlv;
  * @author Frank Cornelis
  */
 public class DataConvertorException extends Exception {
+
 	private static final long serialVersionUID = 1L;
 
 	/**

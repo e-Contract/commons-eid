@@ -34,5 +34,4 @@ public class CardEventsAdapter implements CardEventsListener {
 	@Override
 	public void cardRemoved(CardTerminal cardTerminal) {
 	}
-
 }

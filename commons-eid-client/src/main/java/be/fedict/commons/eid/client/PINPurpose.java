@@ -26,6 +26,7 @@ package be.fedict.commons.eid.client;
  * @author Frank Marien
  */
 public enum PINPurpose {
+
 	PINTest("test"),
 
 	AuthenticationSignature("authentication"),

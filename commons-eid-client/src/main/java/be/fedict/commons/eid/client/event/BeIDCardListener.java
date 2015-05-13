@@ -30,6 +30,8 @@ import be.fedict.commons.eid.client.FileType;
 public interface BeIDCardListener {
 
 	void notifyReadProgress(FileType fileType, int offset, int estimatedMaxSize);
+
 	void notifySigningBegin(FileType fileType);
+
 	void notifySigningEnd(FileType fileType);
 }

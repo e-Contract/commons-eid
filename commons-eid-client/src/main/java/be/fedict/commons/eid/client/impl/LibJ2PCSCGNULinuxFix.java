@@ -34,6 +34,7 @@ import be.fedict.commons.eid.client.spi.Logger;
  * @author Frank Marien
  */
 public final class LibJ2PCSCGNULinuxFix {
+
 	private static final int PCSC_LIBRARY_VERSION = 1;
 	private static final String SMARTCARDIO_LIBRARY_PROPERTY = "sun.security.smartcardio.library";
 	private static final String LIBRARY_PATH_PROPERTY = "java.library.path";
@@ -45,6 +46,7 @@ public final class LibJ2PCSCGNULinuxFix {
 	private static final String OS_NAME_PROPERTY = "os.name";
 	private static final String JRE_BITNESS_32_VALUE = "i386";
 	private static final String JRE_BITNESS_64_VALUE = "amd64";
+
 	private static enum UbuntuBitness {
 		NA, PURE32, PURE64, MULTILIB
 	};

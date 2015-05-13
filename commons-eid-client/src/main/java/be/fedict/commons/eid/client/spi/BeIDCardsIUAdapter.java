@@ -34,6 +34,7 @@ import be.fedict.commons.eid.client.BeIDCard;
  * 
  */
 public class BeIDCardsIUAdapter implements BeIDCardsUI {
+
 	protected Locale locale;
 
 	@Override

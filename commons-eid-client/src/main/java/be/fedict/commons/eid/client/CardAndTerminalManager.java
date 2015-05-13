@@ -72,7 +72,13 @@ public class CardAndTerminalManager implements Runnable {
 	private PROTOCOL protocol;
 
 	public enum PROTOCOL {
-		T0("T=0"), T1("T=1"), TCL("T=CL"), ANY("*");
+		T0("T=0"),
+
+		T1("T=1"),
+
+		TCL("T=CL"),
+
+		ANY("*");
 
 		private final String protocol;
 

@@ -30,8 +30,17 @@ import java.util.Map;
  */
 public enum SpecialOrganisation implements Serializable {
 
-	UNSPECIFIED(null), SHAPE("1"), NATO("2"), FORMER_BLUE_CARD_HOLDER("4"), RESEARCHER(
-			"5"), UNKNOWN(null);
+	UNSPECIFIED(null),
+
+	SHAPE("1"),
+
+	NATO("2"),
+
+	FORMER_BLUE_CARD_HOLDER("4"),
+
+	RESEARCHER("5"),
+
+	UNKNOWN(null);
 
 	private final String key;
 

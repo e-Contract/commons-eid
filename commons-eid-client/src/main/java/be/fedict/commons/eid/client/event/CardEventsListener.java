@@ -36,7 +36,10 @@ import javax.smartcardio.CardTerminal;
  * @author Frank Marien
  */
 public interface CardEventsListener {
+
 	void cardEventsInitialized();
+
 	void cardInserted(CardTerminal cardTerminal, Card card);
+
 	void cardRemoved(CardTerminal cardTerminal);
 }

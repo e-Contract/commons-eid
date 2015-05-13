@@ -32,7 +32,10 @@ import be.fedict.commons.eid.client.BeIDCardManager;
  * @author Frank Marien
  */
 public interface BeIDCardEventsListener {
+
 	void eIDCardEventsInitialized();
+
 	void eIDCardInserted(CardTerminal cardTerminal, BeIDCard card);
+
 	void eIDCardRemoved(CardTerminal cardTerminal, BeIDCard card);
 }

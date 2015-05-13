@@ -29,10 +29,18 @@ import java.util.Map;
  * 
  */
 public enum SpecialStatus implements Serializable {
-	NO_STATUS("0", false, false, false), WHITE_CANE("1", true, false, false), EXTENDED_MINORITY(
-			"2", false, true, false), WHITE_CANE_EXTENDED_MINORITY("3", true,
-			true, false), YELLOW_CANE("4", false, false, true), YELLOW_CANE_EXTENDED_MINORITY(
-			"5", false, true, true);
+
+	NO_STATUS("0", false, false, false),
+
+	WHITE_CANE("1", true, false, false),
+
+	EXTENDED_MINORITY("2", false, true, false),
+
+	WHITE_CANE_EXTENDED_MINORITY("3", true, true, false),
+
+	YELLOW_CANE("4", false, false, true),
+
+	YELLOW_CANE_EXTENDED_MINORITY("5", false, true, true);
 
 	private final String strValue;
 

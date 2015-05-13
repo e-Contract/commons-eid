@@ -29,6 +29,7 @@ import be.fedict.commons.eid.consumer.tlv.ByteArrayField;
  * @author Frank Marien
  */
 public class CardData implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
 	// pkcs1 support masks

@@ -55,6 +55,7 @@ import be.fedict.commons.eid.client.spi.Sleeper;
  */
 
 public class BeIDCards {
+
 	private static final String UI_MISSING_LOG_MESSAGE = "No BeIDCardsUI set and can't load DefaultBeIDCardsUI";
 	private static final String DEFAULT_UI_IMPLEMENTATION = "be.fedict.commons.eid.dialogs.DefaultBeIDCardsUI";
 

@@ -28,6 +28,7 @@ package be.fedict.commons.eid.client.spi;
  * 
  */
 public class Sleeper {
+
 	private boolean isAwoken;
 
 	public synchronized void sleepUntilAwakened(final long timeout) {

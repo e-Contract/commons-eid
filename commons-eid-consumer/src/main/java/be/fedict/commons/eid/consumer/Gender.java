@@ -21,7 +21,7 @@ package be.fedict.commons.eid.consumer;
 import java.io.Serializable;
 
 /**
- * Gender enumeration. For the moment we only have 2 values.
+ * Gender enumeration. For the moment we only have 2 values. :)
  * 
  * @author Frank Cornelis
  * 

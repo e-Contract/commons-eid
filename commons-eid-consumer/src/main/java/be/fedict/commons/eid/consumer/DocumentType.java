@@ -30,8 +30,13 @@ import java.util.Map;
  */
 public enum DocumentType implements Serializable {
 
-	BELGIAN_CITIZEN("1"), KIDS_CARD("6"), BOOTSTRAP_CARD("7"), HABILITATION_CARD(
-			"8"),
+	BELGIAN_CITIZEN("1"),
+
+	KIDS_CARD("6"),
+
+	BOOTSTRAP_CARD("7"),
+
+	HABILITATION_CARD("8"),
 
 	/**
 	 * Bewijs van inschrijving in het vreemdelingenregister ??? Tijdelijk
