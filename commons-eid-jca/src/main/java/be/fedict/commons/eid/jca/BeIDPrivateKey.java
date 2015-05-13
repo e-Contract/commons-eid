@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.FileType;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
+import be.fedict.commons.eid.client.spi.UserCancelledException;
 
 /**
  * eID based JCA private key. Should not be used directly, but via the
@@ -164,6 +165,9 @@ public class BeIDPrivateKey implements PrivateKey {
 				this.beIDCard.logoff();
 			}
 		} catch (final Exception ex) {
+			if (ex instanceof UserCancelledException) {
+				throw new UserCancelledSignatureException(ex);
+			}
 			throw new SignatureException(ex);
 		}
 		return signatureValue;

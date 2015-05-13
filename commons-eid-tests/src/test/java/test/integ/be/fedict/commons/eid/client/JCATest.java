@@ -59,11 +59,11 @@ import org.junit.Test;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
-import be.fedict.commons.eid.client.impl.CCID;
 import be.fedict.commons.eid.client.spi.UserCancelledException;
 import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
 import be.fedict.commons.eid.jca.BeIDPrivateKey;
 import be.fedict.commons.eid.jca.BeIDProvider;
+import be.fedict.commons.eid.jca.UserCancelledSignatureException;
 
 public class JCATest {
 
@@ -394,12 +394,15 @@ public class JCATest {
 		signature.initSign(authnPrivateKey);
 		assertTrue(signature.getProvider() instanceof BeIDProvider);
 
+		JOptionPane.showMessageDialog(null,
+				"Please click Cancel on the next PIN dialog.");
+
 		final byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);
 		try {
 			signature.sign();
 			fail();
-		} catch (SignatureException e) {
+		} catch (UserCancelledSignatureException e) {
 			// expected
 			assertTrue(e.getCause() instanceof UserCancelledException);
 		}
