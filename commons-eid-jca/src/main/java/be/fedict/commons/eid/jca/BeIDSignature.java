@@ -47,8 +47,8 @@ import org.apache.commons.logging.LogFactory;
  * <li><code>RIPEMD128withRSA</code></li>
  * <li><code>RIPEMD160withRSA</code></li>
  * <li><code>RIPEMD256withRSA</code></li>
- * <li><code>SHA1withRSAandMGF1</code>, supported by future eID cards.</li>
- * <li><code>SHA256withRSAandMGF1</code>, supported by future eID cards.</li>
+ * <li><code>SHA1withRSAandMGF1</code>, supported by recent eID cards.</li>
+ * <li><code>SHA256withRSAandMGF1</code>, supported by recent eID cards.</li>
  * </ul>
  * <p/>
  * Some of the more exotic digest algorithms like SHA-224 and RIPEMDxxx will
