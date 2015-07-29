@@ -94,12 +94,10 @@ public class BeIDIntegrity {
 	 * @param identitySignatureFile
 	 * @param rrnCertificate
 	 * @return
-	 * @throws NoSuchAlgorithmException
 	 */
 	public Identity getVerifiedIdentity(final byte[] identityFile,
 			final byte[] identitySignatureFile,
-			final X509Certificate rrnCertificate)
-			throws NoSuchAlgorithmException {
+			final X509Certificate rrnCertificate) {
 		final Identity identity = this.getVerifiedIdentity(identityFile,
 				identitySignatureFile, null, rrnCertificate);
 		return identity;
@@ -114,12 +112,10 @@ public class BeIDIntegrity {
 	 * @param photo
 	 * @param rrnCertificate
 	 * @return
-	 * @throws NoSuchAlgorithmException
 	 */
 	public Identity getVerifiedIdentity(final byte[] identityFile,
 			final byte[] identitySignatureFile, final byte[] photo,
-			final X509Certificate rrnCertificate)
-			throws NoSuchAlgorithmException {
+			final X509Certificate rrnCertificate) {
 		final PublicKey publicKey = rrnCertificate.getPublicKey();
 		boolean result;
 		try {
@@ -330,8 +326,7 @@ public class BeIDIntegrity {
 		return Arrays.equals(expectedDigestValue, actualDigestValue);
 	}
 
-	private String getDigestAlgo(final int hashSize)
-			throws NoSuchAlgorithmException {
+	private String getDigestAlgo(final int hashSize) throws SecurityException {
 		switch (hashSize) {
 			case 20 :
 				return "SHA-1";
@@ -345,7 +340,7 @@ public class BeIDIntegrity {
 				return "SHA-512";
 		}
 
-		throw new NoSuchAlgorithmException(
+		throw new SecurityException(
 				"Failed to find guess algorithm for hash size of " + hashSize
 						+ " bytes");
 	}
