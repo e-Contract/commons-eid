@@ -146,6 +146,11 @@ public class CCID {
 				.debug("Getting CCID FEATURES using standard control command");
 		try {
 			getFeaturesUsingControlChannel(card, onMSWindows);
+			if (this.features.isEmpty() && onMSWindows
+					&& isPPDUCardTerminal(cardTerminal.getName())) {
+				// Windows 10 work-around
+				getFeaturesUsingPPDU(card);
+			}
 		} catch (final CardException cexInNormal) {
 			this.logger
 					.debug("GET_FEATURES over standard control command failed: "
@@ -176,8 +181,8 @@ public class CCID {
 		this.logger.debug("CCID FEATURES found using standard control command");
 		for (FEATURE feature : FEATURE.values()) {
 			Integer featureCode = findFeatureTLV(feature.getTag(), featureBytes);
-			this.features.put(feature, featureCode);
 			if (featureCode != null) {
+				this.features.put(feature, featureCode);
 				this.logger.debug("FEATURE " + feature.name() + " = "
 						+ Integer.toHexString(featureCode));
 			}
@@ -197,8 +202,8 @@ public class CCID {
 			for (FEATURE feature : FEATURE.values()) {
 				Integer featureCode = findFeaturePPDU(feature.getTag(),
 						featureBytes);
-				this.features.put(feature, featureCode);
 				if (featureCode != null) {
+					this.features.put(feature, featureCode);
 					this.logger.debug("FEATURE " + feature.name() + " = "
 							+ Integer.toHexString(featureCode));
 				}
