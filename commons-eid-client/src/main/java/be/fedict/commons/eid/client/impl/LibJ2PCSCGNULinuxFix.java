@@ -1,8 +1,8 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2008-2013 FedICT.
  * Copyright (C) 2015 e-Contract.be BVBA.
- *
+ * Copyright (C) 2008-2015 FedICT.
+ * 
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
  * 3.0 as published by the Free Software Foundation.
@@ -22,6 +22,7 @@
  */
 
 package be.fedict.commons.eid.client.impl;
+
 import java.io.File;
 import be.fedict.commons.eid.client.spi.Logger;
 
@@ -34,14 +35,13 @@ import be.fedict.commons.eid.client.spi.Logger;
  * @author Frank Marien
  */
 public final class LibJ2PCSCGNULinuxFix {
-
 	private static final int PCSC_LIBRARY_VERSION = 1;
 	private static final String SMARTCARDIO_LIBRARY_PROPERTY = "sun.security.smartcardio.library";
 	private static final String LIBRARY_PATH_PROPERTY = "java.library.path";
 	private static final String GNULINUX_OS_PROPERTY_PREFIX = "Linux";
 	private static final String PCSC_LIBRARY_NAME = "pcsclite";
-	private static final String UBUNTU_MULTILIB_32_PATH = "/lib/i386-linux-gnu";
-	private static final String UBUNTU_MULTILIB_64_PATH = "/lib/x86_64-linux-gnu";
+	private static final String UBUNTU_MULTILIB_32_SUFFIX = "i386-linux-gnu";
+	private static final String UBUNTU_MULTILIB_64_SUFFIX = "x86_64-linux-gnu";
 	private static final String JRE_BITNESS_PROPERTY = "os.arch";
 	private static final String OS_NAME_PROPERTY = "os.name";
 	private static final String JRE_BITNESS_32_VALUE = "i386";
@@ -66,10 +66,6 @@ public final class LibJ2PCSCGNULinuxFix {
 	 * 
 	 * Does nothing if not on a GNU/Linux system
 	 */
-	public static void fixNativeLibrary() {
-		fixNativeLibrary(new VoidLogger());
-	}
-
 	public static void fixNativeLibrary(final Logger logger) {
 		final String osName = System.getProperty(OS_NAME_PROPERTY);
 		if ((osName != null)
@@ -98,9 +94,9 @@ public final class LibJ2PCSCGNULinuxFix {
 	 * Determine Ubuntu-type multilib configuration
 	 */
 	private static UbuntuBitness getUbuntuBitness() {
-		File multilibdir = new File(UBUNTU_MULTILIB_32_PATH);
+		File multilibdir = new File("/lib/" + UBUNTU_MULTILIB_32_SUFFIX);
 		boolean has32 = multilibdir.exists() && multilibdir.isDirectory();
-		multilibdir = new File(UBUNTU_MULTILIB_64_PATH);
+		multilibdir = new File("/lib/" + UBUNTU_MULTILIB_64_SUFFIX);
 		boolean has64 = multilibdir.exists() && multilibdir.isDirectory();
 
 		if (has32 && (!has64)) {
@@ -127,26 +123,38 @@ public final class LibJ2PCSCGNULinuxFix {
 	}
 
 	/*
+	 * It turns out the Ubuntu packages differ from the Debian ones, due to
+	 * Debian bug#531592 and a difference of opinion between the Debian
+	 * maintainer of PC/SC and the Ubuntu maintainers. As such, if we want to
+	 * work on both distributions, we need to add both directories.
+	 */
+	private static String addMultiarchPath(final String libPath,
+			final String suffix) {
+		String retval = extendLibraryPath(libPath, "/lib/" + suffix);
+		return extendLibraryPath(retval, "/usr/lib/" + suffix);
+	}
+
+	/*
 	 * Oracle Java 7, java.library.path is severely limited as compared to the
 	 * OpenJDK default and doesn't contain Ubuntu 12's MULTILIB directories.
 	 * Test for Ubuntu in various configs and add the required paths
 	 */
 	private static String fixPathForUbuntuMultiLib(final String libraryPath,
 			final Logger logger) {
-		logger.debug("Looking for Ubuntu-style multilib installation.");
+		logger.debug("Looking for Debian/Ubuntu-style multilib installation.");
 
 		switch (getUbuntuBitness()) {
 			case PURE32 :
 				// pure 32-bit Ubuntu. Add the 32-bit lib dir.
-				logger.debug("pure 32-bit Ubuntu detected, using 32-bit multilib path: "
-						+ UBUNTU_MULTILIB_32_PATH);
-				return extendLibraryPath(libraryPath, UBUNTU_MULTILIB_32_PATH);
+				logger.debug("pure 32-bit Debian/Ubuntu detected, adding library paths containing 32-bit multilib suffix: "
+						+ UBUNTU_MULTILIB_32_SUFFIX);
+				return addMultiarchPath(libraryPath, UBUNTU_MULTILIB_32_SUFFIX);
 
 			case PURE64 :
 				// pure 64-bit Ubuntu. Add the 64-bit lib dir.
-				logger.debug("pure 64-bit Ubuntu detected, using 64-bit multilib path: "
-						+ UBUNTU_MULTILIB_64_PATH);
-				return extendLibraryPath(libraryPath, UBUNTU_MULTILIB_64_PATH);
+				logger.debug("pure 64-bit Debian/Ubuntu detected, adding library paths containing 64-bit multilib suffix: "
+						+ UBUNTU_MULTILIB_64_SUFFIX);
+				return addMultiarchPath(libraryPath, UBUNTU_MULTILIB_64_SUFFIX);
 
 			case MULTILIB : {
 				// multilib Ubuntu. Let the currently running JRE's bitness
@@ -162,23 +170,23 @@ public final class LibJ2PCSCGNULinuxFix {
 				logger.debug("JRE Bitness is [" + jvmBinaryArch + "]");
 
 				if (jvmBinaryArch.equals(JRE_BITNESS_32_VALUE)) {
-					logger.debug("32-bit JRE, using 32-bit multilib path: "
-							+ UBUNTU_MULTILIB_32_PATH);
-					return extendLibraryPath(libraryPath,
-							UBUNTU_MULTILIB_32_PATH);
+					logger.debug("32-bit JRE, using 32-bit multilib suffix: "
+							+ UBUNTU_MULTILIB_32_SUFFIX);
+					return addMultiarchPath(libraryPath,
+							UBUNTU_MULTILIB_32_SUFFIX);
 				}
 
 				if (jvmBinaryArch.equals(JRE_BITNESS_64_VALUE)) {
-					logger.debug("64-bit JRE, using 64-bit multilib path: "
-							+ UBUNTU_MULTILIB_64_PATH);
-					return extendLibraryPath(libraryPath,
-							UBUNTU_MULTILIB_64_PATH);
+					logger.debug("64-bit JRE, using 64-bit multilib suffix: "
+							+ UBUNTU_MULTILIB_64_SUFFIX);
+					return addMultiarchPath(libraryPath,
+							UBUNTU_MULTILIB_64_SUFFIX);
 				}
 			}
 				break;
 
 			default : {
-				logger.debug("Did not find Ubuntu-style multilib.");
+				logger.debug("Did not find Debian/Ubuntu-style multilib.");
 			}
 		}
 		return libraryPath;
