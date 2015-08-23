@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>be.fedict</groupId>
 		<artifactId>commons-eid</artifactId>
-		<version>0.6.3-SNAPSHOT</version>
+		<version>0.6.3</version>
 	</parent>
 	<name>Commons eID Client</name>
 	<description>eID client library based on PC/SC</description>
