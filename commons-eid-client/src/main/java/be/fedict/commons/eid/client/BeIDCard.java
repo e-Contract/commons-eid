@@ -1442,7 +1442,15 @@ public class BeIDCard {
 
 	private boolean isWindows8() {
 		final String osName = System.getProperty("os.name");
-		return osName.contains("Windows 8");
+		boolean win8 = osName.contains("Windows 8");
+                if (win8) {
+                    return true;
+                }
+                boolean win10 = osName.contains("Windows 10");
+                if (win10) {
+                    return true;
+                }
+                return false;
 	}
 
 	/*
