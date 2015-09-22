@@ -616,7 +616,6 @@ public class BeIDCard {
 		} finally {
 			this.endExclusive();
 			notifySigningEnd(fileType);
-
 		}
 	}
 
@@ -1157,6 +1156,16 @@ public class BeIDCard {
 		return this.getCCID().hasFeature(feature);
 	}
 
+	public byte[] getCardData() throws CardException, FileNotFoundException {
+		ResponseAPDU responseApdu = transmitCommand(
+				BeIDCommandAPDU.GET_CARD_DATA, 0xff);
+		if (0x9000 != responseApdu.getSW()) {
+			throw new FileNotFoundException("GET CARD DATA ERROR: "
+					+ Integer.toHexString(responseApdu.getSW()));
+		}
+		return responseApdu.getData();
+	}
+
 	// ===========================================================================================================
 	// low-level card transmit commands
 	// not recommended for general use.
@@ -1174,11 +1183,12 @@ public class BeIDCard {
 	protected byte[] transmitCCIDControl(final boolean usePPDU,
 			final CCID.FEATURE feature, final byte[] command)
 			throws CardException {
-		if (usePPDU)
+		if (usePPDU) {
 			return transmitPPDUCommand(feature.getTag(), command);
-		else
+		} else {
 			return transmitControlCommand(getCCID().getFeature(feature),
 					command);
+		}
 	}
 
 	protected byte[] transmitControlCommand(final int controlCode,
@@ -1190,11 +1200,13 @@ public class BeIDCard {
 			final byte[] command) throws CardException {
 		ResponseAPDU responseAPDU = transmitCommand(BeIDCommandAPDU.PPDU,
 				controlCode, command);
-		if (responseAPDU.getSW() != 0x9000)
+		if (responseAPDU.getSW() != 0x9000) {
 			throw new CardException("PPDU Command Failed: ResponseAPDU="
 					+ responseAPDU.getSW());
-		if (responseAPDU.getNr() == 0)
+		}
+		if (responseAPDU.getNr() == 0) {
 			return responseAPDU.getBytes();
+		}
 		return responseAPDU.getData();
 	}
 
@@ -1443,14 +1455,14 @@ public class BeIDCard {
 	private boolean isWindows8() {
 		final String osName = System.getProperty("os.name");
 		boolean win8 = osName.contains("Windows 8");
-                if (win8) {
-                    return true;
-                }
-                boolean win10 = osName.contains("Windows 10");
-                if (win10) {
-                    return true;
-                }
-                return false;
+		if (win8) {
+			return true;
+		}
+		boolean win10 = osName.contains("Windows 10");
+		if (win10) {
+			return true;
+		}
+		return false;
 	}
 
 	/*

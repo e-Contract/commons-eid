@@ -15,7 +15,6 @@
  * License along with this software; if not, see 
  * http://www.gnu.org/licenses/.
  */
-
 package be.fedict.commons.eid.consumer;
 
 import java.io.Serializable;
@@ -90,7 +89,6 @@ public class CardData implements Serializable {
 	public int applicationLifeCycle;
 
 	// ----------------------------------------------------------------------
-
 	/**
 	 * get the complete card serial number "he serial number is composed of 2
 	 * bytes reserved for axalto, 2 bytes identifying the chip manufacturer, and
@@ -210,11 +208,24 @@ public class CardData implements Serializable {
 	}
 
 	/**
-	 * get the "PKCS#1 support" byte b7 b6 b5 b4 b3 b2 b1 b0 Meaning -- -- -- --
-	 * -- -- -- 1 RSASSA-PKCS1 v1.5 supported (MD5 and SHA-1) -- -- -- -- -- --
-	 * 1 -- RSASSA-PSS supported (SHA-1) -- -- -- -- -- 1 -- -- RSAES-PKCS1 v1.5
-	 * supported -- -- -- -- 1 -- -- -- RSAES-OAEP supported -- -- -- 1 -- -- --
-	 * -- RSA-KEM supported
+	 * get the "PKCS#1 support".
+	 * 
+	 * byte
+	 * 
+	 * b7 b6 b5 b4 b3 b2 b1 b0 Meaning
+	 * 
+	 * -- -- -- -- -- -- -- 1 RSASSA-PKCS1 v1.5 supported (MD5 and SHA-1)
+	 * 
+	 * -- -- -- -- -- -- 1 -- RSASSA-PSS supported (SHA-1)
+	 * 
+	 * -- -- -- -- -- 1 -- -- RSAES-PKCS1 v1.5 supported
+	 * 
+	 * -- -- -- -- 1 -- -- -- RSAES-OAEP supported
+	 * 
+	 * -- -- -- 1 -- -- -- -- RSA-KEM supported
+	 * 
+	 * Notice that the above is as specified within BELPIC 2.0, which is not in
+	 * production (yet). For now you simply get "21", the PKCS#1 version number.
 	 * 
 	 * @return the "PKCS#1 support" byte
 	 */
@@ -243,9 +254,9 @@ public class CardData implements Serializable {
 	}
 
 	// -----------------------------------------------------------------------
-
 	/**
-	 * Convenience method to test whether this card supports RSASSA-PKCS1 v1.5
+	 * Convenience method to test whether this card supports RSASSA-PKCS1 v1.5.
+	 * BELPIC v2.0 only!
 	 * 
 	 * @return true if card supports RSASSA-PKCS1 v1.5, false otherwise
 	 */
@@ -254,7 +265,8 @@ public class CardData implements Serializable {
 	}
 
 	/**
-	 * Convenience method to test whether this card supports RSASSA-PSS
+	 * Convenience method to test whether this card supports RSASSA-PSS. BELPIC
+	 * v2.0 only!
 	 * 
 	 * @return true if card supports RSASSA-PSS, false otherwise
 	 */
@@ -263,23 +275,28 @@ public class CardData implements Serializable {
 	}
 
 	/**
-	 * Convenience method to test whether this card supports RSAES-PKCS1 v1.5
+	 * Convenience method to test whether this card supports RSAES-PKCS1 v1.5.
+	 * BELPIC v2.0 only!
 	 * 
 	 * @return true if card supports RSAES-PKCS1 v1.5, false otherwise
 	 */
 	public boolean isRSAESPKCS115Supported() {
 		return (this.getPkcs1Support() & RSAES_PKCS1_15_MASK) > 0;
 	}
+
 	/**
-	 * Convenience method to test whether this card supports RSAES-OAEP
+	 * Convenience method to test whether this card supports RSAES-OAEP. BELPIC
+	 * v2.0 only!
 	 * 
 	 * @return true if card supports RSAES-OAEP, false otherwise
 	 */
 	public boolean isRSAESOAEPSupported() {
 		return (this.getPkcs1Support() & RSAES_OAEP_MASK) > 0;
 	}
+
 	/**
-	 * Convenience method to test whether this card supports RSA-KEM
+	 * Convenience method to test whether this card supports RSA-KEM. BELPIC
+	 * v2.0 only!
 	 * 
 	 * @return true if card supports RSA-KEM, false otherwise
 	 */

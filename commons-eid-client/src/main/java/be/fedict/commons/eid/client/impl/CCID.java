@@ -264,20 +264,23 @@ public class CCID {
 		ResponseAPDU responseAPDU = card.getBasicChannel().transmit(
 				new CommandAPDU((byte) 0xff, (byte) 0xc2, 0x01, controlCode,
 						command));
-		if (responseAPDU.getSW() != 0x9000)
+		if (responseAPDU.getSW() != 0x9000) {
 			throw new CardException("PPDU Command Failed: ResponseAPDU="
 					+ responseAPDU.getSW());
+		}
 
-		if (responseAPDU.getData().length == 0)
+		if (responseAPDU.getData().length == 0) {
 			return responseAPDU.getBytes();
-		else
+		} else {
 			return responseAPDU.getData();
+		}
 	}
 
 	protected byte[] transmitControlCommand(final int controlCode,
 			final byte[] command) throws CardException {
-		if (usesPPDU())
+		if (usesPPDU()) {
 			return transmitPPDUCommand(controlCode, command);
+		}
 		return this.card.transmitControlCommand(controlCode, command);
 	}
 

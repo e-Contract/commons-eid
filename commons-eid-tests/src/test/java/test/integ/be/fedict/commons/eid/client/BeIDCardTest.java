@@ -16,7 +16,6 @@
  * License along with this software; if not, see 
  * http://www.gnu.org/licenses/.
  */
-
 package test.integ.be.fedict.commons.eid.client;
 
 import static org.junit.Assert.assertNotNull;
@@ -42,9 +41,14 @@ import be.fedict.commons.eid.client.event.BeIDCardListener;
 import be.fedict.commons.eid.client.impl.BeIDDigest;
 import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
+import be.fedict.commons.eid.consumer.CardData;
 import be.fedict.commons.eid.consumer.Identity;
+import be.fedict.commons.eid.consumer.tlv.ByteArrayParser;
+import be.fedict.commons.eid.consumer.tlv.TlvParser;
+import org.bouncycastle.util.encoders.Hex;
 
 public class BeIDCardTest {
+
 	protected static final Log LOG = LogFactory.getLog(BeIDCardTest.class);
 	protected BeIDCards beIDCards;
 
@@ -146,6 +150,23 @@ public class BeIDCardTest {
 
 		assertNotNull(rrnCertificate);
 		LOG.debug("RRN certificate: " + rrnCertificate);
+	}
+
+	@Test
+	public void testGetCardData() throws Exception {
+		final BeIDCard beIDCard = getBeIDCard();
+
+		final byte[] cardDataFile = beIDCard.getCardData();
+
+		assertNotNull(cardDataFile);
+		LOG.debug("card data file size: " + cardDataFile.length);
+		LOG.debug("card data file: " + Hex.toHexString(cardDataFile));
+		CardData cardData = ByteArrayParser.parse(cardDataFile, CardData.class);
+		LOG.debug("PKCS#1 1.5 supported: "
+				+ cardData.isRSASSAPKCS115Supported());
+		LOG.debug("PSS supported: " + cardData.isRSASSAPSSSupported());
+		LOG.debug("PKCS#1 support: "
+				+ Integer.toHexString(cardData.getPkcs1Support()));
 	}
 
 	@Test
@@ -267,7 +288,6 @@ public class BeIDCardTest {
 	// BeIDCard beIDCard = getBeIDCard();
 	// beIDCard.unblockPin(true);
 	// }
-
 	protected BeIDCard getBeIDCard() {
 		this.beIDCards = new BeIDCards(new TestLogger());
 		BeIDCard beIDCard = null;
