@@ -151,7 +151,7 @@ public class SimulatedCard extends Card {
 	}
 
 	public SimulatedCard removeFile(final byte[] fileId) {
-		this.files.remove(fileId);
+		this.files.remove(new BigInteger(fileId));
 		return this;
 	}
 }

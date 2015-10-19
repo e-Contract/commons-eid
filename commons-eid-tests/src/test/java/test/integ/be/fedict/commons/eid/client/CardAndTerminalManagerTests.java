@@ -78,7 +78,7 @@ public class CardAndTerminalManagerTests {
 	private class RecordKeepingCardTerminalEventsListener
 			implements
 				CardTerminalEventsListener {
-		private Set<CardTerminal> recordedState;
+		private final Set<CardTerminal> recordedState;
 
 		public RecordKeepingCardTerminalEventsListener() {
 			super();
@@ -111,7 +111,7 @@ public class CardAndTerminalManagerTests {
 	}
 
 	private class RecordKeepingCardEventsListener implements CardEventsListener {
-		private Map<CardTerminal, Card> recordedState;
+		private final Map<CardTerminal, Card> recordedState;
 
 		public RecordKeepingCardEventsListener() {
 			super();

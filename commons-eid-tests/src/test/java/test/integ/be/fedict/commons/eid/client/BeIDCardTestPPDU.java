@@ -24,6 +24,7 @@ import be.fedict.commons.eid.client.impl.CCID;
 
 public class BeIDCardTestPPDU extends BeIDCardTest {
 
+	@Override
 	protected BeIDCard getBeIDCard() {
 		CCID.addPPDUName("digipass 870");
 		CCID.addPPDUName("digipass 875");

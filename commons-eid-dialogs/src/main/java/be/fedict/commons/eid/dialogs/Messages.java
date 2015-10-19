@@ -36,13 +36,13 @@ import javax.swing.UIManager;
 public class Messages {
 
 	public static final String RESOURCE_BUNDLE_NAME = "be.fedict.commons.eid.dialogs.Messages";
-	private static Map<Locale, Messages> instances;
+	private static final Map<Locale, Messages> instances;
 
 	static {
 		instances = new HashMap<Locale, Messages>();
 	}
 
-	private ResourceBundle resourceBundle;
+	private final ResourceBundle resourceBundle;
 	private Locale locale;
 
 	/**

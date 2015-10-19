@@ -28,7 +28,7 @@ import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CardTerminals;
 
 public class SimulatedCardTerminals extends CardTerminals {
-	private Set<SimulatedCardTerminal> terminals;
+	private final Set<SimulatedCardTerminal> terminals;
 
 	public SimulatedCardTerminals() {
 		this.terminals = new HashSet<SimulatedCardTerminal>();

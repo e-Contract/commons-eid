@@ -26,7 +26,7 @@ import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 public class SimulatedCardChannel extends CardChannel {
-	private SimulatedCard card;
+	private final SimulatedCard card;
 
 	public SimulatedCardChannel(final SimulatedCard card) {
 		this.card = card;

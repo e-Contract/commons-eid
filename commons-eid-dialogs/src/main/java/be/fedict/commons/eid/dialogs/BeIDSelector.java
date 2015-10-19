@@ -94,6 +94,7 @@ public class BeIDSelector {
 		}
 
 		MouseListener mouseListener = new MouseAdapter() {
+			@Override
 			public void mouseClicked(final MouseEvent mouseEvent) {
 				final JList theList = (JList) mouseEvent.getSource();
 				if (mouseEvent.getClickCount() == 2) {
@@ -343,6 +344,7 @@ public class BeIDSelector {
 				ListCellRenderer {
 		private static final long serialVersionUID = -6914001662919942232L;
 
+		@Override
 		public Component getListCellRendererComponent(final JList list,
 				final Object value, final int index, final boolean isSelected,
 				final boolean cellHasFocus) {
