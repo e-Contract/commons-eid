@@ -44,7 +44,6 @@ import be.fedict.commons.eid.consumer.BeIDIntegrity;
 import be.fedict.commons.eid.consumer.CardData;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.ByteArrayParser;
-import be.fedict.commons.eid.consumer.tlv.TlvParser;
 import org.bouncycastle.util.encoders.Hex;
 
 public class BeIDCardTest {

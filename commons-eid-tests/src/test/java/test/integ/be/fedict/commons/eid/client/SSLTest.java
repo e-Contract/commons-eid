@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014 e-Contract.be BVBA.
+ * Copyright (C) 2014-2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -64,7 +64,6 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
@@ -80,6 +79,7 @@ import org.junit.Test;
 
 import be.fedict.commons.eid.jca.BeIDManagerFactoryParameters;
 import be.fedict.commons.eid.jca.BeIDProvider;
+import org.bouncycastle.asn1.x509.Extension;
 
 public class SSLTest {
 
@@ -372,10 +372,10 @@ public class SSLTest {
 		try {
 			final JcaX509ExtensionUtils extensionUtils = new JcaX509ExtensionUtils();
 			x509v3CertificateBuilder.addExtension(
-					X509Extension.subjectKeyIdentifier, false, extensionUtils
+					Extension.subjectKeyIdentifier, false, extensionUtils
 							.createSubjectKeyIdentifier(keyPair.getPublic()));
 			x509v3CertificateBuilder.addExtension(
-					X509Extension.authorityKeyIdentifier, false, extensionUtils
+					Extension.authorityKeyIdentifier, false, extensionUtils
 							.createAuthorityKeyIdentifier(keyPair.getPublic()));
 
 			x509v3CertificateBuilder.addExtension(
@@ -384,12 +384,11 @@ public class SSLTest {
 							| NetscapeCertType.smimeCA
 							| NetscapeCertType.objectSigningCA));
 
-			x509v3CertificateBuilder.addExtension(X509Extension.keyUsage, true,
+			x509v3CertificateBuilder.addExtension(Extension.keyUsage, true,
 					new KeyUsage(KeyUsage.keyCertSign | KeyUsage.cRLSign));
 
-			x509v3CertificateBuilder.addExtension(
-					X509Extension.basicConstraints, true, new BasicConstraints(
-							2147483647));
+			x509v3CertificateBuilder.addExtension(Extension.basicConstraints,
+					true, new BasicConstraints(2147483647));
 
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
