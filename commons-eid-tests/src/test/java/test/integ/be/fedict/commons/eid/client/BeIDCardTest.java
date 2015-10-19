@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014 e-Contract.be BVBA.
+ * Copyright (C) 2014-2015 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -64,6 +64,14 @@ public class BeIDCardTest {
 		LOG.debug("reading RRN certificate file");
 		final byte[] rrnCertificateFile = beIDCard
 				.readFile(FileType.RRNCertificate);
+		LOG.debug("reading auth certificate file");
+		beIDCard.readFile(FileType.AuthentificationCertificate);
+		LOG.debug("reading sign certificate file");
+		beIDCard.readFile(FileType.NonRepudiationCertificate);
+		LOG.debug("reading root certificate file");
+		beIDCard.readFile(FileType.RootCertificate);
+		LOG.debug("reading CA certificate file");
+		beIDCard.readFile(FileType.CACertificate);
 		LOG.debug("reading Photo file");
 		final byte[] photoFile = beIDCard.readFile(FileType.Photo);
 
@@ -281,12 +289,6 @@ public class BeIDCardTest {
 		assertTrue(result);
 	}
 
-	// @Test
-	// public void testUnblockPIN() throws Exception
-	// {
-	// BeIDCard beIDCard = getBeIDCard();
-	// beIDCard.unblockPin(true);
-	// }
 	protected BeIDCard getBeIDCard() {
 		this.beIDCards = new BeIDCards(new TestLogger());
 		BeIDCard beIDCard = null;
