@@ -4,7 +4,7 @@
 	<name>Commons eID Project</name>
 	<groupId>be.fedict</groupId>
 	<artifactId>commons-eid</artifactId>
-	<version>0.6.6-SNAPSHOT</version>
+	<version>0.6.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2012</inceptionYear>
 	<licenses>
