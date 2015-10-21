@@ -48,12 +48,12 @@
 	<distributionManagement>
 		<repository>
 			<id>e-contract-deploy</id>
-			<url>sftp://e-contract.be/maven2</url>
+			<url>scp://e-contract.be/maven2</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
 		<site>
 			<id>e-contract-site</id>
-			<url>sftp://e-contract.be/sites/commons-eid/</url>
+			<url>scp://e-contract.be/sites/commons-eid/</url>
 		</site>
 	</distributionManagement>
 	<modules>
