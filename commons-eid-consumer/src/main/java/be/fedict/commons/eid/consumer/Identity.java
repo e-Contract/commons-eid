@@ -25,6 +25,7 @@ import java.util.GregorianCalendar;
 import be.fedict.commons.eid.consumer.tlv.ChipNumberDataConvertor;
 import be.fedict.commons.eid.consumer.tlv.ConvertData;
 import be.fedict.commons.eid.consumer.tlv.DateOfBirthDataConvertor;
+import be.fedict.commons.eid.consumer.tlv.DateOfBirthMaskDataConvertor;
 import be.fedict.commons.eid.consumer.tlv.DocumentTypeConvertor;
 import be.fedict.commons.eid.consumer.tlv.GenderDataConvertor;
 import be.fedict.commons.eid.consumer.tlv.OriginalData;
@@ -91,6 +92,10 @@ public class Identity implements Serializable {
 	@TlvField(12)
 	@ConvertData(DateOfBirthDataConvertor.class)
 	public GregorianCalendar dateOfBirth;
+
+	@TlvField(12)
+	@ConvertData(DateOfBirthMaskDataConvertor.class)
+	public DateMask dateOfBirthMask;
 
 	@TlvField(13)
 	@ConvertData(GenderDataConvertor.class)
@@ -180,6 +185,10 @@ public class Identity implements Serializable {
 
 	public GregorianCalendar getDateOfBirth() {
 		return this.dateOfBirth;
+	}
+
+	public DateMask getDateOfBirthMask() {
+		return dateOfBirthMask;
 	}
 
 	public Gender getGender() {

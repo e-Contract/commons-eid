@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import be.fedict.commons.eid.consumer.Address;
+import be.fedict.commons.eid.consumer.DateMask;
 import be.fedict.commons.eid.consumer.DocumentType;
 import be.fedict.commons.eid.consumer.Gender;
 import be.fedict.commons.eid.consumer.Identity;
@@ -92,6 +93,7 @@ public class TlvParserTest {
 		assertNotNull(identity.dateOfBirth);
 		LOG.debug("date of birth: " + identity.dateOfBirth.getTime());
 		assertEquals(new GregorianCalendar(1971, 0, 1), identity.dateOfBirth);
+		assertEquals(DateMask.YYYY_MM_DD, identity.dateOfBirthMask);
 		LOG.debug("special status: " + identity.specialStatus);
 		assertEquals(SpecialStatus.NO_STATUS, identity.specialStatus);
 		assertNull(identity.getSpecialOrganisation());
@@ -141,6 +143,7 @@ public class TlvParserTest {
 		assertNotNull(identity.dateOfBirth);
 		LOG.debug("date of birth: " + identity.dateOfBirth.getTime());
 		assertEquals(new GregorianCalendar(1971, 0, 1), identity.dateOfBirth);
+		assertEquals(DateMask.YYYY_MM_DD, identity.dateOfBirthMask);
 		assertNull(identity.getSpecialOrganisation());
 	}
 
@@ -224,6 +227,7 @@ public class TlvParserTest {
 		final byte[] yearOnlyTLV = new byte[]{12, 4, '1', '9', '8', '4'};
 		final Identity identity = TlvParser.parse(yearOnlyTLV, Identity.class);
 		assertEquals(1984, identity.getDateOfBirth().get(Calendar.YEAR));
+		assertEquals(DateMask.YYYY, identity.dateOfBirthMask);
 	}
 
 	@Test
