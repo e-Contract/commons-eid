@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015 e-Contract.be BVBA.
+ * Copyright (C) 2015-2016 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -1029,7 +1029,11 @@ public class BeIDCard {
 	 */
 	public BeIDCard endExclusive() throws CardException {
 		this.logger.debug("---end exclusive---");
-		this.card.endExclusive();
+                try {
+                        this.card.endExclusive();
+                } catch (CardException e) {
+                        this.logger.error("end exclusive failed: " + e.getMessage());
+                }
 		return this;
 	}
 
