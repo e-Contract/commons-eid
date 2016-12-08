@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015 e-Contract.be BVBA.
+ * Copyright (C) 2015-2016 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -55,6 +55,8 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	private boolean logoff;
 
+	private boolean allowFailingLogoff;
+
 	private Component parentComponent;
 
 	private Locale locale;
@@ -98,6 +100,19 @@ public class BeIDKeyStoreParameter implements KeyStore.LoadStoreParameter {
 
 	public boolean getLogoff() {
 		return this.logoff;
+	}
+
+	public boolean isAllowFailingLogoff() {
+		return this.allowFailingLogoff;
+	}
+
+	/**
+	 * Set to <code>true</code> if you allow the eID logoff instruction to fail.
+	 *
+	 * @param allowFailingLogoff
+	 */
+	public void setAllowFailingLogoff(boolean allowFailingLogoff) {
+		this.allowFailingLogoff = allowFailingLogoff;
 	}
 
 	/**

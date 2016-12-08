@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015 e-Contract.be BVBA.
+ * Copyright (C) 2015-2016 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -52,6 +52,8 @@ public class BeIDPrivateKey implements PrivateKey {
 
 	private final boolean logoff;
 
+	private final boolean allowFailingLogoff;
+
 	private final boolean autoRecovery;
 
 	private final BeIDKeyStore beIDKeyStore;
@@ -83,18 +85,20 @@ public class BeIDPrivateKey implements PrivateKey {
 	 * @param certificateFileType
 	 * @param beIDCard
 	 * @param logoff
+	 * @param allowFailingLogoff
 	 * @param autoRecovery
 	 * @param beIDKeyStore
 	 * @param applicationName
 	 */
 	public BeIDPrivateKey(final FileType certificateFileType,
-			final BeIDCard beIDCard, final boolean logoff,
+			final BeIDCard beIDCard, final boolean logoff, final boolean allowFailingLogoff,
 			boolean autoRecovery, BeIDKeyStore beIDKeyStore,
 			String applicationName) {
 		LOG.debug("constructor: " + certificateFileType);
 		this.certificateFileType = certificateFileType;
 		this.beIDCard = beIDCard;
 		this.logoff = logoff;
+		this.allowFailingLogoff = allowFailingLogoff;
 		this.autoRecovery = autoRecovery;
 		this.beIDKeyStore = beIDKeyStore;
 		this.applicationName = applicationName;
@@ -162,7 +166,15 @@ public class BeIDPrivateKey implements PrivateKey {
 				}
 			}
 			if (this.logoff) {
-				this.beIDCard.logoff();
+				try {
+					this.beIDCard.logoff();
+				} catch (Exception e) {
+					if (this.allowFailingLogoff) {
+						LOG.error("eID logoff failed.");
+					} else {
+						throw e;
+					}
+				}
 			}
 		} catch (final Exception ex) {
 			if (ex instanceof UserCancelledException) {

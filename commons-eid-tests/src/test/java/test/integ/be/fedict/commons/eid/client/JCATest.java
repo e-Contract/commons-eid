@@ -537,6 +537,7 @@ public class JCATest {
 		BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
 		keyStoreParameter.setApplicationName("Commons eID Integration Test");
 		keyStoreParameter.setLogoff(true);
+		keyStoreParameter.setAllowFailingLogoff(true);
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(keyStoreParameter);
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
