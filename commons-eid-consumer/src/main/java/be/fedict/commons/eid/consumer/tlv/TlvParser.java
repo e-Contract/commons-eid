@@ -20,7 +20,9 @@ package be.fedict.commons.eid.consumer.tlv;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -73,18 +75,19 @@ public class TlvParser {
 			IllegalAccessException, DataConvertorException,
 			UnsupportedEncodingException {
 		final Field[] fields = tlvClass.getDeclaredFields();
-		final Map<Integer, Field> tlvFields = new HashMap<Integer, Field>();
+		final Map<Integer, List<Field>> tlvFields = new HashMap<Integer, List<Field>>();
 		final T tlvObject = tlvClass.newInstance();
 		for (Field field : fields) {
 			final TlvField tlvFieldAnnotation = field
 					.getAnnotation(TlvField.class);
 			if (null != tlvFieldAnnotation) {
 				final int tagId = tlvFieldAnnotation.value();
-				if (tlvFields.containsKey(new Integer(tagId))) {
-					throw new IllegalArgumentException("TLV field duplicate: "
-							+ tagId);
+				List<Field> fieldList = tlvFields.get(new Integer(tagId));
+				if (fieldList == null) {
+					fieldList = new ArrayList<Field>();
+					tlvFields.put(new Integer(tagId), fieldList);
 				}
-				tlvFields.put(new Integer(tagId), field);
+				fieldList.add(field);
 			}
 			final OriginalData originalDataAnnotation = field
 					.getAnnotation(OriginalData.class);
@@ -110,37 +113,39 @@ public class TlvParser {
 				idx += length;
 				continue;
 			}
-			if (tlvFields.containsKey(new Integer(tag))) {
-				final Field tlvField = tlvFields.get(new Integer(tag));
-				final Class<?> tlvType = tlvField.getType();
-				final ConvertData convertDataAnnotation = tlvField
-						.getAnnotation(ConvertData.class);
-				final byte[] tlvValue = copy(file, idx, length);
-				Object fieldValue;
-				if (null != convertDataAnnotation) {
-					final Class<? extends DataConvertor<?>> dataConvertorClass = convertDataAnnotation
-							.value();
-					final DataConvertor<?> dataConvertor = dataConvertorClass
-							.newInstance();
-					fieldValue = dataConvertor.convert(tlvValue);
-				} else if (String.class == tlvType) {
-					fieldValue = new String(tlvValue, "UTF-8");
-				} else if (Boolean.TYPE == tlvType) {
-					fieldValue = true;
-				} else if (tlvType.isArray()
-						&& Byte.TYPE == tlvType.getComponentType()) {
-					fieldValue = tlvValue;
-				} else {
-					throw new IllegalArgumentException(
-							"unsupported field type: " + tlvType.getName());
+			final List<Field> fieldList = tlvFields.get(new Integer(tag));
+			if (fieldList != null) {
+				for (Field tlvField : fieldList) {
+					final Class<?> tlvType = tlvField.getType();
+					final ConvertData convertDataAnnotation = tlvField
+							.getAnnotation(ConvertData.class);
+					final byte[] tlvValue = copy(file, idx, length);
+					Object fieldValue;
+					if (null != convertDataAnnotation) {
+						final Class<? extends DataConvertor<?>> dataConvertorClass = convertDataAnnotation
+								.value();
+						final DataConvertor<?> dataConvertor = dataConvertorClass
+								.newInstance();
+						fieldValue = dataConvertor.convert(tlvValue);
+					} else if (String.class == tlvType) {
+						fieldValue = new String(tlvValue, "UTF-8");
+					} else if (Boolean.TYPE == tlvType) {
+						fieldValue = true;
+					} else if (tlvType.isArray()
+							&& Byte.TYPE == tlvType.getComponentType()) {
+						fieldValue = tlvValue;
+					} else {
+						throw new IllegalArgumentException(
+								"unsupported field type: " + tlvType.getName());
+					}
+					if (null != tlvField.get(tlvObject)
+							&& false == tlvField.getType().isPrimitive()) {
+						throw new RuntimeException("field was already set: "
+								+ tlvField.getName());
+					}
+					tlvField.setAccessible(true);
+					tlvField.set(tlvObject, fieldValue);
 				}
-				if (null != tlvField.get(tlvObject)
-						&& false == tlvField.getType().isPrimitive()) {
-					throw new RuntimeException("field was already set: "
-							+ tlvField.getName());
-				}
-				tlvField.setAccessible(true);
-				tlvField.set(tlvObject, fieldValue);
 			} else {
 				LOG.debug("unknown tag: " + (tag & 0xff) + ", length: "
 						+ length);
