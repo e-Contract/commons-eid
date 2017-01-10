@@ -21,9 +21,11 @@ package test.integ.be.fedict.commons.eid.client;
 import java.util.Locale;
 
 import javax.smartcardio.CardTerminal;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
@@ -72,6 +74,16 @@ public class BeIDCardManagerTest {
 		synchronized (waitObject) {
 			waitObject.wait();
 		}
+	}
+
+	@Test
+	public void testRefreshCards() throws Exception {
+		final TestLogger logger = new TestLogger();
+		final BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
+		beIDCardManager.setLocale(Locale.ENGLISH);
+		
+		beIDCardManager.start();
+		beIDCardManager.refreshCards();
 	}
 
 	private final class BeIDCardEventsTestListener

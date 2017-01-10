@@ -256,6 +256,7 @@ public class BeIDCards {
 	 */
 	public Set<BeIDCard> getAllBeIDCards() {
 		waitUntilCardsInitialized();
+		this.cardManager.refreshCards();
 
 		synchronized (this.beIDTerminalsAndCards) {
 			return new HashSet<BeIDCard>(this.beIDTerminalsAndCards.values());
@@ -306,6 +307,7 @@ public class BeIDCards {
 		do {
 			waitForAtLeastOneCardTerminal();
 			waitForAtLeastOneBeIDCard(terminal);
+			this.cardManager.refreshCards();
 
 			// copy current list of BeID Cards to avoid holding a lock on it
 			// during possible selectBeIDCard dialog.

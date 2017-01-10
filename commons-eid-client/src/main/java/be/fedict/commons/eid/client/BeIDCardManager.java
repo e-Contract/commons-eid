@@ -24,10 +24,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
+import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 
 import be.fedict.commons.eid.client.CardAndTerminalManager.PROTOCOL;
@@ -60,6 +62,12 @@ public class BeIDCardManager {
 	private static final byte[] ATR_MASK = new byte[]{(byte) 0xff, (byte) 0xff,
 			0x00, (byte) 0xff, 0x00, 0x00, 0x00, 0x00, (byte) 0xff,
 			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xf0,};
+
+	interface BeIDCardEventsListenerCallBack {
+
+		void call(BeIDCardEventsListener listener);
+
+	}
 
 	private final CardAndTerminalManager cardAndTerminalManager;
 	private boolean terminalManagerIsPrivate;
@@ -133,32 +141,14 @@ public class BeIDCardManager {
 			public void cardInserted(final CardTerminal cardTerminal,
 					final Card card) {
 				if (card != null && matchesEidAtr(card.getATR())) {
-					final BeIDCard beIDCard = new BeIDCard(card,
-							BeIDCardManager.this.logger);
-					beIDCard.setCardTerminal(cardTerminal);
-					beIDCard.setLocale(LocaleManager.getLocale());
+					final BeIDCard beIDCard = createBeIDCard(cardTerminal, card);
 
 					synchronized (BeIDCardManager.this.terminalsAndCards) {
 						BeIDCardManager.this.terminalsAndCards.put(
 								cardTerminal, beIDCard);
 					}
 
-					Set<BeIDCardEventsListener> copyOfListeners;
-
-					synchronized (BeIDCardManager.this.beIdListeners) {
-						copyOfListeners = new HashSet<BeIDCardEventsListener>(
-								BeIDCardManager.this.beIdListeners);
-					}
-
-					for (BeIDCardEventsListener listener : copyOfListeners) {
-						try {
-							listener.eIDCardInserted(cardTerminal, beIDCard);
-						} catch (final Throwable thrownInListener) {
-							BeIDCardManager.this.logger
-									.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:"
-											+ thrownInListener.getMessage());
-						}
-					}
+					notifyEIDCardInserted(cardTerminal, beIDCard);
 				} else {
 					Set<CardEventsListener> copyOfListeners;
 
@@ -190,23 +180,7 @@ public class BeIDCardManager {
 								.remove(cardTerminal);
 					}
 
-					Set<BeIDCardEventsListener> copyOfListeners;
-
-					synchronized (BeIDCardManager.this.beIdListeners) {
-						copyOfListeners = new HashSet<BeIDCardEventsListener>(
-								BeIDCardManager.this.beIdListeners);
-					}
-
-					for (BeIDCardEventsListener listener : copyOfListeners) {
-						try {
-							listener.eIDCardRemoved(cardTerminal, beIDCard);
-						} catch (final Throwable thrownInListener) {
-							BeIDCardManager.this.logger
-									.error("Exception thrown in BeIDCardEventsListener.eIDCardRemoved:"
-											+ thrownInListener.getMessage());
-						}
-
-					}
+					notifyEIDCardRemoved(cardTerminal, beIDCard);
 				} else {
 					Set<CardEventsListener> copyOfListeners;
 
@@ -229,22 +203,7 @@ public class BeIDCardManager {
 
 			@Override
 			public void cardEventsInitialized() {
-				Set<BeIDCardEventsListener> copyOfBeIDCardEventsListeners;
-
-				synchronized (BeIDCardManager.this.beIdListeners) {
-					copyOfBeIDCardEventsListeners = new HashSet<BeIDCardEventsListener>(
-							BeIDCardManager.this.beIdListeners);
-				}
-
-				for (BeIDCardEventsListener listener : copyOfBeIDCardEventsListeners) {
-					try {
-						listener.eIDCardEventsInitialized();
-					} catch (final Throwable thrownInListener) {
-						BeIDCardManager.this.logger
-								.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:"
-										+ thrownInListener.getMessage());
-					}
-				}
+				notifyEIDCardEventsInitialized();
 
 				Set<CardEventsListener> copyOfOtherCardEventsListeners;
 
@@ -401,4 +360,92 @@ public class BeIDCardManager {
 	public Locale getLocale() {
 		return LocaleManager.getLocale();
 	}
+
+	/**
+	 * Refreshes the cached {@link BeIDCard}s, and replaces any instances that
+	 * are in an unusable state (SCARD_W_RESET_CARD).
+	 */
+	public void refreshCards() {
+		synchronized (this.terminalsAndCards) {
+			for (Entry<CardTerminal, BeIDCard> terminalsAndCard : this.terminalsAndCards.entrySet()) {
+				BeIDCard beIDCard = terminalsAndCard.getValue();
+				try {
+					beIDCard.beginExclusive();
+					beIDCard.endExclusive();
+				} catch (CardException e) {
+					this.logger.debug("begin exclusive failed: " + e.getMessage() + " - replacing BeIDCard instance");
+					beIDCard.close();
+					CardTerminal cardTerminal = terminalsAndCard.getKey();
+					try {
+						BeIDCard newBeIDCard = createBeIDCard(cardTerminal, cardTerminal.connect("T=0"));
+						terminalsAndCard.setValue(newBeIDCard);
+						notifyEIDCardInserted(cardTerminal, newBeIDCard);
+					} catch (CardException e1) {
+						this.logger.error("card refresh failed: " + e1.getMessage());
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Creates a new {@link BeIDCard} for the given CardTerminal and Card.
+	 * 
+	 * @param cardTerminal
+	 *            the CardTerminal
+	 * @param card
+	 *            the Card
+	 * @return a new {@link BeIDCard}
+	 */
+	private BeIDCard createBeIDCard(final CardTerminal cardTerminal, final Card card) {
+		final BeIDCard beIDCard = new BeIDCard(card, BeIDCardManager.this.logger);
+		beIDCard.setCardTerminal(cardTerminal);
+		beIDCard.setLocale(LocaleManager.getLocale());
+		return beIDCard;
+	}
+
+	private void notifyEIDCardInserted(final CardTerminal cardTerminal, final BeIDCard beIDCard) {
+		notifyBeIDCardEventsListener(new BeIDCardEventsListenerCallBack() {
+			@Override
+			public void call(BeIDCardEventsListener listener) {
+				listener.eIDCardInserted(cardTerminal, beIDCard);
+			}
+		});
+	}
+
+	private void notifyEIDCardRemoved(final CardTerminal cardTerminal, final BeIDCard beIDCard) {
+		notifyBeIDCardEventsListener(new BeIDCardEventsListenerCallBack() {
+			@Override
+			public void call(BeIDCardEventsListener listener) {
+				listener.eIDCardRemoved(cardTerminal, beIDCard);
+			}
+		});
+	}
+
+	private void notifyEIDCardEventsInitialized() {
+		notifyBeIDCardEventsListener(new BeIDCardEventsListenerCallBack() {
+			@Override
+			public void call(BeIDCardEventsListener listener) {
+				listener.eIDCardEventsInitialized();
+			}
+		});
+	}
+
+	private void notifyBeIDCardEventsListener(final BeIDCardEventsListenerCallBack callBack) {
+		final Set<BeIDCardEventsListener> copyOfListeners;
+
+		synchronized (BeIDCardManager.this.beIdListeners) {
+			copyOfListeners = new HashSet<BeIDCardEventsListener>(BeIDCardManager.this.beIdListeners);
+		}
+
+		for (BeIDCardEventsListener listener : copyOfListeners) {
+			try {
+				callBack.call(listener);
+			} catch (final Throwable thrownInListener) {
+				BeIDCardManager.this.logger
+						.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:" + thrownInListener.getMessage());
+			}
+		}
+	}
+
 }

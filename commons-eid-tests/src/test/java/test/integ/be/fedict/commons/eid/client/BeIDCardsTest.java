@@ -19,9 +19,13 @@
 package test.integ.be.fedict.commons.eid.client;
 
 import static org.junit.Assert.assertNotNull;
+
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.CancelledException;
@@ -61,5 +65,50 @@ public class BeIDCardsTest {
 			LOG.error("Cancelled By User");
 		}
 
+	}
+
+	@Test
+	public void testGetAllBeIDCards() throws Exception {
+		LOG.debug("creating beIDCards Instance");
+		final BeIDCards beIDCards = new BeIDCards(new TestLogger());
+		assertNotNull(beIDCards);
+
+		LOG.debug("beIDCards Instance for all BeIDCards");
+
+		final Set<BeIDCard> allCards = beIDCards.getAllBeIDCards();
+
+		// All cards should work
+		for (BeIDCard beIDCard : allCards) {
+			// Invalidate card for further use
+			beIDCard.beginExclusive();
+		}
+
+		final Set<BeIDCard> allCards2 = beIDCards.getAllBeIDCards();
+
+		// All cards should work
+		for (BeIDCard beIDCard : allCards2) {
+			beIDCard.beginExclusive();
+			beIDCard.endExclusive();
+		}
+	}
+
+	@Test
+	public void testGetOneBeIDCards() throws Exception {
+		LOG.debug("creating beIDCards Instance");
+		final BeIDCards beIDCards = new BeIDCards(new TestLogger());
+		assertNotNull(beIDCards);
+
+		LOG.debug("beIDCards Instance for all BeIDCards");
+
+		final BeIDCard beIDCard = beIDCards.getOneBeIDCard();
+
+		// Invalidate card for further use
+		beIDCard.beginExclusive();
+
+		final BeIDCard beIDCard2 = beIDCards.getOneBeIDCard();
+
+		// Card should work
+		beIDCard2.beginExclusive();
+		beIDCard2.endExclusive();
 	}
 }
