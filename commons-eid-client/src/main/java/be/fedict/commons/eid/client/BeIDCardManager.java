@@ -373,7 +373,7 @@ public class BeIDCardManager {
 					beIDCard.beginExclusive();
 					beIDCard.endExclusive();
 				} catch (CardException e) {
-					this.logger.debug("begin exclusive failed: " + e.getMessage() + " - replacing BeIDCard instance");
+					this.logger.error("begin exclusive failed: " + e.getMessage() + " - replacing BeIDCard instance");
 					beIDCard.close();
 					CardTerminal cardTerminal = terminalsAndCard.getKey();
 					try {
