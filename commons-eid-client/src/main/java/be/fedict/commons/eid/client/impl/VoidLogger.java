@@ -34,6 +34,11 @@ public final class VoidLogger implements Logger {
 	}
 
 	@Override
+	public void info(final String message) {
+		// empty
+	}
+
+	@Override
 	public void debug(final String message) {
 		// empty
 	}

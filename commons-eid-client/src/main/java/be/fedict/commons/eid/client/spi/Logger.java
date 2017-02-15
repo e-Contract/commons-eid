@@ -35,6 +35,14 @@ public interface Logger {
 	void error(String message);
 
 	/**
+	 * Info messages receiver.
+	 * 
+	 * @param message
+	 *            the info message.
+	 */
+	void info(String message);
+
+	/**
 	 * Debug messages receiver.
 	 * 
 	 * @param message

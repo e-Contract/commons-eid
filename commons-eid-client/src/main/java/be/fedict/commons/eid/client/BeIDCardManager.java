@@ -141,6 +141,7 @@ public class BeIDCardManager {
 			public void cardInserted(final CardTerminal cardTerminal,
 					final Card card) {
 				if (card != null && matchesEidAtr(card.getATR())) {
+					logger.info("BeID card inserted");
 					final BeIDCard beIDCard = createBeIDCard(cardTerminal, card);
 
 					synchronized (BeIDCardManager.this.terminalsAndCards) {
@@ -150,6 +151,7 @@ public class BeIDCardManager {
 
 					notifyEIDCardInserted(cardTerminal, beIDCard);
 				} else {
+					logger.info("Other card inserted");
 					Set<CardEventsListener> copyOfListeners;
 
 					synchronized (BeIDCardManager.this.otherCardListeners) {
@@ -174,6 +176,7 @@ public class BeIDCardManager {
 				final BeIDCard beIDCard = BeIDCardManager.this.terminalsAndCards
 						.get(cardTerminal);
 				if (beIDCard != null) {
+					logger.info("BeID card removed");
 					beIDCard.close();
 					synchronized (BeIDCardManager.this.terminalsAndCards) {
 						BeIDCardManager.this.terminalsAndCards
@@ -182,6 +185,7 @@ public class BeIDCardManager {
 
 					notifyEIDCardRemoved(cardTerminal, beIDCard);
 				} else {
+					logger.info("Other card removed");
 					Set<CardEventsListener> copyOfListeners;
 
 					synchronized (BeIDCardManager.this.otherCardListeners) {
@@ -203,6 +207,7 @@ public class BeIDCardManager {
 
 			@Override
 			public void cardEventsInitialized() {
+				logger.info("Card events initialized");
 				notifyEIDCardEventsInitialized();
 
 				Set<CardEventsListener> copyOfOtherCardEventsListeners;

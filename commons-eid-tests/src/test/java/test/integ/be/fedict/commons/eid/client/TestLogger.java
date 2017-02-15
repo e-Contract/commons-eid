@@ -33,6 +33,11 @@ public class TestLogger implements Logger {
 	}
 
 	@Override
+	public void info(final String message) {
+		LOG.info(message);
+	}
+
+	@Override
 	public void debug(final String message) {
 		LOG.debug(message);
 	}
