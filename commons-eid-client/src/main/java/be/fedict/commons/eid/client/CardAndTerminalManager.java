@@ -2,6 +2,7 @@
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
  * Copyright (C) 2015 e-Contract.be BVBA.
+ * Copyright (C) 2017 Corilus NV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -24,18 +25,20 @@
  * and card insert/removal events.
  * 
  * @author Frank Marien
- * 
+ * @author Dennis Wagelaar
  */
 package be.fedict.commons.eid.client;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CardTerminals;
 import javax.smartcardio.CardTerminals.State;
 import javax.smartcardio.TerminalFactory;
+
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 import be.fedict.commons.eid.client.impl.LibJ2PCSCGNULinuxFix;
@@ -551,7 +554,7 @@ public class CardAndTerminalManager implements Runnable {
 				} catch (final CardException cex) {
 					this.logger
 							.error("Problem determining card presence in terminal ["
-									+ terminal.getName() + "]");
+									+ terminal.getName() + "]", cex);
 				}
 			}
 		}

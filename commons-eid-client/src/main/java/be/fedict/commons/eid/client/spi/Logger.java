@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 Corilus NV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -22,7 +23,7 @@ package be.fedict.commons.eid.client.spi;
  * Logger-interface.
  * 
  * @author Frank Cornelis
- * 
+ * @author Dennis Wagelaar
  */
 public interface Logger {
 
@@ -33,6 +34,16 @@ public interface Logger {
 	 *            the error message.
 	 */
 	void error(String message);
+
+	/**
+	 * Error messages receiver.
+	 * 
+	 * @param message
+	 *            the error message.
+	 * @param exception
+	 *            the exception to log.
+	 */
+	void error(String message, Throwable exception);
 
 	/**
 	 * Info messages receiver.

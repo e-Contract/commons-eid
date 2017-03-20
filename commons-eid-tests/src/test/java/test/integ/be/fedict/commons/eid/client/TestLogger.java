@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 Corilus NV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -30,6 +31,11 @@ public class TestLogger implements Logger {
 	@Override
 	public void error(final String message) {
 		LOG.error(message);
+	}
+
+	@Override
+	public void error(final String message, final Throwable exception) {
+		LOG.error(message, exception);
 	}
 
 	@Override
