@@ -1,5 +1,6 @@
 /*
  * Commons eID Project.
+ * Copyright (C) 2008-2017 FedICT.
  * Copyright (C) 2017 Peter Mylemans.
  *
  * This is free software; you can redistribute it and/or modify it
