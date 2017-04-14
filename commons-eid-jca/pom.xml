@@ -42,11 +42,6 @@
 		</dependency>
 		<dependency>
 			<groupId>be.fedict.commons-eid</groupId>
-			<artifactId>commons-eid-consumer</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>be.fedict.commons-eid</groupId>
 			<artifactId>commons-eid-dialogs</artifactId>
 			<version>${project.version}</version>
 		</dependency>
