@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -23,9 +24,10 @@ import static org.junit.Assert.assertNotNull;
 
 import javax.smartcardio.CardTerminal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.CancelledException;
@@ -34,37 +36,36 @@ import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
 public class BeIDCardsSpecificTerminalTest {
-	private static final Log LOG = LogFactory
-			.getLog(BeIDCardsSpecificTerminalTest.class);
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDCardsSpecificTerminalTest.class);
 
 	@Test
 	public void waitInsertAndRemove() throws Exception {
-		LOG.debug("creating beIDCards Instance");
+		LOGGER.debug("creating beIDCards Instance");
 		final BeIDCards beIDCards = new BeIDCards(new TestLogger());
 		assertNotNull(beIDCards);
 
-		LOG.debug("asking beIDCards Instance for One BeIDCard");
+		LOGGER.debug("asking beIDCards Instance for One BeIDCard");
 
 		try {
 			BeIDCard beIDCard = beIDCards.getOneBeIDCard();
 			assertNotNull(beIDCard);
 
-			LOG.debug("imprinting upon a particular CardTerminal");
+			LOGGER.debug("imprinting upon a particular CardTerminal");
 			final CardTerminal terminal = beIDCard.getCardTerminal();
 
-			LOG.debug("reading identity file");
+			LOGGER.debug("reading identity file");
 			byte[] identityFile = beIDCard.readFile(FileType.Identity);
 			Identity identity = TlvParser.parse(identityFile, Identity.class);
-			LOG.debug("card holder is " + identity.getFirstName() + " "
-					+ identity.getName());
+			LOGGER.debug("card holder is {} {}", identity.getFirstName(), identity.getName());
 			String userId = identity.getNationalNumber();
 
 			if (beIDCards.getAllBeIDCards().contains(beIDCard)) {
-				LOG.debug("waiting for card removal");
+				LOGGER.debug("waiting for card removal");
 				beIDCards.waitUntilCardRemoved(beIDCard);
 			}
 
-			LOG.debug("We want only a card from our imprinted CardTerminal back");
+			LOGGER.debug("We want only a card from our imprinted CardTerminal back");
 			beIDCard = beIDCards.getOneBeIDCard(terminal);
 			assertNotNull(beIDCard);
 
@@ -73,8 +74,7 @@ public class BeIDCardsSpecificTerminalTest {
 			assertEquals(userId, identity.getNationalNumber());
 
 		} catch (final CancelledException cex) {
-			LOG.error("Cancelled By User");
+			LOGGER.error("Cancelled By User");
 		}
-
 	}
 }

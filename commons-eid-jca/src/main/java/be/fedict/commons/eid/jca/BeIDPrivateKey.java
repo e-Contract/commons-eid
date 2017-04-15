@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2016 e-Contract.be BVBA.
+ * Copyright (C) 2015-2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -25,8 +25,8 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.FileType;
@@ -44,7 +44,7 @@ public class BeIDPrivateKey implements PrivateKey {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Log LOG = LogFactory.getLog(BeIDPrivateKey.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDPrivateKey.class);
 
 	private final FileType certificateFileType;
 
@@ -90,11 +90,9 @@ public class BeIDPrivateKey implements PrivateKey {
 	 * @param beIDKeyStore
 	 * @param applicationName
 	 */
-	public BeIDPrivateKey(final FileType certificateFileType,
-			final BeIDCard beIDCard, final boolean logoff, final boolean allowFailingLogoff,
-			boolean autoRecovery, BeIDKeyStore beIDKeyStore,
-			String applicationName) {
-		LOG.debug("constructor: " + certificateFileType);
+	public BeIDPrivateKey(final FileType certificateFileType, final BeIDCard beIDCard, final boolean logoff,
+			final boolean allowFailingLogoff, boolean autoRecovery, BeIDKeyStore beIDKeyStore, String applicationName) {
+		LOGGER.debug("constructor: {}", certificateFileType);
 		this.certificateFileType = certificateFileType;
 		this.beIDCard = beIDCard;
 		this.logoff = logoff;
@@ -119,9 +117,8 @@ public class BeIDPrivateKey implements PrivateKey {
 		return null;
 	}
 
-	byte[] sign(final byte[] digestValue, final String digestAlgo)
-			throws SignatureException {
-		LOG.debug("auto recovery: " + this.autoRecovery);
+	byte[] sign(final byte[] digestValue, final String digestAlgo) throws SignatureException {
+		LOGGER.debug("auto recovery: {}", this.autoRecovery);
 		final BeIDDigest beIDDigest = beIDDigests.get(digestAlgo);
 		if (null == beIDDigest) {
 			throw new SignatureException("unsupported algo: " + digestAlgo);
@@ -136,30 +133,26 @@ public class BeIDPrivateKey implements PrivateKey {
 				 */
 				if (null == this.authenticationCertificate) {
 					try {
-						this.authenticationCertificate = this.beIDCard
-								.getAuthenticationCertificate();
+						this.authenticationCertificate = this.beIDCard.getAuthenticationCertificate();
 					} catch (Exception e) {
 						// don't fail here
 					}
 				}
 			}
 			try {
-				signatureValue = this.beIDCard.sign(digestValue, beIDDigest,
-						this.certificateFileType, false, this.applicationName);
+				signatureValue = this.beIDCard.sign(digestValue, beIDDigest, this.certificateFileType, false,
+						this.applicationName);
 			} catch (Exception e) {
 				if (this.autoRecovery) {
-					LOG.debug("trying to recover...");
+					LOGGER.debug("trying to recover...");
 					this.beIDCard = this.beIDKeyStore.getBeIDCard(true);
 					if (null != this.authenticationCertificate) {
-						X509Certificate newAuthenticationCertificate = this.beIDCard
-								.getAuthenticationCertificate();
-						if (false == this.authenticationCertificate
-								.equals(newAuthenticationCertificate)) {
+						X509Certificate newAuthenticationCertificate = this.beIDCard.getAuthenticationCertificate();
+						if (false == this.authenticationCertificate.equals(newAuthenticationCertificate)) {
 							throw new SignatureException("different eID card");
 						}
 					}
-					signatureValue = this.beIDCard.sign(digestValue,
-							beIDDigest, this.certificateFileType, false,
+					signatureValue = this.beIDCard.sign(digestValue, beIDDigest, this.certificateFileType, false,
 							this.applicationName);
 				} else {
 					throw e;
@@ -170,7 +163,7 @@ public class BeIDPrivateKey implements PrivateKey {
 					this.beIDCard.logoff();
 				} catch (Exception e) {
 					if (this.allowFailingLogoff) {
-						LOG.error("eID logoff failed.");
+						LOGGER.error("eID logoff failed.");
 					} else {
 						throw e;
 					}

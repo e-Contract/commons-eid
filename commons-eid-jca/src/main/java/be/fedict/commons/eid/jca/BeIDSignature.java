@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -31,8 +32,8 @@ import java.security.SignatureSpi;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * eID based JCA {@link Signature} implementation. Supports the following
@@ -59,7 +60,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class BeIDSignature extends SignatureSpi {
 
-	private static final Log LOG = LogFactory.getLog(BeIDSignature.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDSignature.class);
 
 	private final static Map<String, String> digestAlgos;
 
@@ -88,12 +89,11 @@ public class BeIDSignature extends SignatureSpi {
 		digestAlgos.put("SHA256withRSAandMGF1", "SHA-256");
 	}
 
-	BeIDSignature(final String signatureAlgorithm)
-			throws NoSuchAlgorithmException {
-		LOG.debug("constructor: " + signatureAlgorithm);
+	BeIDSignature(final String signatureAlgorithm) throws NoSuchAlgorithmException {
+		LOGGER.debug("constructor: {}", signatureAlgorithm);
 		this.signatureAlgorithm = signatureAlgorithm;
 		if (false == digestAlgos.containsKey(signatureAlgorithm)) {
-			LOG.error("no such algo: " + signatureAlgorithm);
+			LOGGER.error("no such algo: {}", signatureAlgorithm);
 			throw new NoSuchAlgorithmException(signatureAlgorithm);
 		}
 		final String digestAlgo = digestAlgos.get(signatureAlgorithm);
@@ -101,32 +101,28 @@ public class BeIDSignature extends SignatureSpi {
 			this.messageDigest = MessageDigest.getInstance(digestAlgo);
 			this.precomputedDigestOutputStream = null;
 		} else {
-			LOG.debug("NONE message digest");
+			LOGGER.debug("NONE message digest");
 			this.messageDigest = null;
 			this.precomputedDigestOutputStream = new ByteArrayOutputStream();
 		}
 	}
 
 	@Override
-	protected void engineInitVerify(final PublicKey publicKey)
-			throws InvalidKeyException {
-		LOG.debug("engineInitVerify");
+	protected void engineInitVerify(final PublicKey publicKey) throws InvalidKeyException {
+		LOGGER.debug("engineInitVerify");
 		if (null == this.verifySignature) {
 			try {
-				this.verifySignature = Signature
-						.getInstance(this.signatureAlgorithm);
+				this.verifySignature = Signature.getInstance(this.signatureAlgorithm);
 			} catch (final NoSuchAlgorithmException nsaex) {
-				throw new InvalidKeyException("no such algo: "
-						+ nsaex.getMessage(), nsaex);
+				throw new InvalidKeyException("no such algo: " + nsaex.getMessage(), nsaex);
 			}
 		}
 		this.verifySignature.initVerify(publicKey);
 	}
 
 	@Override
-	protected void engineInitSign(final PrivateKey privateKey)
-			throws InvalidKeyException {
-		LOG.debug("engineInitSign");
+	protected void engineInitSign(final PrivateKey privateKey) throws InvalidKeyException {
+		LOGGER.debug("engineInitSign");
 		if (false == privateKey instanceof BeIDPrivateKey) {
 			throw new InvalidKeyException();
 		}
@@ -145,8 +141,7 @@ public class BeIDSignature extends SignatureSpi {
 	}
 
 	@Override
-	protected void engineUpdate(final byte[] b, final int off, final int len)
-			throws SignatureException {
+	protected void engineUpdate(final byte[] b, final int off, final int len) throws SignatureException {
 		if (null != this.messageDigest) {
 			this.messageDigest.update(b, off, len);
 		}
@@ -160,7 +155,7 @@ public class BeIDSignature extends SignatureSpi {
 
 	@Override
 	protected byte[] engineSign() throws SignatureException {
-		LOG.debug("engineSign");
+		LOGGER.debug("engineSign");
 		final byte[] digestValue;
 		String digestAlgo;
 		if (null != this.messageDigest) {
@@ -179,9 +174,8 @@ public class BeIDSignature extends SignatureSpi {
 	}
 
 	@Override
-	protected boolean engineVerify(final byte[] sigBytes)
-			throws SignatureException {
-		LOG.debug("engineVerify");
+	protected boolean engineVerify(final byte[] sigBytes) throws SignatureException {
+		LOGGER.debug("engineVerify");
 		if (null == this.verifySignature) {
 			throw new SignatureException("initVerify required");
 		}
@@ -191,14 +185,12 @@ public class BeIDSignature extends SignatureSpi {
 
 	@Override
 	@Deprecated
-	protected void engineSetParameter(final String param, final Object value)
-			throws InvalidParameterException {
+	protected void engineSetParameter(final String param, final Object value) throws InvalidParameterException {
 	}
 
 	@Override
 	@Deprecated
-	protected Object engineGetParameter(final String param)
-			throws InvalidParameterException {
+	protected Object engineGetParameter(final String param) throws InvalidParameterException {
 		return null;
 	}
 }

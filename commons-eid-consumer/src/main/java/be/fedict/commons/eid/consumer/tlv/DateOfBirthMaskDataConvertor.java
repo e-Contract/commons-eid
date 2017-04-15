@@ -2,6 +2,7 @@
  * Commons eID Project.
  * Copyright (C) 2008-2017 FedICT.
  * Copyright (C) 2017 Peter Mylemans.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -21,8 +22,8 @@ package be.fedict.commons.eid.consumer.tlv;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.consumer.DateMask;
 
@@ -33,23 +34,23 @@ import be.fedict.commons.eid.consumer.DateMask;
  */
 public class DateOfBirthMaskDataConvertor implements DataConvertor<DateMask> {
 
-    private static final Log LOG = LogFactory.getLog(DateOfBirthMaskDataConvertor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DateOfBirthMaskDataConvertor.class);
 
-    @Override
-    public DateMask convert(final byte[] value) throws DataConvertorException {
-        String dateOfBirthStr;
-        try {
-            dateOfBirthStr = new String(value, "UTF-8").trim();
-        } catch (final UnsupportedEncodingException uex) {
-            throw new DataConvertorException("UTF-8 not supported");
-        }
-        LOG.debug("\"" + dateOfBirthStr + "\"");
+	@Override
+	public DateMask convert(final byte[] value) throws DataConvertorException {
+		String dateOfBirthStr;
+		try {
+			dateOfBirthStr = new String(value, "UTF-8").trim();
+		} catch (final UnsupportedEncodingException uex) {
+			throw new DataConvertorException("UTF-8 not supported");
+		}
+		LOGGER.debug("\"{}\"", dateOfBirthStr);
 
-        if (dateOfBirthStr.length() == 4) {
-            return DateMask.YYYY;
-        } else {
-            return DateMask.YYYY_MM_DD;
-        }
-    }
+		if (dateOfBirthStr.length() == 4) {
+			return DateMask.YYYY;
+		} else {
+			return DateMask.YYYY_MM_DD;
+		}
+	}
 
 }

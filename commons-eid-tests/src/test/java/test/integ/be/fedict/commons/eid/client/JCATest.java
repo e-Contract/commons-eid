@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2015 e-Contract.be BVBA.
+ * Copyright (C) 2014-2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -51,10 +51,10 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
@@ -66,7 +66,7 @@ import be.fedict.commons.eid.jca.UserCancelledSignatureException;
 
 public class JCATest {
 
-	private static final Log LOG = LogFactory.getLog(JCATest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JCATest.class);
 
 	@Test
 	public void testSwingParentLocale() throws Exception {
@@ -84,8 +84,7 @@ public class JCATest {
 		keyStoreParameter.setLocale(new Locale("nl"));
 		keyStore.load(keyStoreParameter);
 
-		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
-				"Authentication", null);
+		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 		final Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(authnPrivateKey);
 
@@ -94,9 +93,7 @@ public class JCATest {
 		signature.sign();
 	}
 
-	private static class MyFrame extends JFrame
-			implements
-				KeyStore.LoadStoreParameter {
+	private static class MyFrame extends JFrame implements KeyStore.LoadStoreParameter {
 
 		private static final long serialVersionUID = 1L;
 
@@ -122,8 +119,7 @@ public class JCATest {
 		final KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(myFrame);
 
-		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
-				"Authentication", null);
+		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 		final Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(authnPrivateKey);
 
@@ -131,8 +127,7 @@ public class JCATest {
 		signature.update(toBeSigned);
 		byte[] signatureValue = signature.sign();
 
-		Certificate[] certificateChain = keyStore
-				.getCertificateChain("Authentication");
+		Certificate[] certificateChain = keyStore.getCertificateChain("Authentication");
 		signature.initVerify(certificateChain[0]);
 		signature.update(toBeSigned);
 		assertTrue(signature.verify(signatureValue));
@@ -145,8 +140,7 @@ public class JCATest {
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 
-		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
-				"Authentication", null);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 		final Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(authnPrivateKey);
 
@@ -183,10 +177,8 @@ public class JCATest {
 		keyStoreParameter.setCardReaderStickiness(true);
 		keyStore.load(keyStoreParameter);
 
-		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
-				"Authentication", null);
-		PublicKey authnPublicKey = keyStore.getCertificate("Authentication")
-				.getPublicKey();
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		PublicKey authnPublicKey = keyStore.getCertificate("Authentication").getPublicKey();
 		final Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(authnPrivateKey);
 
@@ -229,22 +221,17 @@ public class JCATest {
 		keyStore.load(null);
 
 		// operate
-		X509Certificate citizenCACertificate = (X509Certificate) keyStore
-				.getCertificate("CA");
-		X509Certificate rootCACertificate = (X509Certificate) keyStore
-				.getCertificate("Root");
-		X509Certificate rrnCertificate = (X509Certificate) keyStore
-				.getCertificate("RRN");
+		X509Certificate citizenCACertificate = (X509Certificate) keyStore.getCertificate("CA");
+		X509Certificate rootCACertificate = (X509Certificate) keyStore.getCertificate("Root");
+		X509Certificate rrnCertificate = (X509Certificate) keyStore.getCertificate("RRN");
 
 		// verify
 		assertNotNull(citizenCACertificate);
-		LOG.debug("citizen CA: "
-				+ citizenCACertificate.getSubjectX500Principal());
+		LOGGER.debug("citizen CA: {}", citizenCACertificate.getSubjectX500Principal());
 		assertNotNull(rootCACertificate);
-		LOG.debug("root CA: " + rootCACertificate.getSubjectX500Principal());
+		LOGGER.debug("root CA: {}", rootCACertificate.getSubjectX500Principal());
 		assertNotNull(rrnCertificate);
-		assertTrue(rrnCertificate.getSubjectX500Principal().toString()
-				.contains("RRN"));
+		assertTrue(rrnCertificate.getSubjectX500Principal().toString().contains("RRN"));
 	}
 
 	@Test
@@ -261,25 +248,16 @@ public class JCATest {
 		assertTrue(entry instanceof TrustedCertificateEntry);
 		TrustedCertificateEntry trustedCertificateEntry = (TrustedCertificateEntry) entry;
 		assertNotNull(trustedCertificateEntry.getTrustedCertificate());
-		assertTrue(((X509Certificate) trustedCertificateEntry
-				.getTrustedCertificate()).getSubjectX500Principal().toString()
-				.contains("RRN"));
+		assertTrue(((X509Certificate) trustedCertificateEntry.getTrustedCertificate()).getSubjectX500Principal()
+				.toString().contains("RRN"));
 		assertNotNull(keyStore.getCertificate("RRN"));
 		Certificate[] certificateChain = keyStore.getCertificateChain("RRN");
 		assertNotNull(certificateChain);
 		assertEquals(2, certificateChain.length);
-		LOG.debug("RRN subject: "
-				+ ((X509Certificate) certificateChain[0])
-						.getSubjectX500Principal());
-		LOG.debug("RRN issuer: "
-				+ ((X509Certificate) certificateChain[0])
-						.getIssuerX500Principal());
-		LOG.debug("root subject: "
-				+ ((X509Certificate) certificateChain[1])
-						.getSubjectX500Principal());
-		LOG.debug("root issuer: "
-				+ ((X509Certificate) certificateChain[1])
-						.getIssuerX500Principal());
+		LOGGER.debug("RRN subject: {}", ((X509Certificate) certificateChain[0]).getSubjectX500Principal());
+		LOGGER.debug("RRN issuer: {}", ((X509Certificate) certificateChain[0]).getIssuerX500Principal());
+		LOGGER.debug("root subject: {}", ((X509Certificate) certificateChain[1]).getSubjectX500Principal());
+		LOGGER.debug("root issuer: {}", ((X509Certificate) certificateChain[1]).getIssuerX500Principal());
 	}
 
 	@Test
@@ -288,27 +266,17 @@ public class JCATest {
 		Security.addProvider(new BouncyCastleProvider());
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
-		X509Certificate authnCertificate = (X509Certificate) keyStore
-				.getCertificate("Authentication");
-		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
-				"Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 
-		verifySignatureAlgorithm("SHA1withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
-		verifySignatureAlgorithm("SHA224withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
-		verifySignatureAlgorithm("SHA256withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
-		verifySignatureAlgorithm("SHA384withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
-		verifySignatureAlgorithm("SHA512withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
-		verifySignatureAlgorithm("RIPEMD128withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
-		verifySignatureAlgorithm("RIPEMD160withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
-		verifySignatureAlgorithm("RIPEMD256withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA1withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA224withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA256withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA384withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA512withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("RIPEMD128withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("RIPEMD160withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("RIPEMD256withRSA", authnPrivateKey, authnCertificate.getPublicKey());
 	}
 
 	@Test
@@ -316,8 +284,7 @@ public class JCATest {
 		Security.addProvider(new BeIDProvider());
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
-		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature",
-				null);
+		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature", null);
 		Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(signPrivateKey);
 		byte[] toBeSigned = "hello world".getBytes();
@@ -325,8 +292,7 @@ public class JCATest {
 		byte[] signatureValue = signature.sign();
 		assertNotNull(signatureValue);
 
-		Certificate[] signCertificateChain = keyStore
-				.getCertificateChain("Signature");
+		Certificate[] signCertificateChain = keyStore.getCertificateChain("Signature");
 		assertNotNull(signCertificateChain);
 	}
 
@@ -341,8 +307,7 @@ public class JCATest {
 
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(beIDKeyStoreParameter);
-		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature",
-				null);
+		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature", null);
 		Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(signPrivateKey);
 		byte[] toBeSigned = "hello world".getBytes();
@@ -350,8 +315,7 @@ public class JCATest {
 		byte[] signatureValue = signature.sign();
 		assertNotNull(signatureValue);
 
-		Certificate[] signCertificateChain = keyStore
-				.getCertificateChain("Signature");
+		Certificate[] signCertificateChain = keyStore.getCertificateChain("Signature");
 		assertNotNull(signCertificateChain);
 	}
 
@@ -386,15 +350,13 @@ public class JCATest {
 		keyStoreParameter.setLogoff(true);
 		keyStore.load(keyStoreParameter);
 
-		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
-				"Authentication", null);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 
 		Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(authnPrivateKey);
 		assertTrue(signature.getProvider() instanceof BeIDProvider);
 
-		JOptionPane.showMessageDialog(null,
-				"Please click Cancel on the next PIN dialog.");
+		JOptionPane.showMessageDialog(null, "Please click Cancel on the next PIN dialog.");
 
 		final byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);
@@ -421,7 +383,7 @@ public class JCATest {
 		final Enumeration<String> aliases = keyStore.aliases();
 		while (aliases.hasMoreElements()) {
 			final String alias = aliases.nextElement();
-			LOG.debug("alias: " + alias);
+			LOGGER.debug("alias: {}", alias);
 		}
 
 		assertEquals(2, keyStore.size());
@@ -432,43 +394,33 @@ public class JCATest {
 		assertNotNull(keyStore.getCreationDate("Authentication"));
 
 		assertTrue(keyStore.isKeyEntry("Signature"));
-		final X509Certificate signCertificate = (X509Certificate) keyStore
-				.getCertificate("Signature");
+		final X509Certificate signCertificate = (X509Certificate) keyStore.getCertificate("Signature");
 		assertNotNull(signCertificate);
 
 		assertTrue(keyStore.isKeyEntry("Authentication"));
-		final X509Certificate authnCertificate = (X509Certificate) keyStore
-				.getCertificate("Authentication");
+		final X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
 		assertNotNull(authnCertificate);
 
 		assertNotNull(keyStore.getCertificateChain("Signature"));
 		assertNotNull(keyStore.getCertificateChain("Authentication"));
 
 		assertTrue(keyStore.isKeyEntry("Authentication"));
-		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
-				"Authentication", null);
+		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 		assertNotNull(authnPrivateKey);
 
 		assertTrue(keyStore.isKeyEntry("Signature"));
-		final PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey(
-				"Signature", null);
+		final PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature", null);
 		assertNotNull(signPrivateKey);
 
-		verifySignatureAlgorithm("SHA1withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
-		verifySignatureAlgorithm("SHA256withRSA", signPrivateKey,
-				signCertificate.getPublicKey());
-		verifySignatureAlgorithm("SHA384withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
-		verifySignatureAlgorithm("SHA512withRSA", authnPrivateKey,
-				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA1withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA256withRSA", signPrivateKey, signCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA384withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA512withRSA", authnPrivateKey, authnCertificate.getPublicKey());
 
 		Security.addProvider(new BouncyCastleProvider());
 
-		verifySignatureAlgorithm("SHA1withRSAandMGF1", authnPrivateKey,
-				authnCertificate.getPublicKey());
-		verifySignatureAlgorithm("SHA256withRSAandMGF1", authnPrivateKey,
-				authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA1withRSAandMGF1", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA256withRSAandMGF1", authnPrivateKey, authnCertificate.getPublicKey());
 	}
 
 	@Test
@@ -477,10 +429,8 @@ public class JCATest {
 		Security.addProvider(new BouncyCastleProvider());
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
-		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
-				"Authentication", null);
-		X509Certificate authnCertificate = (X509Certificate) keyStore
-				.getCertificate("Authentication");
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
 		PublicKey authnPublicKey = authnCertificate.getPublicKey();
 
 		Signature signature = Signature.getInstance("SHA1withRSAandMGF1");
@@ -497,11 +447,10 @@ public class JCATest {
 
 		RSAPublicKey rsaPublicKey = (RSAPublicKey) authnPublicKey;
 		BigInteger signatureValueBigInteger = new BigInteger(signatureValue);
-		BigInteger messageBigInteger = signatureValueBigInteger.modPow(
-				rsaPublicKey.getPublicExponent(), rsaPublicKey.getModulus());
-		String paddedMessage = new String(Hex.encodeHex(messageBigInteger
-				.toByteArray()));
-		LOG.debug("padded message: " + paddedMessage);
+		BigInteger messageBigInteger = signatureValueBigInteger.modPow(rsaPublicKey.getPublicExponent(),
+				rsaPublicKey.getModulus());
+		String paddedMessage = new String(Hex.encodeHex(messageBigInteger.toByteArray()));
+		LOGGER.debug("padded message: {}", paddedMessage);
 		assertTrue(paddedMessage.endsWith("bc"));
 	}
 
@@ -511,10 +460,8 @@ public class JCATest {
 		Security.addProvider(new BouncyCastleProvider());
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
-		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
-				"Authentication", null);
-		X509Certificate authnCertificate = (X509Certificate) keyStore
-				.getCertificate("Authentication");
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
 		PublicKey authnPublicKey = authnCertificate.getPublicKey();
 
 		Signature signature = Signature.getInstance("SHA256withRSAandMGF1");
@@ -540,10 +487,8 @@ public class JCATest {
 		keyStoreParameter.setAllowFailingLogoff(true);
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(keyStoreParameter);
-		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey(
-				"Authentication", null);
-		X509Certificate authnCertificate = (X509Certificate) keyStore
-				.getCertificate("Authentication");
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
 		PublicKey authnPublicKey = authnCertificate.getPublicKey();
 
 		Signature signature = Signature.getInstance("SHA1withRSA");
@@ -561,23 +506,21 @@ public class JCATest {
 
 	@Test
 	public void testSoftwareRSAKeyWrapping() throws Exception {
-		final KeyPairGenerator keyPairGenerator = KeyPairGenerator
-				.getInstance("RSA");
+		final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
 		final KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
 		final KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
 		final SecretKey secretKey = keyGenerator.generateKey();
-		LOG.debug("secret key algo: " + secretKey.getAlgorithm());
+		LOGGER.debug("secret key algo: {}", secretKey.getAlgorithm());
 
 		final Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.WRAP_MODE, keyPair.getPublic());
-		LOG.debug("cipher security provider: " + cipher.getProvider().getName());
-		LOG.debug("cipher type: " + cipher.getClass().getName());
+		LOGGER.debug("cipher security provider: {}", cipher.getProvider().getName());
+		LOGGER.debug("cipher type: {}", cipher.getClass().getName());
 		final byte[] wrappedKey = cipher.wrap(secretKey);
 
 		cipher.init(Cipher.UNWRAP_MODE, keyPair.getPrivate());
-		final Key resultKey = cipher.unwrap(wrappedKey, "AES",
-				Cipher.SECRET_KEY);
+		final Key resultKey = cipher.unwrap(wrappedKey, "AES", Cipher.SECRET_KEY);
 
 		assertArrayEquals(secretKey.getEncoded(), resultKey.getEncoded());
 
@@ -596,11 +539,10 @@ public class JCATest {
 		assertNotNull(aliases);
 		while (aliases.hasMoreElements()) {
 			final String alias = aliases.nextElement();
-			LOG.debug("alias: " + alias);
+			LOGGER.debug("alias: {}", alias);
 		}
 
-		final X509Certificate authnCertificate = (X509Certificate) keyStore
-				.getCertificate("Authentication");
+		final X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
 		assertNotNull(authnCertificate);
 	}
 
@@ -610,29 +552,21 @@ public class JCATest {
 
 		final KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
-		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry(
-				"Authentication", null);
+		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry("Authentication", null);
 		assertNotNull(privateKeyEntry);
 		assertTrue(privateKeyEntry.getPrivateKey() instanceof BeIDPrivateKey);
 
-		TrustedCertificateEntry caEntry = (TrustedCertificateEntry) keyStore
-				.getEntry("CA", null);
+		TrustedCertificateEntry caEntry = (TrustedCertificateEntry) keyStore.getEntry("CA", null);
 		assertNotNull(caEntry);
-		LOG.debug("CA entry: "
-				+ ((X509Certificate) caEntry.getTrustedCertificate())
-						.getSubjectX500Principal());
+		LOGGER.debug("CA entry: {}", ((X509Certificate) caEntry.getTrustedCertificate()).getSubjectX500Principal());
 
-		TrustedCertificateEntry rootEntry = (TrustedCertificateEntry) keyStore
-				.getEntry("Root", null);
+		TrustedCertificateEntry rootEntry = (TrustedCertificateEntry) keyStore.getEntry("Root", null);
 		assertNotNull(rootEntry);
-		LOG.debug("root entry: "
-				+ ((X509Certificate) rootEntry.getTrustedCertificate())
-						.getSubjectX500Principal());
+		LOGGER.debug("root entry: {}", ((X509Certificate) rootEntry.getTrustedCertificate()).getSubjectX500Principal());
 	}
 
-	private void verifySignatureAlgorithm(final String signatureAlgorithm,
-			final PrivateKey privateKey, final PublicKey publicKey)
-			throws Exception {
+	private void verifySignatureAlgorithm(final String signatureAlgorithm, final PrivateKey privateKey,
+			final PublicKey publicKey) throws Exception {
 		Signature signature = Signature.getInstance(signatureAlgorithm);
 		signature.initSign(privateKey);
 		assertTrue(signature.getProvider() instanceof BeIDProvider);
@@ -655,10 +589,9 @@ public class JCATest {
 
 		RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
 		BigInteger signatureValueBigInteger = new BigInteger(signatureValue);
-		BigInteger messageBigInteger = signatureValueBigInteger.modPow(
-				rsaPublicKey.getPublicExponent(), rsaPublicKey.getModulus());
-		LOG.debug("Padded DigestInfo: "
-				+ new String(Hex.encodeHex(messageBigInteger.toByteArray())));
+		BigInteger messageBigInteger = signatureValueBigInteger.modPow(rsaPublicKey.getPublicExponent(),
+				rsaPublicKey.getModulus());
+		LOGGER.debug("Padded DigestInfo: {}", new String(Hex.encodeHex(messageBigInteger.toByteArray())));
 	}
 
 	private BeIDCard getBeIDCard() throws Exception {

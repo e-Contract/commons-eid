@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2012-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -29,8 +30,8 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.KeyManagerFactorySpi;
 import javax.net.ssl.ManagerFactoryParameters;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * eID specific {@link KeyManagerFactory}. Can be used for mutual TLS
@@ -54,28 +55,26 @@ import org.apache.commons.logging.LogFactory;
  */
 public class BeIDKeyManagerFactory extends KeyManagerFactorySpi {
 
-	private static final Log LOG = LogFactory
-			.getLog(BeIDKeyManagerFactory.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDKeyManagerFactory.class);
 
 	private BeIDManagerFactoryParameters beIDSpec;
 
 	@Override
 	protected KeyManager[] engineGetKeyManagers() {
-		LOG.debug("engineGetKeyManagers");
+		LOGGER.debug("engineGetKeyManagers");
 		KeyManager beidKeyManager;
 		try {
 			beidKeyManager = new BeIDX509KeyManager(this.beIDSpec);
 		} catch (final Exception e) {
 			throw new IllegalStateException(e);
 		}
-		final KeyManager[] keyManagers = new KeyManager[]{beidKeyManager};
+		final KeyManager[] keyManagers = new KeyManager[] { beidKeyManager };
 		return keyManagers;
 	}
 
 	@Override
-	protected void engineInit(final ManagerFactoryParameters spec)
-			throws InvalidAlgorithmParameterException {
-		LOG.debug("engineInit(spec)");
+	protected void engineInit(final ManagerFactoryParameters spec) throws InvalidAlgorithmParameterException {
+		LOGGER.debug("engineInit(spec)");
 		if (null == spec) {
 			return;
 		}
@@ -87,8 +86,7 @@ public class BeIDKeyManagerFactory extends KeyManagerFactorySpi {
 
 	@Override
 	protected void engineInit(final KeyStore keyStore, final char[] password)
-			throws KeyStoreException, NoSuchAlgorithmException,
-			UnrecoverableKeyException {
-		LOG.debug("engineInit(KeyStore,password)");
+			throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
+		LOGGER.debug("engineInit(KeyStore,password)");
 	}
 }

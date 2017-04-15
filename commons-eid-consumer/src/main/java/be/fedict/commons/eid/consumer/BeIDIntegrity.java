@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2009 e-Contract.be BVBA.
+ * Copyright (C) 2009-2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -37,11 +37,11 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.x509.DigestInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
@@ -53,7 +53,7 @@ import be.fedict.commons.eid.consumer.tlv.TlvParser;
  */
 public class BeIDIntegrity {
 
-	private final static Log LOG = LogFactory.getLog(BeIDIntegrity.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(BeIDIntegrity.class);
 
 	private final CertificateFactory certificateFactory;
 
@@ -78,11 +78,9 @@ public class BeIDIntegrity {
 		X509Certificate certificate;
 		try {
 			certificate = (X509Certificate) this.certificateFactory
-					.generateCertificate(new ByteArrayInputStream(
-							encodedCertificate));
+					.generateCertificate(new ByteArrayInputStream(encodedCertificate));
 		} catch (final CertificateException cex) {
-			throw new RuntimeException("X509 decoding error: "
-					+ cex.getMessage(), cex);
+			throw new RuntimeException("X509 decoding error: " + cex.getMessage(), cex);
 		}
 		return certificate;
 	}
@@ -95,11 +93,9 @@ public class BeIDIntegrity {
 	 * @param rrnCertificate
 	 * @return
 	 */
-	public Identity getVerifiedIdentity(final byte[] identityFile,
-			final byte[] identitySignatureFile,
+	public Identity getVerifiedIdentity(final byte[] identityFile, final byte[] identitySignatureFile,
 			final X509Certificate rrnCertificate) {
-		final Identity identity = this.getVerifiedIdentity(identityFile,
-				identitySignatureFile, null, rrnCertificate);
+		final Identity identity = this.getVerifiedIdentity(identityFile, identitySignatureFile, null, rrnCertificate);
 		return identity;
 	}
 
@@ -113,18 +109,14 @@ public class BeIDIntegrity {
 	 * @param rrnCertificate
 	 * @return
 	 */
-	public Identity getVerifiedIdentity(final byte[] identityFile,
-			final byte[] identitySignatureFile, final byte[] photo,
-			final X509Certificate rrnCertificate) {
+	public Identity getVerifiedIdentity(final byte[] identityFile, final byte[] identitySignatureFile,
+			final byte[] photo, final X509Certificate rrnCertificate) {
 		final PublicKey publicKey = rrnCertificate.getPublicKey();
 		boolean result;
 		try {
-			result = verifySignature(rrnCertificate.getSigAlgName(),
-					identitySignatureFile, publicKey, identityFile);
+			result = verifySignature(rrnCertificate.getSigAlgName(), identitySignatureFile, publicKey, identityFile);
 		} catch (final Exception ex) {
-			throw new SecurityException(
-					"identity signature verification error: " + ex.getMessage(),
-					ex);
+			throw new SecurityException("identity signature verification error: " + ex.getMessage(), ex);
 		}
 		if (false == result) {
 			throw new SecurityException("signature integrity error");
@@ -132,8 +124,7 @@ public class BeIDIntegrity {
 		final Identity identity = TlvParser.parse(identityFile, Identity.class);
 		if (null != photo) {
 			final byte[] expectedPhotoDigest = identity.getPhotoDigest();
-			final byte[] actualPhotoDigest = digest(
-					getDigestAlgo(expectedPhotoDigest.length), photo);
+			final byte[] actualPhotoDigest = digest(getDigestAlgo(expectedPhotoDigest.length), photo);
 			if (false == Arrays.equals(expectedPhotoDigest, actualPhotoDigest)) {
 				throw new SecurityException("photo digest mismatch");
 			}
@@ -150,21 +141,16 @@ public class BeIDIntegrity {
 	 * @param rrnCertificate
 	 * @return
 	 */
-	public Address getVerifiedAddress(final byte[] addressFile,
-			final byte[] identitySignatureFile,
-			final byte[] addressSignatureFile,
-			final X509Certificate rrnCertificate) {
+	public Address getVerifiedAddress(final byte[] addressFile, final byte[] identitySignatureFile,
+			final byte[] addressSignatureFile, final X509Certificate rrnCertificate) {
 		final byte[] trimmedAddressFile = trimRight(addressFile);
 		final PublicKey publicKey = rrnCertificate.getPublicKey();
 		boolean result;
 		try {
-			result = verifySignature(rrnCertificate.getSigAlgName(),
-					addressSignatureFile, publicKey, trimmedAddressFile,
-					identitySignatureFile);
+			result = verifySignature(rrnCertificate.getSigAlgName(), addressSignatureFile, publicKey,
+					trimmedAddressFile, identitySignatureFile);
 		} catch (final Exception ex) {
-			throw new SecurityException(
-					"address signature verification error: " + ex.getMessage(),
-					ex);
+			throw new SecurityException("address signature verification error: " + ex.getMessage(), ex);
 		}
 		if (false == result) {
 			throw new SecurityException("address integrity error");
@@ -185,12 +171,9 @@ public class BeIDIntegrity {
 	 * @throws NoSuchAlgorithmException
 	 * @throws SignatureException
 	 */
-	public boolean verifySignature(final byte[] signatureData,
-			final PublicKey publicKey, final byte[]... data)
-			throws InvalidKeyException, NoSuchAlgorithmException,
-			SignatureException {
-		return this.verifySignature("SHA1withRSA", signatureData, publicKey,
-				data);
+	public boolean verifySignature(final byte[] signatureData, final PublicKey publicKey, final byte[]... data)
+			throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
+		return this.verifySignature("SHA1withRSA", signatureData, publicKey, data);
 	}
 
 	/**
@@ -205,10 +188,8 @@ public class BeIDIntegrity {
 	 * @throws InvalidKeyException
 	 * @throws SignatureException
 	 */
-	public boolean verifySignature(final String signatureAlgo,
-			final byte[] signatureData, final PublicKey publicKey,
-			final byte[]... data) throws NoSuchAlgorithmException,
-			InvalidKeyException, SignatureException {
+	public boolean verifySignature(final String signatureAlgo, final byte[] signatureData, final PublicKey publicKey,
+			final byte[]... data) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		Signature signature;
 		signature = Signature.getInstance(signatureAlgo);
 		signature.initVerify(publicKey);
@@ -250,21 +231,20 @@ public class BeIDIntegrity {
 	 * @param authnCertificate
 	 * @return
 	 */
-	public boolean verifyAuthnSignature(final byte[] toBeSigned,
-			final byte[] signatureValue, final X509Certificate authnCertificate) {
+	public boolean verifyAuthnSignature(final byte[] toBeSigned, final byte[] signatureValue,
+			final X509Certificate authnCertificate) {
 		final PublicKey publicKey = authnCertificate.getPublicKey();
 		boolean result;
 		try {
-			result = this
-					.verifySignature(signatureValue, publicKey, toBeSigned);
+			result = this.verifySignature(signatureValue, publicKey, toBeSigned);
 		} catch (final InvalidKeyException ikex) {
-			LOG.warn("invalid key: " + ikex.getMessage(), ikex);
+			LOGGER.warn("invalid key: " + ikex.getMessage(), ikex);
 			return false;
 		} catch (final NoSuchAlgorithmException nsaex) {
-			LOG.warn("no such algo: " + nsaex.getMessage(), nsaex);
+			LOGGER.warn("no such algo: " + nsaex.getMessage(), nsaex);
 			return false;
 		} catch (final SignatureException sigex) {
-			LOG.warn("signature error: " + sigex.getMessage(), sigex);
+			LOGGER.warn("signature error: " + sigex.getMessage(), sigex);
 			return false;
 		}
 		return result;
@@ -278,48 +258,42 @@ public class BeIDIntegrity {
 	 * @param certificate
 	 * @return
 	 */
-	public boolean verifyNonRepSignature(final byte[] expectedDigestValue,
-			final byte[] signatureValue, final X509Certificate certificate) {
+	public boolean verifyNonRepSignature(final byte[] expectedDigestValue, final byte[] signatureValue,
+			final X509Certificate certificate) {
 		try {
-			return __verifyNonRepSignature(expectedDigestValue, signatureValue,
-					certificate);
+			return __verifyNonRepSignature(expectedDigestValue, signatureValue, certificate);
 		} catch (final InvalidKeyException ikex) {
-			LOG.warn("invalid key: " + ikex.getMessage(), ikex);
+			LOGGER.warn("invalid key: " + ikex.getMessage(), ikex);
 			return false;
 		} catch (final NoSuchAlgorithmException nsaex) {
-			LOG.warn("no such algo: " + nsaex.getMessage(), nsaex);
+			LOGGER.warn("no such algo: " + nsaex.getMessage(), nsaex);
 			return false;
 		} catch (final NoSuchPaddingException nspex) {
-			LOG.warn("no such padding: " + nspex.getMessage(), nspex);
+			LOGGER.warn("no such padding: " + nspex.getMessage(), nspex);
 			return false;
 		} catch (final BadPaddingException bpex) {
-			LOG.warn("bad padding: " + bpex.getMessage(), bpex);
+			LOGGER.warn("bad padding: " + bpex.getMessage(), bpex);
 			return false;
 		} catch (final IOException ioex) {
-			LOG.warn("IO error: " + ioex.getMessage(), ioex);
+			LOGGER.warn("IO error: " + ioex.getMessage(), ioex);
 			return false;
 		} catch (final IllegalBlockSizeException ibex) {
-			LOG.warn("illegal block size: " + ibex.getMessage(), ibex);
+			LOGGER.warn("illegal block size: " + ibex.getMessage(), ibex);
 			return false;
 		}
 	}
 
-	private boolean __verifyNonRepSignature(final byte[] expectedDigestValue,
-			final byte[] signatureValue, final X509Certificate certificate)
-			throws NoSuchAlgorithmException, NoSuchPaddingException,
-			InvalidKeyException, IllegalBlockSizeException,
-			BadPaddingException, IOException {
+	private boolean __verifyNonRepSignature(final byte[] expectedDigestValue, final byte[] signatureValue,
+			final X509Certificate certificate) throws NoSuchAlgorithmException, NoSuchPaddingException,
+			InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
 		final PublicKey publicKey = certificate.getPublicKey();
 
 		final Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.DECRYPT_MODE, publicKey);
-		final byte[] actualSignatureDigestInfoValue = cipher
-				.doFinal(signatureValue);
+		final byte[] actualSignatureDigestInfoValue = cipher.doFinal(signatureValue);
 
-		final ASN1InputStream asnInputStream = new ASN1InputStream(
-				actualSignatureDigestInfoValue);
-		final DigestInfo actualSignatureDigestInfo = new DigestInfo(
-				(ASN1Sequence) asnInputStream.readObject());
+		final ASN1InputStream asnInputStream = new ASN1InputStream(actualSignatureDigestInfoValue);
+		final DigestInfo actualSignatureDigestInfo = new DigestInfo((ASN1Sequence) asnInputStream.readObject());
 		asnInputStream.close();
 
 		final byte[] actualDigestValue = actualSignatureDigestInfo.getDigest();
@@ -328,20 +302,18 @@ public class BeIDIntegrity {
 
 	private String getDigestAlgo(final int hashSize) throws SecurityException {
 		switch (hashSize) {
-			case 20 :
-				return "SHA-1";
-			case 28 :
-				return "SHA-224";
-			case 32 :
-				return "SHA-256";
-			case 48 :
-				return "SHA-384";
-			case 64 :
-				return "SHA-512";
+		case 20:
+			return "SHA-1";
+		case 28:
+			return "SHA-224";
+		case 32:
+			return "SHA-256";
+		case 48:
+			return "SHA-384";
+		case 64:
+			return "SHA-512";
 		}
 
-		throw new SecurityException(
-				"Failed to find guess algorithm for hash size of " + hashSize
-						+ " bytes");
+		throw new SecurityException("Failed to find guess algorithm for hash size of " + hashSize + " bytes");
 	}
 }

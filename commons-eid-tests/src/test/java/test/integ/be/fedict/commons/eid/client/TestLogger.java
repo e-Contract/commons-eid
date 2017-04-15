@@ -2,6 +2,7 @@
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
  * Copyright (C) 2017 Corilus NV.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -19,32 +20,31 @@
 
 package test.integ.be.fedict.commons.eid.client;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.client.spi.Logger;
 
 public class TestLogger implements Logger {
 
-	private static final Log LOG = LogFactory.getLog(TestLogger.class);
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TestLogger.class);
 
 	@Override
 	public void error(final String message) {
-		LOG.error(message);
+		LOGGER.error(message);
 	}
 
 	@Override
 	public void error(final String message, final Throwable exception) {
-		LOG.error(message, exception);
+		LOGGER.error(message, exception);
 	}
 
 	@Override
 	public void info(final String message) {
-		LOG.info(message);
+		LOGGER.info(message);
 	}
 
 	@Override
 	public void debug(final String message) {
-		LOG.debug(message);
+		LOGGER.debug(message);
 	}
 }

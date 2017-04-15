@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -22,8 +23,8 @@ import java.security.SecureRandomSpi;
 
 import javax.smartcardio.CardException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
@@ -47,18 +48,18 @@ public class BeIDSecureRandom extends SecureRandomSpi {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Log LOG = LogFactory.getLog(BeIDSecureRandom.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDSecureRandom.class);
 
 	private BeIDCard beIDCard;
 
 	@Override
 	protected void engineSetSeed(final byte[] seed) {
-		LOG.debug("engineSetSeed");
+		LOGGER.debug("engineSetSeed");
 	}
 
 	@Override
 	protected void engineNextBytes(final byte[] bytes) {
-		LOG.debug("engineNextBytes: " + bytes.length + " bytes");
+		LOGGER.debug("engineNextBytes: {} bytes", bytes.length);
 		BeIDCard beIDCard = getBeIDCard();
 		byte[] randomData;
 		try {
@@ -76,7 +77,7 @@ public class BeIDSecureRandom extends SecureRandomSpi {
 
 	@Override
 	protected byte[] engineGenerateSeed(final int numBytes) {
-		LOG.debug("engineGenerateSeed: " + numBytes + " bytes");
+		LOGGER.debug("engineGenerateSeed: {} bytes", numBytes);
 		final BeIDCard beIDCard = getBeIDCard();
 		byte[] randomData;
 		try {

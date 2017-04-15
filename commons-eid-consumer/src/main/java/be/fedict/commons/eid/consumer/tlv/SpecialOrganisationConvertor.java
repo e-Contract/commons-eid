@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -20,8 +21,8 @@ package be.fedict.commons.eid.consumer.tlv;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.consumer.SpecialOrganisation;
 
@@ -31,16 +32,12 @@ import be.fedict.commons.eid.consumer.SpecialOrganisation;
  * @author Frank Cornelis
  * 
  */
-public class SpecialOrganisationConvertor
-		implements
-			DataConvertor<SpecialOrganisation> {
+public class SpecialOrganisationConvertor implements DataConvertor<SpecialOrganisation> {
 
-	private static final Log LOG = LogFactory
-			.getLog(SpecialOrganisationConvertor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpecialOrganisationConvertor.class);
 
 	@Override
-	public SpecialOrganisation convert(final byte[] value)
-			throws DataConvertorException {
+	public SpecialOrganisation convert(final byte[] value) throws DataConvertorException {
 		if (null == value) {
 			return SpecialOrganisation.UNSPECIFIED;
 		}
@@ -48,12 +45,10 @@ public class SpecialOrganisationConvertor
 		try {
 			key = new String(value, "UTF-8");
 		} catch (final UnsupportedEncodingException uex) {
-			throw new DataConvertorException("string error: "
-					+ uex.getMessage());
+			throw new DataConvertorException("string error: " + uex.getMessage());
 		}
-		LOG.debug("key: \"" + key + "\"");
-		final SpecialOrganisation specialOrganisation = SpecialOrganisation
-				.toSpecialOrganisation(key);
+		LOGGER.debug("key: \"{}\"", key);
+		final SpecialOrganisation specialOrganisation = SpecialOrganisation.toSpecialOrganisation(key);
 		return specialOrganisation;
 	}
 }

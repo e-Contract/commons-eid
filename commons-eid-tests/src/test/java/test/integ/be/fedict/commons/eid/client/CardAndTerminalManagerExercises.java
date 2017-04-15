@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015 e-Contract.be BVBA.
+ * Copyright (C) 2015-2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -28,23 +28,23 @@
  */
 
 package test.integ.be.fedict.commons.eid.client;
+
 import java.util.Random;
+
 import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
+
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import be.fedict.commons.eid.client.CardAndTerminalManager;
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-public class CardAndTerminalManagerExercises
-		implements
-			CardTerminalEventsListener,
-			CardEventsListener {
+public class CardAndTerminalManagerExercises implements CardTerminalEventsListener, CardEventsListener {
 
-	private static final Log LOG = LogFactory
-			.getLog(CardAndTerminalManagerExercises.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CardAndTerminalManagerExercises.class);
 
 	private CardAndTerminalManager cardAndTerminalManager;
 
@@ -70,8 +70,7 @@ public class CardAndTerminalManagerExercises
 	@Test
 	public void testDetections() throws Exception {
 		final Random random = new Random(0);
-		this.cardAndTerminalManager = new CardAndTerminalManager(
-				new TestLogger());
+		this.cardAndTerminalManager = new CardAndTerminalManager(new TestLogger());
 		this.cardAndTerminalManager.addCardTerminalListener(this);
 		this.cardAndTerminalManager.addCardListener(this);
 
@@ -103,8 +102,7 @@ public class CardAndTerminalManagerExercises
 			}
 
 			@Override
-			public void cardInserted(final CardTerminal cardTerminal,
-					final Card card) {
+			public void cardInserted(final CardTerminal cardTerminal, final Card card) {
 			}
 
 			@Override
@@ -114,7 +112,7 @@ public class CardAndTerminalManagerExercises
 			}
 		};
 
-		LOG.debug("main thread running.. do some card tricks..");
+		LOGGER.debug("main thread running.. do some card tricks..");
 
 		for (;;) {
 			System.err.print("+");
@@ -140,8 +138,7 @@ public class CardAndTerminalManagerExercises
 	@Test
 	public void testStartStop() throws Exception {
 		final Random random = new Random(0);
-		this.cardAndTerminalManager = new CardAndTerminalManager(
-				new TestLogger());
+		this.cardAndTerminalManager = new CardAndTerminalManager(new TestLogger());
 		this.cardAndTerminalManager.addCardTerminalListener(this);
 		this.cardAndTerminalManager.addCardListener(this);
 
@@ -160,39 +157,37 @@ public class CardAndTerminalManagerExercises
 
 	@Override
 	public void terminalAttached(final CardTerminal terminalAttached) {
-		LOG.debug("Terminal Attached [" + terminalAttached.getName() + "]");
+		LOGGER.debug("Terminal Attached [{}]", terminalAttached.getName());
 	}
 
 	@Override
 	public void terminalDetached(final CardTerminal terminalDetached) {
-		LOG.debug("Terminal Detached [" + terminalDetached.getName() + "]");
+		LOGGER.debug("Terminal Detached [{}]", terminalDetached.getName());
 	}
 
 	@Override
 	public void cardInserted(final CardTerminal cardTerminal, final Card card) {
 		if (card != null) {
-			LOG.debug("Card [" + StringUtils.atrToString(card.getATR())
-					+ "] Inserted Into Terminal [" + cardTerminal.getName()
-					+ "]");
+			LOGGER.debug("Card [{}] Inserted Into Terminal [{}]", StringUtils.atrToString(card.getATR()),
+					cardTerminal.getName() + "]");
 		} else {
-			LOG.debug("Card present but failed to connect()");
+			LOGGER.debug("Card present but failed to connect()");
 		}
 	}
 
 	@Override
 	public void cardRemoved(final CardTerminal terminalWithCardRemoved) {
-		LOG.debug("Card Removed From [" + terminalWithCardRemoved.getName()
-				+ "]");
+		LOGGER.debug("Card Removed From [{}]", terminalWithCardRemoved.getName());
 	}
 
 	@Override
 	public void cardEventsInitialized() {
-		LOG.debug("Card Events Initialised");
+		LOGGER.debug("Card Events Initialised");
 
 	}
 
 	@Override
 	public void terminalEventsInitialized() {
-		LOG.debug("Terminal Events Initialised");
+		LOGGER.debug("Terminal Events Initialised");
 	}
 }

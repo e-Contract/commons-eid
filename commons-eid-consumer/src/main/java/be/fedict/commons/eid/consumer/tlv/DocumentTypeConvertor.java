@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -18,8 +19,8 @@
 
 package be.fedict.commons.eid.consumer.tlv;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.consumer.DocumentType;
 
@@ -31,20 +32,18 @@ import be.fedict.commons.eid.consumer.DocumentType;
  */
 public class DocumentTypeConvertor implements DataConvertor<DocumentType> {
 
-	private static final Log LOG = LogFactory
-			.getLog(DocumentTypeConvertor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DocumentTypeConvertor.class);
 
 	@Override
-	public DocumentType convert(final byte[] value)
-			throws DataConvertorException {
-		LOG.debug("# bytes for document type field: " + value.length);
+	public DocumentType convert(final byte[] value) throws DataConvertorException {
+		LOGGER.debug("# bytes for document type field: {}", value.length);
 		/*
 		 * More recent eID cards use 2 bytes per default for the document type
 		 * field.
 		 */
 		final DocumentType documentType = DocumentType.toDocumentType(value);
 		if (null == documentType) {
-			LOG.debug("unknown document type: " + DocumentType.toString(value));
+			LOGGER.debug("unknown document type: {}", DocumentType.toString(value));
 		}
 		return documentType;
 	}

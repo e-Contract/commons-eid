@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -25,8 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tag-Length-Value parser. The TLV-format is used in the eID card for encoding
@@ -37,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TlvParser {
 
-	private static final Log LOG = LogFactory.getLog(TlvParser.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TlvParser.class);
 
 	private TlvParser() {
 		super();
@@ -57,29 +58,24 @@ public class TlvParser {
 		try {
 			t = parseThrowing(file, tlvClass);
 		} catch (final Exception ex) {
-			throw new RuntimeException("error parsing file: "
-					+ tlvClass.getName(), ex);
+			throw new RuntimeException("error parsing file: " + tlvClass.getName(), ex);
 		}
 		return t;
 	}
 
-	private static byte[] copy(final byte[] source, final int idx,
-			final int count) {
+	private static byte[] copy(final byte[] source, final int idx, final int count) {
 		final byte[] result = new byte[count];
 		System.arraycopy(source, idx, result, 0, count);
 		return result;
 	}
 
-	private static <T> T parseThrowing(final byte[] file,
-			final Class<T> tlvClass) throws InstantiationException,
-			IllegalAccessException, DataConvertorException,
-			UnsupportedEncodingException {
+	private static <T> T parseThrowing(final byte[] file, final Class<T> tlvClass) throws InstantiationException,
+			IllegalAccessException, DataConvertorException, UnsupportedEncodingException {
 		final Field[] fields = tlvClass.getDeclaredFields();
 		final Map<Integer, List<Field>> tlvFields = new HashMap<Integer, List<Field>>();
 		final T tlvObject = tlvClass.newInstance();
 		for (Field field : fields) {
-			final TlvField tlvFieldAnnotation = field
-					.getAnnotation(TlvField.class);
+			final TlvField tlvFieldAnnotation = field.getAnnotation(TlvField.class);
 			if (null != tlvFieldAnnotation) {
 				final int tagId = tlvFieldAnnotation.value();
 				List<Field> fieldList = tlvFields.get(new Integer(tagId));
@@ -89,8 +85,7 @@ public class TlvParser {
 				}
 				fieldList.add(field);
 			}
-			final OriginalData originalDataAnnotation = field
-					.getAnnotation(OriginalData.class);
+			final OriginalData originalDataAnnotation = field.getAnnotation(OriginalData.class);
 			if (null != originalDataAnnotation) {
 				field.setAccessible(true);
 				field.set(tlvObject, file);
@@ -117,38 +112,30 @@ public class TlvParser {
 			if (fieldList != null) {
 				for (Field tlvField : fieldList) {
 					final Class<?> tlvType = tlvField.getType();
-					final ConvertData convertDataAnnotation = tlvField
-							.getAnnotation(ConvertData.class);
+					final ConvertData convertDataAnnotation = tlvField.getAnnotation(ConvertData.class);
 					final byte[] tlvValue = copy(file, idx, length);
 					Object fieldValue;
 					if (null != convertDataAnnotation) {
-						final Class<? extends DataConvertor<?>> dataConvertorClass = convertDataAnnotation
-								.value();
-						final DataConvertor<?> dataConvertor = dataConvertorClass
-								.newInstance();
+						final Class<? extends DataConvertor<?>> dataConvertorClass = convertDataAnnotation.value();
+						final DataConvertor<?> dataConvertor = dataConvertorClass.newInstance();
 						fieldValue = dataConvertor.convert(tlvValue);
 					} else if (String.class == tlvType) {
 						fieldValue = new String(tlvValue, "UTF-8");
 					} else if (Boolean.TYPE == tlvType) {
 						fieldValue = true;
-					} else if (tlvType.isArray()
-							&& Byte.TYPE == tlvType.getComponentType()) {
+					} else if (tlvType.isArray() && Byte.TYPE == tlvType.getComponentType()) {
 						fieldValue = tlvValue;
 					} else {
-						throw new IllegalArgumentException(
-								"unsupported field type: " + tlvType.getName());
+						throw new IllegalArgumentException("unsupported field type: " + tlvType.getName());
 					}
-					if (null != tlvField.get(tlvObject)
-							&& false == tlvField.getType().isPrimitive()) {
-						throw new RuntimeException("field was already set: "
-								+ tlvField.getName());
+					if (null != tlvField.get(tlvObject) && false == tlvField.getType().isPrimitive()) {
+						throw new RuntimeException("field was already set: " + tlvField.getName());
 					}
 					tlvField.setAccessible(true);
 					tlvField.set(tlvObject, fieldValue);
 				}
 			} else {
-				LOG.debug("unknown tag: " + (tag & 0xff) + ", length: "
-						+ length);
+				LOGGER.debug("unknown tag: {}, length {}", (tag & 0xff), length);
 			}
 			idx += length;
 		}

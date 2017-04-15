@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -25,9 +26,9 @@ import static org.junit.Assert.fail;
 import java.security.cert.X509Certificate;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.consumer.Address;
 import be.fedict.commons.eid.consumer.BeIDIntegrity;
@@ -35,41 +36,34 @@ import be.fedict.commons.eid.consumer.Identity;
 
 public class BeIDIntegrityTest {
 
-	private static final Log LOG = LogFactory.getLog(BeIDIntegrityTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDIntegrityTest.class);
 
 	@Test
 	public void testIdentityIntegrity() throws Exception {
 		// setup
-		byte[] identityFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-identity.tlv"));
+		byte[] identityFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-identity.tlv"));
 		byte[] identitySignatureFile = IOUtils
-				.toByteArray(BeIDIntegrityTest.class
-						.getResourceAsStream("/test-identity-sign.der"));
-		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-rrn-cert.der"));
+				.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-identity-sign.der"));
+		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-rrn-cert.der"));
 		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 
 		// operate
 		X509Certificate rrnCert = beIDIntegrity.loadCertificate(rrnCertFile);
-		Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile,
-				identitySignatureFile, rrnCert);
+		Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile, identitySignatureFile, rrnCert);
 
 		// verify
 		assertNotNull(identity);
-		LOG.debug("name: " + identity.getFirstName());
+		LOGGER.debug("name: {}", identity.getFirstName());
 		assertEquals("Alice Geldigekaart", identity.getFirstName());
 	}
 
 	@Test
 	public void testIdentityIntegrityCorruption() throws Exception {
 		// setup
-		byte[] identityFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-identity.tlv"));
+		byte[] identityFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-identity.tlv"));
 		byte[] identitySignatureFile = IOUtils
-				.toByteArray(BeIDIntegrityTest.class
-						.getResourceAsStream("/test-identity-sign.der"));
-		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-rrn-cert.der"));
+				.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-identity-sign.der"));
+		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-rrn-cert.der"));
 		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 
 		// setup: corrupt identity file
@@ -80,8 +74,7 @@ public class BeIDIntegrityTest {
 
 		// operate & verify
 		try {
-			beIDIntegrity.getVerifiedIdentity(identityFile,
-					identitySignatureFile, rrnCert);
+			beIDIntegrity.getVerifiedIdentity(identityFile, identitySignatureFile, rrnCert);
 			fail();
 		} catch (SecurityException e) {
 			// expected
@@ -91,40 +84,31 @@ public class BeIDIntegrityTest {
 	@Test
 	public void testPhotoIntegrity() throws Exception {
 		// setup
-		byte[] identityFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-identity.tlv"));
+		byte[] identityFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-identity.tlv"));
 		byte[] identitySignatureFile = IOUtils
-				.toByteArray(BeIDIntegrityTest.class
-						.getResourceAsStream("/test-identity-sign.der"));
-		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-rrn-cert.der"));
-		byte[] photoData = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-photo.jpg"));
+				.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-identity-sign.der"));
+		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-rrn-cert.der"));
+		byte[] photoData = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-photo.jpg"));
 		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 
 		// operate
 		X509Certificate rrnCert = beIDIntegrity.loadCertificate(rrnCertFile);
-		Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile,
-				identitySignatureFile, photoData, rrnCert);
+		Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile, identitySignatureFile, photoData, rrnCert);
 
 		// verify
 		assertNotNull(identity);
-		LOG.debug("name: " + identity.getFirstName());
+		LOGGER.debug("name: {}", identity.getFirstName());
 		assertEquals("Alice Geldigekaart", identity.getFirstName());
 	}
 
 	@Test
 	public void testPhotoIntegrityCorruption() throws Exception {
 		// setup
-		byte[] identityFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-identity.tlv"));
+		byte[] identityFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-identity.tlv"));
 		byte[] identitySignatureFile = IOUtils
-				.toByteArray(BeIDIntegrityTest.class
-						.getResourceAsStream("/test-identity-sign.der"));
-		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-rrn-cert.der"));
-		byte[] photoData = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-photo.jpg"));
+				.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-identity-sign.der"));
+		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-rrn-cert.der"));
+		byte[] photoData = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-photo.jpg"));
 		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 
 		// setup: corrupt photo
@@ -135,8 +119,7 @@ public class BeIDIntegrityTest {
 
 		// operate & verify
 		try {
-			beIDIntegrity.getVerifiedIdentity(identityFile,
-					identitySignatureFile, photoData, rrnCert);
+			beIDIntegrity.getVerifiedIdentity(identityFile, identitySignatureFile, photoData, rrnCert);
 			fail();
 		} catch (SecurityException e) {
 			// expected
@@ -147,26 +130,22 @@ public class BeIDIntegrityTest {
 	public void testAddressIntegrity() throws Exception {
 		// setup
 		byte[] identitySignatureFile = IOUtils
-				.toByteArray(BeIDIntegrityTest.class
-						.getResourceAsStream("/test-identity-sign.der"));
-		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-rrn-cert.der"));
-		byte[] addressFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-address.tlv"));
+				.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-identity-sign.der"));
+		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-rrn-cert.der"));
+		byte[] addressFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-address.tlv"));
 		byte[] addressSignatureFile = IOUtils
-				.toByteArray(BeIDIntegrityTest.class
-						.getResourceAsStream("/test-address-sign.der"));
+				.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-address-sign.der"));
 
 		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 
 		// operate
 		X509Certificate rrnCert = beIDIntegrity.loadCertificate(rrnCertFile);
-		Address address = beIDIntegrity.getVerifiedAddress(addressFile,
-				identitySignatureFile, addressSignatureFile, rrnCert);
+		Address address = beIDIntegrity.getVerifiedAddress(addressFile, identitySignatureFile, addressSignatureFile,
+				rrnCert);
 
 		// verify
 		assertNotNull(address);
-		LOG.debug("ZIP: " + address.getZip());
+		LOGGER.debug("ZIP: {}", address.getZip());
 		assertEquals("2000", address.getZip());
 	}
 
@@ -174,15 +153,11 @@ public class BeIDIntegrityTest {
 	public void testAddressIntegrityCorruption() throws Exception {
 		// setup
 		byte[] identitySignatureFile = IOUtils
-				.toByteArray(BeIDIntegrityTest.class
-						.getResourceAsStream("/test-identity-sign.der"));
-		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-rrn-cert.der"));
-		byte[] addressFile = IOUtils.toByteArray(BeIDIntegrityTest.class
-				.getResourceAsStream("/test-address.tlv"));
+				.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-identity-sign.der"));
+		byte[] rrnCertFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-rrn-cert.der"));
+		byte[] addressFile = IOUtils.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-address.tlv"));
 		byte[] addressSignatureFile = IOUtils
-				.toByteArray(BeIDIntegrityTest.class
-						.getResourceAsStream("/test-address-sign.der"));
+				.toByteArray(BeIDIntegrityTest.class.getResourceAsStream("/test-address-sign.der"));
 
 		// setup: corrupt address
 		addressFile[0] = 123;
@@ -194,8 +169,7 @@ public class BeIDIntegrityTest {
 
 		// operate & verify
 		try {
-			beIDIntegrity.getVerifiedAddress(addressFile,
-					identitySignatureFile, addressSignatureFile, rrnCert);
+			beIDIntegrity.getVerifiedAddress(addressFile, identitySignatureFile, addressSignatureFile, rrnCert);
 			fail();
 		} catch (SecurityException e) {
 			// expected

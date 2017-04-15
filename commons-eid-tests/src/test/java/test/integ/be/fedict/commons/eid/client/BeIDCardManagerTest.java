@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -22,9 +23,9 @@ import java.util.Locale;
 
 import javax.smartcardio.CardTerminal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;
@@ -32,7 +33,7 @@ import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
 
 public class BeIDCardManagerTest {
 
-	private static final Log LOG = LogFactory.getLog(BeIDCardManagerTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDCardManagerTest.class);
 
 	@Test
 	public void testListenerModification() throws Exception {
@@ -41,14 +42,11 @@ public class BeIDCardManagerTest {
 		beIDCardManager.setLocale(Locale.FRENCH);
 		final Object waitObject = new Object();
 		beIDCardManager
-				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardManager, waitObject, true, false));
+				.addBeIDCardEventListener(new BeIDCardEventsTestListener(beIDCardManager, waitObject, true, false));
 		beIDCardManager
-				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardManager, waitObject, false, false));
+				.addBeIDCardEventListener(new BeIDCardEventsTestListener(beIDCardManager, waitObject, false, false));
 		beIDCardManager
-				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardManager, waitObject, false, true));
+				.addBeIDCardEventListener(new BeIDCardEventsTestListener(beIDCardManager, waitObject, false, true));
 		beIDCardManager.start();
 		synchronized (waitObject) {
 			waitObject.wait();
@@ -62,14 +60,11 @@ public class BeIDCardManagerTest {
 		beIDCardManager.setLocale(Locale.GERMAN);
 		final Object waitObject = new Object();
 		beIDCardManager
-				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardManager, waitObject, true, false));
+				.addBeIDCardEventListener(new BeIDCardEventsTestListener(beIDCardManager, waitObject, true, false));
 		beIDCardManager
-				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardManager, waitObject, false, false));
+				.addBeIDCardEventListener(new BeIDCardEventsTestListener(beIDCardManager, waitObject, false, false));
 		beIDCardManager
-				.addBeIDCardEventListener(new BeIDCardEventsTestListener(
-						beIDCardManager, waitObject, false, true));
+				.addBeIDCardEventListener(new BeIDCardEventsTestListener(beIDCardManager, waitObject, false, true));
 		beIDCardManager.start();
 		synchronized (waitObject) {
 			waitObject.wait();
@@ -81,14 +76,12 @@ public class BeIDCardManagerTest {
 		final TestLogger logger = new TestLogger();
 		final BeIDCardManager beIDCardManager = new BeIDCardManager(logger);
 		beIDCardManager.setLocale(Locale.ENGLISH);
-		
+
 		beIDCardManager.start();
 		beIDCardManager.refreshCards();
 	}
 
-	private final class BeIDCardEventsTestListener
-			implements
-				BeIDCardEventsListener {
+	private final class BeIDCardEventsTestListener implements BeIDCardEventsListener {
 
 		private final Object waitObject;
 
@@ -97,9 +90,8 @@ public class BeIDCardManagerTest {
 		private final boolean removeAfterCardInserted;
 		private final boolean throwNPE;
 
-		public BeIDCardEventsTestListener(final BeIDCardManager manager,
-				final Object waitObject, final boolean removeAfterCardInserted,
-				final boolean throwNPE) {
+		public BeIDCardEventsTestListener(final BeIDCardManager manager, final Object waitObject,
+				final boolean removeAfterCardInserted, final boolean throwNPE) {
 			this.manager = manager;
 			this.waitObject = waitObject;
 			this.removeAfterCardInserted = removeAfterCardInserted;
@@ -107,32 +99,28 @@ public class BeIDCardManagerTest {
 		}
 
 		@Override
-		public void eIDCardRemoved(final CardTerminal cardTerminal,
-				final BeIDCard card) {
-			LOG.debug("eID card removed");
+		public void eIDCardRemoved(final CardTerminal cardTerminal, final BeIDCard card) {
+			LOGGER.debug("eID card removed");
 
 			synchronized (this.waitObject) {
 				this.waitObject.notify();
 			}
 
 			if (this.throwNPE) {
-				throw new NullPointerException(
-						"Fake NPE attempting to trash a BeIDCardEventsListener");
+				throw new NullPointerException("Fake NPE attempting to trash a BeIDCardEventsListener");
 			}
 		}
 
 		@Override
-		public void eIDCardInserted(final CardTerminal cardTerminal,
-				final BeIDCard card) {
-			LOG.debug("eID card added");
-			LOG.debug("locale:" + card.getLocale());
+		public void eIDCardInserted(final CardTerminal cardTerminal, final BeIDCard card) {
+			LOGGER.debug("eID card added");
+			LOGGER.debug("locale: {}", card.getLocale());
 			if (this.removeAfterCardInserted) {
 				this.manager.removeBeIDCardListener(this);
 			}
 
 			if (this.throwNPE) {
-				throw new NullPointerException(
-						"Fake NPE attempting to trash a BeIDCardEventsListener");
+				throw new NullPointerException("Fake NPE attempting to trash a BeIDCardEventsListener");
 			}
 		}
 

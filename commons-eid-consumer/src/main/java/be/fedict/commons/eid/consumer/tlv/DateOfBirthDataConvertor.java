@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -21,8 +22,8 @@ package be.fedict.commons.eid.consumer.tlv;
 import java.io.UnsupportedEncodingException;
 import java.util.GregorianCalendar;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Convertor for eID date of birth field.
@@ -30,23 +31,19 @@ import org.apache.commons.logging.LogFactory;
  * @author Frank Cornelis
  * 
  */
-public class DateOfBirthDataConvertor
-		implements
-			DataConvertor<GregorianCalendar> {
+public class DateOfBirthDataConvertor implements DataConvertor<GregorianCalendar> {
 
-	private static final Log LOG = LogFactory
-			.getLog(DateOfBirthDataConvertor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DateOfBirthDataConvertor.class);
 
 	@Override
-	public GregorianCalendar convert(final byte[] value)
-			throws DataConvertorException {
+	public GregorianCalendar convert(final byte[] value) throws DataConvertorException {
 		String dateOfBirthStr;
 		try {
 			dateOfBirthStr = new String(value, "UTF-8").trim();
 		} catch (final UnsupportedEncodingException uex) {
 			throw new DataConvertorException("UTF-8 not supported");
 		}
-		LOG.debug("\"" + dateOfBirthStr + "\"");
+		LOGGER.debug("\"{}\"", dateOfBirthStr);
 		/*
 		 * First try to detect the German format as there are cases in which a
 		 * German format contains both dots and spaces.
@@ -58,17 +55,15 @@ public class DateOfBirthDataConvertor
 
 		if (spaceIdx > 0) {
 			final String dayStr = dateOfBirthStr.substring(0, spaceIdx);
-			LOG.debug("day: \"" + dayStr + "\"");
+			LOGGER.debug("day: \"{}\"", dayStr);
 			final int day = Integer.parseInt(dayStr);
-			String monthStr = dateOfBirthStr.substring(spaceIdx + 1,
-					dateOfBirthStr.length() - 4 - 1);
+			String monthStr = dateOfBirthStr.substring(spaceIdx + 1, dateOfBirthStr.length() - 4 - 1);
 			if (monthStr.endsWith(".")) {
 				monthStr = monthStr.substring(0, monthStr.length() - 1);
 			}
-			LOG.debug("month: \"" + monthStr + "\"");
-			final String yearStr = dateOfBirthStr.substring(dateOfBirthStr
-					.length() - 4);
-			LOG.debug("year: \"" + yearStr + "\"");
+			LOGGER.debug("month: \"{}\"", monthStr);
+			final String yearStr = dateOfBirthStr.substring(dateOfBirthStr.length() - 4);
+			LOGGER.debug("year: \"{}\"", yearStr);
 			final int year = Integer.parseInt(yearStr);
 			final int month = toMonth(monthStr);
 			return new GregorianCalendar(year, month, day);
@@ -84,17 +79,14 @@ public class DateOfBirthDataConvertor
 			return new GregorianCalendar(Integer.parseInt(dateOfBirthStr), 0, 1);
 		}
 
-		throw new DataConvertorException("Unsupported Birth Date Format ["
-				+ dateOfBirthStr + "]");
+		throw new DataConvertorException("Unsupported Birth Date Format [" + dateOfBirthStr + "]");
 	}
 
-	private static final String[][] MONTHS = new String[][]{
-			new String[]{"JAN"}, new String[]{"FEV", "FEB"},
-			new String[]{"MARS", "MAAR", "MÄR"}, new String[]{"AVR", "APR"},
-			new String[]{"MAI", "MEI"}, new String[]{"JUIN", "JUN"},
-			new String[]{"JUIL", "JUL"}, new String[]{"AOUT", "AUG"},
-			new String[]{"SEPT", "SEP"}, new String[]{"OCT", "OKT"},
-			new String[]{"NOV"}, new String[]{"DEC", "DEZ"}};
+	private static final String[][] MONTHS = new String[][] { new String[] { "JAN" }, new String[] { "FEV", "FEB" },
+			new String[] { "MARS", "MAAR", "MÄR" }, new String[] { "AVR", "APR" }, new String[] { "MAI", "MEI" },
+			new String[] { "JUIN", "JUN" }, new String[] { "JUIL", "JUL" }, new String[] { "AOUT", "AUG" },
+			new String[] { "SEPT", "SEP" }, new String[] { "OCT", "OKT" }, new String[] { "NOV" },
+			new String[] { "DEC", "DEZ" } };
 
 	private int toMonth(String monthStr) throws DataConvertorException {
 		monthStr = monthStr.trim();

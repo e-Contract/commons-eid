@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2016 e-Contract.be BVBA.
+ * Copyright (C) 2014-2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -48,8 +48,7 @@ import java.util.Vector;
 import javax.smartcardio.CardTerminal;
 import javax.swing.JFrame;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.LoggerFactory;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
@@ -107,7 +106,7 @@ import be.fedict.commons.eid.dialogs.Messages;
  */
 public class BeIDKeyStore extends KeyStoreSpi {
 
-	private static final Log LOG = LogFactory.getLog(BeIDKeyStore.class);
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BeIDKeyStore.class);
 
 	private BeIDKeyStoreParameter keyStoreParameter;
 
@@ -134,7 +133,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	@Override
 	public Key engineGetKey(final String alias, final char[] password)
 			throws NoSuchAlgorithmException, UnrecoverableKeyException {
-		LOG.debug("engineGetKey: " + alias);
+		LOGGER.debug("engineGetKey: {}", alias);
 		final BeIDCard beIDCard = getBeIDCard();
 		boolean logoff;
 		boolean allowFailingLogoff;
@@ -152,17 +151,13 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			applicationName = this.keyStoreParameter.getApplicationName();
 		}
 		if ("Authentication".equals(alias)) {
-			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(
-					FileType.AuthentificationCertificate, beIDCard, logoff,
-					allowFailingLogoff,
-					autoRecovery, this, applicationName);
+			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(FileType.AuthentificationCertificate, beIDCard,
+					logoff, allowFailingLogoff, autoRecovery, this, applicationName);
 			return beIDPrivateKey;
 		}
 		if ("Signature".equals(alias)) {
-			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(
-					FileType.NonRepudiationCertificate, beIDCard, logoff,
-					allowFailingLogoff,
-					autoRecovery, this, applicationName);
+			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(FileType.NonRepudiationCertificate, beIDCard,
+					logoff, allowFailingLogoff, autoRecovery, this, applicationName);
 			return beIDPrivateKey;
 		}
 		return null;
@@ -170,60 +165,55 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	@Override
 	public Certificate[] engineGetCertificateChain(final String alias) {
-		LOG.debug("engineGetCertificateChain: " + alias);
+		LOGGER.debug("engineGetCertificateChain: {}", alias);
 		final BeIDCard beIDCard = getBeIDCard();
 		if ("Signature".equals(alias)) {
 			try {
 				if (null == this.signCertificateChain) {
-					this.signCertificateChain = beIDCard
-							.getSigningCertificateChain();
+					this.signCertificateChain = beIDCard.getSigningCertificateChain();
 					this.signCertificate = this.signCertificateChain.get(0);
-					this.citizenCaCertificate = this.signCertificateChain
-							.get(1);
+					this.citizenCaCertificate = this.signCertificateChain.get(1);
 					this.rootCaCertificate = this.signCertificateChain.get(2);
 				}
 			} catch (final Exception ex) {
-				LOG.error("error: " + ex.getMessage(), ex);
+				LOGGER.error("error: " + ex.getMessage(), ex);
 				return null;
 			}
-			return this.signCertificateChain.toArray(new X509Certificate[]{});
+			return this.signCertificateChain.toArray(new X509Certificate[] {});
 		}
 		if ("Authentication".equals(alias)) {
 			try {
 				if (null == this.authnCertificateChain) {
-					this.authnCertificateChain = beIDCard
-							.getAuthenticationCertificateChain();
+					this.authnCertificateChain = beIDCard.getAuthenticationCertificateChain();
 					this.authnCertificate = this.authnCertificateChain.get(0);
-					this.citizenCaCertificate = this.authnCertificateChain
-							.get(1);
+					this.citizenCaCertificate = this.authnCertificateChain.get(1);
 					this.rootCaCertificate = this.authnCertificateChain.get(2);
 				}
 			} catch (final Exception ex) {
-				LOG.error("error: " + ex.getMessage(), ex);
+				LOGGER.error("error: " + ex.getMessage(), ex);
 				return null;
 			}
-			return this.authnCertificateChain.toArray(new X509Certificate[]{});
+			return this.authnCertificateChain.toArray(new X509Certificate[] {});
 		}
 		if ("RRN".equals(alias)) {
 			if (null == this.rrnCertificateChain) {
 				try {
-					this.rrnCertificateChain = beIDCard
-							.getRRNCertificateChain();
+					this.rrnCertificateChain = beIDCard.getRRNCertificateChain();
 				} catch (Exception e) {
-					LOG.error("error: " + e.getMessage(), e);
+					LOGGER.error("error: " + e.getMessage(), e);
 					return null;
 				}
 				this.rrnCertificate = this.rrnCertificateChain.get(0);
 				this.rootCaCertificate = this.rrnCertificateChain.get(1);
 			}
-			return this.rrnCertificateChain.toArray(new X509Certificate[]{});
+			return this.rrnCertificateChain.toArray(new X509Certificate[] {});
 		}
 		return null;
 	}
 
 	@Override
 	public Certificate engineGetCertificate(final String alias) {
-		LOG.debug("engineGetCertificate: " + alias);
+		LOGGER.debug("engineGetCertificate: {}", alias);
 		final BeIDCard beIDCard = getBeIDCard();
 		if ("Signature".equals(alias)) {
 			try {
@@ -231,7 +221,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 					this.signCertificate = beIDCard.getSigningCertificate();
 				}
 			} catch (final Exception ex) {
-				LOG.warn("error: " + ex.getMessage(), ex);
+				LOGGER.warn("error: " + ex.getMessage(), ex);
 				return null;
 			}
 			return this.signCertificate;
@@ -239,11 +229,10 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		if ("Authentication".equals(alias)) {
 			try {
 				if (null == this.authnCertificate) {
-					this.authnCertificate = beIDCard
-							.getAuthenticationCertificate();
+					this.authnCertificate = beIDCard.getAuthenticationCertificate();
 				}
 			} catch (final Exception ex) {
-				LOG.warn("error: " + ex.getMessage(), ex);
+				LOGGER.warn("error: " + ex.getMessage(), ex);
 				return null;
 			}
 			return this.authnCertificate;
@@ -254,7 +243,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 					this.citizenCaCertificate = beIDCard.getCACertificate();
 				}
 			} catch (Exception e) {
-				LOG.warn("error: " + e.getMessage(), e);
+				LOGGER.warn("error: " + e.getMessage(), e);
 				return null;
 			}
 			return this.citizenCaCertificate;
@@ -265,7 +254,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 					this.rootCaCertificate = beIDCard.getRootCACertificate();
 				}
 			} catch (Exception e) {
-				LOG.warn("error: " + e.getMessage(), e);
+				LOGGER.warn("error: " + e.getMessage(), e);
 				return null;
 			}
 			return this.rootCaCertificate;
@@ -276,7 +265,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 					this.rrnCertificate = beIDCard.getRRNCertificate();
 				}
 			} catch (Exception e) {
-				LOG.warn("error: " + e.getMessage(), e);
+				LOGGER.warn("error: " + e.getMessage(), e);
 				return null;
 			}
 			return this.rrnCertificate;
@@ -286,8 +275,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	@Override
 	public Date engineGetCreationDate(final String alias) {
-		final X509Certificate certificate = (X509Certificate) this
-				.engineGetCertificate(alias);
+		final X509Certificate certificate = (X509Certificate) this.engineGetCertificate(alias);
 		if (null == certificate) {
 			return null;
 		}
@@ -295,21 +283,19 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	}
 
 	@Override
-	public void engineSetKeyEntry(final String alias, final Key key,
-			final char[] password, final Certificate[] chain)
+	public void engineSetKeyEntry(final String alias, final Key key, final char[] password, final Certificate[] chain)
 			throws KeyStoreException {
 		throw new KeyStoreException();
 	}
 
 	@Override
-	public void engineSetKeyEntry(final String alias, final byte[] key,
-			final Certificate[] chain) throws KeyStoreException {
+	public void engineSetKeyEntry(final String alias, final byte[] key, final Certificate[] chain)
+			throws KeyStoreException {
 		throw new KeyStoreException();
 	}
 
 	@Override
-	public void engineSetCertificateEntry(final String alias,
-			final Certificate cert) throws KeyStoreException {
+	public void engineSetCertificateEntry(final String alias, final Certificate cert) throws KeyStoreException {
 		throw new KeyStoreException();
 	}
 
@@ -320,7 +306,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	@Override
 	public Enumeration<String> engineAliases() {
-		LOG.debug("engineAliases");
+		LOGGER.debug("engineAliases");
 		final Vector<String> aliases = new Vector<String>();
 		aliases.add("Authentication");
 		aliases.add("Signature");
@@ -332,7 +318,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	@Override
 	public boolean engineContainsAlias(final String alias) {
-		LOG.debug("engineContainsAlias: " + alias);
+		LOGGER.debug("engineContainsAlias: {}", alias);
 		if ("Authentication".equals(alias)) {
 			return true;
 		}
@@ -358,7 +344,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	@Override
 	public boolean engineIsKeyEntry(final String alias) {
-		LOG.debug("engineIsKeyEntry: " + alias);
+		LOGGER.debug("engineIsKeyEntry: {}", alias);
 		if ("Authentication".equals(alias)) {
 			return true;
 		}
@@ -370,7 +356,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 
 	@Override
 	public boolean engineIsCertificateEntry(final String alias) {
-		LOG.debug("engineIsCertificateEntry: " + alias);
+		LOGGER.debug("engineIsCertificateEntry: {}", alias);
 		if ("Root".equals(alias)) {
 			return true;
 		}
@@ -384,44 +370,39 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	}
 
 	@Override
-	public void engineStore(LoadStoreParameter param) throws IOException,
-			NoSuchAlgorithmException, CertificateException {
-		LOG.debug("engineStore");
+	public void engineStore(LoadStoreParameter param)
+			throws IOException, NoSuchAlgorithmException, CertificateException {
+		LOGGER.debug("engineStore");
 		super.engineStore(param);
 	}
 
 	@Override
 	public Entry engineGetEntry(String alias, ProtectionParameter protParam)
-			throws KeyStoreException, NoSuchAlgorithmException,
-			UnrecoverableEntryException {
-		LOG.debug("engineGetEntry: " + alias);
+			throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException {
+		LOGGER.debug("engineGetEntry: {}", alias);
 		if ("Authentication".equals(alias) || "Signature".equals(alias)) {
 			PrivateKey privateKey = (PrivateKey) engineGetKey(alias, null);
 			Certificate[] chain = engineGetCertificateChain(alias);
-			PrivateKeyEntry privateKeyEntry = new PrivateKeyEntry(privateKey,
-					chain);
+			PrivateKeyEntry privateKeyEntry = new PrivateKeyEntry(privateKey, chain);
 			return privateKeyEntry;
 		}
 		if ("CA".equals(alias) || "Root".equals(alias) || "RRN".equals(alias)) {
 			Certificate certificate = engineGetCertificate(alias);
-			TrustedCertificateEntry trustedCertificateEntry = new TrustedCertificateEntry(
-					certificate);
+			TrustedCertificateEntry trustedCertificateEntry = new TrustedCertificateEntry(certificate);
 			return trustedCertificateEntry;
 		}
 		return super.engineGetEntry(alias, protParam);
 	}
 
 	@Override
-	public void engineSetEntry(String alias, Entry entry,
-			ProtectionParameter protParam) throws KeyStoreException {
-		LOG.debug("engineSetEntry: " + alias);
+	public void engineSetEntry(String alias, Entry entry, ProtectionParameter protParam) throws KeyStoreException {
+		LOGGER.debug("engineSetEntry: {}", alias);
 		super.engineSetEntry(alias, entry, protParam);
 	}
 
 	@Override
-	public boolean engineEntryInstanceOf(String alias,
-			Class<? extends Entry> entryClass) {
-		LOG.debug("engineEntryInstanceOf: " + alias);
+	public boolean engineEntryInstanceOf(String alias, Class<? extends Entry> entryClass) {
+		LOGGER.debug("engineEntryInstanceOf: {}", alias);
 		return super.engineEntryInstanceOf(alias, entryClass);
 	}
 
@@ -441,12 +422,12 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	}
 
 	@Override
-	public void engineLoad(final LoadStoreParameter param) throws IOException,
-			NoSuchAlgorithmException, CertificateException {
-		LOG.debug("engineLoad"); /*
-								 * Allows for a KeyStore to be re-loaded several
-								 * times.
-								 */
+	public void engineLoad(final LoadStoreParameter param)
+			throws IOException, NoSuchAlgorithmException, CertificateException {
+		LOGGER.debug("engineLoad"); /*
+									 * Allows for a KeyStore to be re-loaded
+									 * several times.
+									 */
 		this.beIDCard = null;
 		this.authnCertificateChain = null;
 		this.signCertificateChain = null;
@@ -479,13 +460,12 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	public BeIDCard getBeIDCard(boolean recover) {
 		boolean cardReaderStickiness;
 		if (null != this.keyStoreParameter) {
-			cardReaderStickiness = this.keyStoreParameter
-					.getCardReaderStickiness();
+			cardReaderStickiness = this.keyStoreParameter.getCardReaderStickiness();
 		} else {
 			cardReaderStickiness = false;
 		}
 		if (recover) {
-			LOG.debug("recovering from error");
+			LOGGER.debug("recovering from error");
 			this.beIDCard = null;
 		}
 		if (null != this.beIDCard) {
@@ -529,10 +509,9 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			this.beIDCard = beIDCards.getOneBeIDCard(stickyCardTerminal);
 			if (cardReaderStickiness) {
 				this.cardTerminal = this.beIDCard.getCardTerminal();
-				LOG.debug("sticky card reader: " + this.cardTerminal.getName());
+				LOGGER.debug("sticky card reader: {}", this.cardTerminal.getName());
 			}
-			final BeIDCardUI userInterface = new DefaultBeIDCardUI(
-					parentComponent, messages);
+			final BeIDCardUI userInterface = new DefaultBeIDCardUI(parentComponent, messages);
 			this.beIDCard.setUI(userInterface);
 		} catch (final CancelledException cex) {
 			throw new SecurityException("user cancelled");

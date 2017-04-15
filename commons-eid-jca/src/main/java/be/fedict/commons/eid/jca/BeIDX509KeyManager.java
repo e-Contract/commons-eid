@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2012-2013 FedICT.
+ * Copyright (C) 2017 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -32,8 +33,8 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.X509ExtendedKeyManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * eID specific {@link X509ExtendedKeyManager}.
@@ -44,19 +45,17 @@ import org.apache.commons.logging.LogFactory;
  */
 public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 
-	private static final Log LOG = LogFactory.getLog(BeIDX509KeyManager.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDX509KeyManager.class);
 
 	private KeyStore keyStore;
 
-	public BeIDX509KeyManager() throws KeyStoreException,
-			NoSuchAlgorithmException, CertificateException, IOException {
+	public BeIDX509KeyManager() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		this(null);
 	}
 
 	public BeIDX509KeyManager(final BeIDManagerFactoryParameters beIDSpec)
-			throws KeyStoreException, NoSuchAlgorithmException,
-			CertificateException, IOException {
-		LOG.debug("constructor");
+			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+		LOGGER.debug("constructor");
 		this.keyStore = KeyStore.getInstance("BeID");
 		BeIDKeyStoreParameter beIDKeyStoreParameter;
 		if (null == beIDSpec) {
@@ -64,21 +63,18 @@ public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 		} else {
 			beIDKeyStoreParameter = new BeIDKeyStoreParameter();
 			beIDKeyStoreParameter.setLocale(beIDSpec.getLocale());
-			beIDKeyStoreParameter.setParentComponent(beIDSpec
-					.getParentComponent());
+			beIDKeyStoreParameter.setParentComponent(beIDSpec.getParentComponent());
 			beIDKeyStoreParameter.setAutoRecovery(beIDSpec.getAutoRecovery());
-			beIDKeyStoreParameter.setCardReaderStickiness(beIDSpec
-					.getCardReaderStickiness());
+			beIDKeyStoreParameter.setCardReaderStickiness(beIDSpec.getCardReaderStickiness());
 		}
 		this.keyStore.load(beIDKeyStoreParameter);
 	}
 
 	@Override
-	public String chooseClientAlias(final String[] keyTypes,
-			final Principal[] issuers, final Socket socket) {
-		LOG.debug("chooseClientAlias");
+	public String chooseClientAlias(final String[] keyTypes, final Principal[] issuers, final Socket socket) {
+		LOGGER.debug("chooseClientAlias");
 		for (String keyType : keyTypes) {
-			LOG.debug("key type: " + keyType);
+			LOGGER.debug("key type: {}", keyType);
 			if ("RSA".equals(keyType)) {
 				return "beid";
 			}
@@ -87,22 +83,20 @@ public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 	}
 
 	@Override
-	public String chooseServerAlias(final String keyType,
-			final Principal[] issuers, final Socket socket) {
-		LOG.debug("chooseServerAlias");
+	public String chooseServerAlias(final String keyType, final Principal[] issuers, final Socket socket) {
+		LOGGER.debug("chooseServerAlias");
 		return null;
 	}
 
 	@Override
 	public X509Certificate[] getCertificateChain(final String alias) {
-		LOG.debug("getCertificateChain: " + alias);
+		LOGGER.debug("getCertificateChain: {}", alias);
 		if ("beid".equals(alias)) {
 			Certificate[] certificateChain;
 			try {
-				certificateChain = this.keyStore
-						.getCertificateChain("Authentication");
+				certificateChain = this.keyStore.getCertificateChain("Authentication");
 			} catch (final KeyStoreException e) {
-				LOG.error("BeID keystore error: " + e.getMessage(), e);
+				LOGGER.error("BeID keystore error: " + e.getMessage(), e);
 				return null;
 			}
 			final X509Certificate[] x509CertificateChain = new X509Certificate[certificateChain.length];
@@ -115,22 +109,20 @@ public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 	}
 
 	@Override
-	public String[] getClientAliases(final String keyType,
-			final Principal[] issuers) {
-		LOG.debug("getClientAliases");
+	public String[] getClientAliases(final String keyType, final Principal[] issuers) {
+		LOGGER.debug("getClientAliases");
 		return null;
 	}
 
 	@Override
 	public PrivateKey getPrivateKey(final String alias) {
-		LOG.debug("getPrivateKey: " + alias);
+		LOGGER.debug("getPrivateKey: {}", alias);
 		if ("beid".equals(alias)) {
 			PrivateKey privateKey;
 			try {
-				privateKey = (PrivateKey) this.keyStore.getKey(
-						"Authentication", null);
+				privateKey = (PrivateKey) this.keyStore.getKey("Authentication", null);
 			} catch (final Exception e) {
-				LOG.error("getKey error: " + e.getMessage(), e);
+				LOGGER.error("getKey error: " + e.getMessage(), e);
 				return null;
 			}
 			return privateKey;
@@ -139,23 +131,20 @@ public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 	}
 
 	@Override
-	public String[] getServerAliases(final String keyType,
-			final Principal[] issuers) {
-		LOG.debug("getServerAliases");
+	public String[] getServerAliases(final String keyType, final Principal[] issuers) {
+		LOGGER.debug("getServerAliases");
 		return null;
 	}
 
 	@Override
-	public String chooseEngineClientAlias(final String[] keyType,
-			final Principal[] issuers, final SSLEngine engine) {
-		LOG.debug("chooseEngineClientAlias");
+	public String chooseEngineClientAlias(final String[] keyType, final Principal[] issuers, final SSLEngine engine) {
+		LOGGER.debug("chooseEngineClientAlias");
 		return super.chooseEngineClientAlias(keyType, issuers, engine);
 	}
 
 	@Override
-	public String chooseEngineServerAlias(final String keyType,
-			final Principal[] issuers, final SSLEngine engine) {
-		LOG.debug("chooseEngineServerAlias");
+	public String chooseEngineServerAlias(final String keyType, final Principal[] issuers, final SSLEngine engine) {
+		LOGGER.debug("chooseEngineServerAlias");
 		return super.chooseEngineServerAlias(keyType, issuers, engine);
 	}
 }
