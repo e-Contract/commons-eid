@@ -78,8 +78,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import be.fedict.commons.eid.jca.BeIDManagerFactoryParameters;
 import be.fedict.commons.eid.jca.BeIDProvider;
+import be.fedict.commons.eid.jca.ssl.BeIDManagerFactoryParameters;
 
 public class SSLTest {
 

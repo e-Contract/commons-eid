@@ -32,6 +32,8 @@ import javax.net.ssl.KeyManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.fedict.commons.eid.jca.ssl.BeIDKeyManagerFactory;
+
 /**
  * The JCA security provider. Provides an eID based {@link KeyStore},
  * {@link Signature}, {@link KeyManagerFactory}, and {@link SecureRandom}.

@@ -17,7 +17,7 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.commons.eid.jca;
+package be.fedict.commons.eid.jca.ssl;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -35,6 +35,8 @@ import javax.net.ssl.X509ExtendedKeyManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
 
 /**
  * eID specific {@link X509ExtendedKeyManager}.

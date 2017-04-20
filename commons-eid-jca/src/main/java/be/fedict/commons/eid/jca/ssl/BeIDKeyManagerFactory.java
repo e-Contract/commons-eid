@@ -17,7 +17,7 @@
  * http://www.gnu.org/licenses/.
  */
 
-package be.fedict.commons.eid.jca;
+package be.fedict.commons.eid.jca.ssl;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
