@@ -6,7 +6,7 @@
 	<groupId>be.fedict.commons-eid</groupId>
 	<artifactId>commons-eid-bom</artifactId>
 	<packaging>pom</packaging>
-	<version>0.7.1</version>
+	<version>0.7.2-SNAPSHOT</version>
 	<distributionManagement>
 		<repository>
 			<id>e-contract-deploy</id>
