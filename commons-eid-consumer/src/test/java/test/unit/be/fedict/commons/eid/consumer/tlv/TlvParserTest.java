@@ -470,4 +470,19 @@ public class TlvParserTest {
 		LOGGER.debug("date and country: {}", identity.getDateAndCountryOfProtection());
 		assertEquals("13.08.2014-IT", identity.getDateAndCountryOfProtection());
 	}
+
+	@Test
+	public void testTrimData() throws Exception {
+		// setup
+		final InputStream addressInputStream = TlvParserTest.class.getResourceAsStream("/address-fcorneli.tlv");
+		final byte[] addressFile = IOUtils.toByteArray(addressInputStream);
+
+		// operate
+		final Address address = TlvParser.parse(addressFile, Address.class);
+
+		// verify
+		assertNotNull(address);
+		LOGGER.debug("street and number: {}", address.streetAndNumber);
+		assertEquals("Elfbunderslaan 76", address.streetAndNumber);
+	}
 }

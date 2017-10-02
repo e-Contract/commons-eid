@@ -120,7 +120,7 @@ public class TlvParser {
 						final DataConvertor<?> dataConvertor = dataConvertorClass.newInstance();
 						fieldValue = dataConvertor.convert(tlvValue);
 					} else if (String.class == tlvType) {
-						fieldValue = new String(tlvValue, "UTF-8");
+						fieldValue = new String(tlvValue, "UTF-8").trim();
 					} else if (Boolean.TYPE == tlvType) {
 						fieldValue = true;
 					} else if (tlvType.isArray() && Byte.TYPE == tlvType.getComponentType()) {

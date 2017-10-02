@@ -22,12 +22,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
@@ -114,6 +116,19 @@ public class BeIDCardTest {
 
 		assertNotNull(address);
 		assertNotNull(address.getMunicipality());
+	}
+
+	@Test
+	public void testSaveAddressFile() throws Exception {
+		final BeIDCard beIDCard = getBeIDCard();
+		beIDCard.addCardListener(new TestBeIDCardListener());
+
+		LOGGER.debug("reading address file");
+		final byte[] addressFile = beIDCard.readFile(FileType.Address);
+
+		File tmpFile = File.createTempFile("address-", ".tlv");
+		FileUtils.writeByteArrayToFile(tmpFile, addressFile);
+		LOGGER.debug("tmp address file: {}", tmpFile.getAbsolutePath());
 	}
 
 	@Test
