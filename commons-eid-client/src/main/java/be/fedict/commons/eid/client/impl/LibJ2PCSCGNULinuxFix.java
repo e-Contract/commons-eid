@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2015 e-Contract.be BVBA.
- * Copyright (C) 2008-2018 FedICT.
+ * Copyright (C) 2015-2018 e-Contract.be BVBA.
+ * Copyright (C) 2008-2015 FedICT.
  * 
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
