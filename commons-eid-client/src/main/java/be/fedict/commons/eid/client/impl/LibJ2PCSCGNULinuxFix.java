@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2015 e-Contract.be BVBA.
- * Copyright (C) 2008-2015 FedICT.
+ * Copyright (C) 2008-2018 FedICT.
  * 
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -39,6 +39,7 @@ public final class LibJ2PCSCGNULinuxFix {
 	private static final String SMARTCARDIO_LIBRARY_PROPERTY = "sun.security.smartcardio.library";
 	private static final String LIBRARY_PATH_PROPERTY = "java.library.path";
 	private static final String GNULINUX_OS_PROPERTY_PREFIX = "Linux";
+        private static final String FREEBSD_OS_PROPERTY = "FreeBSD";
 	private static final String PCSC_LIBRARY_NAME = "pcsclite";
 	private static final String UBUNTU_MULTILIB_32_SUFFIX = "i386-linux-gnu";
 	private static final String UBUNTU_MULTILIB_64_SUFFIX = "x86_64-linux-gnu";
@@ -69,7 +70,8 @@ public final class LibJ2PCSCGNULinuxFix {
 	public static void fixNativeLibrary(final Logger logger) {
 		final String osName = System.getProperty(OS_NAME_PROPERTY);
 		if ((osName != null)
-				&& (osName.startsWith(GNULINUX_OS_PROPERTY_PREFIX))) {
+				&& (osName.startsWith(GNULINUX_OS_PROPERTY_PREFIX)
+                                || osName.startsWith(FREEBSD_OS_PROPERTY))) {
 			logger.debug("OS is [" + osName + "]. Enabling PCSC library fix.");
 			final File libPcscLite = findGNULinuxNativeLibrary(
 					PCSC_LIBRARY_NAME, PCSC_LIBRARY_VERSION, logger);
