@@ -11,7 +11,7 @@ Introduction
   Furthermore the Commons eID project delivers an eID specific JCA security provider. This gives
   you seamless integration of the eID card into the security architecture of Java.
   
-  Commons eID requires Java 6 or higher and is known to work on Windows, Mac OS X, and Linux.
+  Commons eID requires Java 6 or higher and is known to work on Windows, Mac OS X, Linux, and FreeBSD.
   
   
 * Modules  
