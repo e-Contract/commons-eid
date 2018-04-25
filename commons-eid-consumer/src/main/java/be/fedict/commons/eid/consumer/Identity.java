@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015 e-Contract.be BVBA.
+ * Copyright (C) 2015-2018 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -33,6 +33,7 @@ import be.fedict.commons.eid.consumer.tlv.SpecialOrganisationConvertor;
 import be.fedict.commons.eid.consumer.tlv.SpecialStatusConvertor;
 import be.fedict.commons.eid.consumer.tlv.TlvField;
 import be.fedict.commons.eid.consumer.tlv.ValidityDateDataConvertor;
+import be.fedict.commons.eid.consumer.tlv.WorkPermitConvertor;
 
 /**
  * Holds all fields within the eID identity file. The annotations are used by
@@ -131,12 +132,25 @@ public class Identity implements Serializable {
 	@TlvField(21)
 	public String dateAndCountryOfProtection;
 
+	@TlvField(22)
+	@ConvertData(WorkPermitConvertor.class)
+	public WorkPermit workPermit;
+
+	@TlvField(23)
+	public String employerVATNumber1;
+
+	@TlvField(24)
+	public String employerVATNumber2;
+
+	@TlvField(25)
+	public String regionalFileNumber;
+
 	@OriginalData
 	public byte[] data;
 
 	/*
-	 * We're also providing getters and a toString to make this class more
-	 * useful within web frameworks like JBoss Seam.
+	 * We're also providing getters and a toString to make this class more useful
+	 * within web frameworks like JBoss Seam.
 	 */
 
 	public String getCardNumber() {
@@ -225,6 +239,22 @@ public class Identity implements Serializable {
 
 	public String getDateAndCountryOfProtection() {
 		return this.dateAndCountryOfProtection;
+	}
+
+	public WorkPermit getWorkPermit() {
+		return this.workPermit;
+	}
+
+	public String getEmployerVATNumber1() {
+		return this.employerVATNumber1;
+	}
+
+	public String getEmployerVATNumber2() {
+		return this.employerVATNumber2;
+	}
+
+	public String getRegionalFileNumber() {
+		return this.regionalFileNumber;
 	}
 
 	public byte[] getData() {

@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017 e-Contract.be BVBA.
+ * Copyright (C) 2017-2018 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -45,6 +45,7 @@ import be.fedict.commons.eid.consumer.Gender;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.SpecialOrganisation;
 import be.fedict.commons.eid.consumer.SpecialStatus;
+import be.fedict.commons.eid.consumer.WorkPermit;
 import be.fedict.commons.eid.consumer.tlv.TlvField;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
 
@@ -484,5 +485,23 @@ public class TlvParserTest {
 		assertNotNull(address);
 		LOGGER.debug("street and number: {}", address.streetAndNumber);
 		assertEquals("Elfbunderslaan 76", address.streetAndNumber);
+	}
+
+	@Test
+	public void testForeignerWorkPermit() throws Exception {
+		// setup
+		final InputStream idInputStream = TlvParserTest.class.getResourceAsStream("/idFile-foreigner.dat");
+		final byte[] idFile = IOUtils.toByteArray(idInputStream);
+
+		// operate
+		final Identity identity = TlvParser.parse(idFile, Identity.class);
+		assertTrue(identity.isMemberOfFamily());
+		LOGGER.debug("document type: {}", identity.getDocumentType());
+		LOGGER.debug("work permit: {}", identity.getWorkPermit());
+		assertEquals(WorkPermit.JOB_MARKET_NONE, identity.getWorkPermit());
+		assertEquals("9", identity.getWorkPermit().getKey());
+		assertEquals("", identity.getEmployerVATNumber1());
+		assertEquals("", identity.getEmployerVATNumber2());
+		assertEquals("", identity.getRegionalFileNumber());
 	}
 }

@@ -75,6 +75,8 @@ public class BeIDCardTest {
 		beIDCard.readFile(FileType.CACertificate);
 		LOGGER.debug("reading Photo file");
 		final byte[] photoFile = beIDCard.readFile(FileType.Photo);
+                File photoFileFile = File.createTempFile("eid-photo-", ".jpg");
+                FileUtils.writeByteArrayToFile(photoFileFile, photoFile);
 
 		final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 		final X509Certificate rrnCertificate = (X509Certificate) certificateFactory
@@ -88,6 +90,7 @@ public class BeIDCardTest {
 
 		assertNotNull(identity);
 		assertNotNull(identity.getNationalNumber());
+                LOGGER.debug("eID photo file: {}", photoFileFile.getAbsoluteFile());
 	}
 
 	@Test
@@ -162,6 +165,16 @@ public class BeIDCardTest {
 
 		assertNotNull(rrnCertificate);
 		LOGGER.debug("RRN certificate: {}", rrnCertificate);
+	}
+        
+        @Test
+	public void testAuthCertificate() throws Exception {
+		final BeIDCard beIDCard = getBeIDCard();
+
+		final X509Certificate authnCertificate = beIDCard.getAuthenticationCertificate();
+
+		assertNotNull(authnCertificate);
+		LOGGER.debug("authentication certificate: {}", authnCertificate);
 	}
 
 	@Test

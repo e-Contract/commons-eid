@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2018 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -39,8 +40,7 @@ public enum DocumentType implements Serializable {
 	HABILITATION_CARD("8"),
 
 	/**
-	 * Bewijs van inschrijving in het vreemdelingenregister ??? Tijdelijk
-	 * verblijf
+	 * Bewijs van inschrijving in het vreemdelingenregister ??? Tijdelijk verblijf
 	 */
 	FOREIGNER_A("11"),
 
@@ -60,8 +60,8 @@ public enum DocumentType implements Serializable {
 	FOREIGNER_D("14"),
 
 	/**
-	 * (Verblijfs)kaart van een onderdaan van een lidstaat der EEG Verklaring
-	 * van inschrijving
+	 * (Verblijfs)kaart van een onderdaan van een lidstaat der EEG Verklaring van
+	 * inschrijving
 	 */
 	FOREIGNER_E("15"),
 
@@ -85,7 +85,19 @@ public enum DocumentType implements Serializable {
 	 * H. Europese blauwe kaart. Toegang en verblijf voor onderdanen van derde
 	 * landen.
 	 */
-	EUROPEAN_BLUE_CARD_H("19");
+	EUROPEAN_BLUE_CARD_H("19"),
+
+	/**
+	 * I. New types of foreigner cards (I and J cards) will be issued for employees
+	 * that are transferred within their company (EU directive 2014/66/EU)
+	 */
+	FOREIGNER_I("20"),
+
+	/**
+	 * J. New types of foreigner cards (I and J cards) will be issued for employees
+	 * that are transferred within their company (EU directive 2014/66/EU)
+	 */
+	FOREIGNER_J("21");
 
 	private final int key;
 
@@ -120,8 +132,7 @@ public enum DocumentType implements Serializable {
 		for (DocumentType documentType : DocumentType.values()) {
 			final int encodedValue = documentType.key;
 			if (documentTypes.containsKey(encodedValue)) {
-				throw new RuntimeException("duplicate document type enum: "
-						+ encodedValue);
+				throw new RuntimeException("duplicate document type enum: " + encodedValue);
 			}
 			documentTypes.put(encodedValue, documentType);
 		}
