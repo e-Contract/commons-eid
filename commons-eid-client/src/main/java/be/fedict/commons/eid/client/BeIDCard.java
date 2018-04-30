@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2016 e-Contract.be BVBA.
+ * Copyright (C) 2015-2018 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -1458,6 +1458,11 @@ public class BeIDCard {
 
 	private boolean isWindows8() {
 		final String osName = System.getProperty("os.name");
+		// Windows 7 suffers the same PIN entry timeout issue
+		boolean win7 = osName.contains("Windows 7");
+		if (win7) {
+			return true;
+		}
 		boolean win8 = osName.contains("Windows 8");
 		if (win8) {
 			return true;
