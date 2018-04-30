@@ -2,6 +2,7 @@
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
  * Copyright (C) 2015-2018 e-Contract.be BVBA.
+ * Copyright (C) 2018 BOSA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -121,6 +122,7 @@ public class BeIDCard {
 	private BeIDCardUI ui;
 	private CardTerminal cardTerminal;
 	private Locale locale;
+	private Thread exclusiveAccessThread;
 
 	/**
 	 * Instantiate a BeIDCard from an already connected javax.smartcardio.Card,
@@ -1016,7 +1018,11 @@ public class BeIDCard {
 	 */
 	public BeIDCard beginExclusive() throws CardException {
 		this.logger.debug("---begin exclusive---");
+		if (this.exclusiveAccessThread != null) {
+			throw new IllegalStateException("Exclusive access already granted to " + this.exclusiveAccessThread.getName());
+		}
 		this.card.beginExclusive();
+		this.exclusiveAccessThread = Thread.currentThread();
 		return this;
 	}
 
@@ -1029,11 +1035,15 @@ public class BeIDCard {
 	 */
 	public BeIDCard endExclusive() throws CardException {
 		this.logger.debug("---end exclusive---");
-                try {
-                        this.card.endExclusive();
-                } catch (CardException e) {
-                        this.logger.error("end exclusive failed: " + e.getMessage());
-                }
+		if (Thread.currentThread() != this.exclusiveAccessThread) {
+			return this;
+		}
+		try {
+			this.exclusiveAccessThread = null;
+			this.card.endExclusive();
+		} catch (CardException e) {
+			this.logger.error("end exclusive failed: " + e.getMessage());
+		}
 		return this;
 	}
 
