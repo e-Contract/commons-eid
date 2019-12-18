@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015 e-Contract.be BVBA.
+ * Copyright (C) 2015-2019 e-Contract.be BVBA.
  * Copyright (C) 2017 Corilus NV.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -41,6 +41,7 @@ import javax.smartcardio.TerminalFactory;
 
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
+import be.fedict.commons.eid.client.impl.CardTerminalsProxy;
 import be.fedict.commons.eid.client.impl.LibJ2PCSCGNULinuxFix;
 import be.fedict.commons.eid.client.impl.VoidLogger;
 import be.fedict.commons.eid.client.spi.Logger;
@@ -160,9 +161,7 @@ public class CardAndTerminalManager implements Runnable {
 		this.protocol = PROTOCOL.ANY;
 
 		if (cardTerminals == null) {
-			final TerminalFactory terminalFactory = TerminalFactory
-					.getDefault();
-			this.cardTerminals = terminalFactory.terminals();
+			this.cardTerminals = CardTerminalsProxy.getCardTerminals(logger);
 		} else {
 			this.cardTerminals = cardTerminals;
 		}
