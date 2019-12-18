@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2015 e-Contract.be BVBA.
+ * Copyright (C) 2014-2019 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -114,7 +114,14 @@ public class CCID {
 		ppduNames.add(name.toLowerCase());
 	}
 
-	private boolean isPPDUCardTerminal(String name) {
+	private boolean isPPDUCardTerminal(CardTerminal cardTerminal) {
+		if (null == cardTerminal) {
+			return false;
+		}
+		String name = cardTerminal.getName();
+		if (null == name) {
+			return false;
+		}
 		name = name.toLowerCase();
 		for (String ppduName : ppduNames) {
 			if (name.contains(ppduName)) {
@@ -147,7 +154,7 @@ public class CCID {
 		try {
 			getFeaturesUsingControlChannel(card, onMSWindows);
 			if (this.features.isEmpty() && onMSWindows
-					&& isPPDUCardTerminal(cardTerminal.getName())) {
+					&& isPPDUCardTerminal(cardTerminal)) {
 				// Windows 10 work-around
 				getFeaturesUsingPPDU(card);
 			}
@@ -155,7 +162,7 @@ public class CCID {
 			this.logger
 					.debug("GET_FEATURES over standard control command failed: "
 							+ cexInNormal.getMessage());
-			if (onMSWindows && isPPDUCardTerminal(cardTerminal.getName())) {
+			if (onMSWindows && isPPDUCardTerminal(cardTerminal)) {
 				this.logger
 						.debug("Attempting To get CCID FEATURES using Pseudo-APDU Fallback Strategy");
 				try {
