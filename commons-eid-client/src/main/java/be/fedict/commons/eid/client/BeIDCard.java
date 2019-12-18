@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2018 e-Contract.be BVBA.
+ * Copyright (C) 2015-2019 e-Contract.be BVBA.
  * Copyright (C) 2018 BOSA.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -1466,22 +1466,11 @@ public class BeIDCard {
 				CCID.FEATURE.VERIFY_PIN_FINISH));
 	}
 
-	private boolean isWindows8() {
+	private boolean isWindows() {
 		final String osName = System.getProperty("os.name");
 		// Windows 7 suffers the same PIN entry timeout issue
-		boolean win7 = osName.contains("Windows 7");
-		if (win7) {
-			return true;
-		}
-		boolean win8 = osName.contains("Windows 8");
-		if (win8) {
-			return true;
-		}
-		boolean win10 = osName.contains("Windows 10");
-		if (win10) {
-			return true;
-		}
-		return false;
+		boolean win = osName.contains("Windows");
+		return win;
 	}
 
 	/*
@@ -1491,13 +1480,13 @@ public class BeIDCard {
 	private ResponseAPDU verifyPINViaUI(final int retriesLeft,
 			final PINPurpose purpose, final String applicationName)
 			throws CardException, UserCancelledException {
-		final boolean windows8 = this.isWindows8();
-		if (windows8) {
+		final boolean windows = this.isWindows();
+		if (windows) {
 			this.endExclusive();
 		}
 		final char[] pin = getUI().obtainPIN(retriesLeft, purpose,
 				applicationName);
-		if (windows8) {
+		if (windows) {
 			this.beginExclusive();
 		}
 		final byte[] verifyData = new byte[]{(byte) (0x20 | pin.length),
