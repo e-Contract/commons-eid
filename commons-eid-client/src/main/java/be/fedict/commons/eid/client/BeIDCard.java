@@ -412,6 +412,16 @@ public class BeIDCard {
 						readFile(FileType.RootCertificate))));
 		return chain;
 	}
+        
+        public List<byte[]> getRawCertificateChain(final FileType fileType) throws CardException, IOException, InterruptedException {
+            List<byte[]> certificateChain = new LinkedList<byte[]>();
+            certificateChain.add(readFile(fileType));
+            if (fileType.chainIncludesCitizenCA()) {
+                certificateChain.add(readFile(FileType.CACertificate));
+            }
+            certificateChain.add(readFile(FileType.RootCertificate));
+            return certificateChain;
+        }
 
 	/**
 	 * Returns the X509 authentication certificate chain. (Authentication ->
@@ -429,6 +439,10 @@ public class BeIDCard {
 			InterruptedException {
 		return this.getCertificateChain(FileType.AuthentificationCertificate);
 	}
+        
+        public List<byte[]> getRawAuthenticationCertificateChain() throws CardException, IOException, InterruptedException {
+            return this.getRawCertificateChain(FileType.AuthentificationCertificate);
+        }
 
 	/**
 	 * Returns the X509 non-repudiation certificate chain. (Non-Repudiation ->
@@ -446,6 +460,10 @@ public class BeIDCard {
 			InterruptedException {
 		return this.getCertificateChain(FileType.NonRepudiationCertificate);
 	}
+        
+        public List<byte[]> getRawSigningCertificateChain() throws CardException, IOException, InterruptedException {
+            return this.getRawCertificateChain(FileType.NonRepudiationCertificate);
+        }
 
 	/**
 	 * Returns the Citizen CA X509 certificate chain. (Citizen CA -> Root) This
@@ -478,6 +496,10 @@ public class BeIDCard {
 			IOException, CertificateException, InterruptedException {
 		return this.getCertificateChain(FileType.RRNCertificate);
 	}
+        
+        public List<byte[]> getRawRRNCertificateChain() throws CardException, IOException, InterruptedException {
+            return this.getRawCertificateChain(FileType.RRNCertificate);
+        }
 
 	/**
 	 * Sign a given digest value.
