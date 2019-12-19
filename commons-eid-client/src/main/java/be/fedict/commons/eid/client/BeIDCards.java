@@ -390,7 +390,6 @@ public class BeIDCards {
 	 * @throws InterruptedException
 	 */
 	public BeIDCards close() throws InterruptedException {
-		this.cardManager.stop();
 		this.cardAndTerminalManager.stop();
 		return this;
 	}
