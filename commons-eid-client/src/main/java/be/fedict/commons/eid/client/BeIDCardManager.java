@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015 e-Contract.be BVBA.
+ * Copyright (C) 2015-2019 e-Contract.be BVBA.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -70,7 +70,7 @@ public class BeIDCardManager {
 	}
 
 	private final CardAndTerminalManager cardAndTerminalManager;
-	private boolean terminalManagerIsPrivate;
+	private final boolean terminalManagerIsPrivate;
 	private final Map<CardTerminal, BeIDCard> terminalsAndCards;
 	private final Set<BeIDCardEventsListener> beIdListeners;
 	private final Set<CardEventsListener> otherCardListeners;
@@ -95,8 +95,7 @@ public class BeIDCardManager {
 	 *            send all the logs
 	 */
 	public BeIDCardManager(final Logger logger) {
-		this(logger, new CardAndTerminalManager());
-		this.terminalManagerIsPrivate = true;
+		this(logger, new CardAndTerminalManager(), true);
 	}
 
 	/**
@@ -124,14 +123,20 @@ public class BeIDCardManager {
 	 * @param cardAndTerminalManager
 	 *            the CardAndTerminalManager to use
 	 */
-	public BeIDCardManager(final Logger logger,
+        public BeIDCardManager(final Logger logger,
 			final CardAndTerminalManager cardAndTerminalManager) {
+            this(logger, cardAndTerminalManager, false);
+        }
+        
+	public BeIDCardManager(final Logger logger,
+			final CardAndTerminalManager cardAndTerminalManager, boolean terminalManagerIsPrivate) {
 		this.logger = logger;
 		this.beIdListeners = new HashSet<BeIDCardEventsListener>();
 		this.otherCardListeners = new HashSet<CardEventsListener>();
 		this.terminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
 
 		this.cardAndTerminalManager = cardAndTerminalManager;
+                this.terminalManagerIsPrivate = terminalManagerIsPrivate;
 		if (this.terminalManagerIsPrivate) {
 			this.cardAndTerminalManager.setProtocol(PROTOCOL.T0);
 		}
