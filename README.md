@@ -4,6 +4,7 @@
 ## Introduction
 
 This project contains the source code tree of Commons eID.
+The Commons eID project delivers several components to enable the Belgian eID within your Java based applications.
 
 The source code is hosted at: https://github.com/e-Contract/commons-eid
 
@@ -25,11 +26,11 @@ https://www.e-contract.be/sites/commons-eid/
 
 The following is required for compiling the Commons eID software:
 
-* Oracle Java 1.8.0_162+
-* Apache Maven 3.5.2
+* Java version 1.8.0_252+
+* Apache Maven version 3.6.3
 * Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy
 
-Commons eID runs on Java 6+.
+Commons eID runs on Java version 6+.
 
 
 ## Build
