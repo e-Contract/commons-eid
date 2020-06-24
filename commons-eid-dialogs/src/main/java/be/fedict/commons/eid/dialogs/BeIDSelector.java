@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017 e-Contract.be BVBA.
+ * Copyright (C) 2017-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -27,7 +27,6 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -164,13 +163,7 @@ public class BeIDSelector {
 	public BeIDCard choose() throws OutOfCardsException, CancelledException {
 		this.waitUntilIdentitiesRead();
 
-		if (this.parentComponent != null) {
-			this.dialog.setLocationRelativeTo(this.parentComponent);
-		} else {
-			final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-			this.dialog.setLocation((screen.width - this.dialog.getSize().width) / 2,
-					(screen.height - this.dialog.getSize().height) / 2);
-		}
+		this.dialog.setLocationRelativeTo(this.parentComponent);
 
 		this.dialog.setResizable(false);
 		this.dialog.setVisible(true);

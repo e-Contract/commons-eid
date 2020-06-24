@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2009-2015 e-Contract.be BVBA.
+ * Copyright (C) 2009-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -22,10 +22,8 @@ package be.fedict.commons.eid.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.DisplayMode;
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -376,21 +374,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		});
 
 		dialog.pack();
-		if (this.parentComponent != null) {
-			dialog.setLocationRelativeTo(this.parentComponent);
-		} else {
-			GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
-					.getLocalGraphicsEnvironment();
-			GraphicsDevice graphicsDevice = graphicsEnvironment
-					.getDefaultScreenDevice();
-			DisplayMode displayMode = graphicsDevice.getDisplayMode();
-			int screenWidth = displayMode.getWidth();
-			int screenHeight = displayMode.getHeight();
-			int dialogWidth = dialog.getWidth();
-			int dialogHeight = dialog.getHeight();
-			dialog.setLocation((screenWidth - dialogWidth) / 2,
-					(screenHeight - dialogHeight) / 2);
-		}
+		dialog.setLocationRelativeTo(this.parentComponent);
 
 		dialog.setVisible(true);
 		// setVisible will wait until some button or so has been pressed
@@ -476,23 +460,8 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		this.secureReaderTransactionFrame.getContentPane().add(panel);
 		this.secureReaderTransactionFrame.pack();
 
-		if (this.parentComponent != null) {
-			this.secureReaderTransactionFrame
+		this.secureReaderTransactionFrame
 					.setLocationRelativeTo(this.parentComponent);
-		} else {
-			GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
-					.getLocalGraphicsEnvironment();
-			GraphicsDevice graphicsDevice = graphicsEnvironment
-					.getDefaultScreenDevice();
-			DisplayMode displayMode = graphicsDevice.getDisplayMode();
-			int screenWidth = displayMode.getWidth();
-			int screenHeight = displayMode.getHeight();
-			int dialogWidth = this.secureReaderTransactionFrame.getWidth();
-			int dialogHeight = this.secureReaderTransactionFrame.getHeight();
-			this.secureReaderTransactionFrame.setLocation(
-					(screenWidth - dialogWidth) / 2,
-					(screenHeight - dialogHeight) / 2);
-		}
 
 		this.secureReaderTransactionFrame.setVisible(true);
 	}
@@ -573,21 +542,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		this.pinPadFrame.getContentPane().add(panel);
 		this.pinPadFrame.pack();
 
-		if (this.parentComponent != null) {
-			this.pinPadFrame.setLocationRelativeTo(this.parentComponent);
-		} else {
-			GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
-					.getLocalGraphicsEnvironment();
-			GraphicsDevice graphicsDevice = graphicsEnvironment
-					.getDefaultScreenDevice();
-			DisplayMode displayMode = graphicsDevice.getDisplayMode();
-			int screenWidth = displayMode.getWidth();
-			int screenHeight = displayMode.getHeight();
-			int dialogWidth = this.pinPadFrame.getWidth();
-			int dialogHeight = this.pinPadFrame.getHeight();
-			this.pinPadFrame.setLocation((screenWidth - dialogWidth) / 2,
-					(screenHeight - dialogHeight) / 2);
-		}
+		this.pinPadFrame.setLocationRelativeTo(this.parentComponent);
 
 		this.pinPadFrame.setVisible(true);
 	}

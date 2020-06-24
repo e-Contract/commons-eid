@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -40,9 +41,12 @@ import test.integ.be.fedict.commons.eid.client.simulation.SimulatedCard;
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.FileType;
+import be.fedict.commons.eid.client.PINPurpose;
+import be.fedict.commons.eid.client.spi.BeIDCardUI;
 import be.fedict.commons.eid.client.spi.BeIDCardsUI;
 import be.fedict.commons.eid.consumer.Identity;
 import be.fedict.commons.eid.consumer.tlv.TlvParser;
+import be.fedict.commons.eid.dialogs.DefaultBeIDCardUI;
 import be.fedict.commons.eid.dialogs.DefaultBeIDCardsUI;
 
 public class DefaultBeIDCardsDialogTests {
@@ -74,4 +78,10 @@ public class DefaultBeIDCardsDialogTests {
 		System.out.println("chose " + identity.getName() + ", "
 				+ identity.getFirstName() + " " + identity.getMiddleName());
 	}
+
+        @Test
+        public void testPinDialog() throws Exception {
+                final BeIDCardUI ui = new DefaultBeIDCardUI();
+                ui.obtainPIN(3, PINPurpose.AuthenticationSignature, "Test");
+        }
 }
