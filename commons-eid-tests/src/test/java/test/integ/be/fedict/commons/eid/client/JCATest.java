@@ -304,6 +304,7 @@ public class JCATest {
 		beIDKeyStoreParameter.addPPDUName("digipass 870");
 		beIDKeyStoreParameter.addPPDUName("digipass 875");
 		beIDKeyStoreParameter.addPPDUName("digipass 920");
+                beIDKeyStoreParameter.setLocale(new Locale("nl"));
 
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(beIDKeyStoreParameter);

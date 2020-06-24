@@ -263,20 +263,20 @@
 	</profiles>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<bouncycastle.version>1.64</bouncycastle.version>
+		<bouncycastle.version>1.65</bouncycastle.version>
 		<slf4j.version>1.7.30</slf4j.version>
 	</properties>
 	<pluginRepositories>
 		<pluginRepository>
 			<id>central</id>
-			<url>http://repo.maven.apache.org/maven2/</url>
+			<url>https://repo.maven.apache.org/maven2/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
 		</pluginRepository>
 		<pluginRepository>
 			<id>maven-java-formatter-plugin</id>
-			<url>http://maven-java-formatter-plugin.googlecode.com/svn/maven2-repo/</url>
+			<url>https://maven-java-formatter-plugin.googlecode.com/svn/maven2-repo/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
