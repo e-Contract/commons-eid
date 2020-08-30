@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2009-2019 e-Contract.be BVBA.
+ * Copyright (C) 2009-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -21,6 +21,7 @@ package be.fedict.commons.eid.consumer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -37,8 +38,11 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x509.DigestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,8 +104,8 @@ public class BeIDIntegrity {
 	}
 
 	/**
-	 * Gives back a parsed identity file after integrity verification including
-	 * the eID photo.
+	 * Gives back a parsed identity file after integrity verification including the
+	 * eID photo.
 	 * 
 	 * @param identityFile
 	 * @param identitySignatureFile
@@ -173,7 +177,14 @@ public class BeIDIntegrity {
 	 */
 	public boolean verifySignature(final byte[] signatureData, final PublicKey publicKey, final byte[]... data)
 			throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
-		return this.verifySignature("SHA1withRSA", signatureData, publicKey, data);
+		LOGGER.debug("public key algorithm: {}", publicKey.getAlgorithm());
+		String signatureAlgo;
+		if ("EC".equals(publicKey.getAlgorithm())) {
+			signatureAlgo = "SHA256withECDSA";
+		} else {
+			signatureAlgo = "SHA1withRSA";
+		}
+		return this.verifySignature(signatureAlgo, signatureData, publicKey, data);
 	}
 
 	/**
@@ -196,9 +207,9 @@ public class BeIDIntegrity {
 		for (byte[] dataItem : data) {
 			signature.update(dataItem);
 		}
-                if (null == signatureData) {
-                    throw new SignatureException("missing signature data");
-                }
+		if (null == signatureData) {
+			throw new SignatureException("missing signature data");
+		}
 		final boolean result = signature.verify(signatureData);
 		return result;
 	}
@@ -234,9 +245,17 @@ public class BeIDIntegrity {
 	 * @param authnCertificate
 	 * @return
 	 */
-	public boolean verifyAuthnSignature(final byte[] toBeSigned, final byte[] signatureValue,
+	public boolean verifyAuthnSignature(final byte[] toBeSigned, byte[] signatureValue,
 			final X509Certificate authnCertificate) {
 		final PublicKey publicKey = authnCertificate.getPublicKey();
+		if ("EC".equals(publicKey.getAlgorithm())) {
+			try {
+				signatureValue = toDERSignature(signatureValue);
+			} catch (IOException e) {
+				LOGGER.warn("DER encoding error: " + e.getMessage(), e);
+				return false;
+			}
+		}
 		boolean result;
 		try {
 			result = this.verifySignature(signatureValue, publicKey, toBeSigned);
@@ -251,6 +270,29 @@ public class BeIDIntegrity {
 			return false;
 		}
 		return result;
+	}
+
+	/**
+	 * Converts a RAW EC R||S signature to DER encoded format.
+	 * 
+	 * @param rawSign
+	 * @return
+	 * @throws IOException
+	 */
+	private static byte[] toDERSignature(byte[] rawSign) throws IOException {
+		int len = rawSign.length / 2;
+
+		byte[] r = new byte[len];
+		byte[] s = new byte[len];
+		System.arraycopy(rawSign, 0, r, 0, len);
+		System.arraycopy(rawSign, len, s, 0, len);
+
+		ASN1EncodableVector v = new ASN1EncodableVector();
+		v.add(new ASN1Integer(new BigInteger(1, r)));
+		v.add(new ASN1Integer(new BigInteger(1, s)));
+
+		DERSequence seq = new DERSequence(v);
+		return seq.getEncoded();
 	}
 
 	/**

@@ -303,6 +303,35 @@ public class BeIDCardTest {
 		assertTrue(result);
 	}
 
+	@Test
+	public void testECDSA_AuthenticationSignature() throws Exception {
+		final byte[] toBeSigned = new byte[10];
+		final SecureRandom secureRandom = new SecureRandom();
+		secureRandom.nextBytes(toBeSigned);
+		final MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		final byte[] digestValue = messageDigest.digest(toBeSigned);
+
+		final BeIDCard beIDCard = getBeIDCard();
+
+		X509Certificate certificate;
+		byte[] signatureValue;
+		try {
+			signatureValue = beIDCard.sign(digestValue, BeIDDigest.ECDSA_SHA_2_256,
+					FileType.AuthentificationCertificate, false);
+			assertNotNull(signatureValue);
+			certificate = beIDCard.getAuthenticationCertificate();
+		} finally {
+			beIDCard.close();
+		}
+
+		LOGGER.debug("signature size: {} bytes", signatureValue.length);
+		// signature value := r || s
+
+		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		final boolean result = beIDIntegrity.verifyAuthnSignature(toBeSigned, signatureValue, certificate);
+		assertTrue(result);
+	}
+
 	protected BeIDCard getBeIDCard() {
 		this.beIDCards = new BeIDCards(new TestLogger());
 		BeIDCard beIDCard = null;
