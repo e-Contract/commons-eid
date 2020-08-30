@@ -515,6 +515,16 @@ public class BeIDCard {
 			throw new IllegalArgumentException("Not a certificate that can be used for signing: " + fileType.name());
 		}
 
+		if (this.isEC()) {
+			if (!digestAlgo.isEc()) {
+				throw new IllegalArgumentException("unsupported algorithm: " + digestAlgo);
+			}
+		} else {
+			if (digestAlgo.isEc()) {
+				throw new IllegalArgumentException("unsupported algorithm: " + digestAlgo);
+			}
+		}
+
 		if (getCCID().hasFeature(CCID.FEATURE.EID_PIN_PAD_READER)) {
 			this.logger.debug("eID-aware secure PIN pad reader detected");
 		}
@@ -540,7 +550,6 @@ public class BeIDCard {
 							// reference
 							(byte) 0x84, fileType.getKeyId(), }); // private key
 			// reference
-
 			if (0x9000 != responseApdu.getSW()) {
 				throw new ResponseAPDUException("SET (select algorithm and private key) error", responseApdu);
 			}
@@ -903,7 +912,7 @@ public class BeIDCard {
 	public BeIDCard selectApplet() throws CardException {
 		ResponseAPDU responseApdu;
 
-		responseApdu = transmitCommand(BeIDCommandAPDU.SELECT_APPLET_0, BELPIC_AID);
+		responseApdu = transmitCommand(BeIDCommandAPDU.SELECT_APPLET, BELPIC_AID);
 		if (0x9000 != responseApdu.getSW()) {
 			this.logger.error("error selecting BELPIC");
 			this.logger.debug("status word: " + Integer.toHexString(responseApdu.getSW()));
@@ -911,7 +920,7 @@ public class BeIDCard {
 			 * Try to select the Applet.
 			 */
 			try {
-				responseApdu = transmitCommand(BeIDCommandAPDU.SELECT_APPLET_1, APPLET_AID);
+				responseApdu = transmitCommand(BeIDCommandAPDU.SELECT_APPLET, APPLET_AID);
 			} catch (final CardException e) {
 				this.logger.error("error selecting Applet");
 				return this;
@@ -1100,7 +1109,7 @@ public class BeIDCard {
 	 */
 	public byte[] getCardData() throws CardException, FileNotFoundException {
 		BeIDCommandAPDU apdu;
-		if (BeIDCardManager.matches18ATR(this.card.getATR())) {
+		if (this.isEC()) {
 			apdu = BeIDCommandAPDU.GET_CARD_DATA_1_8;
 		} else {
 			apdu = BeIDCommandAPDU.GET_CARD_DATA;
@@ -1110,6 +1119,15 @@ public class BeIDCard {
 			throw new FileNotFoundException("GET CARD DATA ERROR: " + Integer.toHexString(responseApdu.getSW()));
 		}
 		return responseApdu.getData();
+	}
+
+	/**
+	 * Returns <code>true</code> if this eID card supports elliptic curve crypto.
+	 * 
+	 * @return
+	 */
+	public boolean isEC() {
+		return BeIDCardManager.matches18ATR(this.card.getATR());
 	}
 
 	// ===========================================================================================================
@@ -1620,9 +1638,7 @@ public class BeIDCard {
 	 * readable in BeIDCard.
 	 */
 	private enum BeIDCommandAPDU {
-		SELECT_APPLET_0(0x00, 0xA4, 0x04, 0x0C), // TODO these are the same?
-
-		SELECT_APPLET_1(0x00, 0xA4, 0x04, 0x0C), // TODO see above
+		SELECT_APPLET(0x00, 0xA4, 0x04, 0x0C),
 
 		SELECT_FILE(0x00, 0xA4, 0x08, 0x0C),
 

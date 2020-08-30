@@ -574,9 +574,16 @@ public class JCATest {
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
 
+		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature", null);
+		X509Certificate signCertificate = (X509Certificate) keyStore.getCertificate("Signature");
+
 		verifySignatureAlgorithm("SHA256withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA384withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA512withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
+
+		verifySignatureAlgorithm("SHA256withECDSA", signPrivateKey, signCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA384withECDSA", signPrivateKey, signCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA512withECDSA", signPrivateKey, signCertificate.getPublicKey());
 	}
 
 	private void verifySignatureAlgorithm(final String signatureAlgorithm, final PrivateKey privateKey,
@@ -607,6 +614,9 @@ public class JCATest {
 			BigInteger messageBigInteger = signatureValueBigInteger.modPow(rsaPublicKey.getPublicExponent(),
 					rsaPublicKey.getModulus());
 			LOGGER.debug("Padded DigestInfo: {}", new String(Hex.encodeHex(messageBigInteger.toByteArray())));
+			assertEquals("RSA", privateKey.getAlgorithm());
+		} else {
+			assertEquals("EC", privateKey.getAlgorithm());
 		}
 	}
 

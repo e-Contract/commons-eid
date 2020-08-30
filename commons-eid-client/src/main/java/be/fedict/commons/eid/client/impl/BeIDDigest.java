@@ -65,20 +65,26 @@ public enum BeIDDigest {
 
 	SHA_256_PSS(new byte[] {}, 0x20),
 
-	ECDSA_SHA_2_256(new byte[] {}, 0x01),
+	ECDSA_SHA_2_256(new byte[] {}, 0x01, true),
 
-	ECDSA_SHA_2_384(new byte[] {}, 0x02),
+	ECDSA_SHA_2_384(new byte[] {}, 0x02, true),
 
-	ECDSA_SHA_2_512(new byte[] {}, 0x04),
+	ECDSA_SHA_2_512(new byte[] {}, 0x04, true),
 
 	NONE(new byte[] {});
 
 	private final byte[] prefix;
 	private final byte algorithmReference;
+	private final boolean ec;
 
-	private BeIDDigest(final byte[] prefix, final int algorithmReference) {
+	private BeIDDigest(final byte[] prefix, final int algorithmReference, final boolean ec) {
 		this.prefix = prefix;
 		this.algorithmReference = (byte) algorithmReference;
+		this.ec = ec;
+	}
+
+	private BeIDDigest(final byte[] prefix, final int algorithmReference) {
+		this(prefix, algorithmReference, false);
 	}
 
 	private BeIDDigest(final byte[] prefix) {
@@ -110,5 +116,9 @@ public enum BeIDDigest {
 
 	public MessageDigest getMessageDigestInstance() throws NoSuchAlgorithmException {
 		return MessageDigest.getInstance(this.getStandardName());
+	}
+
+	public boolean isEc() {
+		return this.ec;
 	}
 }

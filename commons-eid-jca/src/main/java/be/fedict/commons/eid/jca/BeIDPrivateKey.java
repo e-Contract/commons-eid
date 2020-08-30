@@ -108,6 +108,9 @@ public class BeIDPrivateKey implements PrivateKey {
 
 	@Override
 	public String getAlgorithm() {
+		if (this.beIDCard.isEC()) {
+			return "EC";
+		}
 		return "RSA";
 	}
 

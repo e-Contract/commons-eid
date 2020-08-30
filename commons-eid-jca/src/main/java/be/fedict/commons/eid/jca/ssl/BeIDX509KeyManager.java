@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2012-2013 FedICT.
- * Copyright (C) 2017 e-Contract.be BVBA.
+ * Copyright (C) 2017-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -78,6 +78,9 @@ public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 		for (String keyType : keyTypes) {
 			LOGGER.debug("key type: {}", keyType);
 			if ("RSA".equals(keyType)) {
+				return "beid";
+			}
+			if ("EC".equals(keyType)) {
 				return "beid";
 			}
 		}
