@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2018 e-Contract.be BVBA.
+ * Copyright (C) 2015-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -144,6 +144,9 @@ public class Identity implements Serializable {
 
 	@TlvField(25)
 	public String regionalFileNumber;
+
+	@TlvField(26)
+	public byte[] basicPublicKeyDigest;
 
 	@OriginalData
 	public byte[] data;
