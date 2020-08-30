@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -33,6 +34,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface ByteArrayField {
 
-	public int offset();
-	public int length();
+	int offset();
+
+	int length();
 }
