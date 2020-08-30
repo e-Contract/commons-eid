@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2017 e-Contract.be BVBA.
+ * Copyright (C) 2014-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -75,8 +75,8 @@ public class BeIDCardTest {
 		beIDCard.readFile(FileType.CACertificate);
 		LOGGER.debug("reading Photo file");
 		final byte[] photoFile = beIDCard.readFile(FileType.Photo);
-                File photoFileFile = File.createTempFile("eid-photo-", ".jpg");
-                FileUtils.writeByteArrayToFile(photoFileFile, photoFile);
+		File photoFileFile = File.createTempFile("eid-photo-", ".jpg");
+		FileUtils.writeByteArrayToFile(photoFileFile, photoFile);
 
 		final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 		final X509Certificate rrnCertificate = (X509Certificate) certificateFactory
@@ -90,7 +90,7 @@ public class BeIDCardTest {
 
 		assertNotNull(identity);
 		assertNotNull(identity.getNationalNumber());
-                LOGGER.debug("eID photo file: {}", photoFileFile.getAbsoluteFile());
+		LOGGER.debug("eID photo file: {}", photoFileFile.getAbsoluteFile());
 	}
 
 	@Test
@@ -110,6 +110,7 @@ public class BeIDCardTest {
 		final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 		final X509Certificate rrnCertificate = (X509Certificate) certificateFactory
 				.generateCertificate(new ByteArrayInputStream(rrnCertificateFile));
+		LOGGER.debug("RRN cert: {}", rrnCertificate);
 
 		beIDCard.close();
 
@@ -166,8 +167,8 @@ public class BeIDCardTest {
 		assertNotNull(rrnCertificate);
 		LOGGER.debug("RRN certificate: {}", rrnCertificate);
 	}
-        
-        @Test
+
+	@Test
 	public void testAuthCertificate() throws Exception {
 		final BeIDCard beIDCard = getBeIDCard();
 
@@ -190,6 +191,10 @@ public class BeIDCardTest {
 		LOGGER.debug("PKCS#1 1.5 supported: {}", cardData.isRSASSAPKCS115Supported());
 		LOGGER.debug("PSS supported: {}", cardData.isRSASSAPSSSupported());
 		LOGGER.debug("PKCS#1 support: {}", Integer.toHexString(cardData.getPkcs1Support()));
+		LOGGER.debug("applet version: {}", cardData.getApplicationVersion());
+		LOGGER.debug("global OS version: {}", cardData.getGlobalOSVersion());
+		LOGGER.debug("applet life cycle: {}", cardData.getApplicationLifeCycle());
+		LOGGER.debug("remaining attempts authn PIN: {}", cardData.getAuthPinRemainingAttempts());
 	}
 
 	@Test

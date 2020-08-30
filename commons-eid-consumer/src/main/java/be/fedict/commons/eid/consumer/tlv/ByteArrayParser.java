@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -26,6 +27,7 @@ import java.nio.ByteBuffer;
  * slices, unsigned 8 and 16-bit values from byte array integers
  * 
  * @author Frank Marien
+ * @author Frank Cornelis
  */
 public class ByteArrayParser {
 
@@ -47,8 +49,7 @@ public class ByteArrayParser {
 		try {
 			t = parseThrowing(file, baClass);
 		} catch (final Exception ex) {
-			throw new RuntimeException("error parsing file: "
-					+ baClass.getName(), ex);
+			throw new RuntimeException("error parsing file: " + baClass.getName(), ex);
 		}
 		return t;
 	}
@@ -59,28 +60,39 @@ public class ByteArrayParser {
 
 		final T baObject = baClass.newInstance();
 		for (Field field : fields) {
-			final ByteArrayField baFieldAnnotation = field
-					.getAnnotation(ByteArrayField.class);
+			final ByteArrayField baFieldAnnotation = field.getAnnotation(ByteArrayField.class);
 			if (baFieldAnnotation != null) {
 				final int offset = baFieldAnnotation.offset();
 				final int length = baFieldAnnotation.length();
-				if (field.getType().isArray()
-						&& field.getType().getComponentType()
-								.equals(byte.class)) {
+				if (field.getType().isArray() && field.getType().getComponentType().equals(byte.class)) {
 					final byte[] byteArray = new byte[length];
 					System.arraycopy(data, offset, byteArray, 0, length);
 					field.set(baObject, byteArray);
 				} else if (field.getType().equals(int.class)) {
 					final ByteBuffer buff = ByteBuffer.wrap(data);
 					switch (length) {
-						case 1 :
-							field.set(baObject, (int) buff.get(offset) & 0xff);
-							break;
+					case 1:
+						field.set(baObject, (int) buff.get(offset) & 0xff);
+						break;
 
-						case 2 :
-							field.set(baObject,
-									(int) buff.getShort(offset) & 0xffff);
-							break;
+					case 2:
+						field.set(baObject, (int) buff.getShort(offset) & 0xffff);
+						break;
+					}
+
+				} else if (field.getType().equals(Integer.class)) {
+					if (data.length < offset + length) {
+						continue;
+					}
+					final ByteBuffer buff = ByteBuffer.wrap(data);
+					switch (length) {
+					case 1:
+						field.set(baObject, (int) buff.get(offset) & 0xff);
+						break;
+
+					case 2:
+						field.set(baObject, (int) buff.getShort(offset) & 0xffff);
+						break;
 					}
 
 				}

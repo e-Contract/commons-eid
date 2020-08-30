@@ -322,7 +322,13 @@ public class BeIDCardManager {
 		return this;
 	}
 
-	private boolean matches18ATR(final ATR atr) {
+	/**
+	 * Returns <code>true</code> for Belpic applet version 1.8 eID cards.
+	 * 
+	 * @param atr
+	 * @return
+	 */
+	public static boolean matches18ATR(final ATR atr) {
 		final byte[] atrBytes = atr.getBytes();
 		if (atrBytes.length != ATR_1_8.length) {
 			return false;
