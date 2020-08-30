@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2017 e-Contract.be BVBA.
+ * Copyright (C) 2015-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -19,6 +19,7 @@
 
 package be.fedict.commons.eid.jca;
 
+import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
@@ -77,6 +78,9 @@ public class BeIDPrivateKey implements PrivateKey {
 		beIDDigests.put("RIPEMD256", BeIDDigest.RIPEMD_256);
 		beIDDigests.put("SHA-1-PSS", BeIDDigest.SHA_1_PSS);
 		beIDDigests.put("SHA-256-PSS", BeIDDigest.SHA_256_PSS);
+		beIDDigests.put("SHA-256-ECDSA", BeIDDigest.ECDSA_SHA_2_256);
+		beIDDigests.put("SHA-384-ECDSA", BeIDDigest.ECDSA_SHA_2_384);
+		beIDDigests.put("SHA-512-ECDSA", BeIDDigest.ECDSA_SHA_2_512);
 	}
 
 	/**
@@ -127,9 +131,8 @@ public class BeIDPrivateKey implements PrivateKey {
 		try {
 			if (this.autoRecovery) {
 				/*
-				 * We keep a copy of the authentication certificate to make sure
-				 * that the automatic recovery only operates against the same
-				 * eID card.
+				 * We keep a copy of the authentication certificate to make sure that the
+				 * automatic recovery only operates against the same eID card.
 				 */
 				if (null == this.authenticationCertificate) {
 					try {
@@ -175,6 +178,32 @@ public class BeIDPrivateKey implements PrivateKey {
 			}
 			throw new SignatureException(ex);
 		}
+		if (digestAlgo.endsWith("-ECDSA")) {
+			return toDERSignature(signatureValue);
+		}
 		return signatureValue;
+	}
+
+	/**
+	 * Converts a RAW EC R||S signature to DER encoded format.
+	 * 
+	 * @param rawSign
+	 * @return
+	 * @throws IOException
+	 */
+	private byte[] toDERSignature(byte[] rawSign) {
+		int len = rawSign.length / 2;
+
+		byte[] der = new byte[rawSign.length + 6];
+		der[0] = 0x30;
+		der[1] = (byte) (rawSign.length + 4);
+		der[2] = 0x02;
+		der[3] = (byte) len;
+		System.arraycopy(rawSign, 0, der, 4, len);
+		der[4 + len] = 0x02;
+		der[5 + len] = (byte) len;
+		System.arraycopy(rawSign, len, der, 6 + len, len);
+
+		return der;
 	}
 }

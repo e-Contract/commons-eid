@@ -1,6 +1,6 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2015 e-Contract.be BVBA.
+ * Copyright (C) 2015-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -25,6 +25,8 @@ import java.security.SignatureException;
  * @author Frank Cornelis
  */
 public class UserCancelledSignatureException extends SignatureException {
+
+	private static final long serialVersionUID = 1L;
 
 	public UserCancelledSignatureException(Exception e) {
 		super(e);

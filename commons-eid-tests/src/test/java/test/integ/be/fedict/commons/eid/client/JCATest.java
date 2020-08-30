@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2017 e-Contract.be BVBA.
+ * Copyright (C) 2014-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -162,8 +162,7 @@ public class JCATest {
 	 * <p/>
 	 * Automatic recovery should work on the same eID card.
 	 * <p/>
-	 * When inserting another eID card however, the automatic recovery should
-	 * fail.
+	 * When inserting another eID card however, the automatic recovery should fail.
 	 * 
 	 * @throws Exception
 	 */
@@ -304,7 +303,7 @@ public class JCATest {
 		beIDKeyStoreParameter.addPPDUName("digipass 870");
 		beIDKeyStoreParameter.addPPDUName("digipass 875");
 		beIDKeyStoreParameter.addPPDUName("digipass 920");
-                beIDKeyStoreParameter.setLocale(new Locale("nl"));
+		beIDKeyStoreParameter.setLocale(new Locale("nl"));
 
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(beIDKeyStoreParameter);
@@ -566,6 +565,20 @@ public class JCATest {
 		LOGGER.debug("root entry: {}", ((X509Certificate) rootEntry.getTrustedCertificate()).getSubjectX500Principal());
 	}
 
+	@Test
+	public void testECDSA() throws Exception {
+		Security.addProvider(new BeIDProvider());
+		Security.addProvider(new BouncyCastleProvider());
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
+
+		verifySignatureAlgorithm("SHA256withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA384withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA512withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
+	}
+
 	private void verifySignatureAlgorithm(final String signatureAlgorithm, final PrivateKey privateKey,
 			final PublicKey publicKey) throws Exception {
 		Signature signature = Signature.getInstance(signatureAlgorithm);
@@ -588,11 +601,13 @@ public class JCATest {
 		final boolean result = signature.verify(signatureValue);
 		assertTrue(result);
 
-		RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
-		BigInteger signatureValueBigInteger = new BigInteger(signatureValue);
-		BigInteger messageBigInteger = signatureValueBigInteger.modPow(rsaPublicKey.getPublicExponent(),
-				rsaPublicKey.getModulus());
-		LOGGER.debug("Padded DigestInfo: {}", new String(Hex.encodeHex(messageBigInteger.toByteArray())));
+		if (publicKey instanceof RSAPublicKey) {
+			RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+			BigInteger signatureValueBigInteger = new BigInteger(signatureValue);
+			BigInteger messageBigInteger = signatureValueBigInteger.modPow(rsaPublicKey.getPublicExponent(),
+					rsaPublicKey.getModulus());
+			LOGGER.debug("Padded DigestInfo: {}", new String(Hex.encodeHex(messageBigInteger.toByteArray())));
+		}
 	}
 
 	private BeIDCard getBeIDCard() throws Exception {

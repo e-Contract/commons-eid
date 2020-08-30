@@ -279,7 +279,7 @@ public class BeIDIntegrity {
 	 * @return
 	 * @throws IOException
 	 */
-	private static byte[] toDERSignature(byte[] rawSign) throws IOException {
+	private byte[] toDERSignature(byte[] rawSign) throws IOException {
 		int len = rawSign.length / 2;
 
 		byte[] r = new byte[len];

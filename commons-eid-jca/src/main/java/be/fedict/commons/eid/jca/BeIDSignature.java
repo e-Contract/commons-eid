@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017 e-Contract.be BVBA.
+ * Copyright (C) 2017-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -50,6 +50,9 @@ import org.slf4j.LoggerFactory;
  * <li><code>RIPEMD256withRSA</code></li>
  * <li><code>SHA1withRSAandMGF1</code>, supported by recent eID cards.</li>
  * <li><code>SHA256withRSAandMGF1</code>, supported by recent eID cards.</li>
+ * <li><code>SHA256withECDSA</code>, supported by eID version 1.8 cards.</li>
+ * <li><code>SHA384withECDSA</code>, supported by eID version 1.8 cards.</li>
+ * <li><code>SHA512withECDSA</code>, supported by eID version 1.8 cards.</li>
  * </ul>
  * <p/>
  * Some of the more exotic digest algorithms like SHA-224 and RIPEMDxxx will
@@ -87,6 +90,9 @@ public class BeIDSignature extends SignatureSpi {
 		digestAlgos.put("RIPEMD256withRSA", "RIPEMD256");
 		digestAlgos.put("SHA1withRSAandMGF1", "SHA-1");
 		digestAlgos.put("SHA256withRSAandMGF1", "SHA-256");
+		digestAlgos.put("SHA256withECDSA", "SHA-256");
+		digestAlgos.put("SHA384withECDSA", "SHA-384");
+		digestAlgos.put("SHA512withECDSA", "SHA-512");
 	}
 
 	BeIDSignature(final String signatureAlgorithm) throws NoSuchAlgorithmException {
@@ -163,6 +169,8 @@ public class BeIDSignature extends SignatureSpi {
 			digestAlgo = this.messageDigest.getAlgorithm();
 			if (this.signatureAlgorithm.endsWith("andMGF1")) {
 				digestAlgo += "-PSS";
+			} else if (this.signatureAlgorithm.contains("ECDSA")) {
+				digestAlgo += "-ECDSA";
 			}
 		} else if (null != this.precomputedDigestOutputStream) {
 			digestValue = this.precomputedDigestOutputStream.toByteArray();
