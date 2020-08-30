@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2019 e-Contract.be BVBA.
+ * Copyright (C) 2015-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -56,12 +56,13 @@ import be.fedict.commons.eid.client.spi.Logger;
 
 public class BeIDCardManager {
 
-	private static final byte[] ATR_PATTERN = new byte[]{0x3b, (byte) 0x98,
-			0x00, 0x40, 0x00, (byte) 0x00, 0x00, 0x00, 0x01, 0x01, (byte) 0xad,
-			0x13, 0x10,};
-	private static final byte[] ATR_MASK = new byte[]{(byte) 0xff, (byte) 0xff,
-			0x00, (byte) 0xff, 0x00, 0x00, 0x00, 0x00, (byte) 0xff,
-			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xf0,};
+	private static final byte[] ATR_PATTERN = new byte[] { 0x3b, (byte) 0x98, 0x00, 0x40, 0x00, (byte) 0x00, 0x00, 0x00,
+			0x01, 0x01, (byte) 0xad, 0x13, 0x10, };
+	private static final byte[] ATR_MASK = new byte[] { (byte) 0xff, (byte) 0xff, 0x00, (byte) 0xff, 0x00, 0x00, 0x00,
+			0x00, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xf0, };
+	private static final byte[] ATR_1_8 = new byte[] { 0x3b, 0x7f, (byte) 0x96, 0x00, 0x00, (byte) 0x80, 0x31,
+			(byte) 0x80, 0x65, (byte) 0xb0, (byte) 0x85, 0x04, 0x01, 0x20, 0x12, 0x0f, (byte) 0xff, (byte) 0x82,
+			(byte) 0x90, 0x00 };
 
 	interface BeIDCardEventsListenerCallBack {
 
@@ -90,23 +91,21 @@ public class BeIDCardManager {
 	 * CardAndTerminalManager that is automatically started and stopped with the
 	 * BeIDCardManager, and that only connects to Cards with Protocol T=0.
 	 * 
-	 * @param logger
-	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
-	 *            send all the logs
+	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be
+	 *               send all the logs
 	 */
 	public BeIDCardManager(final Logger logger) {
 		this(logger, new CardAndTerminalManager(), true);
 	}
 
 	/**
-	 * Instantiate a BeIDCardManager with a default (void) logger, caller
-	 * supplies a CardAndTerminalManager. note: caller is responsible for
-	 * start()in the supplied CardAndTerminalManager, it will not be
-	 * automatically started. The supplied CardAndTerminalManager should allow
-	 * protocol T0 ("T=0") or ANY ("*") for BeIDCards to work.
+	 * Instantiate a BeIDCardManager with a default (void) logger, caller supplies a
+	 * CardAndTerminalManager. note: caller is responsible for start()in the
+	 * supplied CardAndTerminalManager, it will not be automatically started. The
+	 * supplied CardAndTerminalManager should allow protocol T0 ("T=0") or ANY ("*")
+	 * for BeIDCards to work.
 	 * 
-	 * @param cardAndTerminalManager
-	 *            the CardAndTerminalManager to use
+	 * @param cardAndTerminalManager the CardAndTerminalManager to use
 	 */
 	public BeIDCardManager(final CardAndTerminalManager cardAndTerminalManager) {
 		this(new VoidLogger(), cardAndTerminalManager);
@@ -117,41 +116,36 @@ public class BeIDCardManager {
 	 * CardAndTerminalManager. note: caller is responsible for start()in the
 	 * supplied CardAndTerminalManager, it will not be automatically started!
 	 * 
-	 * @param logger
-	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
-	 *            send all the logs
-	 * @param cardAndTerminalManager
-	 *            the CardAndTerminalManager to use
+	 * @param logger                 an instance of be.fedict.commons.eid.spi.Logger
+	 *                               that will be send all the logs
+	 * @param cardAndTerminalManager the CardAndTerminalManager to use
 	 */
-        public BeIDCardManager(final Logger logger,
-			final CardAndTerminalManager cardAndTerminalManager) {
-            this(logger, cardAndTerminalManager, false);
-        }
-        
-	public BeIDCardManager(final Logger logger,
-			final CardAndTerminalManager cardAndTerminalManager, boolean terminalManagerIsPrivate) {
+	public BeIDCardManager(final Logger logger, final CardAndTerminalManager cardAndTerminalManager) {
+		this(logger, cardAndTerminalManager, false);
+	}
+
+	public BeIDCardManager(final Logger logger, final CardAndTerminalManager cardAndTerminalManager,
+			boolean terminalManagerIsPrivate) {
 		this.logger = logger;
 		this.beIdListeners = new HashSet<BeIDCardEventsListener>();
 		this.otherCardListeners = new HashSet<CardEventsListener>();
 		this.terminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
 
 		this.cardAndTerminalManager = cardAndTerminalManager;
-                this.terminalManagerIsPrivate = terminalManagerIsPrivate;
+		this.terminalManagerIsPrivate = terminalManagerIsPrivate;
 		if (this.terminalManagerIsPrivate) {
 			this.cardAndTerminalManager.setProtocol(PROTOCOL.T0);
 		}
 
 		this.cardAndTerminalManager.addCardListener(new CardEventsListener() {
 			@Override
-			public void cardInserted(final CardTerminal cardTerminal,
-					final Card card) {
+			public void cardInserted(final CardTerminal cardTerminal, final Card card) {
 				if (card != null && matchesEidAtr(card.getATR())) {
 					logger.info("BeID card inserted");
 					final BeIDCard beIDCard = createBeIDCard(cardTerminal, card);
 
 					synchronized (BeIDCardManager.this.terminalsAndCards) {
-						BeIDCardManager.this.terminalsAndCards.put(
-								cardTerminal, beIDCard);
+						BeIDCardManager.this.terminalsAndCards.put(cardTerminal, beIDCard);
 					}
 
 					notifyEIDCardInserted(cardTerminal, beIDCard);
@@ -160,17 +154,15 @@ public class BeIDCardManager {
 					Set<CardEventsListener> copyOfListeners;
 
 					synchronized (BeIDCardManager.this.otherCardListeners) {
-						copyOfListeners = new HashSet<CardEventsListener>(
-								BeIDCardManager.this.otherCardListeners);
+						copyOfListeners = new HashSet<CardEventsListener>(BeIDCardManager.this.otherCardListeners);
 					}
 
 					for (CardEventsListener listener : copyOfListeners) {
 						try {
 							listener.cardInserted(cardTerminal, card);
 						} catch (final Throwable thrownInListener) {
-							BeIDCardManager.this.logger
-									.error("Exception thrown in CardEventsListener.cardInserted:"
-											+ thrownInListener.getMessage());
+							BeIDCardManager.this.logger.error("Exception thrown in CardEventsListener.cardInserted:"
+									+ thrownInListener.getMessage());
 						}
 					}
 				}
@@ -178,14 +170,12 @@ public class BeIDCardManager {
 
 			@Override
 			public void cardRemoved(final CardTerminal cardTerminal) {
-				final BeIDCard beIDCard = BeIDCardManager.this.terminalsAndCards
-						.get(cardTerminal);
+				final BeIDCard beIDCard = BeIDCardManager.this.terminalsAndCards.get(cardTerminal);
 				if (beIDCard != null) {
 					logger.info("BeID card removed");
 					beIDCard.close();
 					synchronized (BeIDCardManager.this.terminalsAndCards) {
-						BeIDCardManager.this.terminalsAndCards
-								.remove(cardTerminal);
+						BeIDCardManager.this.terminalsAndCards.remove(cardTerminal);
 					}
 
 					notifyEIDCardRemoved(cardTerminal, beIDCard);
@@ -194,17 +184,15 @@ public class BeIDCardManager {
 					Set<CardEventsListener> copyOfListeners;
 
 					synchronized (BeIDCardManager.this.otherCardListeners) {
-						copyOfListeners = new HashSet<CardEventsListener>(
-								BeIDCardManager.this.otherCardListeners);
+						copyOfListeners = new HashSet<CardEventsListener>(BeIDCardManager.this.otherCardListeners);
 					}
 
 					for (CardEventsListener listener : copyOfListeners) {
 						try {
 							listener.cardRemoved(cardTerminal);
 						} catch (final Throwable thrownInListener) {
-							BeIDCardManager.this.logger
-									.error("Exception thrown in CardEventsListener.cardRemoved:"
-											+ thrownInListener.getMessage());
+							BeIDCardManager.this.logger.error("Exception thrown in CardEventsListener.cardRemoved:"
+									+ thrownInListener.getMessage());
 						}
 					}
 				}
@@ -226,9 +214,8 @@ public class BeIDCardManager {
 					try {
 						listener.cardEventsInitialized();
 					} catch (final Throwable thrownInListener) {
-						BeIDCardManager.this.logger
-								.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:"
-										+ thrownInListener.getMessage());
+						BeIDCardManager.this.logger.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:"
+								+ thrownInListener.getMessage());
 					}
 				}
 			}
@@ -237,10 +224,10 @@ public class BeIDCardManager {
 
 	/**
 	 * Starts this BeIDCardManager. If no CardAndTerminalManager was given at
-	 * construction, this will start our private CardAndTerminalManager. After
-	 * this, any registered listeners will start receiving their designated
-	 * events, including the existing state. If a CardAndTerminalManager was
-	 * given at construction, this has no effect.
+	 * construction, this will start our private CardAndTerminalManager. After this,
+	 * any registered listeners will start receiving their designated events,
+	 * including the existing state. If a CardAndTerminalManager was given at
+	 * construction, this has no effect.
 	 * 
 	 * @return this BeIDCardManager to allow for method chaining
 	 */
@@ -252,16 +239,14 @@ public class BeIDCardManager {
 	}
 
 	/**
-	 * add a BeIDCardEventsListener to be notified of BeID cards being inserted
-	 * and removed.
+	 * add a BeIDCardEventsListener to be notified of BeID cards being inserted and
+	 * removed.
 	 * 
-	 * @param listener
-	 *            the BeIDCardEventsListener to notify about BeID card
-	 *            insertions and removals
+	 * @param listener the BeIDCardEventsListener to notify about BeID card
+	 *                 insertions and removals
 	 * @return this BeIDCardManager to allow for method chaining
 	 */
-	public BeIDCardManager addBeIDCardEventListener(
-			final BeIDCardEventsListener listener) {
+	public BeIDCardManager addBeIDCardEventListener(final BeIDCardEventsListener listener) {
 		synchronized (this.beIdListeners) {
 			this.beIdListeners.add(listener);
 		}
@@ -272,13 +257,11 @@ public class BeIDCardManager {
 	 * remove a BeIDCardEventsListener from being notified of BeID cards being
 	 * inserted and removed.
 	 * 
-	 * @param listener
-	 *            the BeIDCardEventsListener stop notifying about BeID card
-	 *            insertions and removals
+	 * @param listener the BeIDCardEventsListener stop notifying about BeID card
+	 *                 insertions and removals
 	 * @return this BeIDCardManager to allow for method chaining
 	 */
-	public BeIDCardManager removeBeIDCardListener(
-			final BeIDCardEventsListener listener) {
+	public BeIDCardManager removeBeIDCardListener(final BeIDCardEventsListener listener) {
 		synchronized (this.beIdListeners) {
 			this.beIdListeners.remove(listener);
 		}
@@ -286,25 +269,22 @@ public class BeIDCardManager {
 	}
 
 	/**
-	 * add a CardEventsListener to be notified of non-BeID cards being inserted
-	 * and removed. Note that this is the same interface than in
-	 * {@link CardAndTerminalManager#addCardListener(CardEventsListener)} with
-	 * one notable semantic difference: a BeIDCardManager will call its
-	 * CardEventsListeners only for non-eID cards, while a
-	 * CardAndTerminalManager will call them for all card events: If you
-	 * instantiate your own CardAndTerminalManager and supply it to a
-	 * BeIDCardManager, you will get 2 card insert events if you register your
-	 * BeIDCardEventsListerer to the BeIDCardManager and your
-	 * CardEventsListeners to the CardAndTerminalManager: Register both with the
-	 * BeIDCardManager to avoid this.
+	 * add a CardEventsListener to be notified of non-BeID cards being inserted and
+	 * removed. Note that this is the same interface than in
+	 * {@link CardAndTerminalManager#addCardListener(CardEventsListener)} with one
+	 * notable semantic difference: a BeIDCardManager will call its
+	 * CardEventsListeners only for non-eID cards, while a CardAndTerminalManager
+	 * will call them for all card events: If you instantiate your own
+	 * CardAndTerminalManager and supply it to a BeIDCardManager, you will get 2
+	 * card insert events if you register your BeIDCardEventsListerer to the
+	 * BeIDCardManager and your CardEventsListeners to the CardAndTerminalManager:
+	 * Register both with the BeIDCardManager to avoid this.
 	 * 
-	 * @param listener
-	 *            the CardEventsListener to notify about non-BeID card
-	 *            insertions and removals.
+	 * @param listener the CardEventsListener to notify about non-BeID card
+	 *                 insertions and removals.
 	 * @return this BeIDCardManager to allow for method chaining
 	 */
-	public BeIDCardManager addOtherCardEventListener(
-			final CardEventsListener listener) {
+	public BeIDCardManager addOtherCardEventListener(final CardEventsListener listener) {
 		synchronized (this.otherCardListeners) {
 			this.otherCardListeners.add(listener);
 		}
@@ -315,13 +295,11 @@ public class BeIDCardManager {
 	 * remove a CardEventsListener from being notified of non-BeID cards being
 	 * inserted and removed.
 	 * 
-	 * @param listener
-	 *            the CardEventsListener to stop notifying about non-BeID card
-	 *            insertions and removals
+	 * @param listener the CardEventsListener to stop notifying about non-BeID card
+	 *                 insertions and removals
 	 * @return this BeIDCardManager to allow for method chaining
 	 */
-	public BeIDCardManager removeOtherCardEventListener(
-			final CardEventsListener listener) {
+	public BeIDCardManager removeOtherCardEventListener(final CardEventsListener listener) {
 		synchronized (this.otherCardListeners) {
 			this.otherCardListeners.remove(listener);
 		}
@@ -330,8 +308,8 @@ public class BeIDCardManager {
 
 	/**
 	 * Stops this BeIDCardManager. If no CardAndTerminalManager was given at
-	 * construction, this will stop our private CardAndTerminalManager. After
-	 * this, no registered listeners will receive any more events. If a
+	 * construction, this will stop our private CardAndTerminalManager. After this,
+	 * no registered listeners will receive any more events. If a
 	 * CardAndTerminalManager was given at construction, this has no effect.
 	 * 
 	 * @return this BeIDCardManager to allow for method chaining
@@ -344,11 +322,24 @@ public class BeIDCardManager {
 		return this;
 	}
 
+	private boolean matches18ATR(final ATR atr) {
+		final byte[] atrBytes = atr.getBytes();
+		if (atrBytes.length != ATR_1_8.length) {
+			return false;
+		}
+		if (Arrays.equals(atrBytes, ATR_1_8)) {
+			return true;
+		}
+		return false;
+	}
+
 	/*
 	 * Private Support methods. Shamelessly copied from eid-applet-core
 	 */
-
 	private boolean matchesEidAtr(final ATR atr) {
+		if (matches18ATR(atr)) {
+			return true;
+		}
 		final byte[] atrBytes = atr.getBytes();
 		if (atrBytes.length != ATR_PATTERN.length) {
 			return false;
@@ -372,8 +363,8 @@ public class BeIDCardManager {
 	}
 
 	/**
-	 * Refreshes the cached {@link BeIDCard}s, and replaces any instances that
-	 * are in an unusable state (SCARD_W_RESET_CARD).
+	 * Refreshes the cached {@link BeIDCard}s, and replaces any instances that are
+	 * in an unusable state (SCARD_W_RESET_CARD).
 	 */
 	public void refreshCards() {
 		synchronized (this.terminalsAndCards) {
@@ -401,10 +392,8 @@ public class BeIDCardManager {
 	/**
 	 * Creates a new {@link BeIDCard} for the given CardTerminal and Card.
 	 * 
-	 * @param cardTerminal
-	 *            the CardTerminal
-	 * @param card
-	 *            the Card
+	 * @param cardTerminal the CardTerminal
+	 * @param card         the Card
 	 * @return a new {@link BeIDCard}
 	 */
 	private BeIDCard createBeIDCard(final CardTerminal cardTerminal, final Card card) {
@@ -452,8 +441,8 @@ public class BeIDCardManager {
 			try {
 				callBack.call(listener);
 			} catch (final Throwable thrownInListener) {
-				BeIDCardManager.this.logger
-						.error("Exception thrown in BeIDCardEventsListener.eIDCardInserted:" + thrownInListener.getMessage());
+				BeIDCardManager.this.logger.error(
+						"Exception thrown in BeIDCardEventsListener.eIDCardInserted:" + thrownInListener.getMessage());
 			}
 		}
 	}
