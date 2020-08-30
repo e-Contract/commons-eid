@@ -1,6 +1,6 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2013 e-Contract.be BVBA.
+ * Copyright (C) 2013-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -23,7 +23,7 @@ import java.io.IOException;
 import javax.smartcardio.CardException;
 import javax.swing.JOptionPane;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
@@ -46,22 +46,18 @@ public class DisconnectConnectTest {
 		// we ask all cards to avoid going through the default UI
 		BeIDCard card1 = cards.getAllBeIDCards().iterator().next();
 		Identity identity1 = readIdentity(card1);
-		JOptionPane.showMessageDialog(null,
-				"Card read: " + identity1.getFirstName());
+		JOptionPane.showMessageDialog(null, "Card read: " + identity1.getFirstName());
 		card1.close();
 		cards.close();
-		JOptionPane.showMessageDialog(null,
-				"Disconnect and reconnect the reader");
+		JOptionPane.showMessageDialog(null, "Disconnect and reconnect the reader");
 		cards = new BeIDCards();
 		BeIDCard card2 = cards.getAllBeIDCards().iterator().next();
 		Identity identity2 = readIdentity(card2);
-		JOptionPane.showMessageDialog(null,
-				"Card read: " + identity2.getFirstName());
+		JOptionPane.showMessageDialog(null, "Card read: " + identity2.getFirstName());
 		cards.close();
 	}
 
-	private Identity readIdentity(BeIDCard card) throws CardException,
-			IOException, InterruptedException {
+	private Identity readIdentity(BeIDCard card) throws CardException, IOException, InterruptedException {
 		byte[] idData = card.readFile(FileType.Identity);
 		Identity identity = TlvParser.parse(idData, Identity.class);
 		return identity;

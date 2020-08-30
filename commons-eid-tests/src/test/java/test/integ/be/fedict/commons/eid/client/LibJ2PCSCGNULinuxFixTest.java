@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -18,11 +19,12 @@
 
 package test.integ.be.fedict.commons.eid.client;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import be.fedict.commons.eid.client.impl.LibJ2PCSCGNULinuxFix;
 
 public class LibJ2PCSCGNULinuxFixTest {
+
 	private void _testFix() {
 		LibJ2PCSCGNULinuxFix.fixNativeLibrary(new TestLogger());
 	}
@@ -30,7 +32,6 @@ public class LibJ2PCSCGNULinuxFixTest {
 	public static void main(final String[] args) {
 		final LibJ2PCSCGNULinuxFixTest fixtest = new LibJ2PCSCGNULinuxFixTest();
 		fixtest._testFix();
-
 	}
 
 	@Test

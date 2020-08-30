@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -20,7 +21,7 @@ package test.integ.be.fedict.commons.eid.client;
 
 import java.util.Locale;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
@@ -30,6 +31,7 @@ import be.fedict.commons.eid.client.spi.BeIDCardsUI;
 import be.fedict.commons.eid.dialogs.DefaultBeIDCardsUI;
 
 public class LocaleTest {
+
 	@Test
 	public void testLocale() throws Exception {
 		BeIDCards cards = new BeIDCards();
@@ -37,8 +39,8 @@ public class LocaleTest {
 
 		// french, because the BeIDCards is set to French
 		BeIDCard card = cards.getOneBeIDCard();
-		card.sign(new byte[]{0x00, 0x00, 0x00, 0x00}, BeIDDigest.PLAIN_TEXT,
-				FileType.NonRepudiationCertificate, false);
+		card.sign(new byte[] { 0x00, 0x00, 0x00, 0x00 }, BeIDDigest.PLAIN_TEXT, FileType.NonRepudiationCertificate,
+				false);
 		cards.close();
 
 		// german, because we pass a UI set to german
@@ -46,13 +48,13 @@ public class LocaleTest {
 		ui.setLocale(Locale.GERMAN);
 		cards = new BeIDCards(ui);
 		card = cards.getOneBeIDCard();
-		card.sign(new byte[]{0x00, 0x00, 0x00, 0x00}, BeIDDigest.PLAIN_TEXT,
-				FileType.NonRepudiationCertificate, false);
+		card.sign(new byte[] { 0x00, 0x00, 0x00, 0x00 }, BeIDDigest.PLAIN_TEXT, FileType.NonRepudiationCertificate,
+				false);
 
 		// dutch, because we set the card to dutch
 		card.setLocale(new Locale("nl"));
 		card = cards.getOneBeIDCard();
-		card.sign(new byte[]{0x00, 0x00, 0x00, 0x00}, BeIDDigest.PLAIN_TEXT,
-				FileType.NonRepudiationCertificate, false);
+		card.sign(new byte[] { 0x00, 0x00, 0x00, 0x00 }, BeIDDigest.PLAIN_TEXT, FileType.NonRepudiationCertificate,
+				false);
 	}
 }

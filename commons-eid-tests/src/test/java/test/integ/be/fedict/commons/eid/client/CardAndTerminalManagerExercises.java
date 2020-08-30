@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2017 e-Contract.be BVBA.
+ * Copyright (C) 2015-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -34,7 +34,7 @@ import java.util.Random;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,20 +51,19 @@ public class CardAndTerminalManagerExercises implements CardTerminalEventsListen
 	// ---------------------------------------------------------------------------------------------
 
 	/*
-	 * Exercises asynchronous run with callbacks: instantiate, register
-	 * listeners, call start(). The test then loops and adds/removes a listener
-	 * in some pseudo-random timing pattern. This is to ensure that the list of
-	 * listeners remains properly synchronized in relation to it being iterated
-	 * whenever events are being sent to listeners this test never returns..
-	 * since it requires someone to attach/detach readers and insert/remove
-	 * cards this is no problem until we automate those using e.g.
-	 * http://www.lynxmotion
+	 * Exercises asynchronous run with callbacks: instantiate, register listeners,
+	 * call start(). The test then loops and adds/removes a listener in some
+	 * pseudo-random timing pattern. This is to ensure that the list of listeners
+	 * remains properly synchronized in relation to it being iterated whenever
+	 * events are being sent to listeners this test never returns.. since it
+	 * requires someone to attach/detach readers and insert/remove cards this is no
+	 * problem until we automate those using e.g. http://www.lynxmotion
 	 * .com/p-816-al5d-robotic-arm-combo-kit-free-software.aspx
 	 * 
 	 * While running this test, the operator should attach and detach at least 2
 	 * card terminals, insert and remove cards from them, in all possible
-	 * permutations. The state displayed should, at all times, reflect the state
-	 * of the readers and their cards within 250-400 ms.
+	 * permutations. The state displayed should, at all times, reflect the state of
+	 * the readers and their cards within 250-400 ms.
 	 */
 
 	@Test
@@ -129,11 +128,11 @@ public class CardAndTerminalManagerExercises implements CardTerminalEventsListen
 	// ---------------------------------------------------------------------------------------------
 
 	/*
-	 * Exercise CardAndTerminalManager's start() stop() semantics, with regards
-	 * to its worker thread. This test starts and stops a CardAndTerminalManager
+	 * Exercise CardAndTerminalManager's start() stop() semantics, with regards to
+	 * its worker thread. This test starts and stops a CardAndTerminalManager
 	 * randomly. It should remain in a consistent state at all times and detect
-	 * terminal attaches/detaches and card inserts/removals as usual (while
-	 * running, of course..)
+	 * terminal attaches/detaches and card inserts/removals as usual (while running,
+	 * of course..)
 	 */
 	@Test
 	public void testStartStop() throws Exception {
