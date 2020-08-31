@@ -30,6 +30,7 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
@@ -63,6 +64,7 @@ import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
@@ -351,7 +353,7 @@ public class SSLTest {
 
 			x509v3CertificateBuilder.addExtension(Extension.basicConstraints, true, new BasicConstraints(2147483647));
 
-		} catch (final Exception e) {
+		} catch (final NoSuchAlgorithmException | CertIOException e) {
 			throw new RuntimeException(e);
 		}
 

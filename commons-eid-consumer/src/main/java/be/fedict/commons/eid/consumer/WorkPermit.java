@@ -1,6 +1,6 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2018 e-Contract.be BVBA.
+ * Copyright (C) 2018-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -45,7 +45,7 @@ public enum WorkPermit implements Serializable {
 	private static final Map<String, WorkPermit> WORK_PERMITS;
 
 	static {
-		WORK_PERMITS = new HashMap<String, WorkPermit>();
+		WORK_PERMITS = new HashMap<>();
 		for (WorkPermit workPermit : WorkPermit.values()) {
 			String key = workPermit.key;
 			WORK_PERMITS.put(key, workPermit);

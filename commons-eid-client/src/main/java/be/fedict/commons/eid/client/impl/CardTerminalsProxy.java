@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2014 - 2019 BOSA.
- * Copyright (C) 2019 e-Contract.be BVBA.
+ * Copyright (C) 2014-2019 BOSA.
+ * Copyright (C) 2019-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License version 3.0 as published by
@@ -21,6 +21,7 @@ package be.fedict.commons.eid.client.impl;
 import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -120,7 +121,8 @@ public class CardTerminalsProxy extends CardTerminals {
 			Method clearMap = classMap.getDeclaredMethod("clear");
 
 			clearMap.invoke(fieldTerminals.get(terminals));
-		} catch (Exception e) {
+		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | NoSuchFieldException
+				| NoSuchMethodException | SecurityException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -136,6 +138,7 @@ public class CardTerminalsProxy extends CardTerminals {
 	}
 
 	/**
+	 * @param logger
 	 * @return All currently connected SmartCard terminals
 	 */
 	public static CardTerminals getCardTerminals(Logger logger) {

@@ -26,11 +26,11 @@ https://www.e-contract.be/sites/commons-eid/
 
 The following is required for compiling the Commons eID software:
 
-* Java version 1.8.0_252+
+* Java version 1.8.0_265+
 * Apache Maven version 3.6.3
 * Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy
 
-Commons eID runs on Java version 6+.
+Commons eID runs on Java version 8+.
 
 
 ## Build

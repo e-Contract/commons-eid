@@ -20,7 +20,9 @@ package be.fedict.commons.eid.examples.events;
 
 import java.io.IOException;
 import java.util.Set;
+
 import javax.smartcardio.CardException;
+
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.BeIDCardsException;
@@ -80,10 +82,8 @@ public class BeIDCardsExample {
 
 	}
 
-	public static void main(final String[] args) throws InterruptedException,
-			BeIDCardsException {
+	public static void main(final String[] args) throws InterruptedException, BeIDCardsException {
 		final BeIDCardsExample examples = new BeIDCardsExample();
 		examples.demonstrate();
 	}
-
 }

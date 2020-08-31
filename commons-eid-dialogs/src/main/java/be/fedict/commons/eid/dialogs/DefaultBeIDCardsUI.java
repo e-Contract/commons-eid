@@ -57,8 +57,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 		this(parentComponent, null);
 	}
 
-	public DefaultBeIDCardsUI(final Component parentComponent,
-			final Messages messages) {
+	public DefaultBeIDCardsUI(final Component parentComponent, final Messages messages) {
 		this.parentComponent = parentComponent;
 		this.messages = messages;
 		if (GraphicsEnvironment.isHeadless()) {
@@ -76,18 +75,14 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 
 	@Override
 	public void adviseCardTerminalRequired() {
-		showAdvise(
-				this.messages.getMessage(Messages.MESSAGE_ID.CONNECT_READER),
+		showAdvise(this.messages.getMessage(Messages.MESSAGE_ID.CONNECT_READER),
 				this.messages.getMessage(Messages.MESSAGE_ID.CONNECT_READER));
 	}
 
 	@Override
 	public void adviseBeIDCardRequired() {
-		showAdvise(
-				this.messages
-						.getMessage(Messages.MESSAGE_ID.INSERT_CARD_QUESTION),
-				this.messages
-						.getMessage(Messages.MESSAGE_ID.INSERT_CARD_QUESTION));
+		showAdvise(this.messages.getMessage(Messages.MESSAGE_ID.INSERT_CARD_QUESTION),
+				this.messages.getMessage(Messages.MESSAGE_ID.INSERT_CARD_QUESTION));
 	}
 
 	@Override
@@ -101,8 +96,7 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 	public BeIDCard selectBeIDCard(final Collection<BeIDCard> availableCards)
 			throws CancelledException, OutOfCardsException {
 		try {
-			this.selectionDialog = new BeIDSelector(this.parentComponent,
-					"Select eID card", availableCards);
+			this.selectionDialog = new BeIDSelector(this.parentComponent, "Select eID card", availableCards);
 			return this.selectionDialog.choose();
 		} finally {
 			this.selectionDialog = null;
@@ -116,10 +110,6 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 			this.adviseFrame = null;
 		}
 	}
-
-	/*
-	 * **********************************************************************************************************************
-	 */
 
 	private void showAdvise(final String title, final String message) {
 		if (null != this.adviseFrame) {
@@ -177,5 +167,4 @@ public class DefaultBeIDCardsUI implements BeIDCardsUI {
 		}
 		return LocaleManager.getLocale();
 	}
-
 }

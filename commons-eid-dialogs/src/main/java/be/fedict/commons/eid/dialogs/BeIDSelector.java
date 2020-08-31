@@ -81,7 +81,7 @@ public class BeIDSelector {
 	public BeIDSelector(final Component parentComponent, final String title, final Collection<BeIDCard> initialCards) {
 		this.parentComponent = parentComponent;
 		this.selectedListData = new ListData(null);
-		this.updaters = new HashMap<BeIDCard, ListDataUpdater>();
+		this.updaters = new HashMap<>();
 		this.identitiesbeingRead = 0;
 		this.outOfCards = false;
 
@@ -205,8 +205,7 @@ public class BeIDSelector {
 					BeIDSelector.this.dialog.add(BeIDSelector.this.masterPanel);
 				}
 			});
-		} catch (final InterruptedException e) {
-		} catch (final InvocationTargetException e) {
+		} catch (final InterruptedException | InvocationTargetException e) {
 		}
 	}
 
@@ -255,11 +254,6 @@ public class BeIDSelector {
 			}
 		});
 	}
-
-	/*
-	 * *************************************************************************
-	 * *********************************************
-	 */
 
 	private static class ListData {
 		private X509Certificate authCert;

@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017 e-Contract.be BVBA.
+ * Copyright (C) 2017-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -57,7 +57,8 @@ public class TlvParser {
 		T t;
 		try {
 			t = parseThrowing(file, tlvClass);
-		} catch (final Exception ex) {
+		} catch (final DataConvertorException | UnsupportedEncodingException | IllegalAccessException
+				| InstantiationException ex) {
 			throw new RuntimeException("error parsing file: " + tlvClass.getName(), ex);
 		}
 		return t;
@@ -72,16 +73,16 @@ public class TlvParser {
 	private static <T> T parseThrowing(final byte[] file, final Class<T> tlvClass) throws InstantiationException,
 			IllegalAccessException, DataConvertorException, UnsupportedEncodingException {
 		final Field[] fields = tlvClass.getDeclaredFields();
-		final Map<Integer, List<Field>> tlvFields = new HashMap<Integer, List<Field>>();
+		final Map<Integer, List<Field>> tlvFields = new HashMap<>();
 		final T tlvObject = tlvClass.newInstance();
 		for (Field field : fields) {
 			final TlvField tlvFieldAnnotation = field.getAnnotation(TlvField.class);
 			if (null != tlvFieldAnnotation) {
 				final int tagId = tlvFieldAnnotation.value();
-				List<Field> fieldList = tlvFields.get(new Integer(tagId));
+				List<Field> fieldList = tlvFields.get(tagId);
 				if (fieldList == null) {
 					fieldList = new ArrayList<Field>();
-					tlvFields.put(new Integer(tagId), fieldList);
+					tlvFields.put(tagId, fieldList);
 				}
 				fieldList.add(field);
 			}

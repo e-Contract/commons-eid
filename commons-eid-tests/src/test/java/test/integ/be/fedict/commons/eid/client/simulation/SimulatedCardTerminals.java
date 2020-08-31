@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -23,6 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CardTerminals;
@@ -31,19 +33,17 @@ public class SimulatedCardTerminals extends CardTerminals {
 	private final Set<SimulatedCardTerminal> terminals;
 
 	public SimulatedCardTerminals() {
-		this.terminals = new HashSet<SimulatedCardTerminal>();
+		this.terminals = new HashSet<>();
 	}
 
-	public synchronized SimulatedCardTerminals attachCardTerminal(
-			final SimulatedCardTerminal terminal) {
+	public synchronized SimulatedCardTerminals attachCardTerminal(final SimulatedCardTerminal terminal) {
 		terminal.setTerminals(this);
 		this.terminals.add(terminal);
 		notifyAll();
 		return this;
 	}
 
-	public synchronized SimulatedCardTerminals detachCardTerminal(
-			final SimulatedCardTerminal terminal) {
+	public synchronized SimulatedCardTerminals detachCardTerminal(final SimulatedCardTerminal terminal) {
 		terminal.setTerminals(null);
 		this.terminals.remove(terminal);
 		notifyAll();
@@ -56,44 +56,38 @@ public class SimulatedCardTerminals extends CardTerminals {
 	}
 
 	@Override
-	public synchronized List<CardTerminal> list(final State state)
-			throws CardException {
+	public synchronized List<CardTerminal> list(final State state) throws CardException {
 		switch (state) {
-			case ALL :
-				return Collections
-						.unmodifiableList(new ArrayList<CardTerminal>(
-								this.terminals));
+		case ALL:
+			return Collections.unmodifiableList(new ArrayList<CardTerminal>(this.terminals));
 
-			case CARD_PRESENT : {
-				final ArrayList<CardTerminal> presentList = new ArrayList<CardTerminal>();
-				for (CardTerminal terminal : this.terminals) {
-					if (terminal.isCardPresent()) {
-						presentList.add(terminal);
-					}
+		case CARD_PRESENT: {
+			final ArrayList<CardTerminal> presentList = new ArrayList<>();
+			for (CardTerminal terminal : this.terminals) {
+				if (terminal.isCardPresent()) {
+					presentList.add(terminal);
 				}
-				return Collections.unmodifiableList(presentList);
 			}
+			return Collections.unmodifiableList(presentList);
+		}
 
-			case CARD_ABSENT : {
-				final ArrayList<CardTerminal> absentList = new ArrayList<CardTerminal>();
-				for (CardTerminal terminal : this.terminals) {
-					if (!terminal.isCardPresent()) {
-						absentList.add(terminal);
-					}
+		case CARD_ABSENT: {
+			final ArrayList<CardTerminal> absentList = new ArrayList<>();
+			for (CardTerminal terminal : this.terminals) {
+				if (!terminal.isCardPresent()) {
+					absentList.add(terminal);
 				}
-				return Collections.unmodifiableList(absentList);
 			}
+			return Collections.unmodifiableList(absentList);
+		}
 
-			default :
-				throw new CardException(
-						"list with CARD_INSERTION or CARD_REMOVAL not supported in SimulatedCardTerminals");
-
+		default:
+			throw new CardException("list with CARD_INSERTION or CARD_REMOVAL not supported in SimulatedCardTerminals");
 		}
 	}
 
 	@Override
-	public synchronized boolean waitForChange(final long timeout)
-			throws CardException {
+	public synchronized boolean waitForChange(final long timeout) throws CardException {
 		try {
 			wait(timeout);
 		} catch (final InterruptedException iex) {

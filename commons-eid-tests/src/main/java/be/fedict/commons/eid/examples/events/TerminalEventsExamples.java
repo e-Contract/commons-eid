@@ -19,17 +19,17 @@
 package be.fedict.commons.eid.examples.events;
 
 import javax.smartcardio.CardTerminal;
+
 import be.fedict.commons.eid.client.CardAndTerminalManager;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
 
 public class TerminalEventsExamples {
 
 	/*
-	 * get information about CardTerminals being attached and detached, while
-	 * doing something else:
+	 * get information about CardTerminals being attached and detached, while doing
+	 * something else:
 	 */
-	public TerminalEventsExamples cardterminals_basic_asynchronous()
-			throws InterruptedException {
+	public TerminalEventsExamples cardterminals_basic_asynchronous() throws InterruptedException {
 		// -------------------------------------------------------------------------------------------------------
 		// instantiate a CardAndTerminalManager with default settings (no
 		// logging, default timeout)
@@ -39,31 +39,26 @@ public class TerminalEventsExamples {
 		// -------------------------------------------------------------------------------------------------------
 		// register a CardTerminalEventsListener
 		// -------------------------------------------------------------------------------------------------------
-		cardAndTerminalManager
-				.addCardTerminalListener(new CardTerminalEventsListener() {
+		cardAndTerminalManager.addCardTerminalListener(new CardTerminalEventsListener() {
 
-					@Override
-					public void terminalDetached(final CardTerminal cardTerminal) {
-						System.out.println("CardTerminal ["
-								+ cardTerminal.getName() + "] detached\n");
-					}
+			@Override
+			public void terminalDetached(final CardTerminal cardTerminal) {
+				System.out.println("CardTerminal [" + cardTerminal.getName() + "] detached\n");
+			}
 
-					@Override
-					public void terminalAttached(final CardTerminal cardTerminal) {
-						System.out.println("CardTerminal ["
-								+ cardTerminal.getName() + "] attached\n");
-					}
+			@Override
+			public void terminalAttached(final CardTerminal cardTerminal) {
+				System.out.println("CardTerminal [" + cardTerminal.getName() + "] attached\n");
+			}
 
-					@Override
-					public void terminalEventsInitialized() {
-						System.out
-								.println("From now on you'll see terminals being Attached/Detached");
-					}
+			@Override
+			public void terminalEventsInitialized() {
+				System.out.println("From now on you'll see terminals being Attached/Detached");
+			}
 
-				});
+		});
 
-		System.out
-				.println("First, you'll see Attach events for CardTerminals that were already attached");
+		System.out.println("First, you'll see Attach events for CardTerminals that were already attached");
 
 		// -------------------------------------------------------------------------------------------------------
 		// start the CardAndTerminalManager instance running as a daemon thread.
@@ -78,8 +73,6 @@ public class TerminalEventsExamples {
 			Thread.sleep(2000);
 		}
 	}
-
-	// -------------------------------------------------------------------------------------------------------
 
 	public static void main(final String[] args) throws InterruptedException {
 		final TerminalEventsExamples examples = new TerminalEventsExamples();

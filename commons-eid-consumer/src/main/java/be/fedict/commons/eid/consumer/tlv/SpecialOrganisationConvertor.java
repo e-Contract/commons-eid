@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import be.fedict.commons.eid.consumer.SpecialOrganisation;
 
 /**
- * Data convertor for special organisation eID identity field.
+ * Data convertor for special organization eID identity field.
  * 
  * @author Frank Cornelis
  * 

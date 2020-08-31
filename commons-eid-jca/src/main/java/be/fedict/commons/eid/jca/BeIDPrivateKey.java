@@ -22,9 +22,12 @@ package be.fedict.commons.eid.jca;
 import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.SignatureException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.smartcardio.CardException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +143,7 @@ public class BeIDPrivateKey implements PrivateKey {
 				if (null == this.authenticationCertificate) {
 					try {
 						this.authenticationCertificate = this.beIDCard.getAuthenticationCertificate();
-					} catch (Exception e) {
+					} catch (IOException | InterruptedException | CertificateException | CardException e) {
 						// don't fail here
 					}
 				}
@@ -148,7 +151,7 @@ public class BeIDPrivateKey implements PrivateKey {
 			try {
 				signatureValue = this.beIDCard.sign(digestValue, beIDDigest, this.certificateFileType, false,
 						this.applicationName);
-			} catch (Exception e) {
+			} catch (UserCancelledException | IOException | InterruptedException | CardException e) {
 				if (this.autoRecovery) {
 					LOGGER.debug("trying to recover...");
 					this.beIDCard = this.beIDKeyStore.getBeIDCard(true);

@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -55,15 +56,12 @@ public enum SpecialOrganisation implements Serializable {
 	private static Map<String, SpecialOrganisation> specialOrganisations;
 
 	static {
-		final Map<String, SpecialOrganisation> specialOrganisations = new HashMap<String, SpecialOrganisation>();
-		for (SpecialOrganisation specialOrganisation : SpecialOrganisation
-				.values()) {
+		final Map<String, SpecialOrganisation> specialOrganisations = new HashMap<>();
+		for (SpecialOrganisation specialOrganisation : SpecialOrganisation.values()) {
 			final String key = specialOrganisation.getKey();
 			if (key != null) {
 				if (specialOrganisations.containsKey(key)) {
-					throw new RuntimeException(
-							"duplicate key for special organisation type: "
-									+ key);
+					throw new RuntimeException("duplicate key for special organisation type: " + key);
 				}
 				specialOrganisations.put(key, specialOrganisation);
 			}
@@ -78,8 +76,7 @@ public enum SpecialOrganisation implements Serializable {
 		if (key.isEmpty()) {
 			return UNSPECIFIED;
 		}
-		final SpecialOrganisation specialOrganisation = SpecialOrganisation.specialOrganisations
-				.get(key);
+		final SpecialOrganisation specialOrganisation = SpecialOrganisation.specialOrganisations.get(key);
 		if (null == specialOrganisation) {
 			return UNKNOWN;
 		}

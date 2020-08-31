@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2017 e-Contract.be BVBA.
+ * Copyright (C) 2014-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
+import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.swing.JFrame;
 
@@ -175,7 +176,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 					this.citizenCaCertificate = this.signCertificateChain.get(1);
 					this.rootCaCertificate = this.signCertificateChain.get(2);
 				}
-			} catch (final Exception ex) {
+			} catch (final IOException | InterruptedException | CertificateException | CardException ex) {
 				LOGGER.error("error: " + ex.getMessage(), ex);
 				return null;
 			}
@@ -189,7 +190,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 					this.citizenCaCertificate = this.authnCertificateChain.get(1);
 					this.rootCaCertificate = this.authnCertificateChain.get(2);
 				}
-			} catch (final Exception ex) {
+			} catch (final IOException | InterruptedException | CertificateException | CardException ex) {
 				LOGGER.error("error: " + ex.getMessage(), ex);
 				return null;
 			}
@@ -199,7 +200,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			if (null == this.rrnCertificateChain) {
 				try {
 					this.rrnCertificateChain = beIDCard.getRRNCertificateChain();
-				} catch (Exception e) {
+				} catch (IOException | InterruptedException | CertificateException | CardException e) {
 					LOGGER.error("error: " + e.getMessage(), e);
 					return null;
 				}
@@ -220,7 +221,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				if (null == this.signCertificate) {
 					this.signCertificate = beIDCard.getSigningCertificate();
 				}
-			} catch (final Exception ex) {
+			} catch (final IOException | InterruptedException | CertificateException | CardException ex) {
 				LOGGER.warn("error: " + ex.getMessage(), ex);
 				return null;
 			}
@@ -231,7 +232,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				if (null == this.authnCertificate) {
 					this.authnCertificate = beIDCard.getAuthenticationCertificate();
 				}
-			} catch (final Exception ex) {
+			} catch (final IOException | InterruptedException | CertificateException | CardException ex) {
 				LOGGER.warn("error: " + ex.getMessage(), ex);
 				return null;
 			}
@@ -242,7 +243,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				if (null == this.citizenCaCertificate) {
 					this.citizenCaCertificate = beIDCard.getCACertificate();
 				}
-			} catch (Exception e) {
+			} catch (IOException | InterruptedException | CertificateException | CardException e) {
 				LOGGER.warn("error: " + e.getMessage(), e);
 				return null;
 			}
@@ -253,7 +254,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				if (null == this.rootCaCertificate) {
 					this.rootCaCertificate = beIDCard.getRootCACertificate();
 				}
-			} catch (Exception e) {
+			} catch (IOException | InterruptedException | CertificateException | CardException e) {
 				LOGGER.warn("error: " + e.getMessage(), e);
 				return null;
 			}
@@ -264,7 +265,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 				if (null == this.rrnCertificate) {
 					this.rrnCertificate = beIDCard.getRRNCertificate();
 				}
-			} catch (Exception e) {
+			} catch (IOException | InterruptedException | CertificateException | CardException e) {
 				LOGGER.warn("error: " + e.getMessage(), e);
 				return null;
 			}
@@ -307,7 +308,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	@Override
 	public Enumeration<String> engineAliases() {
 		LOGGER.debug("engineAliases");
-		final Vector<String> aliases = new Vector<String>();
+		final Vector<String> aliases = new Vector<>();
 		aliases.add("Authentication");
 		aliases.add("Signature");
 		aliases.add("CA");
@@ -425,8 +426,7 @@ public class BeIDKeyStore extends KeyStoreSpi {
 	public void engineLoad(final LoadStoreParameter param)
 			throws IOException, NoSuchAlgorithmException, CertificateException {
 		LOGGER.debug("engineLoad"); /*
-									 * Allows for a KeyStore to be re-loaded
-									 * several times.
+									 * Allows for a KeyStore to be re-loaded several times.
 									 */
 		this.beIDCard = null;
 		this.authnCertificateChain = null;

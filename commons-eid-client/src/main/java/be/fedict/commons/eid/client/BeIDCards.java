@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -79,13 +80,11 @@ public class BeIDCards {
 	/**
 	 * a BeIDCards without logging, using the supplied BeIDCardsUI
 	 * 
-	 * @param ui
-	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
-	 *            that will be called upon for any user interaction required to
-	 *            handle other calls. The UI's Locale will be used globally for
-	 *            subsequent UI actions, as if setLocale() was called, except
-	 *            where the Locale is explicity set for individual BeIDCard
-	 *            instances.
+	 * @param ui an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI that
+	 *           will be called upon for any user interaction required to handle
+	 *           other calls. The UI's Locale will be used globally for subsequent
+	 *           UI actions, as if setLocale() was called, except where the Locale
+	 *           is explicity set for individual BeIDCard instances.
 	 */
 	public BeIDCards(final BeIDCardsUI ui) {
 		this(new VoidLogger(), ui);
@@ -94,9 +93,8 @@ public class BeIDCards {
 	/**
 	 * a BeIDCards logging to supplied logger, using the default BeIDCardsUI
 	 * 
-	 * @param logger
-	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
-	 *            send all the logs
+	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be
+	 *               send all the logs
 	 */
 	public BeIDCards(Logger logger) {
 		this(logger, null);
@@ -105,94 +103,81 @@ public class BeIDCards {
 	/**
 	 * a BeIDCards logging to logger, using the supplied BeIDCardsUI and locale
 	 * 
-	 * @param logger
-	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
-	 *            send all the logs
-	 * @param ui
-	 *            an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
-	 *            that will be called upon for any user interaction required to
-	 *            handle other calls. The UI's Locale will be used globally for
-	 *            subsequent UI actions, as if setLocale() was called, except
-	 *            where the Locale is explicity set for individual BeIDCard
-	 *            instances.
+	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be
+	 *               send all the logs
+	 * @param ui     an instance of be.fedict.commons.eid.client.spi.BeIDCardsUI
+	 *               that will be called upon for any user interaction required to
+	 *               handle other calls. The UI's Locale will be used globally for
+	 *               subsequent UI actions, as if setLocale() was called, except
+	 *               where the Locale is explicity set for individual BeIDCard
+	 *               instances.
 	 */
 	public BeIDCards(final Logger logger, final BeIDCardsUI ui) {
 
 		this.logger = logger;
 		this.cardAndTerminalManager = new CardAndTerminalManager(logger);
 		this.cardAndTerminalManager.setProtocol(PROTOCOL.T0);
-		this.cardManager = new BeIDCardManager(logger,
-				this.cardAndTerminalManager);
+		this.cardManager = new BeIDCardManager(logger, this.cardAndTerminalManager);
 		this.terminalManagerInitSleeper = new Sleeper();
 		this.cardManagerInitSleeper = new Sleeper();
 		this.cardTerminalSleeper = new Sleeper();
 		this.beIDSleeper = new Sleeper();
-		this.beIDTerminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
+		this.beIDTerminalsAndCards = new HashMap<>();
 		this.terminalsInitialized = false;
 		this.cardsInitialized = false;
 		this.uiSelectingCard = false;
 		setUI(ui);
 
-		this.cardAndTerminalManager
-				.addCardTerminalListener(new CardTerminalEventsListener() {
+		this.cardAndTerminalManager.addCardTerminalListener(new CardTerminalEventsListener() {
 
-					@Override
-					public void terminalEventsInitialized() {
-						BeIDCards.this.terminalsInitialized = true;
-						BeIDCards.this.terminalManagerInitSleeper.awaken();
-					}
+			@Override
+			public void terminalEventsInitialized() {
+				BeIDCards.this.terminalsInitialized = true;
+				BeIDCards.this.terminalManagerInitSleeper.awaken();
+			}
 
-					@Override
-					public void terminalDetached(CardTerminal cardTerminal) {
-						BeIDCards.this.cardTerminalsAttached--;
-						BeIDCards.this.cardTerminalSleeper.awaken();
+			@Override
+			public void terminalDetached(CardTerminal cardTerminal) {
+				BeIDCards.this.cardTerminalsAttached--;
+				BeIDCards.this.cardTerminalSleeper.awaken();
 
-					}
+			}
 
-					@Override
-					public void terminalAttached(CardTerminal cardTerminal) {
-						BeIDCards.this.cardTerminalsAttached++;
-						BeIDCards.this.cardTerminalSleeper.awaken();
-					}
-				});
+			@Override
+			public void terminalAttached(CardTerminal cardTerminal) {
+				BeIDCards.this.cardTerminalsAttached++;
+				BeIDCards.this.cardTerminalSleeper.awaken();
+			}
+		});
 
 		this.cardManager.addBeIDCardEventListener(new BeIDCardEventsListener() {
 			@Override
-			public void eIDCardInserted(final CardTerminal cardTerminal,
-					final BeIDCard card) {
+			public void eIDCardInserted(final CardTerminal cardTerminal, final BeIDCard card) {
 				BeIDCards.this.logger.debug("eID Card Insertion Reported");
 
 				if (BeIDCards.this.uiSelectingCard) {
 					try {
-						BeIDCards.this.getUI().eIDCardInsertedDuringSelection(
-								card);
+						BeIDCards.this.getUI().eIDCardInsertedDuringSelection(card);
 					} catch (final Exception ex) {
-						BeIDCards.this.logger
-								.error("Exception in UI:eIDCardInserted"
-										+ ex.getMessage());
+						BeIDCards.this.logger.error("Exception in UI:eIDCardInserted" + ex.getMessage());
 					}
 				}
 
 				synchronized (BeIDCards.this.beIDTerminalsAndCards) {
-					BeIDCards.this.beIDTerminalsAndCards
-							.put(cardTerminal, card);
+					BeIDCards.this.beIDTerminalsAndCards.put(cardTerminal, card);
 					BeIDCards.this.beIDSleeper.awaken();
 				}
 			}
 
 			@Override
-			public void eIDCardRemoved(final CardTerminal cardTerminal,
-					final BeIDCard card) {
+			public void eIDCardRemoved(final CardTerminal cardTerminal, final BeIDCard card) {
 				BeIDCards.this.logger.debug("eID Card Removal Reported");
 
 				if (BeIDCards.this.uiSelectingCard) {
 					try {
-						BeIDCards.this.getUI().eIDCardRemovedDuringSelection(
-								card);
+						BeIDCards.this.getUI().eIDCardRemovedDuringSelection(card);
 					} catch (final Exception ex) {
-						BeIDCards.this.logger
-								.error("Exception in UI:eIDCardRemoved"
-										+ ex.getMessage());
+						BeIDCards.this.logger.error("Exception in UI:eIDCardRemoved" + ex.getMessage());
 					}
 				}
 
@@ -216,8 +201,8 @@ public class BeIDCards {
 	/**
 	 * Return whether any BeID Cards are currently present.
 	 * 
-	 * @return true if one or more BeID Cards are inserted in one or more
-	 *         connected CardTerminals, false if zero BeID Cards are present
+	 * @return true if one or more BeID Cards are inserted in one or more connected
+	 *         CardTerminals, false if zero BeID Cards are present
 	 */
 	public boolean hasBeIDCards() {
 		return this.hasBeIDCards(null);
@@ -226,12 +211,11 @@ public class BeIDCards {
 	/**
 	 * Return whether any BeID Cards are currently present.
 	 * 
-	 * @param terminal
-	 *            if not null, only this terminal will be considered in
-	 *            determining whether beID Cards are present.
+	 * @param terminal if not null, only this terminal will be considered in
+	 *                 determining whether beID Cards are present.
 	 * 
-	 * @return true if one or more BeID Cards are inserted in one or more
-	 *         connected CardTerminals, false if zero BeID Cards are present
+	 * @return true if one or more BeID Cards are inserted in one or more connected
+	 *         CardTerminals, false if zero BeID Cards are present
 	 */
 	public boolean hasBeIDCards(CardTerminal terminal) {
 		waitUntilCardsInitialized();
@@ -249,8 +233,8 @@ public class BeIDCards {
 	}
 
 	/**
-	 * return Set of all BeID Cards present. Will return empty Set if no BeID
-	 * cards are present at time of call
+	 * return Set of all BeID Cards present. Will return empty Set if no BeID cards
+	 * are present at time of call
 	 * 
 	 * @return a (possibly empty) set of all BeID Cards inserted at time of call
 	 */
@@ -259,19 +243,19 @@ public class BeIDCards {
 
 		synchronized (this.beIDTerminalsAndCards) {
 			this.cardManager.refreshCards();
-			return new HashSet<BeIDCard>(this.beIDTerminalsAndCards.values());
+			return new HashSet<>(this.beIDTerminalsAndCards.values());
 		}
 	}
 
 	/**
 	 * return exactly one BeID Card.
 	 * 
-	 * This may block when called when no BeID Cards are present, until at least
-	 * one BeID card is inserted, at which point this will be returned. If, at
-	 * time of call, more than one BeID card is present, will request the UI to
-	 * select between those, and return the selected card. If the UI is called
-	 * upon to request the user to select between different cards, or to insert
-	 * one card, and the user declines, CancelledException is thrown.
+	 * This may block when called when no BeID Cards are present, until at least one
+	 * BeID card is inserted, at which point this will be returned. If, at time of
+	 * call, more than one BeID card is present, will request the UI to select
+	 * between those, and return the selected card. If the UI is called upon to
+	 * request the user to select between different cards, or to insert one card,
+	 * and the user declines, CancelledException is thrown.
 	 * 
 	 * @return a BeIDCard instance. The only one present, or one chosen out of
 	 *         several by the user
@@ -284,24 +268,22 @@ public class BeIDCards {
 	/**
 	 * return a BeID Card inserted into a given CardTerminal
 	 * 
-	 * @param terminal
-	 *            if not null, only BeID Cards in this particular CardTerminal
-	 *            will be considered.
+	 * @param terminal if not null, only BeID Cards in this particular CardTerminal
+	 *                 will be considered.
 	 * 
-	 *            May block when called when no BeID Cards are present, until at
-	 *            least one BeID card is inserted, at which point this will be
-	 *            returned. If, at time of call, more than one BeID card is
-	 *            present, will request the UI to select between those, and
-	 *            return the selected card. If the UI is called upon to request
-	 *            the user to select between different cards, or to insert one
-	 *            card, and the user declines, CancelledException is thrown.
+	 *                 May block when called when no BeID Cards are present, until
+	 *                 at least one BeID card is inserted, at which point this will
+	 *                 be returned. If, at time of call, more than one BeID card is
+	 *                 present, will request the UI to select between those, and
+	 *                 return the selected card. If the UI is called upon to request
+	 *                 the user to select between different cards, or to insert one
+	 *                 card, and the user declines, CancelledException is thrown.
 	 * 
 	 * @return a BeIDCard instance. The only one present, or one chosen out of
 	 *         several by the user
 	 * @throws CancelledException
 	 */
-	public BeIDCard getOneBeIDCard(CardTerminal terminal)
-			throws CancelledException {
+	public BeIDCard getOneBeIDCard(CardTerminal terminal) throws CancelledException {
 		BeIDCard selectedCard = null;
 
 		do {
@@ -316,8 +298,7 @@ public class BeIDCards {
 			Map<CardTerminal, BeIDCard> currentBeIDCards;
 			synchronized (this.beIDTerminalsAndCards) {
 				this.cardManager.refreshCards();
-				currentBeIDCards = new HashMap<CardTerminal, BeIDCard>(
-						this.beIDTerminalsAndCards);
+				currentBeIDCards = new HashMap<>(this.beIDTerminalsAndCards);
 			}
 
 			if (terminal != null) {
@@ -336,8 +317,7 @@ public class BeIDCards {
 				try {
 					this.logger.debug("selecting");
 					this.uiSelectingCard = true;
-					selectedCard = getUI().selectBeIDCard(
-							currentBeIDCards.values());
+					selectedCard = getUI().selectBeIDCard(currentBeIDCards.values());
 				} catch (final OutOfCardsException oocex) {
 					// if we run out of cards, waitForAtLeastOneBeIDCard will
 					// ask for one in the next loop
@@ -352,11 +332,11 @@ public class BeIDCards {
 	}
 
 	/**
-	 * wait for a particular BeID card to be removed. Note that this only works
-	 * with BeID objects that were acquired using either the
-	 * {@link #getOneBeIDCard()} or {@link #getAllBeIDCards()} methods from the
-	 * same BeIDCards instance. If, at time of call, that particular card is
-	 * present, the UI is called upon to prompt the user to remove that card.
+	 * wait for a particular BeID card to be removed. Note that this only works with
+	 * BeID objects that were acquired using either the {@link #getOneBeIDCard()} or
+	 * {@link #getAllBeIDCards()} methods from the same BeIDCards instance. If, at
+	 * time of call, that particular card is present, the UI is called upon to
+	 * prompt the user to remove that card.
 	 * 
 	 * @param card
 	 * @return this BeIDCards instance to allow for method chaining
@@ -364,8 +344,7 @@ public class BeIDCards {
 	public BeIDCards waitUntilCardRemoved(final BeIDCard card) {
 		if (this.getAllBeIDCards().contains(card)) {
 			try {
-				this.logger
-						.debug("waitUntilCardRemoved blocking until card removed");
+				this.logger.debug("waitUntilCardRemoved blocking until card removed");
 				this.getUI().adviseBeIDCardRemovalRequired();
 				while (this.getAllBeIDCards().contains(card)) {
 					this.beIDSleeper.sleepUntilAwakened();
@@ -396,14 +375,13 @@ public class BeIDCards {
 
 	/**
 	 * Set the Locale to use for subsequent UI operations. BeIDCards and
-	 * BeIDCardManager share the same global Locale, so this will impact and and
-	 * all instances of either. BeIDCard instances may have individual,
-	 * per-instance Locale settings, however.
+	 * BeIDCardManager share the same global Locale, so this will impact and and all
+	 * instances of either. BeIDCard instances may have individual, per-instance
+	 * Locale settings, however.
 	 * 
-	 * @param newLocale
-	 *            will be used globally for subsequent UI actions, as if
-	 *            setLocale() was called, except where the Locale is explicity
-	 *            set for individual BeIDCard instances.
+	 * @param newLocale will be used globally for subsequent UI actions, as if
+	 *                  setLocale() was called, except where the Locale is explicity
+	 *                  set for individual BeIDCard instances.
 	 * @return this BeIDCards, to allow method chaining
 	 */
 	public BeIDCards setLocale(Locale newLocale) {
@@ -428,8 +406,7 @@ public class BeIDCards {
 	}
 
 	/*
-	 * Private, supporting methods
-	 * **********************************************
+	 * Private, supporting methods **********************************************
 	 */
 
 	private void setUI(BeIDCardsUI ui) {
@@ -443,13 +420,11 @@ public class BeIDCards {
 		if (this.ui == null) {
 			try {
 				final ClassLoader classLoader = BeIDCard.class.getClassLoader();
-				final Class<?> uiClass = classLoader
-						.loadClass(DEFAULT_UI_IMPLEMENTATION);
+				final Class<?> uiClass = classLoader.loadClass(DEFAULT_UI_IMPLEMENTATION);
 				setUI((BeIDCardsUI) uiClass.newInstance());
-			} catch (final Exception e) {
+			} catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e) {
 				this.logger.error(UI_MISSING_LOG_MESSAGE);
-				throw new UnsupportedOperationException(UI_MISSING_LOG_MESSAGE,
-						e);
+				throw new UnsupportedOperationException(UI_MISSING_LOG_MESSAGE, e);
 			}
 		}
 
@@ -458,26 +433,21 @@ public class BeIDCards {
 
 	private void waitUntilCardsInitialized() {
 		while (!this.cardsInitialized) {
-			this.logger
-					.debug("Waiting for CardAndTerminalManager Cards initialisation");
+			this.logger.debug("Waiting for CardAndTerminalManager Cards initialisation");
 			this.cardManagerInitSleeper.sleepUntilAwakened();
-			this.logger
-					.debug("CardAndTerminalManager now has cards initialized");
+			this.logger.debug("CardAndTerminalManager now has cards initialized");
 		}
 	}
 
 	private void waitUntilTerminalsInitialized() {
 		while (!this.terminalsInitialized) {
-			this.logger
-					.debug("Waiting for CardAndTerminalManager Terminals initialisation");
+			this.logger.debug("Waiting for CardAndTerminalManager Terminals initialisation");
 			this.terminalManagerInitSleeper.sleepUntilAwakened();
-			this.logger
-					.debug("CardAndTerminalManager now has terminals initialized");
+			this.logger.debug("CardAndTerminalManager now has terminals initialized");
 		}
 	}
 
-	private void waitForAtLeastOneBeIDCard(CardTerminal terminal)
-			throws CancelledException {
+	private void waitForAtLeastOneBeIDCard(CardTerminal terminal) throws CancelledException {
 		if (!this.hasBeIDCards(terminal)) {
 			try {
 				this.getUI().adviseBeIDCardRequired();

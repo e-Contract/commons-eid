@@ -43,8 +43,6 @@ import be.fedict.commons.eid.client.event.CardEventsListener;
 public class BeIDCardManagerExercise implements BeIDCardEventsListener, CardEventsListener {
 	private BeIDCardManager beIDCardManager;
 
-	// ---------------------------------------------------------------------------------------------
-
 	@Test
 	public void testAsynchronous() throws Exception {
 		this.beIDCardManager = new BeIDCardManager(new TestLogger());

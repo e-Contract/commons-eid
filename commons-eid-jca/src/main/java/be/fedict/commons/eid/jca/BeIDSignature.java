@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * <li><code>SHA384withECDSA</code>, supported by eID version 1.8 cards.</li>
  * <li><code>SHA512withECDSA</code>, supported by eID version 1.8 cards.</li>
  * </ul>
- * <p/>
+ *
  * Some of the more exotic digest algorithms like SHA-224 and RIPEMDxxx will
  * require an additional security provider like BouncyCastle.
  * 
@@ -78,7 +78,7 @@ public class BeIDSignature extends SignatureSpi {
 	private final ByteArrayOutputStream precomputedDigestOutputStream;
 
 	static {
-		digestAlgos = new HashMap<String, String>();
+		digestAlgos = new HashMap<>();
 		digestAlgos.put("SHA1withRSA", "SHA-1");
 		digestAlgos.put("SHA224withRSA", "SHA-224");
 		digestAlgos.put("SHA256withRSA", "SHA-256");

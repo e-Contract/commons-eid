@@ -125,8 +125,6 @@ public class CardAndTerminalManagerExercises implements CardTerminalEventsListen
 		}
 	}
 
-	// ---------------------------------------------------------------------------------------------
-
 	/*
 	 * Exercise CardAndTerminalManager's start() stop() semantics, with regards to
 	 * its worker thread. This test starts and stops a CardAndTerminalManager

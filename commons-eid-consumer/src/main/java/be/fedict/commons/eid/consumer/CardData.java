@@ -311,7 +311,7 @@ public class CardData implements Serializable {
 	 * Convenience method to test whether this card is in the ACTIVATED state.
 	 * CAUTION: state DEACTIVATED has been observed in otherwise active cards.
 	 * 
-	 * @returns true if card is in ACTIVATED state, false otherwise
+	 * @return true if card is in ACTIVATED state, false otherwise
 	 */
 	public boolean isActivated() {
 		return (this.getApplicationLifeCycle() == ACTIVATED);
@@ -321,7 +321,7 @@ public class CardData implements Serializable {
 	 * Convenience method to test whether this card is in the DEACTIVATED state.
 	 * CAUTION: state DEACTIVATED has been observed in otherwise active cards.
 	 * 
-	 * @returns true if card is in DEACTIVATED state, false otherwise
+	 * @return true if card is in DEACTIVATED state, false otherwise
 	 */
 	public boolean isDeactivated() {
 		return (this.getApplicationLifeCycle() == DEACTIVATED);
@@ -331,7 +331,7 @@ public class CardData implements Serializable {
 	 * Convenience method to test whether this card is in the LOCKED state. CAUTION:
 	 * state DEACTIVATED has been observed in otherwise active cards.
 	 * 
-	 * @returns true if card is in LOCKED state, false otherwise
+	 * @return true if card is in LOCKED state, false otherwise
 	 */
 	public boolean isLocked() {
 		return (this.getApplicationLifeCycle() == LOCKED);

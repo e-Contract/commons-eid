@@ -55,7 +55,7 @@ public class DefaultBeIDCardsDialogTests {
 
 	@BeforeEach
 	public void setUp() {
-		this.simulatedBeIDCards = new ArrayList<BeIDCard>(numberOfCards);
+		this.simulatedBeIDCards = new ArrayList<>(numberOfCards);
 		for (int i = 0; i < numberOfCards; i++) {
 			this.simulatedBeIDCards.add(new BeIDCard(new SimulatedCard(new ATR(new byte[] { 0x3b, (byte) 0x98, (byte) i,
 					0x40, (byte) i, (byte) i, (byte) i, (byte) i, 0x01, 0x01, (byte) 0xad, 0x13, 0x10 }))));

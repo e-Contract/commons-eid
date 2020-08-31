@@ -127,9 +127,9 @@ public class BeIDCardManager {
 	public BeIDCardManager(final Logger logger, final CardAndTerminalManager cardAndTerminalManager,
 			boolean terminalManagerIsPrivate) {
 		this.logger = logger;
-		this.beIdListeners = new HashSet<BeIDCardEventsListener>();
-		this.otherCardListeners = new HashSet<CardEventsListener>();
-		this.terminalsAndCards = new HashMap<CardTerminal, BeIDCard>();
+		this.beIdListeners = new HashSet<>();
+		this.otherCardListeners = new HashSet<>();
+		this.terminalsAndCards = new HashMap<>();
 
 		this.cardAndTerminalManager = cardAndTerminalManager;
 		this.terminalManagerIsPrivate = terminalManagerIsPrivate;
@@ -440,7 +440,7 @@ public class BeIDCardManager {
 		final Set<BeIDCardEventsListener> copyOfListeners;
 
 		synchronized (BeIDCardManager.this.beIdListeners) {
-			copyOfListeners = new HashSet<BeIDCardEventsListener>(BeIDCardManager.this.beIdListeners);
+			copyOfListeners = new HashSet<>(BeIDCardManager.this.beIdListeners);
 		}
 
 		for (BeIDCardEventsListener listener : copyOfListeners) {

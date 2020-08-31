@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2018 e-Contract.be BVBA.
+ * Copyright (C) 2018-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -128,7 +128,7 @@ public enum DocumentType implements Serializable {
 	private static Map<Integer, DocumentType> documentTypes;
 
 	static {
-		final Map<Integer, DocumentType> documentTypes = new HashMap<Integer, DocumentType>();
+		final Map<Integer, DocumentType> documentTypes = new HashMap<>();
 		for (DocumentType documentType : DocumentType.values()) {
 			final int encodedValue = documentType.key;
 			if (documentTypes.containsKey(encodedValue)) {

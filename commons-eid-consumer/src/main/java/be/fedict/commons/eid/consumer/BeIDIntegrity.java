@@ -119,7 +119,7 @@ public class BeIDIntegrity {
 		boolean result;
 		try {
 			result = verifySignature(rrnCertificate.getSigAlgName(), identitySignatureFile, publicKey, identityFile);
-		} catch (final Exception ex) {
+		} catch (final InvalidKeyException | NoSuchAlgorithmException | SignatureException ex) {
 			throw new SecurityException("identity signature verification error: " + ex.getMessage(), ex);
 		}
 		if (false == result) {
@@ -153,7 +153,7 @@ public class BeIDIntegrity {
 		try {
 			result = verifySignature(rrnCertificate.getSigAlgName(), addressSignatureFile, publicKey,
 					trimmedAddressFile, identitySignatureFile);
-		} catch (final Exception ex) {
+		} catch (final InvalidKeyException | NoSuchAlgorithmException | SignatureException ex) {
 			throw new SecurityException("address signature verification error: " + ex.getMessage(), ex);
 		}
 		if (false == result) {
@@ -337,9 +337,10 @@ public class BeIDIntegrity {
 		cipher.init(Cipher.DECRYPT_MODE, publicKey);
 		final byte[] actualSignatureDigestInfoValue = cipher.doFinal(signatureValue);
 
-		final ASN1InputStream asnInputStream = new ASN1InputStream(actualSignatureDigestInfoValue);
-		final DigestInfo actualSignatureDigestInfo = new DigestInfo((ASN1Sequence) asnInputStream.readObject());
-		asnInputStream.close();
+		final DigestInfo actualSignatureDigestInfo;
+		try (ASN1InputStream asnInputStream = new ASN1InputStream(actualSignatureDigestInfoValue)) {
+			actualSignatureDigestInfo = new DigestInfo((ASN1Sequence) asnInputStream.readObject());
+		}
 
 		final byte[] actualDigestValue = actualSignatureDigestInfo.getDigest();
 		return Arrays.equals(expectedDigestValue, actualDigestValue);

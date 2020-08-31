@@ -19,11 +19,13 @@
 
 package be.fedict.commons.eid.jca.ssl;
 
+import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -65,7 +67,7 @@ public class BeIDKeyManagerFactory extends KeyManagerFactorySpi {
 		KeyManager beidKeyManager;
 		try {
 			beidKeyManager = new BeIDX509KeyManager(this.beIDSpec);
-		} catch (final Exception e) {
+		} catch (final IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
 			throw new IllegalStateException(e);
 		}
 		final KeyManager[] keyManagers = new KeyManager[] { beidKeyManager };

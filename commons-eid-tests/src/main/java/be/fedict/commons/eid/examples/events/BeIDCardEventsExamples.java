@@ -19,6 +19,7 @@
 package be.fedict.commons.eid.examples.events;
 
 import javax.smartcardio.CardTerminal;
+
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCardManager;
 import be.fedict.commons.eid.client.event.BeIDCardEventsListener;
@@ -29,8 +30,7 @@ public class BeIDCardEventsExamples {
 	 * get information about BeID cards being inserted and removed, while doing
 	 * something else:
 	 */
-	public BeIDCardEventsExamples demonstrate_basic_asynchronous_usage()
-			throws InterruptedException {
+	public BeIDCardEventsExamples demonstrate_basic_asynchronous_usage() throws InterruptedException {
 		// -------------------------------------------------------------------------------------------------------
 		// instantiate a BeIDCardManager with default settings (no logging,
 		// private CardAndTerminalManager)
@@ -42,28 +42,22 @@ public class BeIDCardEventsExamples {
 		// -------------------------------------------------------------------------------------------------------
 		beIDCardManager.addBeIDCardEventListener(new BeIDCardEventsListener() {
 			@Override
-			public void eIDCardRemoved(final CardTerminal cardTerminal,
-					final BeIDCard card) {
-				System.out.println("BeID Card Removed From Card Terminal ["
-						+ cardTerminal.getName() + "]\n");
+			public void eIDCardRemoved(final CardTerminal cardTerminal, final BeIDCard card) {
+				System.out.println("BeID Card Removed From Card Terminal [" + cardTerminal.getName() + "]\n");
 			}
 
 			@Override
-			public void eIDCardInserted(final CardTerminal cardTerminal,
-					final BeIDCard card) {
-				System.out.println("BeID Card Inserted Into Card Terminal ["
-						+ cardTerminal.getName() + "]\n");
+			public void eIDCardInserted(final CardTerminal cardTerminal, final BeIDCard card) {
+				System.out.println("BeID Card Inserted Into Card Terminal [" + cardTerminal.getName() + "]\n");
 			}
 
 			@Override
 			public void eIDCardEventsInitialized() {
-				System.out
-						.println("From now on you'll see BeID Cards being Inserted/Removed");
+				System.out.println("From now on you'll see BeID Cards being Inserted/Removed");
 			}
 		});
 
-		System.out
-				.println("First, you'll see Inserted events for BeID Cards that were already inserted");
+		System.out.println("First, you'll see Inserted events for BeID Cards that were already inserted");
 
 		// -------------------------------------------------------------------------------------------------------
 		// start the BeIDCardManager instance.
@@ -78,8 +72,6 @@ public class BeIDCardEventsExamples {
 			Thread.sleep(2000);
 		}
 	}
-
-	// -------------------------------------------------------------------------------------------------------
 
 	public static void main(final String[] args) throws InterruptedException {
 		final BeIDCardEventsExamples examples = new BeIDCardEventsExamples();

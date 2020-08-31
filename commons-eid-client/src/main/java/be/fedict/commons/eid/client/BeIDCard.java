@@ -142,7 +142,7 @@ public class BeIDCard {
 			throw new IllegalArgumentException("logger expected");
 		}
 		this.logger = logger;
-		this.cardListeners = new LinkedList<BeIDCardListener>();
+		this.cardListeners = new LinkedList<>();
 		try {
 			this.certificateFactory = CertificateFactory.getInstance("X.509");
 		} catch (final CertificateException e) {
@@ -372,7 +372,7 @@ public class BeIDCard {
 	 */
 	public List<X509Certificate> getCertificateChain(final FileType fileType)
 			throws CertificateException, CardException, IOException, InterruptedException {
-		final List<X509Certificate> chain = new LinkedList<X509Certificate>();
+		final List<X509Certificate> chain = new LinkedList<>();
 		chain.add((X509Certificate) this.certificateFactory
 				.generateCertificate(new ByteArrayInputStream(readFile(fileType))));
 		if (fileType.chainIncludesCitizenCA()) {
@@ -386,7 +386,7 @@ public class BeIDCard {
 
 	public List<byte[]> getRawCertificateChain(final FileType fileType)
 			throws CardException, IOException, InterruptedException {
-		List<byte[]> certificateChain = new LinkedList<byte[]>();
+		List<byte[]> certificateChain = new LinkedList<>();
 		certificateChain.add(readFile(fileType));
 		if (fileType.chainIncludesCitizenCA()) {
 			certificateChain.add(readFile(FileType.CACertificate));
@@ -1431,15 +1431,20 @@ public class BeIDCard {
 		}
 
 		final ResponseAPDU responseApdu = new ResponseAPDU(result);
-		if (0x6402 == responseApdu.getSW()) {
+		switch (responseApdu.getSW()) {
+		case 0x6402:
 			this.logger.debug("PINs differ");
-		} else if (0x6401 == responseApdu.getSW()) {
+			break;
+		case 0x6401:
 			this.logger.debug("canceled by user");
 			final SecurityException securityException = new SecurityException("canceled by user",
 					new ResponseAPDUException(responseApdu));
 			throw securityException;
-		} else if (0x6400 == responseApdu.getSW()) {
+		case 0x6400:
 			this.logger.debug("PIN pad timeout");
+			break;
+		default:
+			break;
 		}
 
 		return responseApdu;

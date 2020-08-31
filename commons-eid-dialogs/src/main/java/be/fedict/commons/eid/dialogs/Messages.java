@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015 e-Contract.be BVBA.
+ * Copyright (C) 2015-2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -39,7 +39,7 @@ public class Messages {
 	private static final Map<Locale, Messages> instances;
 
 	static {
-		instances = new HashMap<Locale, Messages>();
+		instances = new HashMap<>();
 	}
 
 	private final ResourceBundle resourceBundle;
@@ -211,22 +211,17 @@ public class Messages {
 			bundle = ResourceBundle.getBundle(RESOURCE_BUNDLE_NAME, locale);
 		} catch (final MissingResourceException mre) {
 			/*
-			 * In case the selected locale and default system locale are not
-			 * supported we default to english.
+			 * In case the selected locale and default system locale are not supported we
+			 * default to english.
 			 */
-			bundle = ResourceBundle.getBundle(RESOURCE_BUNDLE_NAME,
-					Locale.ENGLISH);
+			bundle = ResourceBundle.getBundle(RESOURCE_BUNDLE_NAME, Locale.ENGLISH);
 		}
 		this.resourceBundle = bundle;
 
-		UIManager.put("OptionPane.cancelButtonText",
-				this.getMessage(MESSAGE_ID.CANCEL_BUTTON));
-		UIManager.put("OptionPane.noButtonText",
-				this.getMessage(MESSAGE_ID.NO_BUTTON));
-		UIManager.put("OptionPane.okButtonText",
-				this.getMessage(MESSAGE_ID.OK_BUTTON));
-		UIManager.put("OptionPane.yesButtonText",
-				this.getMessage(MESSAGE_ID.YES_BUTTON));
+		UIManager.put("OptionPane.cancelButtonText", this.getMessage(MESSAGE_ID.CANCEL_BUTTON));
+		UIManager.put("OptionPane.noButtonText", this.getMessage(MESSAGE_ID.NO_BUTTON));
+		UIManager.put("OptionPane.okButtonText", this.getMessage(MESSAGE_ID.OK_BUTTON));
+		UIManager.put("OptionPane.yesButtonText", this.getMessage(MESSAGE_ID.YES_BUTTON));
 	}
 
 }

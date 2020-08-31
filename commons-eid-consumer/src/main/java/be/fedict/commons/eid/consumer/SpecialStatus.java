@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2009-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -53,7 +54,7 @@ public enum SpecialStatus implements Serializable {
 	private static Map<String, SpecialStatus> map;
 
 	static {
-		final Map<String, SpecialStatus> map = new HashMap<String, SpecialStatus>();
+		final Map<String, SpecialStatus> map = new HashMap<>();
 		for (SpecialStatus specialStatus : SpecialStatus.values()) {
 			final String value = specialStatus.strValue;
 			if (map.containsKey(value)) {
@@ -64,8 +65,8 @@ public enum SpecialStatus implements Serializable {
 		SpecialStatus.map = map;
 	}
 
-	private SpecialStatus(final String strValue, final boolean whiteCane,
-			final boolean extendedMinority, final boolean yellowCane) {
+	private SpecialStatus(final String strValue, final boolean whiteCane, final boolean extendedMinority,
+			final boolean yellowCane) {
 		this.strValue = strValue;
 		this.whiteCane = whiteCane;
 		this.extendedMinority = extendedMinority;
@@ -100,8 +101,8 @@ public enum SpecialStatus implements Serializable {
 	}
 
 	/**
-	 * Return whether the citizen has a bad sight. This means the citizen has
-	 * either a while cane or a yellow cane.
+	 * Return whether the citizen has a bad sight. This means the citizen has either
+	 * a while cane or a yellow cane.
 	 * 
 	 * @return
 	 */

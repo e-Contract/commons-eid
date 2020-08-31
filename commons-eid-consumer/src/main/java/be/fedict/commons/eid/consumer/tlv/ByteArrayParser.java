@@ -48,7 +48,7 @@ public class ByteArrayParser {
 		T t;
 		try {
 			t = parseThrowing(file, baClass);
-		} catch (final Exception ex) {
+		} catch (final IllegalAccessException | InstantiationException ex) {
 			throw new RuntimeException("error parsing file: " + baClass.getName(), ex);
 		}
 		return t;

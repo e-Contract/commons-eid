@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -21,6 +22,7 @@ package test.integ.be.fedict.commons.eid.client.simulation;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardChannel;
@@ -29,14 +31,10 @@ import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 public class SimulatedCard extends Card {
-	protected static final ResponseAPDU OK = new ResponseAPDU(new byte[]{
-			(byte) 0x90, 0x00});
-	protected static final ResponseAPDU COMMAND_NOT_AVAILABLE = new ResponseAPDU(
-			new byte[]{0x6d, 0x00});
-	protected static final ResponseAPDU FILE_NOT_FOUND = new ResponseAPDU(
-			new byte[]{0x6a, (byte) 0x82});
-	protected static final ResponseAPDU OFFSET_OUTSIDE_EF = new ResponseAPDU(
-			new byte[]{0x6b, (byte) 0x00});
+	protected static final ResponseAPDU OK = new ResponseAPDU(new byte[] { (byte) 0x90, 0x00 });
+	protected static final ResponseAPDU COMMAND_NOT_AVAILABLE = new ResponseAPDU(new byte[] { 0x6d, 0x00 });
+	protected static final ResponseAPDU FILE_NOT_FOUND = new ResponseAPDU(new byte[] { 0x6a, (byte) 0x82 });
+	protected static final ResponseAPDU OFFSET_OUTSIDE_EF = new ResponseAPDU(new byte[] { 0x6b, (byte) 0x00 });
 
 	protected ATR atr;
 	protected String protocol;
@@ -46,7 +44,7 @@ public class SimulatedCard extends Card {
 	public SimulatedCard(final ATR atr) {
 		super();
 		this.atr = atr;
-		this.files = new HashMap<BigInteger, byte[]>();
+		this.files = new HashMap<>();
 	}
 
 	public void setATR(final ATR atr) {
@@ -89,16 +87,13 @@ public class SimulatedCard extends Card {
 	}
 
 	@Override
-	public byte[] transmitControlCommand(final int arg0, final byte[] arg1)
-			throws CardException {
+	public byte[] transmitControlCommand(final int arg0, final byte[] arg1) throws CardException {
 		throw new RuntimeException("Not Implemented In SimulatedCard");
 	}
 
-	protected ResponseAPDU transmit(final CommandAPDU apdu)
-			throws CardException {
+	protected ResponseAPDU transmit(final CommandAPDU apdu) throws CardException {
 		// "SELECT FILE"
-		if (apdu.getCLA() == 0x00 && apdu.getINS() == 0xA4
-				&& apdu.getP1() == 0x08 && apdu.getP2() == 0x0C) {
+		if (apdu.getCLA() == 0x00 && apdu.getINS() == 0xA4 && apdu.getP1() == 0x08 && apdu.getP2() == 0x0C) {
 			return selectFile(apdu.getData());
 		}
 		// "READ BINARY"

@@ -26,6 +26,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -126,7 +127,7 @@ public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 			PrivateKey privateKey;
 			try {
 				privateKey = (PrivateKey) this.keyStore.getKey("Authentication", null);
-			} catch (final Exception e) {
+			} catch (final KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
 				LOGGER.error("getKey error: " + e.getMessage(), e);
 				return null;
 			}

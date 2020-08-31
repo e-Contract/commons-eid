@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2019 e-Contract.be BVBA.
+ * Copyright (C) 2015-2020 e-Contract.be BV.
  * Copyright (C) 2017 Corilus NV.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -37,7 +37,6 @@ import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CardTerminals;
 import javax.smartcardio.CardTerminals.State;
-import javax.smartcardio.TerminalFactory;
 
 import be.fedict.commons.eid.client.event.CardEventsListener;
 import be.fedict.commons.eid.client.event.CardTerminalEventsListener;
@@ -109,9 +108,8 @@ public class CardAndTerminalManager implements Runnable {
 	 * Instantiate a CardAndTerminalManager working on the standard smartcardio
 	 * CardTerminals, and logging to the Logger implementation given.
 	 * 
-	 * @param logger
-	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
-	 *            send all the logs
+	 * @param logger an instance of be.fedict.commons.eid.spi.Logger that will be
+	 *               send all the logs
 	 */
 	public CardAndTerminalManager(final Logger logger) {
 		this(logger, null);
@@ -124,8 +122,7 @@ public class CardAndTerminalManager implements Runnable {
 	 * could, for example obtain a CardTerminals instance from a different
 	 * TerminalFactory, or from your own implementation.
 	 * 
-	 * @param cardTerminals
-	 *            instance to obtain terminal and card events from
+	 * @param cardTerminals instance to obtain terminal and card events from
 	 */
 	public CardAndTerminalManager(final CardTerminals cardTerminals) {
 		this(new VoidLogger(), cardTerminals);
@@ -133,26 +130,23 @@ public class CardAndTerminalManager implements Runnable {
 
 	/**
 	 * Instantiate a CardAndTerminalManager working on a specific CardTerminals
-	 * instance, and that logs to the given Logger.In normal operation, you
-	 * would use the constructor that takes no CardTerminals parameter, but
-	 * using this one you could, for example obtain a CardTerminals instance
-	 * from a different TerminalFactory, or from your own implementation.
+	 * instance, and that logs to the given Logger.In normal operation, you would
+	 * use the constructor that takes no CardTerminals parameter, but using this one
+	 * you could, for example obtain a CardTerminals instance from a different
+	 * TerminalFactory, or from your own implementation.
 	 * 
-	 * @param logger
-	 *            an instance of be.fedict.commons.eid.spi.Logger that will be
-	 *            send all the logs
-	 * @param cardTerminals
-	 *            instance to obtain terminal and card events from
+	 * @param logger        an instance of be.fedict.commons.eid.spi.Logger that
+	 *                      will be send all the logs
+	 * @param cardTerminals instance to obtain terminal and card events from
 	 */
-	public CardAndTerminalManager(final Logger logger,
-			final CardTerminals cardTerminals) {
+	public CardAndTerminalManager(final Logger logger, final CardTerminals cardTerminals) {
 		// work around implementation bug in some GNU/Linux JRE's that causes
 		// libpcsc not to be found.
 		LibJ2PCSCGNULinuxFix.fixNativeLibrary(logger);
 
-		this.cardTerminalEventsListeners = new HashSet<CardTerminalEventsListener>();
-		this.cardEventsListeners = new HashSet<CardEventsListener>();
-		this.terminalsToIgnoreCardEventsFor = new HashSet<String>();
+		this.cardTerminalEventsListeners = new HashSet<>();
+		this.cardEventsListeners = new HashSet<>();
+		this.terminalsToIgnoreCardEventsFor = new HashSet<>();
 		this.delay = DEFAULT_DELAY;
 		this.logger = logger;
 		this.running = false;
@@ -175,12 +169,10 @@ public class CardAndTerminalManager implements Runnable {
 	 * ignoring
 	 * 
 	 * @see #ignoreCardEventsFor(String)
-	 * @param listener
-	 *            the CardTerminalEventsListener to be registered
+	 * @param listener the CardTerminalEventsListener to be registered
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
-	public CardAndTerminalManager addCardTerminalListener(
-			final CardTerminalEventsListener listener) {
+	public CardAndTerminalManager addCardTerminalListener(final CardTerminalEventsListener listener) {
 		synchronized (this.cardTerminalEventsListeners) {
 			this.cardTerminalEventsListeners.add(listener);
 		}
@@ -188,16 +180,14 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	/**
-	 * Register a CardEventsListener instance. This will subsequently be called
-	 * for any Card Inserts/Removals on CardTerminals that we're not ignoring
+	 * Register a CardEventsListener instance. This will subsequently be called for
+	 * any Card Inserts/Removals on CardTerminals that we're not ignoring
 	 * 
 	 * @see #ignoreCardEventsFor(String)
-	 * @param listener
-	 *            the CardEventsListener to be registered
+	 * @param listener the CardEventsListener to be registered
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
-	public CardAndTerminalManager addCardListener(
-			final CardEventsListener listener) {
+	public CardAndTerminalManager addCardListener(final CardEventsListener listener) {
 		synchronized (this.cardEventsListeners) {
 			this.cardEventsListeners.add(listener);
 		}
@@ -207,17 +197,16 @@ public class CardAndTerminalManager implements Runnable {
 	// --------------------------------------------------------------------------------------------------
 
 	/**
-	 * Start this CardAndTerminalManager. Doing this after registering one or
-	 * more CardTerminalEventsListener and/or CardEventsListener instances will
-	 * cause these be be called with the initial situation: The terminals and
-	 * cards already present. Calling start() before registering any listeners
-	 * will cause these to not see the initial situation.
+	 * Start this CardAndTerminalManager. Doing this after registering one or more
+	 * CardTerminalEventsListener and/or CardEventsListener instances will cause
+	 * these be be called with the initial situation: The terminals and cards
+	 * already present. Calling start() before registering any listeners will cause
+	 * these to not see the initial situation.
 	 * 
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
 	public CardAndTerminalManager start() {
-		this.logger
-				.debug("CardAndTerminalManager worker thread start requested.");
+		this.logger.debug("CardAndTerminalManager worker thread start requested.");
 		if (null != this.worker) {
 			throw new IllegalStateException("already started");
 		}
@@ -232,12 +221,10 @@ public class CardAndTerminalManager implements Runnable {
 	/**
 	 * Unregister a CardTerminalEventsListener instance.
 	 * 
-	 * @param listener
-	 *            the CardTerminalEventsListener to be unregistered
+	 * @param listener the CardTerminalEventsListener to be unregistered
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
-	public CardAndTerminalManager removeCardTerminalListener(
-			final CardTerminalEventsListener listener) {
+	public CardAndTerminalManager removeCardTerminalListener(final CardTerminalEventsListener listener) {
 		synchronized (this.cardTerminalEventsListeners) {
 			this.cardTerminalEventsListeners.remove(listener);
 		}
@@ -247,12 +234,10 @@ public class CardAndTerminalManager implements Runnable {
 	/**
 	 * Unregister a CardEventsListener instance.
 	 * 
-	 * @param listener
-	 *            the CardEventsListener to be unregistered
+	 * @param listener the CardEventsListener to be unregistered
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
-	public CardAndTerminalManager removeCardListener(
-			final CardEventsListener listener) {
+	public CardAndTerminalManager removeCardListener(final CardEventsListener listener) {
 		synchronized (this.cardEventsListeners) {
 			this.cardEventsListeners.remove(listener);
 		}
@@ -262,12 +247,12 @@ public class CardAndTerminalManager implements Runnable {
 	// -----------------------------------------------------------------------
 
 	/**
-	 * Start ignoring the CardTerminal with the name given. A CardTerminal's
-	 * name is the exact String as returned by
-	 * {@link javax.smartcardio.CardTerminal#getName() CardTerminal.getName()}
-	 * Note that this name is neither very stable, nor portable between
-	 * operating systems: it is constructed by the PCSC subsystem in an
-	 * arbitrary fashion, and may change between releases.
+	 * Start ignoring the CardTerminal with the name given. A CardTerminal's name is
+	 * the exact String as returned by
+	 * {@link javax.smartcardio.CardTerminal#getName() CardTerminal.getName()} Note
+	 * that this name is neither very stable, nor portable between operating
+	 * systems: it is constructed by the PCSC subsystem in an arbitrary fashion, and
+	 * may change between releases.
 	 * 
 	 * @param terminalName
 	 * @return this CardAndTerminalManager to allow for method chaining.
@@ -280,8 +265,8 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	/**
-	 * Start accepting events for the CardTerminal with the name given, where
-	 * these were being ignored due to a previous call to
+	 * Start accepting events for the CardTerminal with the name given, where these
+	 * were being ignored due to a previous call to
 	 * {@link #ignoreCardEventsFor(String)}.
 	 * 
 	 * @param terminalName
@@ -297,16 +282,15 @@ public class CardAndTerminalManager implements Runnable {
 	// -----------------------------------------------------------------------
 
 	/**
-	 * Stop this CardAndTerminalManager. This will may block until the worker
-	 * thread has returned, meaning that after this call returns, no registered
-	 * listeners will receive any more events.
+	 * Stop this CardAndTerminalManager. This will may block until the worker thread
+	 * has returned, meaning that after this call returns, no registered listeners
+	 * will receive any more events.
 	 * 
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 * @throws InterruptedException
 	 */
 	public CardAndTerminalManager stop() throws InterruptedException {
-		this.logger
-				.debug("CardAndTerminalManager worker thread stop requested.");
+		this.logger.debug("CardAndTerminalManager worker thread stop requested.");
 		this.running = false;
 		this.worker.interrupt();
 		this.worker.join();
@@ -324,14 +308,13 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	/**
-	 * Set the PCSC polling delay. A CardAndTerminalsManager will wait for a
-	 * maximum of newDelay milliseconds for new events to be received, before
-	 * issuing a new call to the PCSC subsystem. The higher this number, the
-	 * less CPU this CardAndTerminalsManager will take, but the greater the
-	 * chance that terminal attach/detach events will be noticed late.
+	 * Set the PCSC polling delay. A CardAndTerminalsManager will wait for a maximum
+	 * of newDelay milliseconds for new events to be received, before issuing a new
+	 * call to the PCSC subsystem. The higher this number, the less CPU this
+	 * CardAndTerminalsManager will take, but the greater the chance that terminal
+	 * attach/detach events will be noticed late.
 	 * 
-	 * @param newDelay
-	 *            the new delay to trust the PCSC subsystem for
+	 * @param newDelay the new delay to trust the PCSC subsystem for
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
 	public CardAndTerminalManager setDelay(final int newDelay) {
@@ -340,8 +323,8 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	/**
-	 * Return whether this CardAndTerminalsManager will automatically connect()
-	 * to any cards inserted.
+	 * Return whether this CardAndTerminalsManager will automatically connect() to
+	 * any cards inserted.
 	 * 
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
@@ -350,8 +333,8 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	/**
-	 * Set whether this CardAndTerminalsManager will automatically connect() to
-	 * any cards inserted.
+	 * Set whether this CardAndTerminalsManager will automatically connect() to any
+	 * cards inserted.
 	 * 
 	 * @param newAutoConnect
 	 * @return this CardAndTerminalManager to allow for method chaining.
@@ -374,13 +357,13 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	/**
-	 * Determines which card protocols this CardAndTerminalsManager will attempt
-	 * to connect to cards with. (if autoconnect is true, see
+	 * Determines which card protocols this CardAndTerminalsManager will attempt to
+	 * connect to cards with. (if autoconnect is true, see
 	 * {@link CardAndTerminalManager#setAutoconnect(boolean)}) the default is
 	 * PROTOCOL.ANY which allows any protocol.
 	 * 
-	 * @param newProtocol
-	 *            the card protocol(s) to attempt connection to the cards with
+	 * @param newProtocol the card protocol(s) to attempt connection to the cards
+	 *                    with
 	 * @return this CardAndTerminalManager to allow for method chaining.
 	 */
 	public CardAndTerminalManager setProtocol(final PROTOCOL newProtocol) {
@@ -413,9 +396,8 @@ public class CardAndTerminalManager implements Runnable {
 			}
 		} catch (final InterruptedException iex) {
 			if (this.running) {
-				this.logger
-						.error("CardAndTerminalManager worker thread unexpectedly interrupted: "
-								+ iex.getLocalizedMessage());
+				this.logger.error(
+						"CardAndTerminalManager worker thread unexpectedly interrupted: " + iex.getLocalizedMessage());
 			}
 		}
 
@@ -426,20 +408,16 @@ public class CardAndTerminalManager implements Runnable {
 		if (!this.subSystemInitialized) {
 			this.logger.debug("subsystem not initialized");
 			try {
-				if (this.terminalsPresent == null
-						|| this.terminalsWithCards == null) {
-					this.terminalsPresent = new HashSet<CardTerminal>(
-							this.cardTerminals.list(State.ALL));
+				if (this.terminalsPresent == null || this.terminalsWithCards == null) {
+					this.terminalsPresent = new HashSet<>(this.cardTerminals.list(State.ALL));
 					this.terminalsWithCards = terminalsWithCardsIn(this.terminalsPresent);
 				}
 
-				listenersTerminalsAttachedCardsInserted(this.terminalsPresent,
-						this.terminalsWithCards);
+				listenersTerminalsAttachedCardsInserted(this.terminalsPresent, this.terminalsWithCards);
 				this.subSystemInitialized = true;
 
 			} catch (final CardException cex) {
-				logCardException(cex,
-						"Cannot enumerate card terminals [1] (No Card Readers Connected?)");
+				logCardException(cex, "Cannot enumerate card terminals [1] (No Card Readers Connected?)");
 				clear();
 				sleepForDelay();
 				return;
@@ -460,16 +438,14 @@ public class CardAndTerminalManager implements Runnable {
 			this.cardTerminals.waitForChange(this.delay);
 		} catch (final CardException cex) {
 			// waitForChange fails (e.g. PCSC is there but no readers)
-			logCardException(cex,
-					"Cannot wait for card terminal events [2] (No Card Readers Connected?)");
+			logCardException(cex, "Cannot wait for card terminal events [2] (No Card Readers Connected?)");
 			clear();
 			sleepForDelay();
 			return;
 		} catch (final IllegalStateException ise) {
 			// waitForChange fails (e.g. PCSC is not there)
 			this.logger
-					.debug("Cannot wait for card terminal changes (no PCSC subsystem?): "
-							+ ise.getLocalizedMessage());
+					.debug("Cannot wait for card terminal changes (no PCSC subsystem?): " + ise.getLocalizedMessage());
 			clear();
 			sleepForDelay();
 			return;
@@ -479,28 +455,23 @@ public class CardAndTerminalManager implements Runnable {
 
 		try {
 			// get fresh state
-			final Set<CardTerminal> currentTerminals = new HashSet<CardTerminal>(
-					this.cardTerminals.list(State.ALL));
+			final Set<CardTerminal> currentTerminals = new HashSet<>(this.cardTerminals.list(State.ALL));
 			final Set<CardTerminal> currentTerminalsWithCards = terminalsWithCardsIn(currentTerminals);
 
 			// determine terminals that were attached since previous state
-			final Set<CardTerminal> terminalsAttached = new HashSet<CardTerminal>(
-					currentTerminals);
+			final Set<CardTerminal> terminalsAttached = new HashSet<>(currentTerminals);
 			terminalsAttached.removeAll(this.terminalsPresent);
 
 			// determine terminals that had cards inserted since previous state
-			final Set<CardTerminal> terminalsWithCardsInserted = new HashSet<CardTerminal>(
-					currentTerminalsWithCards);
+			final Set<CardTerminal> terminalsWithCardsInserted = new HashSet<>(currentTerminalsWithCards);
 			terminalsWithCardsInserted.removeAll(this.terminalsWithCards);
 
 			// determine terminals that had cards removed since previous state
-			final Set<CardTerminal> terminalsWithCardsRemoved = new HashSet<CardTerminal>(
-					this.terminalsWithCards);
+			final Set<CardTerminal> terminalsWithCardsRemoved = new HashSet<>(this.terminalsWithCards);
 			terminalsWithCardsRemoved.removeAll(currentTerminalsWithCards);
 
 			// determine terminals detached since previous state
-			final Set<CardTerminal> terminalsDetached = new HashSet<CardTerminal>(
-					this.terminalsPresent);
+			final Set<CardTerminal> terminalsDetached = new HashSet<>(this.terminalsPresent);
 			terminalsDetached.removeAll(currentTerminals);
 
 			// keep fresh state to compare to next time (and to return to
@@ -510,16 +481,14 @@ public class CardAndTerminalManager implements Runnable {
 
 			// advise the listeners where appropriate, always in the order
 			// attach, insert, remove, detach
-			listenersUpdateInSequence(terminalsAttached,
-					terminalsWithCardsInserted, terminalsWithCardsRemoved,
+			listenersUpdateInSequence(terminalsAttached, terminalsWithCardsInserted, terminalsWithCardsRemoved,
 					terminalsDetached);
 		} catch (final CardException cex) {
 			// if a CardException occurs, assume we're out of readers (only
 			// CardTerminals.list throws that here)
 			// CardTerminal fails in that case, instead of simply seeing zero
 			// CardTerminals.
-			logCardException(cex,
-					"Cannot wait for card terminal changes (no PCSC subsystem?)");
+			logCardException(cex, "Cannot wait for card terminal changes (no PCSC subsystem?)");
 			clear();
 			sleepForDelay();
 		}
@@ -539,21 +508,18 @@ public class CardAndTerminalManager implements Runnable {
 		return false;
 	}
 
-	private Set<CardTerminal> terminalsWithCardsIn(
-			final Set<CardTerminal> terminals) {
-		final Set<CardTerminal> terminalsWithCards = new HashSet<CardTerminal>();
+	private Set<CardTerminal> terminalsWithCardsIn(final Set<CardTerminal> terminals) {
+		final Set<CardTerminal> terminalsWithCards = new HashSet<>();
 
 		synchronized (this.terminalsToIgnoreCardEventsFor) {
 			for (CardTerminal terminal : terminals) {
 				try {
-					if (terminal.isCardPresent()
-							&& !this.areCardEventsIgnoredFor(terminal)) {
+					if (terminal.isCardPresent() && !this.areCardEventsIgnoredFor(terminal)) {
 						terminalsWithCards.add(terminal);
 					}
 				} catch (final CardException cex) {
-					this.logger
-							.error("Problem determining card presence in terminal ["
-									+ terminal.getName() + "]", cex);
+					this.logger.error("Problem determining card presence in terminal [" + terminal.getName() + "]",
+							cex);
 				}
 			}
 		}
@@ -571,8 +537,7 @@ public class CardAndTerminalManager implements Runnable {
 		// events we now pretend to remove and detach all that we know of, for
 		// consistency
 		if (this.subSystemInitialized) {
-			listenersCardsRemovedTerminalsDetached(this.terminalsWithCards,
-					this.terminalsPresent);
+			listenersCardsRemovedTerminalsDetached(this.terminalsWithCards, this.terminalsPresent);
 		}
 		this.terminalsPresent = null;
 		this.terminalsWithCards = null;
@@ -580,22 +545,20 @@ public class CardAndTerminalManager implements Runnable {
 		this.logger.debug("cleared");
 	}
 
-	private void listenersTerminalsAttachedCardsInserted(
-			final Set<CardTerminal> attached, final Set<CardTerminal> inserted)
-			throws CardException {
+	private void listenersTerminalsAttachedCardsInserted(final Set<CardTerminal> attached,
+			final Set<CardTerminal> inserted) throws CardException {
 		listenersTerminalsAttached(attached);
 		listenersTerminalsWithCardsInserted(inserted);
 	}
 
-	private void listenersCardsRemovedTerminalsDetached(
-			final Set<CardTerminal> removed, final Set<CardTerminal> detached) {
+	private void listenersCardsRemovedTerminalsDetached(final Set<CardTerminal> removed,
+			final Set<CardTerminal> detached) {
 		listenersTerminalsWithCardsRemoved(removed);
 		listenersTerminalsDetached(detached);
 	}
 
-	private void listenersUpdateInSequence(final Set<CardTerminal> attached,
-			final Set<CardTerminal> inserted, final Set<CardTerminal> removed,
-			final Set<CardTerminal> detached) throws CardException {
+	private void listenersUpdateInSequence(final Set<CardTerminal> attached, final Set<CardTerminal> inserted,
+			final Set<CardTerminal> removed, final Set<CardTerminal> detached) throws CardException {
 		listenersTerminalsAttached(attached);
 		listenersTerminalsWithCardsInserted(inserted);
 		listenersTerminalsWithCardsRemoved(removed);
@@ -611,8 +574,7 @@ public class CardAndTerminalManager implements Runnable {
 		Set<CardEventsListener> copyOfListeners;
 
 		synchronized (this.cardEventsListeners) {
-			copyOfListeners = new HashSet<CardEventsListener>(
-					this.cardEventsListeners);
+			copyOfListeners = new HashSet<CardEventsListener>(this.cardEventsListeners);
 		}
 
 		for (CardEventsListener listener : copyOfListeners) {
@@ -620,8 +582,7 @@ public class CardAndTerminalManager implements Runnable {
 				listener.cardEventsInitialized();
 			} catch (final Exception thrownInListener) {
 				this.logger
-						.error("Exception thrown in CardEventsListener.cardRemoved:"
-								+ thrownInListener.getMessage());
+						.error("Exception thrown in CardEventsListener.cardRemoved:" + thrownInListener.getMessage());
 			}
 		}
 	}
@@ -630,17 +591,15 @@ public class CardAndTerminalManager implements Runnable {
 		Set<CardTerminalEventsListener> copyOfListeners;
 
 		synchronized (this.cardTerminalEventsListeners) {
-			copyOfListeners = new HashSet<CardTerminalEventsListener>(
-					this.cardTerminalEventsListeners);
+			copyOfListeners = new HashSet<>(this.cardTerminalEventsListeners);
 		}
 
 		for (CardTerminalEventsListener listener : copyOfListeners) {
 			try {
 				listener.terminalEventsInitialized();
 			} catch (final Exception thrownInListener) {
-				this.logger
-						.error("Exception thrown in CardTerminalEventsListener.terminalAttached:"
-								+ thrownInListener.getMessage());
+				this.logger.error("Exception thrown in CardTerminalEventsListener.terminalAttached:"
+						+ thrownInListener.getMessage());
 			}
 		}
 	}
@@ -651,8 +610,7 @@ public class CardAndTerminalManager implements Runnable {
 			Set<CardTerminalEventsListener> copyOfListeners;
 
 			synchronized (this.cardTerminalEventsListeners) {
-				copyOfListeners = new HashSet<CardTerminalEventsListener>(
-						this.cardTerminalEventsListeners);
+				copyOfListeners = new HashSet<>(this.cardTerminalEventsListeners);
 			}
 
 			for (CardTerminal terminal : attached) {
@@ -660,9 +618,8 @@ public class CardAndTerminalManager implements Runnable {
 					try {
 						listener.terminalAttached(terminal);
 					} catch (final Exception thrownInListener) {
-						this.logger
-								.error("Exception thrown in CardTerminalEventsListener.terminalAttached:"
-										+ thrownInListener.getMessage());
+						this.logger.error("Exception thrown in CardTerminalEventsListener.terminalAttached:"
+								+ thrownInListener.getMessage());
 					}
 				}
 			}
@@ -675,8 +632,7 @@ public class CardAndTerminalManager implements Runnable {
 			Set<CardTerminalEventsListener> copyOfListeners;
 
 			synchronized (this.cardTerminalEventsListeners) {
-				copyOfListeners = new HashSet<CardTerminalEventsListener>(
-						this.cardTerminalEventsListeners);
+				copyOfListeners = new HashSet<>(this.cardTerminalEventsListeners);
 			}
 
 			for (CardTerminal terminal : detached) {
@@ -684,9 +640,8 @@ public class CardAndTerminalManager implements Runnable {
 					try {
 						listener.terminalDetached(terminal);
 					} catch (final Exception thrownInListener) {
-						this.logger
-								.error("Exception thrown in CardTerminalEventsListener.terminalDetached:"
-										+ thrownInListener.getMessage());
+						this.logger.error("Exception thrown in CardTerminalEventsListener.terminalDetached:"
+								+ thrownInListener.getMessage());
 					}
 				}
 			}
@@ -694,14 +649,12 @@ public class CardAndTerminalManager implements Runnable {
 	}
 
 	// Tell listeners about removed cards
-	private void listenersTerminalsWithCardsRemoved(
-			final Set<CardTerminal> removed) {
+	private void listenersTerminalsWithCardsRemoved(final Set<CardTerminal> removed) {
 		if (!removed.isEmpty()) {
 			Set<CardEventsListener> copyOfListeners;
 
 			synchronized (this.cardEventsListeners) {
-				copyOfListeners = new HashSet<CardEventsListener>(
-						this.cardEventsListeners);
+				copyOfListeners = new HashSet<>(this.cardEventsListeners);
 			}
 
 			for (CardTerminal terminal : removed) {
@@ -709,9 +662,8 @@ public class CardAndTerminalManager implements Runnable {
 					try {
 						listener.cardRemoved(terminal);
 					} catch (final Exception thrownInListener) {
-						this.logger
-								.error("Exception thrown in CardEventsListener.cardRemoved:"
-										+ thrownInListener.getMessage());
+						this.logger.error(
+								"Exception thrown in CardEventsListener.cardRemoved:" + thrownInListener.getMessage());
 					}
 				}
 			}
@@ -723,14 +675,12 @@ public class CardAndTerminalManager implements Runnable {
 	// if this.autoconnect is enabled (the default), the card argument may be
 	// automatically
 	// filled out, but it may still be null, if the connect failed.
-	private void listenersTerminalsWithCardsInserted(
-			final Set<CardTerminal> inserted) {
+	private void listenersTerminalsWithCardsInserted(final Set<CardTerminal> inserted) {
 		if (!inserted.isEmpty()) {
 			Set<CardEventsListener> copyOfListeners;
 
 			synchronized (this.cardEventsListeners) {
-				copyOfListeners = new HashSet<CardEventsListener>(
-						this.cardEventsListeners);
+				copyOfListeners = new HashSet<>(this.cardEventsListeners);
 			}
 
 			for (CardTerminal terminal : inserted) {
@@ -740,9 +690,8 @@ public class CardAndTerminalManager implements Runnable {
 					try {
 						card = terminal.connect(this.protocol.getProtocol());
 					} catch (final CardException cex) {
-						this.logger.debug("terminal.connect("
-								+ this.protocol.getProtocol() + ") failed. "
-								+ cex.getMessage());
+						this.logger.debug(
+								"terminal.connect(" + this.protocol.getProtocol() + ") failed. " + cex.getMessage());
 					}
 				}
 
@@ -750,9 +699,8 @@ public class CardAndTerminalManager implements Runnable {
 					try {
 						listener.cardInserted(terminal, card);
 					} catch (final Exception thrownInListener) {
-						this.logger
-								.error("Exception thrown in CardEventsListener.cardInserted:"
-										+ thrownInListener.getMessage());
+						this.logger.error(
+								"Exception thrown in CardEventsListener.cardInserted:" + thrownInListener.getMessage());
 					}
 
 				}
