@@ -20,7 +20,6 @@
 package be.fedict.commons.eid.jca;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
@@ -188,43 +187,6 @@ public class BeIDPrivateKey implements PrivateKey {
 			}
 			throw new SignatureException(ex);
 		}
-		if (digestAlgo.endsWith("-ECDSA")) {
-			return toDERSignature(signatureValue);
-		}
 		return signatureValue;
-	}
-
-	/**
-	 * Converts a RAW EC R||S signature to DER encoded format.
-	 * 
-	 * @param rawSign
-	 * @return
-	 * @throws IOException
-	 */
-	private byte[] toDERSignature(byte[] rawSign) {
-		int len = rawSign.length / 2;
-
-		byte[] rawR = new byte[len];
-		byte[] rawS = new byte[len];
-		System.arraycopy(rawSign, 0, rawR, 0, len);
-		System.arraycopy(rawSign, len, rawS, 0, len);
-
-		BigInteger bigIntR = new BigInteger(1, rawR);
-		BigInteger bigIntS = new BigInteger(1, rawS);
-
-		byte[] r = bigIntR.toByteArray();
-		byte[] s = bigIntS.toByteArray();
-
-		byte[] der = new byte[r.length + s.length + 6];
-		der[0] = 0x30;
-		der[1] = (byte) (r.length + s.length + 4);
-		der[2] = 0x02;
-		der[3] = (byte) r.length;
-		System.arraycopy(r, 0, der, 4, r.length);
-		der[4 + r.length] = 0x02;
-		der[5 + r.length] = (byte) s.length;
-		System.arraycopy(s, 0, der, 6 + r.length, s.length);
-
-		return der;
 	}
 }

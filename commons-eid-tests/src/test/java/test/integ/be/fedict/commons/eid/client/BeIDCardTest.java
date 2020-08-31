@@ -308,10 +308,6 @@ public class BeIDCardTest {
 		}
 
 		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
-		if (beIDCard.isEC()) {
-			signatureValue = beIDIntegrity.toDERSignature(signatureValue);
-		}
-
 		final boolean result = beIDIntegrity.verifyNonRepSignature(digestValue, signatureValue, signingCertificate);
 		assertTrue(result);
 	}
@@ -336,9 +332,6 @@ public class BeIDCardTest {
 		} finally {
 			beIDCard.close();
 		}
-
-		LOGGER.debug("signature size: {} bytes", signatureValue.length);
-		// signature value := r || s
 
 		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		final boolean result = beIDIntegrity.verifyAuthnSignature(toBeSigned, signatureValue, certificate);

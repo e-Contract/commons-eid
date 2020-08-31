@@ -21,7 +21,6 @@ package be.fedict.commons.eid.consumer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -39,11 +38,8 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x509.DigestInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
@@ -250,14 +246,6 @@ public class BeIDIntegrity {
 	public boolean verifyAuthnSignature(final byte[] toBeSigned, byte[] signatureValue,
 			final X509Certificate authnCertificate) {
 		final PublicKey publicKey = authnCertificate.getPublicKey();
-		if ("EC".equals(publicKey.getAlgorithm())) {
-			try {
-				signatureValue = toDERSignature(signatureValue);
-			} catch (IOException e) {
-				LOGGER.warn("DER encoding error: " + e.getMessage(), e);
-				return false;
-			}
-		}
 		boolean result;
 		try {
 			result = this.verifySignature(signatureValue, publicKey, toBeSigned);
@@ -272,29 +260,6 @@ public class BeIDIntegrity {
 			return false;
 		}
 		return result;
-	}
-
-	/**
-	 * Converts a RAW EC R||S signature to DER encoded format.
-	 * 
-	 * @param rawSign
-	 * @return
-	 * @throws IOException
-	 */
-	public byte[] toDERSignature(byte[] rawSign) throws IOException {
-		int len = rawSign.length / 2;
-
-		byte[] r = new byte[len];
-		byte[] s = new byte[len];
-		System.arraycopy(rawSign, 0, r, 0, len);
-		System.arraycopy(rawSign, len, s, 0, len);
-
-		ASN1EncodableVector v = new ASN1EncodableVector();
-		v.add(new ASN1Integer(new BigInteger(1, r)));
-		v.add(new ASN1Integer(new BigInteger(1, s)));
-
-		DERSequence seq = new DERSequence(v);
-		return seq.getEncoded();
 	}
 
 	/**
