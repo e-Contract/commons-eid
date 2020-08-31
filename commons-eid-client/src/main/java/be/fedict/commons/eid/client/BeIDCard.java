@@ -653,6 +653,22 @@ public class BeIDCard {
 				applicationName);
 	}
 
+	public byte[] internalAuthenticate(byte[] challenge) throws CardException {
+		if (challenge.length != 48) {
+			throw new IllegalArgumentException("challenge size incorrect");
+		}
+		byte[] data = new byte[challenge.length + 2];
+		data[0] = (byte) 0x94;
+		data[1] = (byte) challenge.length;
+		System.arraycopy(challenge, 0, data, 2, challenge.length);
+
+		ResponseAPDU responseApdu = transmitCommand(BeIDCommandAPDU.INTERNAL_AUTHENTICATE, data);
+		if (0x9000 != responseApdu.getSW()) {
+			throw new RuntimeException("INTERNAL AUTHENTICATE failed: " + Integer.toHexString(responseApdu.getSW()));
+		}
+		return toDERSignature(responseApdu.getData());
+	}
+
 	/**
 	 * Verifying PIN Code (without other actions, for testing PIN), using the most
 	 * secure method available. Note that this still has the side effect of loading
@@ -1714,7 +1730,9 @@ public class BeIDCard {
 
 		GET_CARD_DATA_1_8(0x80, 0xE4, 0x00, 0x01),
 
-		PPDU(0xFF, 0xC2, 0x01);
+		PPDU(0xFF, 0xC2, 0x01),
+
+		INTERNAL_AUTHENTICATE(0x00, 0x88, 0x02, 0x81);
 
 		private final int cla;
 		private final int ins;

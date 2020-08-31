@@ -100,6 +100,22 @@ public class BeIDCardTest {
 	}
 
 	@Test
+	public void testBasicPublic() throws Exception {
+		final BeIDCard beIDCard = getBeIDCard();
+		beIDCard.addCardListener(new TestBeIDCardListener());
+
+		LOGGER.debug("reading basic public key file");
+		final byte[] basicPublicFile = beIDCard.readFile(FileType.BasicPublic);
+		LOGGER.debug("basic public key file size: {}", basicPublicFile.length);
+
+		final byte[] toBeSigned = "hello world".getBytes();
+		final MessageDigest messageDigest = MessageDigest.getInstance("SHA-384");
+		final byte[] digestValue = messageDigest.digest(toBeSigned);
+
+		byte[] signatureValue = beIDCard.internalAuthenticate(digestValue);
+	}
+
+	@Test
 	public void testAddressFileValidation() throws Exception {
 		final BeIDCard beIDCard = getBeIDCard();
 		beIDCard.addCardListener(new TestBeIDCardListener());
