@@ -78,6 +78,29 @@ public class JCATest {
 	}
 
 	@Test
+	public void testGenericSignatureCreation() throws Exception {
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		String signatureAlgorithm;
+		switch (authnPrivateKey.getAlgorithm()) {
+		case "RSA":
+			signatureAlgorithm = "SHA256withRSA";
+			break;
+		case "EC":
+			signatureAlgorithm = "SHA256withECDSA";
+			break;
+		default:
+			throw new IllegalStateException("unsupported key algo");
+		}
+		Signature signature = Signature.getInstance(signatureAlgorithm);
+		signature.initSign(authnPrivateKey);
+		byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		byte[] signatureValue = signature.sign();
+	}
+
+	@Test
 	public void testSwingParentLocale() throws Exception {
 		final JFrame frame = new JFrame("Test Parent frame");
 		frame.setSize(200, 200);

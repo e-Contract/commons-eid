@@ -13,13 +13,27 @@ Commons eID JCA
 * Creating a signature
 
   Creating a signature using the Commons eID JCA provider is as easy as it can get.
+  
+  Given the new Belpic version 1.8 eID cards, you always need to determine the key algorithm supported by the eID card.
+  Depending on the key algorithm, you select either RSA or ECDSA as signature algorithm as shown in the following example.
 
 +---
 Security.addProvider(new BeIDProvider());
 KeyStore keyStore = KeyStore.getInstance("BeID");
-keyStore.init(null);
+keyStore.load(null);
 PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
-Signature signature = Signature.getInstance("SHA1withRSA");
+String signatureAlgorithm;
+switch (authnPrivateKey.getAlgorithm()) {
+case "RSA":
+	signatureAlgorithm = "SHA256withRSA";
+	break;
+case "EC":
+	signatureAlgorithm = "SHA256withECDSA";
+	break;
+default:
+	throw new IllegalStateException("unsupported key algo");
+}
+Signature signature = Signature.getInstance(signatureAlgorithm);
 signature.initSign(authnPrivateKey);
 byte[] toBeSigned = "hello world".getBytes();
 signature.update(toBeSigned);
@@ -50,13 +64,25 @@ byte[] signatureValue = signature.sign();
   
   * <<<SHA256withRSAandMGF1>>> (recent eID cards only)
   
+  * <<<SHA256withECDSA>>> (eID version 1.8 cards only)
+  
+  * <<<SHA384withECDSA>>> (eID version 1.8 cards only)
+  
+  * <<<SHA512withECDSA>>> (eID version 1.8 cards only)
+  
+  * <<<SHA3-256withECDSA>>> (eID version 1.8 cards only)
+  
+  * <<<SHA3-384withECDSA>>> (eID version 1.8 cards only)
+  
+  * <<<SHA3-512withECDSA>>> (eID version 1.8 cards only)
+  
 
 * Retrieving a certificate chain
 
 +---
 Security.addProvider(new BeIDProvider());
 KeyStore keyStore = KeyStore.getInstance("BeID");
-keyStore.init(null);
+keyStore.load(null);
 Certificate[] certificateChain = keyStore.getCertificateChain("Signature");
 +---
 
