@@ -71,6 +71,12 @@ public enum BeIDDigest {
 
 	ECDSA_SHA_2_512(new byte[] {}, 0x04, true),
 
+	ECDSA_SHA_3_256(new byte[] {}, 0x08, true),
+
+	ECDSA_SHA_3_384(new byte[] {}, 0x10, true),
+
+	ECDSA_SHA_3_512(new byte[] {}, 0x20, true),
+
 	NONE(new byte[] {});
 
 	private final byte[] prefix;

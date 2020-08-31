@@ -36,11 +36,13 @@ import java.security.KeyStore.ProtectionParameter;
 import java.security.KeyStore.TrustedCertificateEntry;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.ECGenParameterSpec;
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -52,6 +54,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,10 +71,14 @@ public class JCATest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JCATest.class);
 
+	@BeforeAll
+	public static void setup() {
+		Security.addProvider(new BeIDProvider());
+		Security.addProvider(new BouncyCastleProvider());
+	}
+
 	@Test
 	public void testSwingParentLocale() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		final JFrame frame = new JFrame("Test Parent frame");
 		frame.setSize(200, 200);
 		frame.setLocation(300, 300);
@@ -112,8 +119,6 @@ public class JCATest {
 
 	@Test
 	public void testSwingParent2() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		MyFrame myFrame = new MyFrame();
 
 		final KeyStore keyStore = KeyStore.getInstance("BeID");
@@ -135,8 +140,6 @@ public class JCATest {
 
 	@Test
 	public void testRecoveryAfterRemoval() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 
@@ -168,8 +171,6 @@ public class JCATest {
 	 */
 	@Test
 	public void testAutoRecovery() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
 		keyStoreParameter.setAutoRecovery(true);
@@ -202,8 +203,6 @@ public class JCATest {
 
 	@Test
 	public void testGetCertificateCaching() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 
@@ -215,7 +214,6 @@ public class JCATest {
 	@Test
 	public void testCAAliases() throws Exception {
 		// setup
-		Security.addProvider(new BeIDProvider());
 		final KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 
@@ -236,7 +234,6 @@ public class JCATest {
 	@Test
 	public void testRRNCertificate() throws Exception {
 		// setup
-		Security.addProvider(new BeIDProvider());
 		final KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 
@@ -261,8 +258,6 @@ public class JCATest {
 
 	@Test
 	public void testAuthenticationSignatures() throws Exception {
-		Security.addProvider(new BeIDProvider());
-		Security.addProvider(new BouncyCastleProvider());
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
@@ -280,7 +275,6 @@ public class JCATest {
 
 	@Test
 	public void testNonRepudiationSignature() throws Exception {
-		Security.addProvider(new BeIDProvider());
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature", null);
@@ -297,8 +291,6 @@ public class JCATest {
 
 	@Test
 	public void testNonRepudiationSignaturePPDU() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		BeIDKeyStoreParameter beIDKeyStoreParameter = new BeIDKeyStoreParameter();
 		beIDKeyStoreParameter.addPPDUName("digipass 870");
 		beIDKeyStoreParameter.addPPDUName("digipass 875");
@@ -321,8 +313,6 @@ public class JCATest {
 
 	@Test
 	public void testLocale() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		BeIDKeyStoreParameter beIDKeyStoreParameter = new BeIDKeyStoreParameter();
 		beIDKeyStoreParameter.setLocale(Locale.FRENCH);
@@ -341,8 +331,6 @@ public class JCATest {
 
 	@Test
 	public void testCancelOperation() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		final KeyStore keyStore = KeyStore.getInstance("BeID");
 		final BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
 		final BeIDCard beIDCard = getBeIDCard();
@@ -371,8 +359,6 @@ public class JCATest {
 
 	@Test
 	public void testBeIDSignature() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		final KeyStore keyStore = KeyStore.getInstance("BeID");
 		final BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
 		final BeIDCard beIDCard = getBeIDCard();
@@ -425,8 +411,6 @@ public class JCATest {
 
 	@Test
 	public void testPSSPrefix() throws Exception {
-		Security.addProvider(new BeIDProvider());
-		Security.addProvider(new BouncyCastleProvider());
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
@@ -456,8 +440,6 @@ public class JCATest {
 
 	@Test
 	public void testPSS256() throws Exception {
-		Security.addProvider(new BeIDProvider());
-		Security.addProvider(new BouncyCastleProvider());
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
@@ -479,8 +461,6 @@ public class JCATest {
 
 	@Test
 	public void testAuthenticationWithApplicationName() throws Exception {
-		Security.addProvider(new BeIDProvider());
-		Security.addProvider(new BouncyCastleProvider());
 		BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
 		keyStoreParameter.setApplicationName("Commons eID Integration Test");
 		keyStoreParameter.setLogoff(true);
@@ -528,8 +508,6 @@ public class JCATest {
 
 	@Test
 	public void testAutoFindCard() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		final KeyStore keyStore = KeyStore.getInstance("BeID");
 		BeIDKeyStoreParameter beIDKeyStoreParameter = new BeIDKeyStoreParameter();
 		beIDKeyStoreParameter.setLocale(new Locale("fr"));
@@ -548,8 +526,6 @@ public class JCATest {
 
 	@Test
 	public void testGetEntry() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		final KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry("Authentication", null);
@@ -567,8 +543,6 @@ public class JCATest {
 
 	@Test
 	public void testECDSA() throws Exception {
-		Security.addProvider(new BeIDProvider());
-		Security.addProvider(new BouncyCastleProvider());
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
@@ -581,13 +555,44 @@ public class JCATest {
 		verifySignatureAlgorithm("SHA384withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA512withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 
-		verifySignatureAlgorithm("SHA256withECDSA", signPrivateKey, signCertificate.getPublicKey());
-		verifySignatureAlgorithm("SHA384withECDSA", signPrivateKey, signCertificate.getPublicKey());
-		verifySignatureAlgorithm("SHA512withECDSA", signPrivateKey, signCertificate.getPublicKey());
+		// verifySignatureAlgorithm("SHA256withECDSA", signPrivateKey,
+		// signCertificate.getPublicKey());
+		// verifySignatureAlgorithm("SHA384withECDSA", signPrivateKey,
+		// signCertificate.getPublicKey());
+		// verifySignatureAlgorithm("SHA512withECDSA", signPrivateKey,
+		// signCertificate.getPublicKey());
+
+		verifySignatureAlgorithm("SHA3-256withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA3-384withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA3-512withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
+	}
+
+	@Test
+	public void testECDSA_SHA3() throws Exception {
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+		ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp384r1");
+		keyGen.initialize(ecSpec, random);
+
+		KeyPair keyPair = keyGen.generateKeyPair();
+		PrivateKey privateKey = keyPair.getPrivate();
+		PublicKey publicKey = keyPair.getPublic();
+
+		Signature signature = Signature.getInstance("SHA3-256withECDSA");
+		signature.initSign(privateKey);
+		final byte[] toBeSigned = "hello world".getBytes();
+		signature.update(toBeSigned);
+		final byte[] signatureValue = signature.sign();
+		LOGGER.debug("signature size: {} bytes", signatureValue.length);
+		signature.initVerify(publicKey);
+		LOGGER.debug("signature provider: {}", signature.getProvider().getName());
+		signature.update(toBeSigned);
+		final boolean result = signature.verify(signatureValue);
+		assertTrue(result);
 	}
 
 	private void verifySignatureAlgorithm(final String signatureAlgorithm, final PrivateKey privateKey,
-			final PublicKey publicKey) throws Exception {
+			PublicKey publicKey) throws Exception {
 		Signature signature = Signature.getInstance(signatureAlgorithm);
 		signature.initSign(privateKey);
 		assertTrue(signature.getProvider() instanceof BeIDProvider);
@@ -596,8 +601,16 @@ public class JCATest {
 		signature.update(toBeSigned);
 		final byte[] signatureValue = signature.sign();
 		assertNotNull(signatureValue);
+		LOGGER.debug("signature size: {} bytes", signatureValue.length);
 
+		if (signatureAlgorithm.startsWith("SHA3-")) {
+			// KeyFactory keyFactory = KeyFactory.getInstance("EC",
+			// BouncyCastleProvider.PROVIDER_NAME);
+			// publicKey = keyFactory.generatePublic(new
+			// X509EncodedKeySpec(publicKey.getEncoded()));
+		}
 		signature.initVerify(publicKey);
+		LOGGER.debug("signature provider: {}", signature.getProvider().getName());
 		signature.update(toBeSigned);
 		final boolean beIDResult = signature.verify(signatureValue);
 		assertTrue(beIDResult);

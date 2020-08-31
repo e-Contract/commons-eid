@@ -20,6 +20,7 @@
 package be.fedict.commons.eid.jca;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
@@ -84,6 +85,9 @@ public class BeIDPrivateKey implements PrivateKey {
 		beIDDigests.put("SHA-256-ECDSA", BeIDDigest.ECDSA_SHA_2_256);
 		beIDDigests.put("SHA-384-ECDSA", BeIDDigest.ECDSA_SHA_2_384);
 		beIDDigests.put("SHA-512-ECDSA", BeIDDigest.ECDSA_SHA_2_512);
+		beIDDigests.put("SHA3-256-ECDSA", BeIDDigest.ECDSA_SHA_3_256);
+		beIDDigests.put("SHA3-384-ECDSA", BeIDDigest.ECDSA_SHA_3_384);
+		beIDDigests.put("SHA3-512-ECDSA", BeIDDigest.ECDSA_SHA_3_512);
 	}
 
 	/**
@@ -200,15 +204,26 @@ public class BeIDPrivateKey implements PrivateKey {
 	private byte[] toDERSignature(byte[] rawSign) {
 		int len = rawSign.length / 2;
 
-		byte[] der = new byte[rawSign.length + 6];
+		byte[] rawR = new byte[len];
+		byte[] rawS = new byte[len];
+		System.arraycopy(rawSign, 0, rawR, 0, len);
+		System.arraycopy(rawSign, len, rawS, 0, len);
+
+		BigInteger bigIntR = new BigInteger(1, rawR);
+		BigInteger bigIntS = new BigInteger(1, rawS);
+
+		byte[] r = bigIntR.toByteArray();
+		byte[] s = bigIntS.toByteArray();
+
+		byte[] der = new byte[r.length + s.length + 6];
 		der[0] = 0x30;
-		der[1] = (byte) (rawSign.length + 4);
+		der[1] = (byte) (r.length + s.length + 4);
 		der[2] = 0x02;
-		der[3] = (byte) len;
-		System.arraycopy(rawSign, 0, der, 4, len);
-		der[4 + len] = 0x02;
-		der[5 + len] = (byte) len;
-		System.arraycopy(rawSign, len, der, 6 + len, len);
+		der[3] = (byte) r.length;
+		System.arraycopy(r, 0, der, 4, r.length);
+		der[4 + r.length] = 0x02;
+		der[5 + r.length] = (byte) s.length;
+		System.arraycopy(s, 0, der, 6 + r.length, s.length);
 
 		return der;
 	}

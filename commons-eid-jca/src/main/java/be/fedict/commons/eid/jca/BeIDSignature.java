@@ -53,6 +53,9 @@ import org.slf4j.LoggerFactory;
  * <li><code>SHA256withECDSA</code>, supported by eID version 1.8 cards.</li>
  * <li><code>SHA384withECDSA</code>, supported by eID version 1.8 cards.</li>
  * <li><code>SHA512withECDSA</code>, supported by eID version 1.8 cards.</li>
+ * <li><code>SHA3-256withECDSA</code>, supported by eID version 1.8 cards.</li>
+ * <li><code>SHA3-384withECDSA</code>, supported by eID version 1.8 cards.</li>
+ * <li><code>SHA3-512withECDSA</code>, supported by eID version 1.8 cards.</li>
  * </ul>
  *
  * Some of the more exotic digest algorithms like SHA-224 and RIPEMDxxx will
@@ -93,6 +96,9 @@ public class BeIDSignature extends SignatureSpi {
 		digestAlgos.put("SHA256withECDSA", "SHA-256");
 		digestAlgos.put("SHA384withECDSA", "SHA-384");
 		digestAlgos.put("SHA512withECDSA", "SHA-512");
+		digestAlgos.put("SHA3-256withECDSA", "SHA3-256");
+		digestAlgos.put("SHA3-384withECDSA", "SHA3-384");
+		digestAlgos.put("SHA3-512withECDSA", "SHA3-512");
 	}
 
 	BeIDSignature(final String signatureAlgorithm) throws NoSuchAlgorithmException {
