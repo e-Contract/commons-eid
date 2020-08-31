@@ -25,6 +25,7 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -44,6 +45,7 @@ import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x509.DigestInfo;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -279,7 +281,7 @@ public class BeIDIntegrity {
 	 * @return
 	 * @throws IOException
 	 */
-	private byte[] toDERSignature(byte[] rawSign) throws IOException {
+	public byte[] toDERSignature(byte[] rawSign) throws IOException {
 		int len = rawSign.length / 2;
 
 		byte[] r = new byte[len];
@@ -305,8 +307,22 @@ public class BeIDIntegrity {
 	 */
 	public boolean verifyNonRepSignature(final byte[] expectedDigestValue, final byte[] signatureValue,
 			final X509Certificate certificate) {
+		final PublicKey publicKey = certificate.getPublicKey();
+		return verifyNonRepSignature(expectedDigestValue, signatureValue, publicKey);
+	}
+
+	/**
+	 * Verifies a non-repudiation signature.
+	 * 
+	 * @param expectedDigestValue
+	 * @param signatureValue
+	 * @param publicKey
+	 * @return
+	 */
+	public boolean verifyNonRepSignature(final byte[] expectedDigestValue, final byte[] signatureValue,
+			final PublicKey publicKey) {
 		try {
-			return __verifyNonRepSignature(expectedDigestValue, signatureValue, certificate);
+			return __verifyNonRepSignature(expectedDigestValue, signatureValue, publicKey);
 		} catch (final InvalidKeyException ikex) {
 			LOGGER.warn("invalid key: " + ikex.getMessage(), ikex);
 			return false;
@@ -325,14 +341,31 @@ public class BeIDIntegrity {
 		} catch (final IllegalBlockSizeException ibex) {
 			LOGGER.warn("illegal block size: " + ibex.getMessage(), ibex);
 			return false;
+		} catch (NoSuchProviderException e) {
+			LOGGER.warn("no such provider: " + e.getMessage(), e);
+			return false;
+		} catch (SignatureException e) {
+			LOGGER.warn("signature error: " + e.getMessage(), e);
+			return false;
 		}
 	}
 
 	private boolean __verifyNonRepSignature(final byte[] expectedDigestValue, final byte[] signatureValue,
-			final X509Certificate certificate) throws NoSuchAlgorithmException, NoSuchPaddingException,
-			InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
-		final PublicKey publicKey = certificate.getPublicKey();
+			final PublicKey publicKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+			IllegalBlockSizeException, BadPaddingException, IOException, NoSuchProviderException, SignatureException {
+		switch (publicKey.getAlgorithm()) {
+		case "RSA":
+			return __verifyNonRepSignatureRSA(expectedDigestValue, signatureValue, publicKey);
+		case "EC":
+			return __verifyNonRepSignatureEC(expectedDigestValue, signatureValue, publicKey);
+		default:
+			throw new IllegalArgumentException("unsupported key algo: " + publicKey.getAlgorithm());
+		}
+	}
 
+	private boolean __verifyNonRepSignatureRSA(final byte[] expectedDigestValue, final byte[] signatureValue,
+			final PublicKey publicKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+			IllegalBlockSizeException, BadPaddingException, IOException {
 		final Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.DECRYPT_MODE, publicKey);
 		final byte[] actualSignatureDigestInfoValue = cipher.doFinal(signatureValue);
@@ -344,6 +377,15 @@ public class BeIDIntegrity {
 
 		final byte[] actualDigestValue = actualSignatureDigestInfo.getDigest();
 		return Arrays.equals(expectedDigestValue, actualDigestValue);
+	}
+
+	private boolean __verifyNonRepSignatureEC(final byte[] expectedDigestValue, final byte[] signatureValue,
+			final PublicKey publicKey) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException,
+			SignatureException, IOException {
+		Signature signature = Signature.getInstance("NONEwithECDSA", BouncyCastleProvider.PROVIDER_NAME);
+		signature.initVerify(publicKey);
+		signature.update(expectedDigestValue);
+		return signature.verify(signatureValue);
 	}
 
 	private String getDigestAlgo(final int hashSize) throws SecurityException {
@@ -359,7 +401,6 @@ public class BeIDIntegrity {
 		case 64:
 			return "SHA-512";
 		}
-
 		throw new SecurityException("Failed to find guess algorithm for hash size of " + hashSize + " bytes");
 	}
 }

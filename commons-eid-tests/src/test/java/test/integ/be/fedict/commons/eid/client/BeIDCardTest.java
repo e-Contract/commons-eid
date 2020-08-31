@@ -32,6 +32,7 @@ import java.security.cert.X509Certificate;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,11 @@ public class BeIDCardTest {
 	protected static final Logger LOGGER = LoggerFactory.getLogger(BeIDCardTest.class);
 
 	protected BeIDCards beIDCards;
+
+	@BeforeAll
+	public static void setup() throws Exception {
+		Security.addProvider(new BouncyCastleProvider());
+	}
 
 	@Test
 	public void testReadFiles() throws Exception {
@@ -218,8 +224,6 @@ public class BeIDCardTest {
 			beIDCard.close();
 		}
 
-		Security.addProvider(new BouncyCastleProvider());
-
 		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		final boolean result = beIDIntegrity.verifySignature("SHA1withRSAandMGF1", signatureValue,
 				authnCertificate.getPublicKey(), toBeSigned);
@@ -247,8 +251,6 @@ public class BeIDCardTest {
 		} finally {
 			beIDCard.close();
 		}
-
-		Security.addProvider(new BouncyCastleProvider());
 
 		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		final boolean result = beIDIntegrity.verifySignature("SHA256withRSAandMGF1", signatureValue,
@@ -283,15 +285,22 @@ public class BeIDCardTest {
 		final byte[] toBeSigned = new byte[10];
 		final SecureRandom secureRandom = new SecureRandom();
 		secureRandom.nextBytes(toBeSigned);
-		final MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
+		final MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 		final byte[] digestValue = messageDigest.digest(toBeSigned);
 
 		final BeIDCard beIDCard = getBeIDCard();
 
+		BeIDDigest beidDigest;
+		if (beIDCard.isEC()) {
+			beidDigest = BeIDDigest.ECDSA_SHA_2_256;
+		} else {
+			beidDigest = BeIDDigest.SHA_256;
+		}
+
 		X509Certificate signingCertificate;
 		byte[] signatureValue;
 		try {
-			signatureValue = beIDCard.sign(digestValue, BeIDDigest.SHA_1, FileType.NonRepudiationCertificate, false);
+			signatureValue = beIDCard.sign(digestValue, beidDigest, FileType.NonRepudiationCertificate, false);
 			assertNotNull(signatureValue);
 			signingCertificate = beIDCard.getSigningCertificate();
 		} finally {
@@ -299,6 +308,10 @@ public class BeIDCardTest {
 		}
 
 		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		if (beIDCard.isEC()) {
+			signatureValue = beIDIntegrity.toDERSignature(signatureValue);
+		}
+
 		final boolean result = beIDIntegrity.verifyNonRepSignature(digestValue, signatureValue, signingCertificate);
 		assertTrue(result);
 	}

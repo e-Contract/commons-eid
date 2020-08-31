@@ -21,11 +21,23 @@ package test.unit.be.fedict.commons.eid.consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.Signature;
 import java.security.cert.X509Certificate;
+import java.security.spec.ECGenParameterSpec;
 
 import org.apache.commons.io.IOUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +49,11 @@ import be.fedict.commons.eid.consumer.Identity;
 public class BeIDIntegrityTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDIntegrityTest.class);
+
+	@BeforeAll
+	public static void setup() throws Exception {
+		Security.addProvider(new BouncyCastleProvider());
+	}
 
 	@Test
 	public void testIdentityIntegrity() throws Exception {
@@ -174,5 +191,52 @@ public class BeIDIntegrityTest {
 		} catch (SecurityException e) {
 			// expected
 		}
+	}
+
+	@Test
+	public void testVerifyNonRepSignatureRSA() throws Exception {
+		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+		PrivateKey privateKey = keyPair.getPrivate();
+		PublicKey publicKey = keyPair.getPublic();
+
+		byte[] data = "hello world".getBytes();
+		Signature signature = Signature.getInstance("SHA256withRSA");
+		signature.initSign(privateKey);
+		signature.update(data);
+		byte[] signatureValue = signature.sign();
+
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		byte[] digestValue = messageDigest.digest(data);
+
+		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		boolean result = beIDIntegrity.verifyNonRepSignature(digestValue, signatureValue, publicKey);
+		assertTrue(result);
+	}
+
+	@Test
+	public void testVerifyNonRepSignatureEC() throws Exception {
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+		ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp384r1");
+		keyGen.initialize(ecSpec, random);
+
+		KeyPair keyPair = keyGen.generateKeyPair();
+		PrivateKey privateKey = keyPair.getPrivate();
+		PublicKey publicKey = keyPair.getPublic();
+
+		Signature signature = Signature.getInstance("SHA256withECDSA");
+
+		byte[] data = "hello world".getBytes();
+		signature.initSign(privateKey);
+		signature.update(data);
+		byte[] signatureValue = signature.sign();
+
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		byte[] digestValue = messageDigest.digest(data);
+
+		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		boolean result = beIDIntegrity.verifyNonRepSignature(digestValue, signatureValue, publicKey);
+		assertTrue(result);
 	}
 }

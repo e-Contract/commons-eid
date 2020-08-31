@@ -13,6 +13,9 @@
 		<Logger name="test.unit" level="debug" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
+		<Logger name="be.fedict.commons.eid.consumer" level="debug" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
 		<Root level="warn">
 			<AppenderRef ref="Console" />
 		</Root>
