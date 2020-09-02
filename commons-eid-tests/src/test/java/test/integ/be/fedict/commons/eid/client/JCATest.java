@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigInteger;
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -43,6 +44,8 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -600,6 +603,11 @@ public class JCATest {
 		KeyPair keyPair = keyGen.generateKeyPair();
 		PrivateKey privateKey = keyPair.getPrivate();
 		PublicKey publicKey = keyPair.getPublic();
+		LOGGER.debug("public key size: {} bytes", publicKey.getEncoded().length);
+
+		KeyFactory keyFactory = KeyFactory.getInstance("EC");
+		EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKey.getEncoded());
+		keyFactory.generatePublic(publicKeySpec);
 
 		Signature signature = Signature.getInstance("SHA3-256withECDSA");
 		signature.initSign(privateKey);

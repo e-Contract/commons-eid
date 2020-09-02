@@ -26,8 +26,10 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.Signature;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
 
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -104,16 +106,20 @@ public class BeIDCardTest {
 		final BeIDCard beIDCard = getBeIDCard();
 		beIDCard.addCardListener(new TestBeIDCardListener());
 
-		LOGGER.debug("reading basic public key file");
-		final byte[] basicPublicFile = beIDCard.readFile(FileType.BasicPublic);
-		LOGGER.debug("basic public key file size: {}", basicPublicFile.length);
-
 		final byte[] toBeSigned = "hello world".getBytes();
 		final MessageDigest messageDigest = MessageDigest.getInstance("SHA-384");
 		final byte[] digestValue = messageDigest.digest(toBeSigned);
 
 		byte[] signatureValue = beIDCard.internalAuthenticate(digestValue);
 		LOGGER.debug("signature size: {} bytes", signatureValue.length);
+
+		ECPublicKey basicPublicKey = beIDCard.getBasicPublicKey();
+
+		Signature signature = Signature.getInstance("SHA384withECDSA");
+		signature.initVerify(basicPublicKey);
+		signature.update(toBeSigned);
+		boolean result = signature.verify(signatureValue);
+		assertTrue(result);
 	}
 
 	@Test

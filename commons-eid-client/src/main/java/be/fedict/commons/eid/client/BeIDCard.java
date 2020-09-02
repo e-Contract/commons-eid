@@ -26,11 +26,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -114,6 +119,7 @@ public class BeIDCard {
 	private final CardChannel cardChannel;
 	private final List<BeIDCardListener> cardListeners;
 	private final CertificateFactory certificateFactory;
+	private final KeyFactory keyFactory;
 
 	private final Card card;
 	private final Logger logger;
@@ -146,8 +152,9 @@ public class BeIDCard {
 		this.cardListeners = new LinkedList<>();
 		try {
 			this.certificateFactory = CertificateFactory.getInstance("X.509");
-		} catch (final CertificateException e) {
-			throw new RuntimeException("X.509 algo", e);
+			this.keyFactory = KeyFactory.getInstance("EC");
+		} catch (final CertificateException | NoSuchAlgorithmException e) {
+			throw new RuntimeException("algo", e);
 		}
 	}
 
@@ -470,6 +477,22 @@ public class BeIDCard {
 
 	public List<byte[]> getRawRRNCertificateChain() throws CardException, IOException, InterruptedException {
 		return this.getRawCertificateChain(FileType.RRNCertificate);
+	}
+
+	/**
+	 * Gives back the basic public key file.
+	 * 
+	 * @return
+	 * @throws CardException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws InvalidKeySpecException
+	 */
+	public ECPublicKey getBasicPublicKey()
+			throws CardException, IOException, InterruptedException, InvalidKeySpecException {
+		final byte[] basicPublicFile = this.readFile(FileType.BasicPublic);
+		EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(basicPublicFile);
+		return (ECPublicKey) this.keyFactory.generatePublic(publicKeySpec);
 	}
 
 	/**
