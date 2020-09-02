@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 
 /**
  * Byte Array Fields Offset/Length Parser supports extraction of byte array
- * slices, unsigned 8 and 16-bit values from byte array integers
+ * slices, unsigned 8 and 16-bit values from byte array integers.
  * 
  * @author Frank Marien
  * @author Frank Cornelis

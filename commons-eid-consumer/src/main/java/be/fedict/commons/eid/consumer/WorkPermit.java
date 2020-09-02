@@ -22,6 +22,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Enumeration for the different work permit values.
+ * 
+ * @author Frank Cornelis
+ * @see Identity
+ */
 public enum WorkPermit implements Serializable {
 
 	JOB_MARKET_UNLIMITED("7"),

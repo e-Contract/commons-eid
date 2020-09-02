@@ -139,6 +139,20 @@ public class BeIDIntegrity {
 		return identity;
 	}
 
+	/**
+	 * Gives back a parsed identity file after integrity verification including the
+	 * eID photo. This method will also try to validation a card authentication
+	 * signature.
+	 * 
+	 * @param identityFile
+	 * @param identitySignatureFile
+	 * @param photo
+	 * @param challenge
+	 * @param cardSignatureValue
+	 * @param basicPublicKeyFile
+	 * @param rrnCertificate
+	 * @return
+	 */
 	public Identity getVerifiedIdentity(final byte[] identityFile, final byte[] identitySignatureFile,
 			final byte[] photo, final byte[] challenge, final byte[] cardSignatureValue,
 			final byte[] basicPublicKeyFile, final X509Certificate rrnCertificate) {
@@ -197,7 +211,7 @@ public class BeIDIntegrity {
 	}
 
 	/**
-	 * Verifies a SHA1withRSA signature.
+	 * Verifies a SHA1withRSA or SHA256withECDSA signature.
 	 * 
 	 * @param signatureData
 	 * @param publicKey

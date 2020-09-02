@@ -480,7 +480,8 @@ public class BeIDCard {
 	}
 
 	/**
-	 * Gives back the basic public key file.
+	 * Gives back the basic public key file. This file is available on belpic applet
+	 * version 1.8 eID cards.
 	 * 
 	 * @return
 	 * @throws CardException

@@ -27,7 +27,7 @@ import java.util.Map;
  * eID Special Status.
  * 
  * @author Frank Cornelis
- * 
+ * @see Identity
  */
 public enum SpecialStatus implements Serializable {
 

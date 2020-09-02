@@ -27,7 +27,7 @@ import java.util.Map;
  * Enumeration for eID Document Type.
  * 
  * @author Frank Cornelis
- * 
+ * @see Identity
  */
 public enum DocumentType implements Serializable {
 

@@ -27,7 +27,7 @@ import java.util.Map;
  * Special Organisation enumeration.
  * 
  * @author Frank Cornelis
- * 
+ * @see Identity
  */
 public enum SpecialOrganisation implements Serializable {
 

@@ -264,6 +264,12 @@ public class Identity implements Serializable {
 		return this.data;
 	}
 
+	/**
+	 * Gives back the digest value of the basic public key. This field is available
+	 * on belpic applet version 1.8 eID cards.
+	 * 
+	 * @return
+	 */
 	public byte[] getBasicPublicKeyDigest() {
 		return this.basicPublicKeyDigest;
 	}

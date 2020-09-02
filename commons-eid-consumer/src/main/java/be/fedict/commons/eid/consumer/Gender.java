@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2020 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -24,7 +25,7 @@ import java.io.Serializable;
  * Gender enumeration. For the moment we only have 2 values. :)
  * 
  * @author Frank Cornelis
- * 
+ * @see Identity
  */
 public enum Gender implements Serializable {
 	/**
