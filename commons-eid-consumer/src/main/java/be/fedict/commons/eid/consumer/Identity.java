@@ -264,6 +264,10 @@ public class Identity implements Serializable {
 		return this.data;
 	}
 
+	public byte[] getBasicPublicKeyDigest() {
+		return this.basicPublicKeyDigest;
+	}
+
 	@Override
 	public String toString() {
 		return "[" + this.name + " " + this.firstName + "]";

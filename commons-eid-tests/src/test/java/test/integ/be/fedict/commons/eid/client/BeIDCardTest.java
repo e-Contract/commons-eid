@@ -123,6 +123,52 @@ public class BeIDCardTest {
 	}
 
 	@Test
+	public void testReadFilesWithCardAuthentication() throws Exception {
+		final BeIDCard beIDCard = getBeIDCard();
+		beIDCard.addCardListener(new TestBeIDCardListener());
+
+		LOGGER.debug("reading identity file");
+		final byte[] identityFile = beIDCard.readFile(FileType.Identity);
+		LOGGER.debug("reading identity signature file");
+		final byte[] identitySignatureFile = beIDCard.readFile(FileType.IdentitySignature);
+		LOGGER.debug("reading RRN certificate file");
+		final byte[] rrnCertificateFile = beIDCard.readFile(FileType.RRNCertificate);
+		LOGGER.debug("reading auth certificate file");
+		beIDCard.readFile(FileType.AuthentificationCertificate);
+		LOGGER.debug("reading sign certificate file");
+		beIDCard.readFile(FileType.NonRepudiationCertificate);
+		LOGGER.debug("reading root certificate file");
+		beIDCard.readFile(FileType.RootCertificate);
+		LOGGER.debug("reading CA certificate file");
+		beIDCard.readFile(FileType.CACertificate);
+		LOGGER.debug("reading Photo file");
+		final byte[] photoFile = beIDCard.readFile(FileType.Photo);
+		File photoFileFile = File.createTempFile("eid-photo-", ".jpg");
+		FileUtils.writeByteArrayToFile(photoFileFile, photoFile);
+		final byte[] basicPublicKeyFile = beIDCard.readFile(FileType.BasicPublic);
+
+		final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+		final X509Certificate rrnCertificate = (X509Certificate) certificateFactory
+				.generateCertificate(new ByteArrayInputStream(rrnCertificateFile));
+
+		final byte[] toBeSigned = "hello world".getBytes();
+		final MessageDigest messageDigest = MessageDigest.getInstance("SHA-384");
+		final byte[] digestValue = messageDigest.digest(toBeSigned);
+
+		byte[] signatureValue = beIDCard.internalAuthenticate(digestValue);
+
+		beIDCard.close();
+
+		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		final Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile, identitySignatureFile, photoFile,
+				toBeSigned, signatureValue, basicPublicKeyFile, rrnCertificate);
+
+		assertNotNull(identity);
+		assertNotNull(identity.getNationalNumber());
+		LOGGER.debug("eID photo file: {}", photoFileFile.getAbsoluteFile());
+	}
+
+	@Test
 	public void testAddressFileValidation() throws Exception {
 		final BeIDCard beIDCard = getBeIDCard();
 		beIDCard.addCardListener(new TestBeIDCardListener());

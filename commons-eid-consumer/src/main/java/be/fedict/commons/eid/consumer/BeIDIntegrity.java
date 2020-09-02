@@ -22,6 +22,7 @@ package be.fedict.commons.eid.consumer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -31,6 +32,8 @@ import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
@@ -58,6 +61,7 @@ public class BeIDIntegrity {
 	private final static Logger LOGGER = LoggerFactory.getLogger(BeIDIntegrity.class);
 
 	private final CertificateFactory certificateFactory;
+	private final KeyFactory keyFactory;
 
 	/**
 	 * Default constructor.
@@ -65,8 +69,9 @@ public class BeIDIntegrity {
 	public BeIDIntegrity() {
 		try {
 			this.certificateFactory = CertificateFactory.getInstance("X.509");
-		} catch (final CertificateException cex) {
-			throw new RuntimeException("X.509 algo", cex);
+			this.keyFactory = KeyFactory.getInstance("EC");
+		} catch (final CertificateException | NoSuchAlgorithmException cex) {
+			throw new RuntimeException("algo", cex);
 		}
 	}
 
@@ -130,6 +135,35 @@ public class BeIDIntegrity {
 			if (false == Arrays.equals(expectedPhotoDigest, actualPhotoDigest)) {
 				throw new SecurityException("photo digest mismatch");
 			}
+		}
+		return identity;
+	}
+
+	public Identity getVerifiedIdentity(final byte[] identityFile, final byte[] identitySignatureFile,
+			final byte[] photo, final byte[] challenge, final byte[] cardSignatureValue,
+			final byte[] basicPublicKeyFile, final X509Certificate rrnCertificate) {
+		Identity identity = getVerifiedIdentity(identityFile, identitySignatureFile, photo, rrnCertificate);
+
+		boolean result;
+		try {
+			EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(basicPublicKeyFile);
+			PublicKey basicPublicKey = this.keyFactory.generatePublic(publicKeySpec);
+			Signature signature = Signature.getInstance("SHA384withECDSA");
+			signature.initVerify(basicPublicKey);
+			signature.update(challenge);
+			result = signature.verify(cardSignatureValue);
+		} catch (Exception e) {
+			throw new SecurityException("card basic signature incorrect");
+		}
+		if (!result) {
+			throw new SecurityException("card basic signature incorrect");
+		}
+
+		byte[] expectedBasicPublicKeyDigest = identity.getBasicPublicKeyDigest();
+		byte[] actualBasicPublicKeyDigest = digest(getDigestAlgo(expectedBasicPublicKeyDigest.length),
+				basicPublicKeyFile);
+		if (false == Arrays.equals(expectedBasicPublicKeyDigest, actualBasicPublicKeyDigest)) {
+			throw new SecurityException("basic public key digest mismatch");
 		}
 		return identity;
 	}
