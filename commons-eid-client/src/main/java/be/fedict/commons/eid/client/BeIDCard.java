@@ -653,20 +653,43 @@ public class BeIDCard {
 				applicationName);
 	}
 
+	/**
+	 * Performs an internal authentication, i.e., authentication of the eID card
+	 * itself.
+	 * 
+	 * @param challenge
+	 * @return
+	 * @throws CardException
+	 */
 	public byte[] internalAuthenticate(byte[] challenge) throws CardException {
 		if (challenge.length != 48) {
 			throw new IllegalArgumentException("challenge size incorrect");
 		}
+
+		ResponseAPDU setResponseApdu = transmitCommand(BeIDCommandAPDU.SELECT_ALGORITHM_AND_PRIVATE_KEY,
+				new byte[] { (byte) 0x04, // length
+						// of
+						// following
+						// data
+						(byte) 0x80, 0x02, // algorithm
+						// reference
+						(byte) 0x84, FileType.BasicPublic.getKeyId(), }); // private key
+		// reference
+		if (0x9000 != setResponseApdu.getSW()) {
+			throw new ResponseAPDUException("SET (select algorithm and private key) error", setResponseApdu);
+		}
+
 		byte[] data = new byte[challenge.length + 2];
 		data[0] = (byte) 0x94;
 		data[1] = (byte) challenge.length;
 		System.arraycopy(challenge, 0, data, 2, challenge.length);
 
-		ResponseAPDU responseApdu = transmitCommand(BeIDCommandAPDU.INTERNAL_AUTHENTICATE, data);
-		if (0x9000 != responseApdu.getSW()) {
-			throw new RuntimeException("INTERNAL AUTHENTICATE failed: " + Integer.toHexString(responseApdu.getSW()));
+		ResponseAPDU intAuthnResponseApdu = transmitCommand(BeIDCommandAPDU.INTERNAL_AUTHENTICATE, data);
+		if (0x9000 != intAuthnResponseApdu.getSW()) {
+			throw new RuntimeException(
+					"INTERNAL AUTHENTICATE failed: " + Integer.toHexString(intAuthnResponseApdu.getSW()));
 		}
-		return toDERSignature(responseApdu.getData());
+		return toDERSignature(intAuthnResponseApdu.getData());
 	}
 
 	/**

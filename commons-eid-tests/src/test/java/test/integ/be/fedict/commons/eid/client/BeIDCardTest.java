@@ -113,6 +113,7 @@ public class BeIDCardTest {
 		final byte[] digestValue = messageDigest.digest(toBeSigned);
 
 		byte[] signatureValue = beIDCard.internalAuthenticate(digestValue);
+		LOGGER.debug("signature size: {} bytes", signatureValue.length);
 	}
 
 	@Test
