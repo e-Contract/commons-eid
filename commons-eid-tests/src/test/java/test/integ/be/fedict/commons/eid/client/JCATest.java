@@ -35,6 +35,7 @@ import java.security.KeyStore.Entry;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore.ProtectionParameter;
 import java.security.KeyStore.TrustedCertificateEntry;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -56,6 +57,11 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DERNull;
+import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.DigestInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -619,6 +625,55 @@ public class JCATest {
 		LOGGER.debug("signature provider: {}", signature.getProvider().getName());
 		signature.update(toBeSigned);
 		final boolean result = signature.verify(signatureValue);
+		assertTrue(result);
+	}
+
+	@Test
+	public void testNONEwithRSA() throws Exception {
+		byte[] data = "hello world".getBytes();
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		byte[] digest = messageDigest.digest(data);
+
+		ASN1ObjectIdentifier hashAlgoId = NISTObjectIdentifiers.id_sha256;
+		DigestInfo digestInfo = new DigestInfo(new AlgorithmIdentifier(hashAlgoId, DERNull.INSTANCE), digest);
+
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
+
+		Signature signature = Signature.getInstance("NONEwithRSA");
+		signature.initSign(authnPrivateKey);
+		signature.update(digestInfo.getEncoded());
+		byte[] signatureValue = signature.sign();
+
+		signature = Signature.getInstance("SHA256withRSA");
+		signature.initVerify(authnCertificate);
+		signature.update(data);
+		boolean result = signature.verify(signatureValue);
+		assertTrue(result);
+	}
+
+	@Test
+	public void testNONEwithECDSA() throws Exception {
+		byte[] data = "hello world".getBytes();
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		byte[] digest = messageDigest.digest(data);
+
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
+
+		Signature signature = Signature.getInstance("NONEwithECDSA");
+		signature.initSign(authnPrivateKey);
+		signature.update(digest);
+		byte[] signatureValue = signature.sign();
+
+		signature = Signature.getInstance("SHA256withECDSA");
+		signature.initVerify(authnCertificate);
+		signature.update(data);
+		boolean result = signature.verify(signatureValue);
 		assertTrue(result);
 	}
 

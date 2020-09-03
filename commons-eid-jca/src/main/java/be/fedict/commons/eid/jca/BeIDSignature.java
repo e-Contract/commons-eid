@@ -56,10 +56,12 @@ import org.slf4j.LoggerFactory;
  * <li><code>SHA3-256withECDSA</code>, supported by eID version 1.8 cards.</li>
  * <li><code>SHA3-384withECDSA</code>, supported by eID version 1.8 cards.</li>
  * <li><code>SHA3-512withECDSA</code>, supported by eID version 1.8 cards.</li>
+ * <li><code>NONEwithECDSA</code>, supported by eID version 1.8 cards, used for
+ * mutual TLS authentication.</li>
  * </ul>
  *
- * Some of the more exotic digest algorithms like SHA-224 and RIPEMDxxx will
- * require an additional security provider like BouncyCastle.
+ * Some of the more exotic digest algorithms like SHA-224, RIPEMDxxx, and SHA3
+ * will require an additional security provider like BouncyCastle.
  * 
  * @author Frank Cornelis
  * 
@@ -99,6 +101,7 @@ public class BeIDSignature extends SignatureSpi {
 		digestAlgos.put("SHA3-256withECDSA", "SHA3-256");
 		digestAlgos.put("SHA3-384withECDSA", "SHA3-384");
 		digestAlgos.put("SHA3-512withECDSA", "SHA3-512");
+		digestAlgos.put("NONEwithECDSA", null);
 	}
 
 	BeIDSignature(final String signatureAlgorithm) throws NoSuchAlgorithmException {
@@ -180,7 +183,12 @@ public class BeIDSignature extends SignatureSpi {
 			}
 		} else if (null != this.precomputedDigestOutputStream) {
 			digestValue = this.precomputedDigestOutputStream.toByteArray();
-			digestAlgo = "NONE";
+			if (this.signatureAlgorithm.contains("ECDSA")) {
+				digestAlgo = "NONE-ECDSA";
+			} else {
+				// RSA
+				digestAlgo = "NONE";
+			}
 		} else {
 			throw new SignatureException();
 		}
