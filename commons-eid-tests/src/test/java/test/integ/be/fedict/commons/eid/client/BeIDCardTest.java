@@ -151,9 +151,10 @@ public class BeIDCardTest {
 		final X509Certificate rrnCertificate = (X509Certificate) certificateFactory
 				.generateCertificate(new ByteArrayInputStream(rrnCertificateFile));
 
-		final byte[] toBeSigned = "hello world".getBytes();
+		final byte[] toBeSigned = "nonce||challenge".getBytes();
 		final MessageDigest messageDigest = MessageDigest.getInstance("SHA-384");
-		final byte[] digestValue = messageDigest.digest(toBeSigned);
+		messageDigest.update(toBeSigned);
+		final byte[] digestValue = messageDigest.digest();
 
 		byte[] signatureValue = beIDCard.internalAuthenticate(digestValue);
 

@@ -11,8 +11,40 @@ BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 Identity identity = beIDIntegrity.getVerifiedIdentity(identityFileData, identitySignatureFileData, rrnCertificate);
 +---
 
-  The BeIDIntegrity class combines both the integrity verification as well as the actual parsing of the identity file.
+  The <<<BeIDIntegrity>>> class combines both the integrity verification as well as the actual parsing of the identity file.
   This way one has the assurance that you only get access to verified eID information fields.
+  <<Please notice that you still need to perform a full PKI validation on the national registration certificate.>>
+  
+* Card Authenticated verification of identity file integrity
+
+  Starting from belpic eID applet version 1.8, the eID card supports card authentication that can be used during a "passive" data readout.
+  This gives one cryptographic assurance that an actual eID has been presented on the client-side, and not a simple copy of the corresponding data files.
+  
+** Card Authentication
+
+  A card authentication is best performed by combining a client-side nonce with a server-side challenge.
+  Hence on the client side, next to the read out of the different data files, you perform a card authentication as follows:
+  
++---
+byte[] toBeSigned = client-side nonce || server-side challenge;
+MessageDigest messageDigest = MessageDigest.getInstance("SHA-384");
+messageDigest.update(toBeSigned);
+byte[] digestValue = messageDigest.digest();
+
+byte[] cardSignatureValue = beIDCard.internalAuthenticate(digestValue);
++---
+
+** Validation of card authentication
+
+  On the server-side you can now trigger an additional validation of the card authentication signature via:
+  
++---
+BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile, identitySignatureFile, photoFile,
+        toBeSigned, cardSignatureValue, basicPublicKeyFile, rrnCertificate);
++---
+
+  <<Please notice that you still need to perform a full PKI validation on the national registration certificate.>>
 
 * Javadoc
     
