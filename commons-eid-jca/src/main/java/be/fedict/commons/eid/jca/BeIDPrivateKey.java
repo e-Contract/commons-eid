@@ -88,6 +88,9 @@ public class BeIDPrivateKey implements PrivateKey {
 		beIDDigests.put("SHA3-384-ECDSA", BeIDDigest.ECDSA_SHA_3_384);
 		beIDDigests.put("SHA3-512-ECDSA", BeIDDigest.ECDSA_SHA_3_512);
 		beIDDigests.put("NONE-ECDSA", BeIDDigest.ECDSA_NONE);
+		beIDDigests.put("SHA3-256", BeIDDigest.SHA3_256);
+		beIDDigests.put("SHA3-384", BeIDDigest.SHA3_384);
+		beIDDigests.put("SHA3-512", BeIDDigest.SHA3_512);
 	}
 
 	/**

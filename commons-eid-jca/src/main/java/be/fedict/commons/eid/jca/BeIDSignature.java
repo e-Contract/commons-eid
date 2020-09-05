@@ -44,6 +44,9 @@ import org.slf4j.LoggerFactory;
  * <li><code>SHA256withRSA</code></li>
  * <li><code>SHA384withRSA</code></li>
  * <li><code>SHA512withRSA</code></li>
+ * <li><code>SHA3-256withRSA</code></li>
+ * <li><code>SHA3-384withRSA</code></li>
+ * <li><code>SHA3-512withRSA</code></li>
  * <li><code>NONEwithRSA</code>, used for mutual TLS authentication.</li>
  * <li><code>RIPEMD128withRSA</code></li>
  * <li><code>RIPEMD160withRSA</code></li>
@@ -61,7 +64,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * Some of the more exotic digest algorithms like SHA-224, RIPEMDxxx, and SHA3
- * will require an additional security provider like BouncyCastle.
+ * might require an additional security provider like BouncyCastle.
  * 
  * @author Frank Cornelis
  * 
@@ -102,6 +105,9 @@ public class BeIDSignature extends SignatureSpi {
 		digestAlgos.put("SHA3-384withECDSA", "SHA3-384");
 		digestAlgos.put("SHA3-512withECDSA", "SHA3-512");
 		digestAlgos.put("NONEwithECDSA", null);
+		digestAlgos.put("SHA3-256withRSA", "SHA3-256");
+		digestAlgos.put("SHA3-384withRSA", "SHA3-384");
+		digestAlgos.put("SHA3-512withRSA", "SHA3-512");
 	}
 
 	BeIDSignature(final String signatureAlgorithm) throws NoSuchAlgorithmException {

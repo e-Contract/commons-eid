@@ -303,6 +303,9 @@ public class JCATest {
 		verifySignatureAlgorithm("RIPEMD128withRSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("RIPEMD160withRSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("RIPEMD256withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA3-256withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA3-384withRSA", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA3-512withRSA", authnPrivateKey, authnCertificate.getPublicKey());
 	}
 
 	@Test

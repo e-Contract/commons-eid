@@ -219,6 +219,7 @@ public class BeIDCardTest {
 		secureRandom.nextBytes(toBeSigned);
 
 		final X509Certificate authnCertificate = beIDCard.getAuthenticationCertificate();
+		LOGGER.debug("certificate: {}", authnCertificate);
 
 		byte[] signatureValue;
 		try {

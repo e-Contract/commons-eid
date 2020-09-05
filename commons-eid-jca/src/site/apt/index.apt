@@ -52,6 +52,12 @@ byte[] signatureValue = signature.sign();
   
   * <<<SHA512withRSA>>>
   
+  * <<<SHA3-256withRSA>>>
+  
+  * <<<SHA3-384withRSA>>>
+  
+  * <<<SHA3-512withRSA>>>
+  
   * <<<NONEwithRSA>>> (for SSL)
   
   * <<<RIPEMD128withRSA>>>
@@ -75,6 +81,8 @@ byte[] signatureValue = signature.sign();
   * <<<SHA3-384withECDSA>>> (eID version 1.8 cards only)
   
   * <<<SHA3-512withECDSA>>> (eID version 1.8 cards only)
+  
+  * <<<NONEwithECDSA>>> (eID version 1.8 cards only)
   
 
 * Retrieving a certificate chain
