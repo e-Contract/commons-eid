@@ -690,30 +690,35 @@ public class BeIDCard {
 			throw new IllegalArgumentException("challenge size incorrect");
 		}
 
-		ResponseAPDU setResponseApdu = transmitCommand(BeIDCommandAPDU.SELECT_ALGORITHM_AND_PRIVATE_KEY,
-				new byte[] { (byte) 0x04, // length
-						// of
-						// following
-						// data
-						(byte) 0x80, 0x02, // algorithm
-						// reference
-						(byte) 0x84, FileType.BasicPublic.getKeyId(), }); // private key
-		// reference
-		if (0x9000 != setResponseApdu.getSW()) {
-			throw new ResponseAPDUException("SET (select algorithm and private key) error", setResponseApdu);
-		}
+		this.beginExclusive();
+		try {
+			ResponseAPDU setResponseApdu = transmitCommand(BeIDCommandAPDU.SELECT_ALGORITHM_AND_PRIVATE_KEY,
+					new byte[] { (byte) 0x04, // length
+							// of
+							// following
+							// data
+							(byte) 0x80, 0x02, // algorithm
+							// reference
+							(byte) 0x84, FileType.BasicPublic.getKeyId(), }); // private key
+			// reference
+			if (0x9000 != setResponseApdu.getSW()) {
+				throw new ResponseAPDUException("SET (select algorithm and private key) error", setResponseApdu);
+			}
 
-		byte[] data = new byte[challenge.length + 2];
-		data[0] = (byte) 0x94;
-		data[1] = (byte) challenge.length;
-		System.arraycopy(challenge, 0, data, 2, challenge.length);
+			byte[] data = new byte[challenge.length + 2];
+			data[0] = (byte) 0x94;
+			data[1] = (byte) challenge.length;
+			System.arraycopy(challenge, 0, data, 2, challenge.length);
 
-		ResponseAPDU intAuthnResponseApdu = transmitCommand(BeIDCommandAPDU.INTERNAL_AUTHENTICATE, data);
-		if (0x9000 != intAuthnResponseApdu.getSW()) {
-			throw new RuntimeException(
-					"INTERNAL AUTHENTICATE failed: " + Integer.toHexString(intAuthnResponseApdu.getSW()));
+			ResponseAPDU intAuthnResponseApdu = transmitCommand(BeIDCommandAPDU.INTERNAL_AUTHENTICATE, data);
+			if (0x9000 != intAuthnResponseApdu.getSW()) {
+				throw new RuntimeException(
+						"INTERNAL AUTHENTICATE failed: " + Integer.toHexString(intAuthnResponseApdu.getSW()));
+			}
+			return toDERSignature(intAuthnResponseApdu.getData());
+		} finally {
+			this.endExclusive();
 		}
-		return toDERSignature(intAuthnResponseApdu.getData());
 	}
 
 	/**

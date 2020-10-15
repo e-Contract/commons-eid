@@ -81,7 +81,7 @@ public class TlvParser {
 				final int tagId = tlvFieldAnnotation.value();
 				List<Field> fieldList = tlvFields.get(tagId);
 				if (fieldList == null) {
-					fieldList = new ArrayList<Field>();
+					fieldList = new ArrayList<>();
 					tlvFields.put(tagId, fieldList);
 				}
 				fieldList.add(field);
@@ -136,7 +136,7 @@ public class TlvParser {
 					tlvField.set(tlvObject, fieldValue);
 				}
 			} else {
-				LOGGER.debug("unknown tag: {}, length {}", (tag & 0xff), length);
+				LOGGER.warn("unknown tag: {}, length {}", (tag & 0xff), length);
 			}
 			idx += length;
 		}
