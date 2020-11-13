@@ -97,7 +97,11 @@ public enum DocumentType implements Serializable {
 	 * J. New types of foreigner cards (I and J cards) will be issued for employees
 	 * that are transferred within their company (EU directive 2014/66/EU)
 	 */
-	FOREIGNER_J("21");
+	FOREIGNER_J("21"),
+
+	FOREIGNER_M("22"),
+
+	FOREIGNER_N("23");
 
 	private final int key;
 
