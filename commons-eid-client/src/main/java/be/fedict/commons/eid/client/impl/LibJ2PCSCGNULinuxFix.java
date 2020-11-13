@@ -1,6 +1,6 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2015-2020 e-Contract.be BVBA.
+ * Copyright (C) 2015-2020 e-Contract.be BV.
  * Copyright (C) 2008-2015 FedICT.
  * 
  * This is free software; you can redistribute it and/or modify it
@@ -41,6 +41,7 @@ public final class LibJ2PCSCGNULinuxFix {
 	private static final String LIBRARY_PATH_PROPERTY = "java.library.path";
 	private static final String GNULINUX_OS_PROPERTY_PREFIX = "Linux";
 	private static final String FREEBSD_OS_PROPERTY = "FreeBSD";
+	private static final String MAC_OS_X_OS_PROPERTY_PREFIX = "Mac OS";
 	private static final String PCSC_LIBRARY_NAME = "pcsclite";
 	private static final String UBUNTU_MULTILIB_32_SUFFIX = "i386-linux-gnu";
 	private static final String UBUNTU_MULTILIB_64_SUFFIX = "x86_64-linux-gnu";
@@ -81,6 +82,11 @@ public final class LibJ2PCSCGNULinuxFix {
 						"Setting [" + SMARTCARDIO_LIBRARY_PROPERTY + "] to [" + libPcscLite.getAbsolutePath() + "]");
 				System.setProperty(SMARTCARDIO_LIBRARY_PROPERTY, libPcscLite.getAbsolutePath());
 			}
+		}
+		if ((osName != null) && osName.startsWith(MAC_OS_X_OS_PROPERTY_PREFIX)) {
+			// https://bugs.openjdk.java.net/browse/JDK-8255877
+			System.setProperty(SMARTCARDIO_LIBRARY_PROPERTY,
+					"/System/Library/Frameworks/PCSC.framework/Versions/Current/PCSC");
 		} else {
 			logger.debug("OS is [" + osName + "]. Not Enabling PCSC library fix.");
 		}

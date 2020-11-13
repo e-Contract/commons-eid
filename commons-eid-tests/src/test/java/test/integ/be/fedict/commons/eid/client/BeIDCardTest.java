@@ -74,13 +74,13 @@ public class BeIDCardTest {
 		LOGGER.debug("reading RRN certificate file");
 		final byte[] rrnCertificateFile = beIDCard.readFile(FileType.RRNCertificate);
 		LOGGER.debug("reading auth certificate file");
-		beIDCard.readFile(FileType.AuthentificationCertificate);
+		byte[] authnCertFile = beIDCard.readFile(FileType.AuthentificationCertificate);
 		LOGGER.debug("reading sign certificate file");
-		beIDCard.readFile(FileType.NonRepudiationCertificate);
+		byte[] signCertFile = beIDCard.readFile(FileType.NonRepudiationCertificate);
 		LOGGER.debug("reading root certificate file");
-		beIDCard.readFile(FileType.RootCertificate);
+		byte[] rootCertFile = beIDCard.readFile(FileType.RootCertificate);
 		LOGGER.debug("reading CA certificate file");
-		beIDCard.readFile(FileType.CACertificate);
+		byte[] caCertFile = beIDCard.readFile(FileType.CACertificate);
 		LOGGER.debug("reading Photo file");
 		final byte[] photoFile = beIDCard.readFile(FileType.Photo);
 		File photoFileFile = File.createTempFile("eid-photo-", ".jpg");
@@ -89,6 +89,19 @@ public class BeIDCardTest {
 		final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 		final X509Certificate rrnCertificate = (X509Certificate) certificateFactory
 				.generateCertificate(new ByteArrayInputStream(rrnCertificateFile));
+		final X509Certificate authnCert = (X509Certificate) certificateFactory
+				.generateCertificate(new ByteArrayInputStream(authnCertFile));
+		final X509Certificate signCert = (X509Certificate) certificateFactory
+				.generateCertificate(new ByteArrayInputStream(signCertFile));
+		final X509Certificate rootCert = (X509Certificate) certificateFactory
+				.generateCertificate(new ByteArrayInputStream(rootCertFile));
+		final X509Certificate caCert = (X509Certificate) certificateFactory
+				.generateCertificate(new ByteArrayInputStream(caCertFile));
+		LOGGER.debug("RRN cert: {}", rrnCertificate);
+		LOGGER.debug("auth cert: {}", authnCert);
+		LOGGER.debug("sign cert: {}", signCert);
+		LOGGER.debug("root cert: {}", rootCert);
+		LOGGER.debug("ca cert: {}", caCert);
 
 		beIDCard.close();
 
@@ -378,6 +391,7 @@ public class BeIDCardTest {
 			beIDCard.close();
 		}
 
+		LOGGER.debug("signature size: {} bytes", signatureValue.length);
 		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		final boolean result = beIDIntegrity.verifyNonRepSignature(digestValue, signatureValue, signingCertificate);
 		assertTrue(result);
@@ -404,6 +418,7 @@ public class BeIDCardTest {
 			beIDCard.close();
 		}
 
+		LOGGER.debug("signature size: {} bytes", signatureValue.length);
 		final BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		final boolean result = beIDIntegrity.verifyAuthnSignature(toBeSigned, signatureValue, certificate);
 		assertTrue(result);
