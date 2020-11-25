@@ -29,6 +29,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -90,6 +93,10 @@ public class TlvParserTest {
 		LOGGER.debug("date of birth: {}", identity.dateOfBirth.getTime());
 		assertEquals(new GregorianCalendar(1971, 0, 1), identity.dateOfBirth);
 		assertEquals(DateMask.YYYY_MM_DD, identity.dateOfBirthMask);
+		LOGGER.debug("age: {}", identity.getAge());
+		assertEquals(0, identity.getAge(Clock.fixed(Instant.parse("1971-01-01T00:00:00Z"), ZoneId.of("UTC"))));
+		assertEquals(0, identity.getAge(Clock.fixed(Instant.parse("1971-12-31T00:00:00Z"), ZoneId.of("UTC"))));
+		assertEquals(1, identity.getAge(Clock.fixed(Instant.parse("1972-01-01T00:00:00Z"), ZoneId.of("UTC"))));
 		LOGGER.debug("special status: {}", identity.specialStatus);
 		assertEquals(SpecialStatus.NO_STATUS, identity.specialStatus);
 		assertNull(identity.getSpecialOrganisation());

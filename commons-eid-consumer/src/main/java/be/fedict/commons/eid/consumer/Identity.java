@@ -20,6 +20,9 @@
 package be.fedict.commons.eid.consumer;
 
 import java.io.Serializable;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.GregorianCalendar;
 
 import be.fedict.commons.eid.consumer.tlv.ChipNumberDataConvertor;
@@ -272,6 +275,30 @@ public class Identity implements Serializable {
 	 */
 	public byte[] getBasicPublicKeyDigest() {
 		return this.basicPublicKeyDigest;
+	}
+
+	/**
+	 * Gives back the age of the person.
+	 * 
+	 * @return
+	 */
+	public int getAge() {
+		return getAge(null);
+	}
+
+	public int getAge(Clock clock) {
+		LocalDate dob = LocalDate.of(this.dateOfBirth.get(GregorianCalendar.YEAR),
+				this.dateOfBirth.get(GregorianCalendar.MONTH) + 1,
+				this.dateOfBirth.get(GregorianCalendar.DAY_OF_MONTH));
+		LocalDate now;
+		if (null == clock) {
+			now = LocalDate.now();
+		} else {
+			now = LocalDate.now(clock);
+		}
+		Period age = Period.between(dob, now);
+		int years = age.getYears();
+		return years;
 	}
 
 	@Override
