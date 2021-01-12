@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017-2020 e-Contract.be BV.
+ * Copyright (C) 2017-2021 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -68,7 +68,7 @@ public class BeIDProvider extends Provider {
 
 		putService(new BeIDService(this, "KeyStore", "BeID", BeIDKeyStore.class.getName()));
 
-		final Map<String, String> signatureServiceAttributes = new HashMap<String, String>();
+		final Map<String, String> signatureServiceAttributes = new HashMap<>();
 		signatureServiceAttributes.put("SupportedKeyClasses", BeIDPrivateKey.class.getName());
 		putService(new BeIDService(this, "Signature", "SHA1withRSA", BeIDSignature.class.getName(),
 				signatureServiceAttributes));

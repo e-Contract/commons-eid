@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2019 e-Contract.be BVBA.
+ * Copyright (C) 2014-2021 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -143,7 +143,7 @@ public class CCID {
 			final Logger logger) {
 		this.card = card;
 		this.logger = logger;
-		this.features = new EnumMap<FEATURE, Integer>(FEATURE.class);
+		this.features = new EnumMap<>(FEATURE.class);
 		this.usesPPDU = false;
 
 		final boolean onMSWindows = (System.getProperty("os.name") != null && System

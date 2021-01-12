@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2020 e-Contract.be BV.
+ * Copyright (C) 2015-2021 e-Contract.be BV.
  * Copyright (C) 2017 Corilus NV.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -574,7 +574,7 @@ public class CardAndTerminalManager implements Runnable {
 		Set<CardEventsListener> copyOfListeners;
 
 		synchronized (this.cardEventsListeners) {
-			copyOfListeners = new HashSet<CardEventsListener>(this.cardEventsListeners);
+			copyOfListeners = new HashSet<>(this.cardEventsListeners);
 		}
 
 		for (CardEventsListener listener : copyOfListeners) {

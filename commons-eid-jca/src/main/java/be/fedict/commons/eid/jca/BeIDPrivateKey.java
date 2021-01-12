@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2020 e-Contract.be BV.
+ * Copyright (C) 2015-2021 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -69,7 +69,7 @@ public class BeIDPrivateKey implements PrivateKey {
 	private X509Certificate authenticationCertificate;
 
 	static {
-		beIDDigests = new HashMap<String, BeIDDigest>();
+		beIDDigests = new HashMap<>();
 		beIDDigests.put("SHA-1", BeIDDigest.SHA_1);
 		beIDDigests.put("SHA-224", BeIDDigest.SHA_224);
 		beIDDigests.put("SHA-256", BeIDDigest.SHA_256);

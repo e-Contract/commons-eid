@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2020 e-Contract.be BV.
+ * Copyright (C) 2015-2021 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -154,7 +154,7 @@ public class BeIDCardManager {
 					Set<CardEventsListener> copyOfListeners;
 
 					synchronized (BeIDCardManager.this.otherCardListeners) {
-						copyOfListeners = new HashSet<CardEventsListener>(BeIDCardManager.this.otherCardListeners);
+						copyOfListeners = new HashSet<>(BeIDCardManager.this.otherCardListeners);
 					}
 
 					for (CardEventsListener listener : copyOfListeners) {
@@ -184,7 +184,7 @@ public class BeIDCardManager {
 					Set<CardEventsListener> copyOfListeners;
 
 					synchronized (BeIDCardManager.this.otherCardListeners) {
-						copyOfListeners = new HashSet<CardEventsListener>(BeIDCardManager.this.otherCardListeners);
+						copyOfListeners = new HashSet<>(BeIDCardManager.this.otherCardListeners);
 					}
 
 					for (CardEventsListener listener : copyOfListeners) {
@@ -206,7 +206,7 @@ public class BeIDCardManager {
 				Set<CardEventsListener> copyOfOtherCardEventsListeners;
 
 				synchronized (BeIDCardManager.this.otherCardListeners) {
-					copyOfOtherCardEventsListeners = new HashSet<CardEventsListener>(
+					copyOfOtherCardEventsListeners = new HashSet<>(
 							BeIDCardManager.this.otherCardListeners);
 				}
 

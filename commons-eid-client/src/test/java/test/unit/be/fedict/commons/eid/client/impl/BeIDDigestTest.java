@@ -1,6 +1,6 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2020 e-Contract.be BV.
+ * Copyright (C) 2020-2021 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -97,10 +97,10 @@ public class BeIDDigestTest {
 	}
 
 	private String toJavaHex(byte[] data) {
-		StringBuffer stringBuffer = new StringBuffer();
+		StringBuilder stringBuilder = new StringBuilder();
 		for (byte b : data) {
-			stringBuffer.append(String.format("0x%02X, ", b));
+			stringBuilder.append(String.format("0x%02X, ", b));
 		}
-		return stringBuffer.toString();
+		return stringBuilder.toString();
 	}
 }
