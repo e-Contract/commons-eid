@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>be.fedict</groupId>
 		<artifactId>commons-eid</artifactId>
-		<version>1.0.2</version>
+		<version>1.0.3-SNAPSHOT</version>
 	</parent>
 	<name>Commons eID JCA</name>
 	<groupId>be.fedict.commons-eid</groupId>
