@@ -251,7 +251,7 @@
 	</profiles>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<bouncycastle.version>1.66</bouncycastle.version>
+		<bouncycastle.version>1.68</bouncycastle.version>
 		<slf4j.version>1.7.30</slf4j.version>
 	</properties>
 </project>
