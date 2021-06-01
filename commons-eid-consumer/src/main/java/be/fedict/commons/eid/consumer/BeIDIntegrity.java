@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2009-2020 e-Contract.be BV.
+ * Copyright (C) 2009-2021 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -245,7 +245,7 @@ public class BeIDIntegrity {
 	 * @throws InvalidKeyException
 	 * @throws SignatureException
 	 */
-	public boolean verifySignature(final String signatureAlgo, final byte[] signatureData, final PublicKey publicKey,
+	public boolean verifySignature(final String signatureAlgo, byte[] signatureData, final PublicKey publicKey,
 			final byte[]... data) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		Signature signature;
 		signature = Signature.getInstance(signatureAlgo);
@@ -256,8 +256,23 @@ public class BeIDIntegrity {
 		if (null == signatureData) {
 			throw new SignatureException("missing signature data");
 		}
+		if (signatureAlgo.contains("ECDSA")) {
+			// fix for RRN signatures
+			signatureData = fixECDSASignature(signatureData);
+		}
 		final boolean result = signature.verify(signatureData);
 		return result;
+	}
+
+	private byte[] fixECDSASignature(byte[] signature) {
+		int derSize = signature[1];
+		if (signature.length > derSize + 2) {
+			LOGGER.warn("signature too long: {} bytes", signature.length - derSize - 2);
+			byte[] fixedSignature = new byte[derSize + 2];
+			System.arraycopy(signature, 0, fixedSignature, 0, derSize + 2);
+			return fixedSignature;
+		}
+		return signature;
 	}
 
 	private byte[] digest(final String algoName, final byte[] data) {
