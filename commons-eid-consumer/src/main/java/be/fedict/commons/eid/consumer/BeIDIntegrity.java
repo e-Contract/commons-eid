@@ -267,7 +267,7 @@ public class BeIDIntegrity {
 	private byte[] fixECDSASignature(byte[] signature) {
 		int derSize = signature[1];
 		if (signature.length > derSize + 2) {
-			LOGGER.warn("signature too long: {} bytes", signature.length - derSize - 2);
+			LOGGER.debug("signature too long: {} bytes", signature.length - derSize - 2);
 			byte[] fixedSignature = new byte[derSize + 2];
 			System.arraycopy(signature, 0, fixedSignature, 0, derSize + 2);
 			return fixedSignature;
