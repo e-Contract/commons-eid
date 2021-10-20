@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017 e-Contract.be BVBA.
+ * Copyright (C) 2017-2021 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -38,12 +38,11 @@ public class DocumentTypeConvertor implements DataConvertor<DocumentType> {
 	public DocumentType convert(final byte[] value) throws DataConvertorException {
 		LOGGER.debug("# bytes for document type field: {}", value.length);
 		/*
-		 * More recent eID cards use 2 bytes per default for the document type
-		 * field.
+		 * More recent eID cards use 2 bytes per default for the document type field.
 		 */
 		final DocumentType documentType = DocumentType.toDocumentType(value);
 		if (null == documentType) {
-			LOGGER.debug("unknown document type: {}", DocumentType.toString(value));
+			LOGGER.warn("unknown document type: {}", DocumentType.toString(value));
 		}
 		return documentType;
 	}

@@ -36,6 +36,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -102,6 +103,7 @@ public class TlvParserTest {
 		assertNull(identity.getSpecialOrganisation());
 
 		assertNotNull(identity.getData());
+		assertEquals(DocumentType.BELGIAN_CITIZEN, identity.documentType);
 	}
 
 	@Test
@@ -142,6 +144,7 @@ public class TlvParserTest {
 		assertEquals(new GregorianCalendar(1971, 0, 1), identity.dateOfBirth);
 		assertEquals(DateMask.YYYY_MM_DD, identity.dateOfBirthMask);
 		assertNull(identity.getSpecialOrganisation());
+		assertEquals(DocumentType.BELGIAN_CITIZEN, identity.documentType);
 	}
 
 	@Test
@@ -341,6 +344,7 @@ public class TlvParserTest {
 		// setup
 		final InputStream inputStream = TlvParserTest.class.getResourceAsStream("/id-foreigner.tlv");
 		final byte[] identityData = IOUtils.toByteArray(inputStream);
+		LOGGER.debug("data: {}", Hex.encodeHexString(identityData));
 
 		// operate
 		final Identity identity = TlvParser.parse(identityData, Identity.class);
@@ -510,5 +514,40 @@ public class TlvParserTest {
 		assertEquals("", identity.getEmployerVATNumber1());
 		assertEquals("", identity.getEmployerVATNumber2());
 		assertEquals("", identity.getRegionalFileNumber());
+	}
+
+	@Test
+	public void testDocumentTypes() throws Exception {
+		byte[] belgianCitizenIdFile = new byte[] { 15, 1, '1' };
+		Identity belgianCitizenIdentity = TlvParser.parse(belgianCitizenIdFile, Identity.class);
+		assertEquals(DocumentType.BELGIAN_CITIZEN, belgianCitizenIdentity.documentType);
+
+		byte[] euPlusIdFile = new byte[] { 15, 2, '3', '2' };
+		Identity euPlusIdentity = TlvParser.parse(euPlusIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_EU_PLUS, euPlusIdentity.documentType);
+
+		byte[] kCardIdFile = new byte[] { 15, 2, '2', '7' };
+		Identity kCardIdentity = TlvParser.parse(kCardIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_K, kCardIdentity.documentType);
+
+		byte[] lCardIdFile = new byte[] { 15, 2, '2', '8' };
+		Identity lCardIdentity = TlvParser.parse(lCardIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_L, lCardIdentity.documentType);
+
+		byte[] aCardIdFile = new byte[] { 15, 2, '3', '3' };
+		Identity aCardIdentity = TlvParser.parse(aCardIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_A, aCardIdentity.documentType);
+
+		byte[] bCardIdFile = new byte[] { 15, 2, '3', '4' };
+		Identity bCardIdentity = TlvParser.parse(bCardIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_B, bCardIdentity.documentType);
+
+		byte[] fCardIdFile = new byte[] { 15, 2, '3', '5' };
+		Identity fCardIdentity = TlvParser.parse(fCardIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_F, fCardIdentity.documentType);
+
+		byte[] fPlusCardIdFile = new byte[] { 15, 2, '3', '6' };
+		Identity fPlusCardIdentity = TlvParser.parse(fPlusCardIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_F_PLUS, fPlusCardIdentity.documentType);
 	}
 }
