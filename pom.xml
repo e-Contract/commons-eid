@@ -4,7 +4,7 @@
 	<name>Commons eID Project</name>
 	<groupId>be.fedict</groupId>
 	<artifactId>commons-eid</artifactId>
-	<version>1.0.4-SNAPSHOT</version>
+	<version>1.0.4</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2012</inceptionYear>
 	<licenses>
@@ -40,7 +40,7 @@
 	</mailingLists>
 	<scm>
 		<connection>scm:git:git@github.com:e-Contract/commons-eid.git</connection>
-		<tag>HEAD</tag>
+		<tag>commons-eid-1.0.4</tag>
 		<url>https://github.com/e-Contract/commons-eid</url>
 	</scm>
 	<distributionManagement>
