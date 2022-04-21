@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2020 e-Contract.be BV.
+ * Copyright (C) 2014-2022 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -47,7 +48,10 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.crypto.Cipher;
@@ -55,6 +59,25 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
+import javax.xml.crypto.dsig.Reference;
+import javax.xml.crypto.dsig.SignedInfo;
+import javax.xml.crypto.dsig.Transform;
+import javax.xml.crypto.dsig.XMLSignContext;
+import javax.xml.crypto.dsig.XMLSignature;
+import javax.xml.crypto.dsig.XMLSignatureFactory;
+import javax.xml.crypto.dsig.dom.DOMSignContext;
+import javax.xml.crypto.dsig.keyinfo.KeyInfo;
+import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
+import javax.xml.crypto.dsig.keyinfo.X509Data;
+import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
+import javax.xml.crypto.dsig.spec.TransformParameterSpec;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -67,6 +90,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
@@ -107,6 +132,62 @@ public class JCATest {
 		byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);
 		byte[] signatureValue = signature.sign();
+	}
+
+	@Test
+	public void testGenericXMLSignatureCreation() throws Exception {
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
+		String digestAlgo = "http://www.w3.org/2001/04/xmlenc#sha256";
+		String signatureAlgo;
+		switch (authnPrivateKey.getAlgorithm()) {
+		case "RSA":
+			signatureAlgo = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+			break;
+		case "EC":
+			signatureAlgo = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256";
+			break;
+		default:
+			throw new IllegalStateException("unsupported key algo");
+		}
+
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		documentBuilderFactory.setNamespaceAware(true);
+		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+		Element rootElement = document.createElementNS("urn:test", "Root");
+		document.appendChild(rootElement);
+
+		XMLSignContext domSignContext = new DOMSignContext(authnPrivateKey, document.getDocumentElement());
+		XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM");
+		List<Reference> references = new LinkedList<>();
+		List<Transform> transforms = new LinkedList<>();
+		transforms.add(xmlSignatureFactory.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null));
+		transforms.add(xmlSignatureFactory.newCanonicalizationMethod(CanonicalizationMethod.EXCLUSIVE,
+				(C14NMethodParameterSpec) null));
+		Reference reference = xmlSignatureFactory.newReference("",
+				xmlSignatureFactory.newDigestMethod(digestAlgo, null), transforms, null, null);
+		references.add(reference);
+
+		SignedInfo signedInfo = xmlSignatureFactory.newSignedInfo(
+				xmlSignatureFactory.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE_WITH_COMMENTS,
+						(C14NMethodParameterSpec) null),
+				xmlSignatureFactory.newSignatureMethod(signatureAlgo, null), references);
+
+		KeyInfoFactory keyInfoFactory = xmlSignatureFactory.getKeyInfoFactory();
+		X509Data x509Data = keyInfoFactory.newX509Data(Collections.singletonList(authnCertificate));
+		KeyInfo keyInfo = keyInfoFactory.newKeyInfo(Collections.singletonList(x509Data));
+
+		XMLSignature xmlSignature = xmlSignatureFactory.newXMLSignature(signedInfo, keyInfo);
+		xmlSignature.sign(domSignContext);
+
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		StringWriter stringWriter = new StringWriter();
+		transformer.transform(new DOMSource(document), new StreamResult(stringWriter));
+		LOGGER.debug("result: {}", stringWriter.toString());
 	}
 
 	@Test
