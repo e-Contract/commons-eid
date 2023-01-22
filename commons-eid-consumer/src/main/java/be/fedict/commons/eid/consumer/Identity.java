@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2020 e-Contract.be BV.
+ * Copyright (C) 2015-2023 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -151,6 +151,22 @@ public class Identity implements Serializable {
 	@TlvField(26)
 	public byte[] basicPublicKeyDigest;
 
+	@TlvField(27)
+	public String brexitMention1;
+
+	@TlvField(28)
+	public String brexitMention2;
+
+	@TlvField(29)
+	public String cardAMention1;
+
+	@TlvField(30)
+	public String cardAMention2;
+
+	@TlvField(31)
+	@ConvertData(ValidityDateDataConvertor.class)
+	public GregorianCalendar cardEUStartDate;
+
 	@OriginalData
 	public byte[] data;
 
@@ -275,6 +291,26 @@ public class Identity implements Serializable {
 	 */
 	public byte[] getBasicPublicKeyDigest() {
 		return this.basicPublicKeyDigest;
+	}
+
+	public String getBrexitMention1() {
+		return this.brexitMention1;
+	}
+
+	public String getBrexitMention2() {
+		return this.brexitMention2;
+	}
+
+	public String getCardAMention1() {
+		return this.cardAMention1;
+	}
+
+	public String getCardAMention2() {
+		return this.cardAMention2;
+	}
+
+	public GregorianCalendar getCardEUStartDate() {
+		return this.cardEUStartDate;
 	}
 
 	/**

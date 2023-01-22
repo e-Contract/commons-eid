@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017-2020 e-Contract.be BV.
+ * Copyright (C) 2017-2023 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -259,6 +259,30 @@ public class TlvParserTest {
 		} catch (final RuntimeException rte) {
 			// expected
 		}
+	}
+
+	@Test
+	public void testSkipUnknownFields() throws Exception {
+		byte[] identityData = new byte[] { 99, 6, 'f', 'o', 'o', 'b', 'a', 'r', 6, 4, '1', '2', '3', '4' };
+
+		Identity identity = TlvParser.parse(identityData, Identity.class);
+		assertEquals("1234", identity.nationalNumber);
+	}
+
+	@Test
+	public void testBrexitFields() throws Exception {
+		byte[] identityData = new byte[] { 27, 1, 'A', //
+				28, 1, 'C', //
+				29, 1, 'I', //
+				30, 1, 'K', //
+				31, 10, '2', '2', '.', '0', '1', '.', '2', '0', '2', '3' };
+
+		Identity identity = TlvParser.parse(identityData, Identity.class);
+		assertEquals("A", identity.getBrexitMention1());
+		assertEquals("C", identity.getBrexitMention2());
+		assertEquals("I", identity.getCardAMention1());
+		assertEquals("K", identity.getCardAMention2());
+		assertEquals(new GregorianCalendar(2023, 0, 22), identity.getCardEUStartDate());
 	}
 
 	public static class LargeField {
