@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2009-2021 e-Contract.be BV.
+ * Copyright (C) 2009-2023 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -174,6 +174,9 @@ public class BeIDIntegrity {
 		}
 
 		byte[] expectedBasicPublicKeyDigest = identity.getBasicPublicKeyDigest();
+		if (null == expectedBasicPublicKeyDigest) {
+			throw new SecurityException("missing basic public key digest");
+		}
 		byte[] actualBasicPublicKeyDigest = digest(getDigestAlgo(expectedBasicPublicKeyDigest.length),
 				basicPublicKeyFile);
 		if (false == Arrays.equals(expectedBasicPublicKeyDigest, actualBasicPublicKeyDigest)) {
