@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2009-2020 e-Contract.be BV.
+ * Copyright (C) 2009-2023 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -139,10 +139,10 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	@Override
 	public void advisePINPadPINEntry(final int retriesLeft, final PINPurpose purpose, String applicationName) {
 		if (null == applicationName) {
-			showPINPadFrame(retriesLeft, "PIN", this.messages.getMessage(MESSAGE_ID.PIN_REASON, purpose.getType()),
+			showPINPadFrame(retriesLeft, "eID PIN", this.messages.getMessage(MESSAGE_ID.PIN_REASON, purpose.getType()),
 					this.messages.getMessage(MESSAGE_ID.PIN_PAD));
 		} else {
-			showPINPadFrame(retriesLeft, "PIN", this.messages.getMessage(MESSAGE_ID.PIN_REASON, purpose.getType()),
+			showPINPadFrame(retriesLeft, "eID PIN", this.messages.getMessage(MESSAGE_ID.PIN_REASON, purpose.getType()),
 					this.messages.getMessage(MESSAGE_ID.APPLICATION) + ": " + applicationName,
 					this.messages.getMessage(MESSAGE_ID.PIN_PAD));
 		}
