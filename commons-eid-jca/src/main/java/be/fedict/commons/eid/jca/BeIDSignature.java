@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017-2020 e-Contract.be BV.
+ * Copyright (C) 2017-2023 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -77,7 +77,7 @@ public class BeIDSignature extends SignatureSpi {
 
 	private final MessageDigest messageDigest;
 
-	private BeIDPrivateKey privateKey;
+	private AbstractBeIDPrivateKey privateKey;
 
 	private Signature verifySignature;
 
@@ -144,10 +144,10 @@ public class BeIDSignature extends SignatureSpi {
 	@Override
 	protected void engineInitSign(final PrivateKey privateKey) throws InvalidKeyException {
 		LOGGER.debug("engineInitSign");
-		if (false == privateKey instanceof BeIDPrivateKey) {
+		if (false == privateKey instanceof AbstractBeIDPrivateKey) {
 			throw new InvalidKeyException();
 		}
-		this.privateKey = (BeIDPrivateKey) privateKey;
+		this.privateKey = (AbstractBeIDPrivateKey) privateKey;
 		if (null != this.messageDigest) {
 			this.messageDigest.reset();
 		}

@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2022 e-Contract.be BV.
+ * Copyright (C) 2014-2023 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -44,8 +44,10 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Collections;
@@ -97,9 +99,10 @@ import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.spi.UserCancelledException;
 import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
-import be.fedict.commons.eid.jca.BeIDPrivateKey;
+import be.fedict.commons.eid.jca.AbstractBeIDPrivateKey;
 import be.fedict.commons.eid.jca.BeIDProvider;
 import be.fedict.commons.eid.jca.UserCancelledSignatureException;
+import java.security.Provider;
 
 public class JCATest {
 
@@ -107,7 +110,7 @@ public class JCATest {
 
 	@BeforeAll
 	public static void setup() {
-		Security.addProvider(new BeIDProvider());
+		Security.insertProviderAt(new BeIDProvider(), 1);
 		Security.addProvider(new BouncyCastleProvider());
 	}
 
@@ -136,6 +139,12 @@ public class JCATest {
 
 	@Test
 	public void testGenericXMLSignatureCreation() throws Exception {
+                String javaVersion = System.getProperty("java.version");
+                LOGGER.debug("Java version: {}", javaVersion);
+                Provider[] providers = Security.getProviders();
+                for (Provider provider : providers) {
+                    LOGGER.debug("JCA provider: {} ({})", provider.getName(), provider.getClass().getName());
+                }
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
@@ -646,7 +655,7 @@ public class JCATest {
 		keyStore.load(null);
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry("Authentication", null);
 		assertNotNull(privateKeyEntry);
-		assertTrue(privateKeyEntry.getPrivateKey() instanceof BeIDPrivateKey);
+		assertTrue(privateKeyEntry.getPrivateKey() instanceof AbstractBeIDPrivateKey);
 
 		TrustedCertificateEntry caEntry = (TrustedCertificateEntry) keyStore.getEntry("CA", null);
 		assertNotNull(caEntry);
@@ -693,6 +702,10 @@ public class JCATest {
 		KeyPair keyPair = keyGen.generateKeyPair();
 		PrivateKey privateKey = keyPair.getPrivate();
 		PublicKey publicKey = keyPair.getPublic();
+		LOGGER.debug("public key type: {}", publicKey.getClass().getName());
+		ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+		ECParameterSpec ecParameterSpec = ecPublicKey.getParams();
+		LOGGER.debug("EC parameter spec: {}", ecParameterSpec);
 		LOGGER.debug("public key size: {} bytes", publicKey.getEncoded().length);
 
 		KeyFactory keyFactory = KeyFactory.getInstance("EC");

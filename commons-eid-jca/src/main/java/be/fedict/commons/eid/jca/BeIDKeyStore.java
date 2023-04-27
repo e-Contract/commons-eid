@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2020 e-Contract.be BV.
+ * Copyright (C) 2014-2023 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -152,11 +152,21 @@ public class BeIDKeyStore extends KeyStoreSpi {
 			applicationName = this.keyStoreParameter.getApplicationName();
 		}
 		if ("Authentication".equals(alias)) {
+			if (beIDCard.isEC()) {
+				final BeIDECPrivateKey beIDPrivateKey = new BeIDECPrivateKey(FileType.AuthentificationCertificate, beIDCard,
+						logoff, allowFailingLogoff, autoRecovery, this, applicationName);
+				return beIDPrivateKey;
+			}
 			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(FileType.AuthentificationCertificate, beIDCard,
 					logoff, allowFailingLogoff, autoRecovery, this, applicationName);
 			return beIDPrivateKey;
 		}
 		if ("Signature".equals(alias)) {
+			if (beIDCard.isEC()) {
+				final BeIDECPrivateKey beIDPrivateKey = new BeIDECPrivateKey(FileType.NonRepudiationCertificate, beIDCard,
+						logoff, allowFailingLogoff, autoRecovery, this, applicationName);
+				return beIDPrivateKey;
+			}
 			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(FileType.NonRepudiationCertificate, beIDCard,
 					logoff, allowFailingLogoff, autoRecovery, this, applicationName);
 			return beIDPrivateKey;
