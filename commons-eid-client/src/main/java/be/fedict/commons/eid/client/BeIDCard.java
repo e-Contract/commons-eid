@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2020 e-Contract.be BV.
+ * Copyright (C) 2015-2023 e-Contract.be BV.
  * Copyright (C) 2018 BOSA.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -598,7 +598,7 @@ public class BeIDCard {
 				 * authentication after a non-repudiation signature.
 				 */
 				if (digestAlgo.isEc()) {
-					return toDERSignature(responseApdu.getData());
+					return formatSignature(digestAlgo, responseApdu.getData());
 				}
 				return responseApdu.getData();
 			}
@@ -620,7 +620,7 @@ public class BeIDCard {
 			}
 
 			if (digestAlgo.isEc()) {
-				return toDERSignature(responseApdu.getData());
+				return formatSignature(digestAlgo, responseApdu.getData());
 			}
 			return responseApdu.getData();
 		} finally {
@@ -715,7 +715,7 @@ public class BeIDCard {
 				throw new RuntimeException(
 						"INTERNAL AUTHENTICATE failed: " + Integer.toHexString(intAuthnResponseApdu.getSW()));
 			}
-			return toDERSignature(intAuthnResponseApdu.getData());
+			return formatSignature(BeIDDigest.ECDSA_SHA_2_384, intAuthnResponseApdu.getData());
 		} finally {
 			this.endExclusive();
 		}
@@ -1713,6 +1713,17 @@ public class BeIDCard {
 		this.cardTerminal = cardTerminal;
 	}
 
+	private byte[] formatSignature(BeIDDigest digest, byte[] rawSign) {
+		if (digest.isP1363()) {
+			return toP1363SignatureFormat(rawSign);
+		}
+		return toDERSignatureFormat(rawSign);
+	}
+
+	private byte[] toP1363SignatureFormat(byte[] rawSign) {
+		return rawSign;
+	}
+
 	/**
 	 * Converts a RAW EC R||S signature to DER encoded format.
 	 * 
@@ -1720,7 +1731,7 @@ public class BeIDCard {
 	 * @return
 	 * @throws IOException
 	 */
-	private byte[] toDERSignature(byte[] rawSign) {
+	private byte[] toDERSignatureFormat(byte[] rawSign) {
 		int len = rawSign.length / 2;
 
 		byte[] rawR = new byte[len];

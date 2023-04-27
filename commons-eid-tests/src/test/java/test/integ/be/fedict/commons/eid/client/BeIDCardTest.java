@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
@@ -33,6 +35,7 @@ import java.security.interfaces.ECPublicKey;
 
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.BigIntegers;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -307,6 +310,14 @@ public class BeIDCardTest {
 
 		assertNotNull(authnCertificate);
 		LOGGER.debug("authentication certificate: {}", authnCertificate);
+		PublicKey publicKey = authnCertificate.getPublicKey();
+		if (publicKey instanceof ECPublicKey) {
+			ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+			BigInteger order = ecPublicKey.getParams().getOrder();
+			LOGGER.debug("order: {}", order);
+			int unsignedByteLength = BigIntegers.getUnsignedByteLength(order);
+			LOGGER.debug("order size: {}", unsignedByteLength);
+		}
 	}
 
 	@Test
@@ -435,6 +446,44 @@ public class BeIDCardTest {
 		LOGGER.debug("signature size: {} bytes", signatureValue.length);
 		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
 		boolean result = beIDIntegrity.verifyNonRepSignature(digestValue, signatureValue, signingCertificate);
+		assertTrue(result);
+	}
+
+	@Test
+	public void testSignature() throws Exception {
+		byte[] toBeSigned = new byte[10];
+		SecureRandom secureRandom = new SecureRandom();
+		secureRandom.nextBytes(toBeSigned);
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		byte[] digestValue = messageDigest.digest(toBeSigned);
+
+		BeIDCard beIDCard = getBeIDCard();
+
+		BeIDDigest beidDigest;
+		if (beIDCard.isEC()) {
+			// beidDigest = BeIDDigest.ECDSA_SHA_2_256;
+			beidDigest = BeIDDigest.ECDSA_SHA_2_256_P1363;
+		} else {
+			beidDigest = BeIDDigest.SHA_256;
+		}
+
+		X509Certificate signingCertificate;
+		byte[] signatureValue;
+		try {
+			signatureValue = beIDCard.sign(digestValue, beidDigest, FileType.NonRepudiationCertificate, false);
+			assertNotNull(signatureValue);
+			signingCertificate = beIDCard.getSigningCertificate();
+		} finally {
+			beIDCard.close();
+		}
+
+		LOGGER.debug("signature size: {} bytes", signatureValue.length);
+
+		// Signature signature = Signature.getInstance("SHA256withECDSA");
+		Signature signature = Signature.getInstance("SHA256withECDSAinP1363Format");
+		signature.initVerify(signingCertificate.getPublicKey());
+		signature.update(toBeSigned);
+		boolean result = signature.verify(signatureValue);
 		assertTrue(result);
 	}
 

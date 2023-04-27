@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2020 e-Contract.be BV.
+ * Copyright (C) 2020-2023 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -86,6 +86,18 @@ public enum BeIDDigest {
 
 	ECDSA_SHA_3_512(new byte[] {}, 0x20, true),
 
+	ECDSA_SHA_2_256_P1363(new byte[] {}, 0x01, true, true),
+
+	ECDSA_SHA_2_384_P1363(new byte[] {}, 0x02, true, true),
+
+	ECDSA_SHA_2_512_P1363(new byte[] {}, 0x04, true, true),
+
+	ECDSA_SHA_3_256_P1363(new byte[] {}, 0x08, true, true),
+
+	ECDSA_SHA_3_384_P1363(new byte[] {}, 0x10, true, true),
+
+	ECDSA_SHA_3_512_P1363(new byte[] {}, 0x20, true, true),
+
 	NONE(new byte[] {}),
 
 	ECDSA_NONE(new byte[] {}, 0x40, true);
@@ -93,15 +105,21 @@ public enum BeIDDigest {
 	private final byte[] prefix;
 	private final byte algorithmReference;
 	private final boolean ec;
+	private final boolean p1363;
 
-	private BeIDDigest(final byte[] prefix, final int algorithmReference, final boolean ec) {
+	private BeIDDigest(final byte[] prefix, final int algorithmReference, final boolean ec, final boolean p1363) {
 		this.prefix = prefix;
 		this.algorithmReference = (byte) algorithmReference;
 		this.ec = ec;
+		this.p1363 = p1363;
+	}
+
+	private BeIDDigest(final byte[] prefix, final int algorithmReference, final boolean ec) {
+		this(prefix, algorithmReference, ec, false);
 	}
 
 	private BeIDDigest(final byte[] prefix, final int algorithmReference) {
-		this(prefix, algorithmReference, false);
+		this(prefix, algorithmReference, false, false);
 	}
 
 	private BeIDDigest(final byte[] prefix) {
@@ -137,5 +155,9 @@ public enum BeIDDigest {
 
 	public boolean isEc() {
 		return this.ec;
+	}
+
+	public boolean isP1363() {
+		return this.p1363;
 	}
 }
