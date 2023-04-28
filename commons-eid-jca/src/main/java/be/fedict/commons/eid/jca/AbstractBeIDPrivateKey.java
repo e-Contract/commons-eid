@@ -24,8 +24,6 @@ import java.security.PrivateKey;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.smartcardio.CardException;
 
@@ -62,36 +60,9 @@ public abstract class AbstractBeIDPrivateKey implements PrivateKey {
 
 	private final BeIDKeyStore beIDKeyStore;
 
-	private final static Map<String, BeIDDigest> beIDDigests;
-
 	private final String applicationName;
 
 	protected X509Certificate authenticationCertificate;
-
-	static {
-		beIDDigests = new HashMap<>();
-		beIDDigests.put("SHA-1", BeIDDigest.SHA_1);
-		beIDDigests.put("SHA-224", BeIDDigest.SHA_224);
-		beIDDigests.put("SHA-256", BeIDDigest.SHA_256);
-		beIDDigests.put("SHA-384", BeIDDigest.SHA_384);
-		beIDDigests.put("SHA-512", BeIDDigest.SHA_512);
-		beIDDigests.put("NONE", BeIDDigest.NONE);
-		beIDDigests.put("RIPEMD128", BeIDDigest.RIPEMD_128);
-		beIDDigests.put("RIPEMD160", BeIDDigest.RIPEMD_160);
-		beIDDigests.put("RIPEMD256", BeIDDigest.RIPEMD_256);
-		beIDDigests.put("SHA-1-PSS", BeIDDigest.SHA_1_PSS);
-		beIDDigests.put("SHA-256-PSS", BeIDDigest.SHA_256_PSS);
-		beIDDigests.put("SHA-256-ECDSA", BeIDDigest.ECDSA_SHA_2_256);
-		beIDDigests.put("SHA-384-ECDSA", BeIDDigest.ECDSA_SHA_2_384);
-		beIDDigests.put("SHA-512-ECDSA", BeIDDigest.ECDSA_SHA_2_512);
-		beIDDigests.put("SHA3-256-ECDSA", BeIDDigest.ECDSA_SHA_3_256);
-		beIDDigests.put("SHA3-384-ECDSA", BeIDDigest.ECDSA_SHA_3_384);
-		beIDDigests.put("SHA3-512-ECDSA", BeIDDigest.ECDSA_SHA_3_512);
-		beIDDigests.put("NONE-ECDSA", BeIDDigest.ECDSA_NONE);
-		beIDDigests.put("SHA3-256", BeIDDigest.SHA3_256);
-		beIDDigests.put("SHA3-384", BeIDDigest.SHA3_384);
-		beIDDigests.put("SHA3-512", BeIDDigest.SHA3_512);
-	}
 
 	/**
 	 * Main constructor.
@@ -134,12 +105,8 @@ public abstract class AbstractBeIDPrivateKey implements PrivateKey {
 		return null;
 	}
 
-	byte[] sign(final byte[] digestValue, final String digestAlgo) throws SignatureException {
+	byte[] sign(final byte[] digestValue, final BeIDDigest digestAlgo) throws SignatureException {
 		LOGGER.debug("auto recovery: {}", this.autoRecovery);
-		final BeIDDigest beIDDigest = beIDDigests.get(digestAlgo);
-		if (null == beIDDigest) {
-			throw new SignatureException("unsupported algo: " + digestAlgo);
-		}
 		byte[] signatureValue;
 		try {
 			if (this.autoRecovery) {
@@ -156,7 +123,7 @@ public abstract class AbstractBeIDPrivateKey implements PrivateKey {
 				}
 			}
 			try {
-				signatureValue = this.beIDCard.sign(digestValue, beIDDigest, this.certificateFileType, false,
+				signatureValue = this.beIDCard.sign(digestValue, digestAlgo, this.certificateFileType, false,
 						this.applicationName);
 			} catch (UserCancelledException | IOException | InterruptedException | CardException e) {
 				if (this.autoRecovery) {
@@ -168,7 +135,7 @@ public abstract class AbstractBeIDPrivateKey implements PrivateKey {
 							throw new SignatureException("different eID card");
 						}
 					}
-					signatureValue = this.beIDCard.sign(digestValue, beIDDigest, this.certificateFileType, false,
+					signatureValue = this.beIDCard.sign(digestValue, digestAlgo, this.certificateFileType, false,
 							this.applicationName);
 				} else {
 					throw e;

@@ -38,6 +38,7 @@ import java.security.KeyStore.ProtectionParameter;
 import java.security.KeyStore.TrustedCertificateEntry;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -55,6 +56,8 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -68,9 +71,12 @@ import javax.xml.crypto.dsig.Transform;
 import javax.xml.crypto.dsig.XMLSignContext;
 import javax.xml.crypto.dsig.XMLSignature;
 import javax.xml.crypto.dsig.XMLSignatureFactory;
+import javax.xml.crypto.dsig.XMLValidateContext;
 import javax.xml.crypto.dsig.dom.DOMSignContext;
+import javax.xml.crypto.dsig.dom.DOMValidateContext;
 import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
+import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import javax.xml.crypto.dsig.keyinfo.X509Data;
 import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import javax.xml.crypto.dsig.spec.TransformParameterSpec;
@@ -94,15 +100,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import be.fedict.commons.eid.client.BeIDCard;
 import be.fedict.commons.eid.client.BeIDCards;
 import be.fedict.commons.eid.client.spi.UserCancelledException;
-import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
 import be.fedict.commons.eid.jca.AbstractBeIDPrivateKey;
+import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
 import be.fedict.commons.eid.jca.BeIDProvider;
 import be.fedict.commons.eid.jca.UserCancelledSignatureException;
-import java.security.Provider;
 
 public class JCATest {
 
@@ -139,12 +145,12 @@ public class JCATest {
 
 	@Test
 	public void testGenericXMLSignatureCreation() throws Exception {
-                String javaVersion = System.getProperty("java.version");
-                LOGGER.debug("Java version: {}", javaVersion);
-                Provider[] providers = Security.getProviders();
-                for (Provider provider : providers) {
-                    LOGGER.debug("JCA provider: {} ({})", provider.getName(), provider.getClass().getName());
-                }
+		String javaVersion = System.getProperty("java.version");
+		LOGGER.debug("Java version: {}", javaVersion);
+		Provider[] providers = Security.getProviders();
+		for (Provider provider : providers) {
+			LOGGER.debug("JCA provider: {} ({})", provider.getName(), provider.getClass().getName());
+		}
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
@@ -161,6 +167,7 @@ public class JCATest {
 		default:
 			throw new IllegalStateException("unsupported key algo");
 		}
+		LOGGER.debug("signature algorithm: {}", signatureAlgo);
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);
@@ -191,6 +198,96 @@ public class JCATest {
 
 		XMLSignature xmlSignature = xmlSignatureFactory.newXMLSignature(signedInfo, keyInfo);
 		xmlSignature.sign(domSignContext);
+
+		LOGGER.debug("validating XML signature...");
+		NodeList signatureNodeList = document.getElementsByTagNameNS("http://www.w3.org/2000/09/xmldsig#", "Signature");
+		Element signatureElement = (Element) signatureNodeList.item(0);
+		XMLValidateContext validateContext = new DOMValidateContext(authnCertificate.getPublicKey(), signatureElement);
+		xmlSignature = xmlSignatureFactory.unmarshalXMLSignature(validateContext);
+		boolean result = xmlSignature.validate(validateContext);
+		assertTrue(result);
+
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		StringWriter stringWriter = new StringWriter();
+		transformer.transform(new DOMSource(document), new StreamResult(stringWriter));
+		LOGGER.debug("result: {}", stringWriter.toString());
+	}
+
+	@Test
+	public void testSoftwareXMLSignatureECDSA() throws Exception {
+		String javaVersion = System.getProperty("java.version");
+		LOGGER.debug("Java version: {}", javaVersion);
+		Provider[] providers = Security.getProviders();
+		Provider sunECProvider = null;
+		for (Provider provider : providers) {
+			if (provider.getName().equals("SunEC")) {
+				sunECProvider = provider;
+			}
+			LOGGER.debug("JCA provider: {} ({})", provider.getName(), provider.getClass().getName());
+			Set<Map.Entry<Object, Object>> entries = provider.entrySet();
+			for (Map.Entry<Object, Object> entry : entries) {
+				String algo = (String) entry.getKey();
+				if (!algo.contains("Signature")) {
+					continue;
+				}
+				if (!algo.contains("ECDSA")) {
+					continue;
+				}
+				LOGGER.debug("entry type: {}", algo);
+			}
+		}
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+		ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp384r1");
+		keyGen.initialize(ecSpec, random);
+
+		KeyPair keyPair = keyGen.generateKeyPair();
+		PrivateKey privateKey = keyPair.getPrivate();
+		PublicKey publicKey = keyPair.getPublic();
+		String digestAlgo = "http://www.w3.org/2001/04/xmlenc#sha256";
+		String signatureAlgo = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256";
+
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		documentBuilderFactory.setNamespaceAware(true);
+		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+		Element rootElement = document.createElementNS("urn:test", "Root");
+		document.appendChild(rootElement);
+
+		XMLSignContext domSignContext = new DOMSignContext(privateKey, document.getDocumentElement());
+		// next is to prevent BeIDProvider to highjack ECDSA
+		domSignContext.setProperty("org.jcp.xml.dsig.internal.dom.SignatureProvider", sunECProvider);
+		XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM");
+		List<Reference> references = new LinkedList<>();
+		List<Transform> transforms = new LinkedList<>();
+		transforms.add(xmlSignatureFactory.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null));
+		transforms.add(xmlSignatureFactory.newCanonicalizationMethod(CanonicalizationMethod.EXCLUSIVE,
+				(C14NMethodParameterSpec) null));
+		Reference reference = xmlSignatureFactory.newReference("",
+				xmlSignatureFactory.newDigestMethod(digestAlgo, null), transforms, null, null);
+		references.add(reference);
+
+		SignedInfo signedInfo = xmlSignatureFactory.newSignedInfo(
+				xmlSignatureFactory.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE_WITH_COMMENTS,
+						(C14NMethodParameterSpec) null),
+				xmlSignatureFactory.newSignatureMethod(signatureAlgo, null), references);
+
+		KeyInfoFactory keyInfoFactory = xmlSignatureFactory.getKeyInfoFactory();
+		KeyValue keyValue = keyInfoFactory.newKeyValue(publicKey);
+		KeyInfo keyInfo = keyInfoFactory.newKeyInfo(Collections.singletonList(keyValue));
+
+		XMLSignature xmlSignature = xmlSignatureFactory.newXMLSignature(signedInfo, keyInfo);
+		xmlSignature.sign(domSignContext);
+
+		LOGGER.debug("validating XML signature...");
+		NodeList signatureNodeList = document.getElementsByTagNameNS("http://www.w3.org/2000/09/xmldsig#", "Signature");
+		Element signatureElement = (Element) signatureNodeList.item(0);
+		XMLValidateContext validateContext = new DOMValidateContext(publicKey, signatureElement);
+		validateContext.setProperty("org.jcp.xml.dsig.internal.dom.SignatureProvider", sunECProvider);
+		xmlSignature = xmlSignatureFactory.unmarshalXMLSignature(validateContext);
+		boolean result = xmlSignature.validate(validateContext);
+		assertTrue(result);
 
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();

@@ -81,8 +81,22 @@ byte[] signatureValue = signature.sign();
   * <<<SHA3-384withECDSA>>> (eID version 1.8 cards only)
   
   * <<<SHA3-512withECDSA>>> (eID version 1.8 cards only)
+
+  * <<<SHA256withECDSAinP1363Format>>> (eID version 1.8 cards only)
+  
+  * <<<SHA384withECDSAinP1363Format>>> (eID version 1.8 cards only)
+  
+  * <<<SHA512withECDSAinP1363Format>>> (eID version 1.8 cards only)
+  
+  * <<<SHA3-256withECDSAinP1363Format>>> (eID version 1.8 cards only)
+  
+  * <<<SHA3-384withECDSAinP1363Format>>> (eID version 1.8 cards only)
+  
+  * <<<SHA3-512withECDSAinP1363Format>>> (eID version 1.8 cards only)
   
   * <<<NONEwithECDSA>>> (eID version 1.8 cards only)
+
+  * <<<NONEwithECDSAinP1363Format>>> (eID version 1.8 cards only)
   
 
 * Retrieving a certificate chain

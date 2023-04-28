@@ -16,6 +16,9 @@
 		<Logger name="be.fedict" level="debug" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
+                <Logger name="org.apache.jcp.xml.dsig" level="debug" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
 		<Root level="warn">
 			<AppenderRef ref="Console" />
 		</Root>
