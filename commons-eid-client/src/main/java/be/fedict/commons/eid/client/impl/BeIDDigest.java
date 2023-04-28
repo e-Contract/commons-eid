@@ -137,7 +137,7 @@ public enum BeIDDigest {
 	}
 
 	private BeIDDigest(String algorithm, final byte[] prefix) {
-		this(null, prefix, 0x01); // default algorithm reference: PKCS#1
+		this(algorithm, prefix, 0x01); // default algorithm reference: PKCS#1
 	}
 
 	public static BeIDDigest getInstance(final String name) {
