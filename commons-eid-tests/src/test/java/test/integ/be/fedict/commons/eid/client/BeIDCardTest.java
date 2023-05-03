@@ -460,11 +460,15 @@ public class BeIDCardTest {
 		BeIDCard beIDCard = getBeIDCard();
 
 		BeIDDigest beidDigest;
+		String signatureAlgo;
 		if (beIDCard.isEC()) {
 			// beidDigest = BeIDDigest.ECDSA_SHA_2_256;
+			// signatureAlgo = "SHA256withECDSA";
 			beidDigest = BeIDDigest.ECDSA_SHA_2_256_P1363;
+			signatureAlgo = "SHA256withECDSAinP1363Format";
 		} else {
 			beidDigest = BeIDDigest.SHA_256;
+			signatureAlgo = "SHA256withRSA";
 		}
 
 		X509Certificate signingCertificate;
@@ -479,8 +483,7 @@ public class BeIDCardTest {
 
 		LOGGER.debug("signature size: {} bytes", signatureValue.length);
 
-		// Signature signature = Signature.getInstance("SHA256withECDSA");
-		Signature signature = Signature.getInstance("SHA256withECDSAinP1363Format");
+		Signature signature = Signature.getInstance(signatureAlgo);
 		signature.initVerify(signingCertificate.getPublicKey());
 		signature.update(toBeSigned);
 		boolean result = signature.verify(signatureValue);

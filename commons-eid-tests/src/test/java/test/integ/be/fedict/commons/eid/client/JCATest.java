@@ -16,7 +16,6 @@
  * License along with this software; if not, see 
  * http://www.gnu.org/licenses/.
  */
-
 package test.integ.be.fedict.commons.eid.client;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -45,6 +44,7 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECGenParameterSpec;
@@ -132,6 +132,7 @@ public class JCATest {
 			break;
 		case "EC":
 			signatureAlgorithm = "SHA256withECDSA";
+			assertTrue(authnPrivateKey instanceof ECPrivateKey);
 			break;
 		default:
 			throw new IllegalStateException("unsupported key algo");
@@ -141,6 +142,13 @@ public class JCATest {
 		byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);
 		byte[] signatureValue = signature.sign();
+
+		X509Certificate certificate = (X509Certificate) keyStore.getCertificate("Authentication");
+		PublicKey publicKey = certificate.getPublicKey();
+		signature.initVerify(publicKey);
+		signature.update(toBeSigned);
+		boolean result = signature.verify(signatureValue);
+		assertTrue(result);
 	}
 
 	@Test
@@ -311,7 +319,13 @@ public class JCATest {
 		keyStore.load(keyStoreParameter);
 
 		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
-		final Signature signature = Signature.getInstance("SHA1withRSA");
+		String signatureAlgo;
+		if (authnPrivateKey instanceof ECPrivateKey) {
+			signatureAlgo = "SHA256withECDSA";
+		} else {
+			signatureAlgo = "SHA256withRSA";
+		}
+		final Signature signature = Signature.getInstance(signatureAlgo);
 		signature.initSign(authnPrivateKey);
 
 		final byte[] toBeSigned = "hello world".getBytes();
@@ -344,7 +358,13 @@ public class JCATest {
 		keyStore.load(myFrame);
 
 		final PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
-		final Signature signature = Signature.getInstance("SHA1withRSA");
+		String signatureAlgo;
+		if (authnPrivateKey instanceof ECPrivateKey) {
+			signatureAlgo = "SHA256withECDSA";
+		} else {
+			signatureAlgo = "SHA256withRSA";
+		}
+		final Signature signature = Signature.getInstance(signatureAlgo);
 		signature.initSign(authnPrivateKey);
 
 		final byte[] toBeSigned = "hello world".getBytes();
@@ -363,7 +383,13 @@ public class JCATest {
 		keyStore.load(null);
 
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
-		final Signature signature = Signature.getInstance("SHA1withRSA");
+		String signatureAlgo;
+		if (authnPrivateKey instanceof ECPrivateKey) {
+			signatureAlgo = "SHA256withECDSA";
+		} else {
+			signatureAlgo = "SHA256withRSA";
+		}
+		final Signature signature = Signature.getInstance(signatureAlgo);
 		signature.initSign(authnPrivateKey);
 
 		final byte[] toBeSigned = "hello world".getBytes();
@@ -385,7 +411,7 @@ public class JCATest {
 	 * Automatic recovery should work on the same eID card.
 	 * <p/>
 	 * When inserting another eID card however, the automatic recovery should fail.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -398,7 +424,13 @@ public class JCATest {
 
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 		PublicKey authnPublicKey = keyStore.getCertificate("Authentication").getPublicKey();
-		final Signature signature = Signature.getInstance("SHA1withRSA");
+		String signatureAlgo;
+		if (authnPrivateKey instanceof ECPrivateKey) {
+			signatureAlgo = "SHA256withECDSA";
+		} else {
+			signatureAlgo = "SHA256withRSA";
+		}
+		final Signature signature = Signature.getInstance(signatureAlgo);
 		signature.initSign(authnPrivateKey);
 
 		final byte[] toBeSigned = "hello world".getBytes();
@@ -783,10 +815,16 @@ public class JCATest {
 		// signCertificate.getPublicKey());
 		// verifySignatureAlgorithm("SHA512withECDSA", signPrivateKey,
 		// signCertificate.getPublicKey());
-
 		verifySignatureAlgorithm("SHA3-256withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA3-384withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA3-512withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
+
+		verifySignatureAlgorithm("SHA256withECDSAinP1363Format", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA384withECDSAinP1363Format", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA512withECDSAinP1363Format", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA3-256withECDSAinP1363Format", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA3-384withECDSAinP1363Format", authnPrivateKey, authnCertificate.getPublicKey());
+		verifySignatureAlgorithm("SHA3-512withECDSAinP1363Format", authnPrivateKey, authnCertificate.getPublicKey());
 	}
 
 	@Test
@@ -871,6 +909,29 @@ public class JCATest {
 		assertTrue(result);
 	}
 
+	@Test
+	public void testNONEwithECDSAinP1363Format() throws Exception {
+		byte[] data = "hello world".getBytes();
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		byte[] digest = messageDigest.digest(data);
+
+		KeyStore keyStore = KeyStore.getInstance("BeID");
+		keyStore.load(null);
+		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
+
+		Signature signature = Signature.getInstance("NONEwithECDSAinP1363Format");
+		signature.initSign(authnPrivateKey);
+		signature.update(digest);
+		byte[] signatureValue = signature.sign();
+
+		signature = Signature.getInstance("SHA256withECDSAinP1363Format");
+		signature.initVerify(authnCertificate);
+		signature.update(data);
+		boolean result = signature.verify(signatureValue);
+		assertTrue(result);
+	}
+
 	private void verifySignatureAlgorithm(final String signatureAlgorithm, final PrivateKey privateKey,
 			PublicKey publicKey) throws Exception {
 		Signature signature = Signature.getInstance(signatureAlgorithm);
@@ -883,12 +944,6 @@ public class JCATest {
 		assertNotNull(signatureValue);
 		LOGGER.debug("signature size: {} bytes", signatureValue.length);
 
-		if (signatureAlgorithm.startsWith("SHA3-")) {
-			// KeyFactory keyFactory = KeyFactory.getInstance("EC",
-			// BouncyCastleProvider.PROVIDER_NAME);
-			// publicKey = keyFactory.generatePublic(new
-			// X509EncodedKeySpec(publicKey.getEncoded()));
-		}
 		signature.initVerify(publicKey);
 		LOGGER.debug("signature provider: {}", signature.getProvider().getName());
 		signature.update(toBeSigned);

@@ -1,6 +1,6 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2013-2020 e-Contract.be BV.
+ * Copyright (C) 2013-2023 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -22,6 +22,7 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPrivateKey;
 
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
@@ -40,18 +41,24 @@ public class CMSTest {
 
 	@Test
 	public void testCMSSignature() throws Exception {
-		Security.addProvider(new BeIDProvider());
+		Security.insertProviderAt(new BeIDProvider(), 1);
 		Security.addProvider(new BouncyCastleProvider());
 
 		KeyStore keyStore = KeyStore.getInstance("BeID");
 		keyStore.load(null);
 		PrivateKey privateKey = (PrivateKey) keyStore.getKey("Authentication", null);
+		String signatureAlgo;
+		if (privateKey instanceof ECPrivateKey) {
+			signatureAlgo = "SHA256withECDSA";
+		} else {
+			signatureAlgo = "SHA256withRSA";
+		}
 		X509Certificate certificate = (X509Certificate) keyStore.getCertificate("Authentication");
 
 		CMSTypedData msg = new CMSProcessableByteArray("Hello world!".getBytes());
 
 		CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
-		ContentSigner sha1Signer = new JcaContentSignerBuilder("SHA1withRSA").build(privateKey);
+		ContentSigner sha1Signer = new JcaContentSignerBuilder(signatureAlgo).build(privateKey);
 
 		gen.addSignerInfoGenerator(
 				new JcaSignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().setProvider("BC").build())

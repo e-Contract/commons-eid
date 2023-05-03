@@ -18,7 +18,7 @@ Commons eID JCA
   Depending on the key algorithm, you select either RSA or ECDSA as signature algorithm as shown in the following example.
 
 +---
-Security.addProvider(new BeIDProvider());
+Security.insertProviderAt(new BeIDProvider(), 1);
 KeyStore keyStore = KeyStore.getInstance("BeID");
 keyStore.load(null);
 PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
@@ -118,7 +118,7 @@ Certificate[] certificateChain = keyStore.getCertificateChain("Signature");
   The following example demonstrates how to activate this automatic recovery mechanism:
   
 +---
-Security.addProvider(new BeIDProvider());
+Security.insertProviderAt(new BeIDProvider(), 1);
 KeyStore keyStore = KeyStore.getInstance("BeID");
 BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
 keyStoreParameter.setAutoRecovery(true);
@@ -134,7 +134,7 @@ PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null
   The following example demonstrates how to activate both card reader stickiness and automatic recovery:
 
 +---
-Security.addProvider(new BeIDProvider());
+Security.insertProviderAt(new BeIDProvider(), 1);
 KeyStore keyStore = KeyStore.getInstance("BeID");
 BeIDKeyStoreParameter keyStoreParameter = new BeIDKeyStoreParameter();
 keyStoreParameter.setAutoRecovery(true);
@@ -152,7 +152,7 @@ PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null
   The following example demonstrates how to use the <<<KeyManagerFactory>>> with a configuration that features both card reader stickiness and automatic recovery:
 
 +---
-Security.addProvider(new BeIDProvider());
+Security.insertProviderAt(new BeIDProvider(), 1);
 KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("BeID");
 BeIDManagerFactoryParameters spec = new BeIDManagerFactoryParameters();
 spec.setAutoRecovery(true);
