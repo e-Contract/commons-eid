@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2023 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -26,13 +27,13 @@ import java.util.GregorianCalendar;
  * @author Frank Cornelis
  * 
  */
-public class ValidityDateDataConvertor
-		implements
-			DataConvertor<GregorianCalendar> {
+public class ValidityDateDataConvertor implements DataConvertor<GregorianCalendar> {
 
 	@Override
-	public GregorianCalendar convert(final byte[] value)
-			throws DataConvertorException {
+	public GregorianCalendar convert(final byte[] value) throws DataConvertorException {
+		if (value.length == 0) {
+			return null;
+		}
 		final String dateStr = new String(value);
 		final int day = Integer.parseInt(dateStr.substring(0, 2));
 		final int month = Integer.parseInt(dateStr.substring(3, 5));

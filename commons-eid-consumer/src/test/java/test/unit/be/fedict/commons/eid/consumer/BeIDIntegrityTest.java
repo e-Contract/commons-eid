@@ -333,6 +333,40 @@ public class BeIDIntegrityTest {
 	}
 
 	@Test
+	public void testEmptyCardEUStartDate() throws Exception {
+		KeyPair rrnKeyPair = generateKeyPair(1024, "RSA");
+		PublicKey rrnPublicKey = rrnKeyPair.getPublic();
+		PrivateKey rrnPrivateKey = rrnKeyPair.getPrivate();
+		X509Certificate nrnCertificate = generateSelfSignedCertificate(rrnPublicKey, "CN=Test RRN", rrnPrivateKey,
+				"SHA256withRSA");
+
+		byte[] photoFile = "eID photo".getBytes();
+
+		ByteArrayOutputStream identityOutputStream = new ByteArrayOutputStream();
+		identityOutputStream.write(new byte[] { 6, 4, '1', '2', '3', '4', // national register number tag
+				31, 0 // empty cardEUStartDate
+		});
+		identityOutputStream.write(17); // photo digest tag
+		identityOutputStream.write(256 / 8); // sha256 size
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		messageDigest.update(photoFile);
+		byte[] photoDigest = messageDigest.digest();
+		identityOutputStream.write(photoDigest);
+		byte[] identityFile = identityOutputStream.toByteArray();
+
+		Signature signature = Signature.getInstance("SHA256withRSA");
+		signature.initSign(rrnPrivateKey);
+		signature.update(identityFile);
+		byte[] identitySignatureFile = signature.sign();
+
+		BeIDIntegrity beIDIntegrity = new BeIDIntegrity();
+		Identity identity = beIDIntegrity.getVerifiedIdentity(identityFile, identitySignatureFile, photoFile,
+				nrnCertificate);
+		assertNotNull(identity);
+		assertEquals("1234", identity.nationalNumber);
+	}
+
+	@Test
 	public void testIntegritySHA1() throws Exception {
 		KeyPair rrnKeyPair = generateKeyPair(1024, "RSA");
 		PublicKey rrnPublicKey = rrnKeyPair.getPublic();

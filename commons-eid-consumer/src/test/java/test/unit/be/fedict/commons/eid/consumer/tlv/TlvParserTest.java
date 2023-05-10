@@ -574,4 +574,10 @@ public class TlvParserTest {
 		Identity fPlusCardIdentity = TlvParser.parse(fPlusCardIdFile, Identity.class);
 		assertEquals(DocumentType.FOREIGNER_F_PLUS, fPlusCardIdentity.documentType);
 	}
+
+	@Test
+	public void testEmptyCardEUStartDate() throws Exception {
+		byte[] identityFile = new byte[] { 31, 0 };
+		TlvParser.parse(identityFile, Identity.class);
+	}
 }
