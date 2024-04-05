@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2018-2021 e-Contract.be BV.
+ * Copyright (C) 2018-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -117,7 +117,25 @@ public enum DocumentType implements Serializable {
 
 	FOREIGNER_EU("31"),
 
-	FOREIGNER_EU_PLUS("32");
+	FOREIGNER_EU_PLUS("32"),
+
+	FOREIGNER_KIDS_EU("61"),
+
+	FOREIGNER_KIDS_EU_PLUS("62"),
+
+	FOREIGNER_KIDS_A("63"),
+
+	FOREIGNER_KIDS_B("64"),
+
+	FOREIGNER_KIDS_K("65"),
+
+	FOREIGNER_KIDS_L("66"),
+
+	FOREIGNER_KIDS_F("67"),
+
+	FOREIGNER_KIDS_F_PLUS("68"),
+
+	FOREIGNER_KIDS_M("69");
 
 	private final Set<Integer> keys;
 

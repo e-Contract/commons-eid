@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017-2023 e-Contract.be BV.
+ * Copyright (C) 2017-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -573,6 +573,42 @@ public class TlvParserTest {
 		byte[] fPlusCardIdFile = new byte[] { 15, 2, '3', '6' };
 		Identity fPlusCardIdentity = TlvParser.parse(fPlusCardIdFile, Identity.class);
 		assertEquals(DocumentType.FOREIGNER_F_PLUS, fPlusCardIdentity.documentType);
+
+		byte[] fKidsEUIdFile = new byte[] { 15, 2, '6', '1' };
+		Identity fKidsEUIdentity = TlvParser.parse(fKidsEUIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_KIDS_EU, fKidsEUIdentity.documentType);
+
+		byte[] fKidsEUPlusIdFile = new byte[] { 15, 2, '6', '2' };
+		Identity fKidsEUPlusIdentity = TlvParser.parse(fKidsEUPlusIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_KIDS_EU_PLUS, fKidsEUPlusIdentity.documentType);
+
+		byte[] fKidsAIdFile = new byte[] { 15, 2, '6', '3' };
+		Identity fKidsAIdentity = TlvParser.parse(fKidsAIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_KIDS_A, fKidsAIdentity.documentType);
+
+		byte[] fKidsBIdFile = new byte[] { 15, 2, '6', '4' };
+		Identity fKidsBIdentity = TlvParser.parse(fKidsBIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_KIDS_B, fKidsBIdentity.documentType);
+
+		byte[] fKidsKIdFile = new byte[] { 15, 2, '6', '5' };
+		Identity fKidsKIdentity = TlvParser.parse(fKidsKIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_KIDS_K, fKidsKIdentity.documentType);
+
+		byte[] fKidsLIdFile = new byte[] { 15, 2, '6', '6' };
+		Identity fKidsLIdentity = TlvParser.parse(fKidsLIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_KIDS_L, fKidsLIdentity.documentType);
+
+		byte[] fKidsFIdFile = new byte[] { 15, 2, '6', '7' };
+		Identity fKidsFIdentity = TlvParser.parse(fKidsFIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_KIDS_F, fKidsFIdentity.documentType);
+
+		byte[] fKidsFPlusIdFile = new byte[] { 15, 2, '6', '8' };
+		Identity fKidsFPlusIdentity = TlvParser.parse(fKidsFPlusIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_KIDS_F_PLUS, fKidsFPlusIdentity.documentType);
+
+		byte[] fKidsMIdFile = new byte[] { 15, 2, '6', '9' };
+		Identity fKidsMIdentity = TlvParser.parse(fKidsMIdFile, Identity.class);
+		assertEquals(DocumentType.FOREIGNER_KIDS_M, fKidsMIdentity.documentType);
 	}
 
 	@Test
