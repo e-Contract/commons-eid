@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017-2023 e-Contract.be BV.
+ * Copyright (C) 2017-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -199,23 +199,10 @@ public class BeIDSignature extends SignatureSpi {
 	protected byte[] engineSign() throws SignatureException {
 		LOGGER.debug("engineSign");
 		final byte[] digestValue;
-		String digestAlgo;
 		if (null != this.messageDigest) {
 			digestValue = this.messageDigest.digest();
-			digestAlgo = this.messageDigest.getAlgorithm();
-			if (this.signatureAlgorithm.endsWith("andMGF1")) {
-				digestAlgo += "-PSS";
-			} else if (this.signatureAlgorithm.contains("ECDSA")) {
-				digestAlgo += "-ECDSA";
-			}
 		} else if (null != this.precomputedDigestOutputStream) {
 			digestValue = this.precomputedDigestOutputStream.toByteArray();
-			if (this.signatureAlgorithm.contains("ECDSA")) {
-				digestAlgo = "NONE-ECDSA";
-			} else {
-				// RSA
-				digestAlgo = "NONE";
-			}
 		} else {
 			throw new SignatureException();
 		}
