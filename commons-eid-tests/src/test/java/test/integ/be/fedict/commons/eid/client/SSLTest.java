@@ -40,6 +40,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.RSAKeyGenParameterSpec;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Locale;
 
 import javax.net.ssl.KeyManager;
@@ -70,12 +73,13 @@ import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
-import org.joda.time.DateTime;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,10 +91,14 @@ public class SSLTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SSLTest.class);
 
+	@BeforeAll
+	public static void setup() {
+		Security.insertProviderAt(new BeIDProvider(), 1);
+		Security.addProvider(new BouncyCastleProvider());
+	}
+
 	@Test
 	public void testTestEIDBelgiumBe() throws Exception {
-		Security.addProvider(new BeIDProvider());
-
 		SSLContext sslContext = SSLContext.getInstance("TLS");
 		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("BeID");
 
@@ -110,13 +118,10 @@ public class SSLTest {
 
 	@Test
 	public void testMutualSSL() throws Exception {
-
-		Security.addProvider(new BeIDProvider());
-
 		final KeyPair serverKeyPair = generateKeyPair();
 		final PrivateKey serverPrivateKey = serverKeyPair.getPrivate();
-		final DateTime notBefore = new DateTime();
-		final DateTime notAfter = notBefore.plusDays(1);
+		final LocalDateTime notBefore = LocalDateTime.now();
+		final LocalDateTime notAfter = notBefore.plusDays(1);
 		final X509Certificate serverCertificate = generateCACertificate(serverKeyPair, "CN=Test", notBefore, notAfter);
 
 		final KeyManager keyManager = new ServerTestX509KeyManager(serverPrivateKey, serverCertificate);
@@ -320,8 +325,8 @@ public class SSLTest {
 		return keyPairGenerator.generateKeyPair();
 	}
 
-	private X509Certificate generateCACertificate(final KeyPair keyPair, final String subject, final DateTime notBefore,
-			final DateTime notAfter) throws Exception {
+	private X509Certificate generateCACertificate(final KeyPair keyPair, final String subject,
+			final LocalDateTime notBefore, final LocalDateTime notAfter) throws Exception {
 		LOGGER.debug("generate CA certificate: " + subject);
 
 		final X500Name issuer = new X500Name(subject);
@@ -335,7 +340,8 @@ public class SSLTest {
 		final BigInteger serial = new BigInteger(serialValue);
 
 		final X509v3CertificateBuilder x509v3CertificateBuilder = new X509v3CertificateBuilder(issuer, serial,
-				notBefore.toDate(), notAfter.toDate(), subjectX500Name, publicKeyInfo);
+				Date.from(notBefore.atZone(ZoneId.systemDefault()).toInstant()),
+				Date.from(notAfter.atZone(ZoneId.systemDefault()).toInstant()), subjectX500Name, publicKeyInfo);
 
 		try {
 			final JcaX509ExtensionUtils extensionUtils = new JcaX509ExtensionUtils();

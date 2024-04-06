@@ -208,6 +208,7 @@ public class JCATest {
 		Element signatureElement = (Element) signatureNodeList.item(0);
 		XMLValidateContext validateContext = new DOMValidateContext(authnCertificate.getPublicKey(), signatureElement);
 		xmlSignature = xmlSignatureFactory.unmarshalXMLSignature(validateContext);
+		// Java 9+ only
 		boolean result = xmlSignature.validate(validateContext);
 		assertTrue(result);
 
@@ -798,23 +799,15 @@ public class JCATest {
 		PrivateKey authnPrivateKey = (PrivateKey) keyStore.getKey("Authentication", null);
 		X509Certificate authnCertificate = (X509Certificate) keyStore.getCertificate("Authentication");
 
-		PrivateKey signPrivateKey = (PrivateKey) keyStore.getKey("Signature", null);
-		X509Certificate signCertificate = (X509Certificate) keyStore.getCertificate("Signature");
-
 		verifySignatureAlgorithm("SHA256withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA384withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA512withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 
-		// verifySignatureAlgorithm("SHA256withECDSA", signPrivateKey,
-		// signCertificate.getPublicKey());
-		// verifySignatureAlgorithm("SHA384withECDSA", signPrivateKey,
-		// signCertificate.getPublicKey());
-		// verifySignatureAlgorithm("SHA512withECDSA", signPrivateKey,
-		// signCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA3-256withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA3-384withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA3-512withECDSA", authnPrivateKey, authnCertificate.getPublicKey());
 
+		// Java 9+ only
 		verifySignatureAlgorithm("SHA256withECDSAinP1363Format", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA384withECDSAinP1363Format", authnPrivateKey, authnCertificate.getPublicKey());
 		verifySignatureAlgorithm("SHA512withECDSAinP1363Format", authnPrivateKey, authnCertificate.getPublicKey());
