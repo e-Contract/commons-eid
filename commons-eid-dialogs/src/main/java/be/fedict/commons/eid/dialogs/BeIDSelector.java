@@ -411,8 +411,7 @@ public class BeIDSelector {
 			if (-1 == valueEndIdx) {
 				valueEndIdx = name.length();
 			}
-			String value = name.substring(valueBeginIdx, valueEndIdx);
-			return value;
+			return name.substring(valueBeginIdx, valueEndIdx);
 		}
 	}
 

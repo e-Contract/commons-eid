@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2012-2013 FedICT.
- * Copyright (C) 2017 e-Contract.be BVBA.
+ * Copyright (C) 2017-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -70,8 +70,7 @@ public class BeIDKeyManagerFactory extends KeyManagerFactorySpi {
 		} catch (final IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
 			throw new IllegalStateException(e);
 		}
-		final KeyManager[] keyManagers = new KeyManager[] { beidKeyManager };
-		return keyManagers;
+		return new KeyManager[] { beidKeyManager };
 	}
 
 	@Override
@@ -80,7 +79,7 @@ public class BeIDKeyManagerFactory extends KeyManagerFactorySpi {
 		if (null == spec) {
 			return;
 		}
-		if (false == spec instanceof BeIDManagerFactoryParameters) {
+		if (!(spec instanceof BeIDManagerFactoryParameters)) {
 			throw new InvalidAlgorithmParameterException();
 		}
 		this.beIDSpec = (BeIDManagerFactoryParameters) spec;

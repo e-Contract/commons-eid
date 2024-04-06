@@ -76,7 +76,7 @@ public class CardAndTerminalManagerTests {
 		this.simulatedCardTerminals = new SimulatedCardTerminals();
 	}
 
-	private class RecordKeepingCardTerminalEventsListener implements CardTerminalEventsListener {
+	private static class RecordKeepingCardTerminalEventsListener implements CardTerminalEventsListener {
 		private final Set<CardTerminal> recordedState;
 
 		public RecordKeepingCardTerminalEventsListener() {
@@ -107,7 +107,7 @@ public class CardAndTerminalManagerTests {
 		}
 	}
 
-	private class RecordKeepingCardEventsListener implements CardEventsListener {
+	private static class RecordKeepingCardEventsListener implements CardEventsListener {
 		private final Map<CardTerminal, Card> recordedState;
 
 		public RecordKeepingCardEventsListener() {
@@ -262,7 +262,7 @@ public class CardAndTerminalManagerTests {
 		assertEquals(expectedState, recorder.getRecordedState());
 	}
 
-	private final class NPEProneCardTerminalEventsListener implements CardTerminalEventsListener {
+	private final static class NPEProneCardTerminalEventsListener implements CardTerminalEventsListener {
 		@Override
 		public void terminalAttached(final CardTerminal cardTerminal) {
 			throw new NullPointerException("Fake NPE attempting to trash a CardTerminalEventsListener");
@@ -279,7 +279,7 @@ public class CardAndTerminalManagerTests {
 		}
 	}
 
-	private final class NPEProneCardEventsListener implements CardEventsListener {
+	private final static class NPEProneCardEventsListener implements CardEventsListener {
 		@Override
 		public void cardInserted(final CardTerminal cardTerminal, final Card card) {
 			throw new NullPointerException("Fake NPE attempting to trash a CardEventsListener");

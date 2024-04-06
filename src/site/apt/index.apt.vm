@@ -6,11 +6,11 @@ Introduction
   instead of RSA keys.
 
   The architecture of the Commons eID project is specially tailored to be able to serve both
-  desktop applications as well as lightweight web browser components. Desktop applications basically use all 
+  desktop applications and lightweight web browser components. Desktop applications basically use all
   artifacts together whereas lightweight components use the client artifact only at the client-side, and use the
   consumer artifact at the server-side.
   
-  Furthermore the Commons eID project delivers an eID specific JCA security provider. This gives
+  Furthermore, the Commons eID project delivers an eID specific JCA security provider. This gives
   you seamless integration of the eID card into the security architecture of Java.
   
   Commons eID requires Java 8 or higher and is known to work on Windows, Mac OS X, Linux, and FreeBSD.

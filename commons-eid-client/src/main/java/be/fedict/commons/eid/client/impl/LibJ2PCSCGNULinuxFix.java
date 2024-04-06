@@ -1,6 +1,6 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2015-2020 e-Contract.be BV.
+ * Copyright (C) 2015-2024 e-Contract.be BV.
  * Copyright (C) 2008-2015 FedICT.
  * 
  * This is free software; you can redistribute it and/or modify it
@@ -50,9 +50,9 @@ public final class LibJ2PCSCGNULinuxFix {
 	private static final String JRE_BITNESS_32_VALUE = "i386";
 	private static final String JRE_BITNESS_64_VALUE = "amd64";
 
-	private static enum UbuntuBitness {
+	private enum UbuntuBitness {
 		NA, PURE32, PURE64, MULTILIB
-	};
+	}
 
 	private LibJ2PCSCGNULinuxFix() {
 		super();

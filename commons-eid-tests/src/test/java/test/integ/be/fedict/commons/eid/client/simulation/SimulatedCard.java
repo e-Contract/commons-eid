@@ -99,7 +99,7 @@ public class SimulatedCard extends Card {
 		// "READ BINARY"
 		else if (apdu.getCLA() == 0x00 && apdu.getINS() == 0xB0) {
 			final int offset = (apdu.getP1() << 8) + apdu.getP2();
-			return readBinary(offset, (int) apdu.getNe());
+			return readBinary(offset, apdu.getNe());
 		}
 		return COMMAND_NOT_AVAILABLE;
 	}

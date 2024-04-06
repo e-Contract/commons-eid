@@ -139,7 +139,7 @@ public enum DocumentType implements Serializable {
 
 	private final Set<Integer> keys;
 
-	private DocumentType(final String... valueList) {
+	DocumentType(final String... valueList) {
 		this.keys = new HashSet<>();
 		for (String value : valueList) {
 			this.keys.add(toKey(value));
@@ -183,11 +183,10 @@ public enum DocumentType implements Serializable {
 
 	public static DocumentType toDocumentType(final byte[] value) {
 		final int key = DocumentType.toKey(value);
-		final DocumentType documentType = DocumentType.documentTypes.get(key);
 		/*
 		 * If the key is unknown, we simply return null.
 		 */
-		return documentType;
+		return DocumentType.documentTypes.get(key);
 	}
 
 	public static String toString(final byte[] documentTypeValue) {

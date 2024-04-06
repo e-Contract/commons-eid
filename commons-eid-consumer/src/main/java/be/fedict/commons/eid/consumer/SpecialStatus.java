@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2009-2013 FedICT.
- * Copyright (C) 2020 e-Contract.be BV.
+ * Copyright (C) 2020-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -65,7 +65,7 @@ public enum SpecialStatus implements Serializable {
 		SpecialStatus.map = map;
 	}
 
-	private SpecialStatus(final String strValue, final boolean whiteCane, final boolean extendedMinority,
+	SpecialStatus(final String strValue, final boolean whiteCane, final boolean extendedMinority,
 			final boolean yellowCane) {
 		this.strValue = strValue;
 		this.whiteCane = whiteCane;

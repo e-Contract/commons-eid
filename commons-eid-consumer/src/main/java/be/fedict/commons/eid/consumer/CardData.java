@@ -228,7 +228,7 @@ public class CardData implements Serializable {
 	 * -- -- -- 1 -- -- -- -- RSA-KEM supported
 	 * 
 	 * Notice that the above is as specified within BELPIC 2.0, which is not in
-	 * production (yet). For now you simply get "21", the PKCS#1 version number.
+	 * production (yet). For now, you simply get "21", the PKCS#1 version number.
 	 * 
 	 * @return the "PKCS#1 support" byte
 	 */

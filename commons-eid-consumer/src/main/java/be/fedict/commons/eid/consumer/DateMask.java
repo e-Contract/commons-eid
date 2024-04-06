@@ -20,19 +20,19 @@
 package be.fedict.commons.eid.consumer;
 
 /**
- * DateMask is an an enum to support partial date information.
+ * DateMask is an enum to support partial date information.
  *
  * @author Peter Mylemans
  */
 public enum DateMask {
 
-    /**
-     * Mask that signifies only the year is set.
-     */
-    YYYY,
+	/**
+	 * Mask that signifies only the year is set.
+	 */
+	YYYY,
 
-    /**
-     * Mask that signifies a year, month and day of month is set.
-     */
-    YYYY_MM_DD;
+	/**
+	 * Mask that signifies a year, month and day of month is set.
+	 */
+	YYYY_MM_DD
 }

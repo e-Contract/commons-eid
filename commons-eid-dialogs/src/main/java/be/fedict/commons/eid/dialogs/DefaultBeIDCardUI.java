@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2009-2023 e-Contract.be BV.
+ * Copyright (C) 2009-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -68,7 +68,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 
 	// TODO can pinPadFrame and secureReaderTransactionFrame be on-screen at the
 	// same time? if not can be one member var and one dispose method
-	private Component parentComponent;
+	private final Component parentComponent;
 	private JFrame pinPadFrame;
 	private JFrame secureReaderTransactionFrame;
 	private Locale locale;
@@ -210,7 +210,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 		if (result != JOptionPane.OK_OPTION) {
 			throw new RuntimeException(OPERATION_CANCELLED);
 		}
-		if (false == Arrays.equals(newPinField.getPassword(), new2PinField.getPassword())) {
+		if (!Arrays.equals(newPinField.getPassword(), new2PinField.getPassword())) {
 			throw new RuntimeException("new PINs not equal");
 		}
 		final char[] oldPin = new char[oldPinField.getPassword().length];
@@ -512,7 +512,7 @@ public class DefaultBeIDCardUI implements BeIDCardUI {
 	private static class DialogResult {
 		enum Result {
 			OK, CANCEL
-		};
+		}
 
 		public Result result = null;
 	}

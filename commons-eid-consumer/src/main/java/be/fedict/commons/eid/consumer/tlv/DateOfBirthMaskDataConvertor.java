@@ -2,7 +2,7 @@
  * Commons eID Project.
  * Copyright (C) 2008-2017 FedICT.
  * Copyright (C) 2017 Peter Mylemans.
- * Copyright (C) 2017 e-Contract.be BVBA.
+ * Copyright (C) 2017-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -21,6 +21,7 @@
 package be.fedict.commons.eid.consumer.tlv;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +40,7 @@ public class DateOfBirthMaskDataConvertor implements DataConvertor<DateMask> {
 	@Override
 	public DateMask convert(final byte[] value) throws DataConvertorException {
 		String dateOfBirthStr;
-		try {
-			dateOfBirthStr = new String(value, "UTF-8").trim();
-		} catch (final UnsupportedEncodingException uex) {
-			throw new DataConvertorException("UTF-8 not supported");
-		}
+		dateOfBirthStr = new String(value, StandardCharsets.UTF_8).trim();
 		LOGGER.debug("\"{}\"", dateOfBirthStr);
 
 		if (dateOfBirthStr.length() == 4) {
@@ -52,5 +49,4 @@ public class DateOfBirthMaskDataConvertor implements DataConvertor<DateMask> {
 			return DateMask.YYYY_MM_DD;
 		}
 	}
-
 }

@@ -35,11 +35,11 @@ import be.fedict.commons.eid.client.OutOfCardsException;
  */
 public interface BeIDCardsUI {
 	/**
-	 * set Locale for subsequent operations. Implementations MUST ensure that
-	 * after this call, any of the obtainXXX and adviseXXX methods for the same
-	 * instance respect the locale set here. Implementations MAY choose to
-	 * update any interface elements already facing the user at time of call,
-	 * but this is not required.
+	 * set Locale for subsequent operations. Implementations MUST ensure that after
+	 * this call, any of the obtainXXX and adviseXXX methods for the same instance
+	 * respect the locale set here. Implementations MAY choose to update any
+	 * interface elements already facing the user at time of call, but this is not
+	 * required.
 	 * 
 	 * @param newLocale
 	 */
@@ -76,24 +76,22 @@ public interface BeIDCardsUI {
 	void adviseEnd();
 
 	/**
-	 * user has multiple eID Cards inserted and needs to choose exactly one.
-	 * throws CancelledException if user cancels throws OutOfCardsException if
-	 * all cards removed before selection could me made.
+	 * user has multiple eID Cards inserted and needs to choose exactly one. throws
+	 * CancelledException if user cancels throws OutOfCardsException if all cards
+	 * removed before selection could be made.
 	 * 
 	 * @param availableCards
 	 * @return
 	 * @throws be.fedict.commons.eid.client.CancelledException
 	 * @throws be.fedict.commons.eid.client.OutOfCardsException
 	 */
-	BeIDCard selectBeIDCard(Collection<BeIDCard> availableCards)
-			throws CancelledException, OutOfCardsException;
+	BeIDCard selectBeIDCard(Collection<BeIDCard> availableCards) throws CancelledException, OutOfCardsException;
 
 	/**
-	 * user added a BeID card while selectBeIDCard() was blocking. An
-	 * implementation should update the list of cards, if possible.
+	 * user added a BeID card while selectBeIDCard() was blocking. An implementation
+	 * should update the list of cards, if possible.
 	 * 
-	 * @param card
-	 *            the card just inserted.
+	 * @param card the card just inserted.
 	 */
 	void eIDCardInsertedDuringSelection(BeIDCard card);
 
@@ -101,8 +99,7 @@ public interface BeIDCardsUI {
 	 * user removed a BeID card while selectBeIDCard() was blocking. An
 	 * implementation should update the list of cards, if possible.
 	 * 
-	 * @param card
-	 *            the card just removed.
+	 * @param card the card just removed.
 	 */
 	void eIDCardRemovedDuringSelection(BeIDCard card);
 }

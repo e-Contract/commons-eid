@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2009-2020 e-Contract.be BV.
+ * Copyright (C) 2009-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -43,7 +43,7 @@ import be.fedict.commons.eid.client.spi.BeIDCardsUI;
  * 
  */
 public class DefaultBeIDCardsUI implements BeIDCardsUI {
-	private Component parentComponent;
+	private final Component parentComponent;
 	private Messages messages;
 	private JFrame adviseFrame;
 	private BeIDSelector selectionDialog;

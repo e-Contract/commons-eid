@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2023 e-Contract.be BV.
+ * Copyright (C) 2014-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -17,12 +17,6 @@
  * http://www.gnu.org/licenses/.
  */
 package test.integ.be.fedict.commons.eid.client;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringWriter;
 import java.math.BigInteger;
@@ -110,6 +104,8 @@ import be.fedict.commons.eid.jca.BeIDKeyStoreParameter;
 import be.fedict.commons.eid.jca.BeIDProvider;
 import be.fedict.commons.eid.jca.UserCancelledSignatureException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class JCATest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JCATest.class);
@@ -132,7 +128,7 @@ public class JCATest {
 			break;
 		case "EC":
 			signatureAlgorithm = "SHA256withECDSA";
-			assertTrue(authnPrivateKey instanceof ECPrivateKey);
+			assertInstanceOf(ECPrivateKey.class, authnPrivateKey);
 			break;
 		default:
 			throw new IllegalStateException("unsupported key algo");
@@ -219,7 +215,7 @@ public class JCATest {
 		Transformer transformer = transformerFactory.newTransformer();
 		StringWriter stringWriter = new StringWriter();
 		transformer.transform(new DOMSource(document), new StreamResult(stringWriter));
-		LOGGER.debug("result: {}", stringWriter.toString());
+		LOGGER.debug("result: {}", stringWriter);
 	}
 
 	@Test
@@ -264,7 +260,7 @@ public class JCATest {
 		document.appendChild(rootElement);
 
 		XMLSignContext domSignContext = new DOMSignContext(privateKey, document.getDocumentElement());
-		// next is to prevent BeIDProvider to highjack ECDSA
+		// next is to prevent BeIDProvider to high-jack ECDSA
 		domSignContext.setProperty("org.jcp.xml.dsig.internal.dom.SignatureProvider", sunECProvider);
 		XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM");
 		List<Reference> references = new LinkedList<>();
@@ -301,7 +297,7 @@ public class JCATest {
 		Transformer transformer = transformerFactory.newTransformer();
 		StringWriter stringWriter = new StringWriter();
 		transformer.transform(new DOMSource(document), new StreamResult(stringWriter));
-		LOGGER.debug("result: {}", stringWriter.toString());
+		LOGGER.debug("result: {}", stringWriter);
 	}
 
 	@Test
@@ -492,7 +488,7 @@ public class JCATest {
 		assertTrue(keyStore.containsAlias("RRN"));
 		Entry entry = keyStore.getEntry("RRN", null);
 		assertNotNull(entry);
-		assertTrue(entry instanceof TrustedCertificateEntry);
+		assertInstanceOf(TrustedCertificateEntry.class, entry);
 		TrustedCertificateEntry trustedCertificateEntry = (TrustedCertificateEntry) entry;
 		assertNotNull(trustedCertificateEntry.getTrustedCertificate());
 		assertTrue(((X509Certificate) trustedCertificateEntry.getTrustedCertificate()).getSubjectX500Principal()
@@ -596,7 +592,7 @@ public class JCATest {
 
 		Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(authnPrivateKey);
-		assertTrue(signature.getProvider() instanceof BeIDProvider);
+		assertInstanceOf(BeIDProvider.class, signature.getProvider());
 
 		JOptionPane.showMessageDialog(null, "Please click Cancel on the next PIN dialog.");
 
@@ -607,7 +603,7 @@ public class JCATest {
 			fail();
 		} catch (UserCancelledSignatureException e) {
 			// expected
-			assertTrue(e.getCause() instanceof UserCancelledException);
+			assertInstanceOf(UserCancelledException.class, e.getCause());
 		}
 	}
 
@@ -784,7 +780,7 @@ public class JCATest {
 		keyStore.load(null);
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry("Authentication", null);
 		assertNotNull(privateKeyEntry);
-		assertTrue(privateKeyEntry.getPrivateKey() instanceof AbstractBeIDPrivateKey);
+		assertInstanceOf(AbstractBeIDPrivateKey.class, privateKeyEntry.getPrivateKey());
 
 		TrustedCertificateEntry caEntry = (TrustedCertificateEntry) keyStore.getEntry("CA", null);
 		assertNotNull(caEntry);
@@ -936,7 +932,7 @@ public class JCATest {
 			PublicKey publicKey) throws Exception {
 		Signature signature = Signature.getInstance(signatureAlgorithm);
 		signature.initSign(privateKey);
-		assertTrue(signature.getProvider() instanceof BeIDProvider);
+		assertInstanceOf(BeIDProvider.class, signature.getProvider());
 
 		final byte[] toBeSigned = "hello world".getBytes();
 		signature.update(toBeSigned);

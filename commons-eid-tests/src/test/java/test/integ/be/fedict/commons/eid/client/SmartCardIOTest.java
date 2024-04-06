@@ -47,7 +47,7 @@ public class SmartCardIOTest {
 	@Test
 	public void testSmartCardIO() throws Exception {
 		LOGGER.debug("OS: {}", System.getProperty("os.name"));
-		// Mac OS Big Sur 11.0.1 work-around
+		// macOS Big Sur 11.0.1 work-around
 		System.setProperty("sun.security.smartcardio.library",
 				"/System/Library/Frameworks/PCSC.framework/Versions/Current/PCSC");
 		TerminalFactory terminalFactory = TerminalFactory.getDefault();

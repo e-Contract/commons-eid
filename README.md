@@ -10,7 +10,7 @@ The source code is hosted at: https://github.com/e-Contract/commons-eid
 
 The Maven project site is hosted at e-contract.be: https://www.e-contract.be/sites/commons-eid/
 
-Issues can be reported via github: https://github.com/e-Contract/commons-eid/issues
+Issues can be reported via Github: https://github.com/e-Contract/commons-eid/issues
 
 Also check out the eID Applet mailing list for announcements: https://groups.google.com/forum/#!forum/eid-applet
 
@@ -35,7 +35,7 @@ Commons eID runs on Java version 8+.
 
 ## Build
 
-The project can be build via:
+The project can be built via:
 
 ```shell
 mvn clean install

@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2020 e-Contract.be BV.
+ * Copyright (C) 2015-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -43,7 +43,7 @@ public class Messages {
 	}
 
 	private final ResourceBundle resourceBundle;
-	private Locale locale;
+	private final Locale locale;
 
 	/**
 	 * Enumeration of all possible message identifiers.
@@ -51,7 +51,7 @@ public class Messages {
 	 * @author Frank Cornelis
 	 * 
 	 */
-	public static enum MESSAGE_ID {
+	public enum MESSAGE_ID {
 		LOADING("loading"),
 
 		SECURITY_ERROR("securityError"),
@@ -162,7 +162,7 @@ public class Messages {
 
 		private final String id;
 
-		private MESSAGE_ID(final String id) {
+		MESSAGE_ID(final String id) {
 			this.id = id;
 		}
 

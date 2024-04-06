@@ -1,6 +1,6 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2013-2020 e-Contract.be BV.
+ * Copyright (C) 2013-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -59,7 +59,6 @@ public class DisconnectConnectTest {
 
 	private Identity readIdentity(BeIDCard card) throws CardException, IOException, InterruptedException {
 		byte[] idData = card.readFile(FileType.Identity);
-		Identity identity = TlvParser.parse(idData, Identity.class);
-		return identity;
+		return TlvParser.parse(idData, Identity.class);
 	}
 }

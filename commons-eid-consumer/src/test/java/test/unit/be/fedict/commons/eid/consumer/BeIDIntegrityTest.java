@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017-2023 e-Contract.be BV.
+ * Copyright (C) 2017-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -438,8 +438,7 @@ public class BeIDIntegrityTest {
 		} else {
 			keyPairGenerator.initialize(new ECGenParameterSpec("secp384r1"));
 		}
-		KeyPair keyPair = keyPairGenerator.generateKeyPair();
-		return keyPair;
+		return keyPairGenerator.generateKeyPair();
 	}
 
 	private X509Certificate generateSelfSignedCertificate(PublicKey publicKey, String subjectDn,
@@ -478,8 +477,6 @@ public class BeIDIntegrityTest {
 		byte[] encodedCertificate = x509CertificateHolder.getEncoded();
 
 		CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-		X509Certificate certificate = (X509Certificate) certificateFactory
-				.generateCertificate(new ByteArrayInputStream(encodedCertificate));
-		return certificate;
+		return (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(encodedCertificate));
 	}
 }

@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2023 e-Contract.be BV.
+ * Copyright (C) 2015-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -131,7 +131,7 @@ public abstract class AbstractBeIDPrivateKey implements PrivateKey {
 					this.beIDCard = this.beIDKeyStore.getBeIDCard(true);
 					if (null != this.authenticationCertificate) {
 						X509Certificate newAuthenticationCertificate = this.beIDCard.getAuthenticationCertificate();
-						if (false == this.authenticationCertificate.equals(newAuthenticationCertificate)) {
+						if (!this.authenticationCertificate.equals(newAuthenticationCertificate)) {
 							throw new SignatureException("different eID card");
 						}
 					}

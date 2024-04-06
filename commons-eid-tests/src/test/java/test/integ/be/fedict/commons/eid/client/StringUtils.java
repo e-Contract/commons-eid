@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -51,6 +52,6 @@ public class StringUtils {
 			overviewLine.append("] ");
 		}
 
-		System.out.println(overviewLine.toString());
+		System.out.println(overviewLine);
 	}
 }

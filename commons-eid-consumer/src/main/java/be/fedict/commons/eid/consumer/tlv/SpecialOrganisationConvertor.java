@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017 e-Contract.be BVBA.
+ * Copyright (C) 2017-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -19,7 +19,7 @@
 
 package be.fedict.commons.eid.consumer.tlv;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +42,8 @@ public class SpecialOrganisationConvertor implements DataConvertor<SpecialOrgani
 			return SpecialOrganisation.UNSPECIFIED;
 		}
 		String key;
-		try {
-			key = new String(value, "UTF-8");
-		} catch (final UnsupportedEncodingException uex) {
-			throw new DataConvertorException("string error: " + uex.getMessage());
-		}
+		key = new String(value, StandardCharsets.UTF_8);
 		LOGGER.debug("key: \"{}\"", key);
-		final SpecialOrganisation specialOrganisation = SpecialOrganisation.toSpecialOrganisation(key);
-		return specialOrganisation;
+		return SpecialOrganisation.toSpecialOrganisation(key);
 	}
 }

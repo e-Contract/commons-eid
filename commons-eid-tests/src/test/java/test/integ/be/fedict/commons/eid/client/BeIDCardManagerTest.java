@@ -81,7 +81,7 @@ public class BeIDCardManagerTest {
 		beIDCardManager.refreshCards();
 	}
 
-	private final class BeIDCardEventsTestListener implements BeIDCardEventsListener {
+	private final static class BeIDCardEventsTestListener implements BeIDCardEventsListener {
 
 		private final Object waitObject;
 

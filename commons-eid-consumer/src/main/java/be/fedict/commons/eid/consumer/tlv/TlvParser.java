@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017-2020 e-Contract.be BV.
+ * Copyright (C) 2017-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -21,6 +21,7 @@ package be.fedict.commons.eid.consumer.tlv;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -121,7 +122,7 @@ public class TlvParser {
 						final DataConvertor<?> dataConvertor = dataConvertorClass.newInstance();
 						fieldValue = dataConvertor.convert(tlvValue);
 					} else if (String.class == tlvType) {
-						fieldValue = new String(tlvValue, "UTF-8").trim();
+						fieldValue = new String(tlvValue, StandardCharsets.UTF_8).trim();
 					} else if (Boolean.TYPE == tlvType) {
 						fieldValue = true;
 					} else if (tlvType.isArray() && Byte.TYPE == tlvType.getComponentType()) {
@@ -129,7 +130,7 @@ public class TlvParser {
 					} else {
 						throw new IllegalArgumentException("unsupported field type: " + tlvType.getName());
 					}
-					if (null != tlvField.get(tlvObject) && false == tlvField.getType().isPrimitive()) {
+					if (null != tlvField.get(tlvObject) && !tlvField.getType().isPrimitive()) {
 						throw new RuntimeException("field was already set: " + tlvField.getName());
 					}
 					tlvField.setAccessible(true);

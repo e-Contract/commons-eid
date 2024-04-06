@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
+ * Copyright (C) 2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -24,10 +25,8 @@ import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
-	protected static final ResponseAPDU WAITWAITWAIT = new ResponseAPDU(
-			new byte[]{0x6c, (byte) 0x00});
-	protected static final ResponseAPDU WHO_AM_I = new ResponseAPDU(new byte[]{
-			(byte) 0x6d, (byte) 0x00});
+	protected static final ResponseAPDU WAITWAITWAIT = new ResponseAPDU(new byte[] { 0x6c, (byte) 0x00 });
+	protected static final ResponseAPDU WHO_AM_I = new ResponseAPDU(new byte[] { (byte) 0x6d, (byte) 0x00 });
 
 	private boolean nextTooFast;
 	private boolean nextBitError;
@@ -35,7 +34,7 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 	private boolean nextCardException;
 	private boolean nextConfused;
 	private int delay;
-	private Random random;
+	private final Random random;
 
 	public ErrorCapableBeIdCard(final String profile) {
 		this(profile, System.currentTimeMillis());
@@ -81,8 +80,7 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 	}
 
 	@Override
-	protected ResponseAPDU transmit(final CommandAPDU apdu)
-			throws CardException {
+	protected ResponseAPDU transmit(final CommandAPDU apdu) throws CardException {
 		if (this.nextConfused) {
 			this.nextConfused = false;
 			try {
@@ -94,8 +92,7 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 
 		if (this.nextCardException) {
 			this.nextCardException = false;
-			throw new CardException("Fake CardException Introduced By "
-					+ this.getClass().getName());
+			throw new CardException("Fake CardException Introduced By " + this.getClass().getName());
 		}
 
 		if (this.nextTooFast) {
@@ -122,8 +119,7 @@ public class ErrorCapableBeIdCard extends SimulatedBeIDCard {
 			final byte[] responseBytes = response.getBytes();
 
 			// flip some bits
-			responseBytes[this.random.nextInt(responseBytes.length)] ^= (byte) this.random
-					.nextInt();
+			responseBytes[this.random.nextInt(responseBytes.length)] ^= (byte) this.random.nextInt();
 
 			return new ResponseAPDU(responseBytes);
 		}

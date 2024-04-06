@@ -51,7 +51,7 @@ public class LocaleTest {
 		card.sign(new byte[] { 0x00, 0x00, 0x00, 0x00 }, BeIDDigest.PLAIN_TEXT, FileType.NonRepudiationCertificate,
 				false);
 
-		// dutch, because we set the card to dutch
+		// Dutch, because we set the card to Dutch
 		card.setLocale(new Locale("nl"));
 		card = cards.getOneBeIDCard();
 		card.sign(new byte[] { 0x00, 0x00, 0x00, 0x00 }, BeIDDigest.PLAIN_TEXT, FileType.NonRepudiationCertificate,

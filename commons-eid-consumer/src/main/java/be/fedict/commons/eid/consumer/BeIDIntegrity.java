@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2009-2023 e-Contract.be BV.
+ * Copyright (C) 2009-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -102,8 +102,7 @@ public class BeIDIntegrity {
 	 */
 	public Identity getVerifiedIdentity(final byte[] identityFile, final byte[] identitySignatureFile,
 			final X509Certificate rrnCertificate) {
-		final Identity identity = this.getVerifiedIdentity(identityFile, identitySignatureFile, null, rrnCertificate);
-		return identity;
+		return this.getVerifiedIdentity(identityFile, identitySignatureFile, null, rrnCertificate);
 	}
 
 	/**
@@ -125,14 +124,14 @@ public class BeIDIntegrity {
 		} catch (final InvalidKeyException | NoSuchAlgorithmException | SignatureException ex) {
 			throw new SecurityException("identity signature verification error: " + ex.getMessage(), ex);
 		}
-		if (false == result) {
+		if (!result) {
 			throw new SecurityException("signature integrity error");
 		}
 		final Identity identity = TlvParser.parse(identityFile, Identity.class);
 		if (null != photo) {
 			final byte[] expectedPhotoDigest = identity.getPhotoDigest();
 			final byte[] actualPhotoDigest = digest(getDigestAlgo(expectedPhotoDigest.length), photo);
-			if (false == Arrays.equals(expectedPhotoDigest, actualPhotoDigest)) {
+			if (!Arrays.equals(expectedPhotoDigest, actualPhotoDigest)) {
 				throw new SecurityException("photo digest mismatch");
 			}
 		}
@@ -179,7 +178,7 @@ public class BeIDIntegrity {
 		}
 		byte[] actualBasicPublicKeyDigest = digest(getDigestAlgo(expectedBasicPublicKeyDigest.length),
 				basicPublicKeyFile);
-		if (false == Arrays.equals(expectedBasicPublicKeyDigest, actualBasicPublicKeyDigest)) {
+		if (!Arrays.equals(expectedBasicPublicKeyDigest, actualBasicPublicKeyDigest)) {
 			throw new SecurityException("basic public key digest mismatch");
 		}
 		return identity;
@@ -205,11 +204,10 @@ public class BeIDIntegrity {
 		} catch (final InvalidKeyException | NoSuchAlgorithmException | SignatureException ex) {
 			throw new SecurityException("address signature verification error: " + ex.getMessage(), ex);
 		}
-		if (false == result) {
+		if (!result) {
 			throw new SecurityException("address integrity error");
 		}
-		final Address address = TlvParser.parse(addressFile, Address.class);
-		return address;
+		return TlvParser.parse(addressFile, Address.class);
 
 	}
 
@@ -263,8 +261,7 @@ public class BeIDIntegrity {
 			// fix for RRN signatures
 			signatureData = fixECDSASignature(signatureData);
 		}
-		final boolean result = signature.verify(signatureData);
-		return result;
+		return signature.verify(signatureData);
 	}
 
 	private byte[] fixECDSASignature(byte[] signature) {
@@ -285,8 +282,7 @@ public class BeIDIntegrity {
 		} catch (final NoSuchAlgorithmException nsaex) {
 			throw new RuntimeException(algoName);
 		}
-		final byte[] digestValue = messageDigest.digest(data);
-		return digestValue;
+		return messageDigest.digest(data);
 	}
 
 	private byte[] trimRight(final byte[] addressFile) {

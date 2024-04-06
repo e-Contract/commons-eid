@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2020 e-Contract.be BV.
+ * Copyright (C) 2015-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -57,13 +57,13 @@ public enum FileType {
 	private final byte keyId;
 	private final int estimatedMaxSize;
 
-	private FileType(final byte[] fileId, final int estimatedMaxSize) {
+	FileType(final byte[] fileId, final int estimatedMaxSize) {
 		this.fileId = fileId;
 		this.keyId = -1;
 		this.estimatedMaxSize = estimatedMaxSize;
 	}
 
-	private FileType(final byte[] fileId, final int estimatedMaxSize, final int keyId) {
+	FileType(final byte[] fileId, final int estimatedMaxSize, final int keyId) {
 		this.fileId = fileId;
 		this.keyId = (byte) keyId;
 		this.estimatedMaxSize = estimatedMaxSize;

@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2012-2013 FedICT.
- * Copyright (C) 2017-2020 e-Contract.be BV.
+ * Copyright (C) 2017-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -50,7 +50,7 @@ public class BeIDX509KeyManager extends X509ExtendedKeyManager {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDX509KeyManager.class);
 
-	private KeyStore keyStore;
+	private final KeyStore keyStore;
 
 	public BeIDX509KeyManager() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		this(null);

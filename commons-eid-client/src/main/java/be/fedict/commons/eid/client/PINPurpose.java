@@ -1,6 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2012-2013 FedICT.
+ * Copyright (C) 2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -35,7 +36,7 @@ public enum PINPurpose {
 
 	private final String type;
 
-	private PINPurpose(final String type) {
+	PINPurpose(final String type) {
 		this.type = type;
 	}
 
@@ -47,18 +48,17 @@ public enum PINPurpose {
 	 * Determine the likely reason for a PIN request by checking the certificate
 	 * chain involved.
 	 * 
-	 * @param fileType
-	 *            the File on the BeID that is involved in the operation
+	 * @param fileType the File on the BeID that is involved in the operation
 	 * @return the PIN Purpose associated with this type of file
 	 */
 	public static PINPurpose fromFileType(final FileType fileType) {
 		switch (fileType) {
-			case AuthentificationCertificate :
-				return AuthenticationSignature;
-			case NonRepudiationCertificate :
-				return NonRepudiationSignature;
-			default :
-				return PINTest;
+		case AuthentificationCertificate:
+			return AuthenticationSignature;
+		case NonRepudiationCertificate:
+			return NonRepudiationSignature;
+		default:
+			return PINTest;
 		}
 	}
 }

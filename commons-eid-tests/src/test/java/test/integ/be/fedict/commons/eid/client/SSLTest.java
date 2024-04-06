@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2020 e-Contract.be BV.
+ * Copyright (C) 2014-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -285,7 +285,7 @@ public class SSLTest {
 		@Override
 		public X509Certificate[] getCertificateChain(final String alias) {
 			LOGGER.debug("getCertificateChain: {}", alias);
-			if (false == alias.equals("test-server")) {
+			if (!alias.equals("test-server")) {
 				return null;
 			}
 			return new X509Certificate[] { this.serverCertificate };
@@ -300,7 +300,7 @@ public class SSLTest {
 		@Override
 		public PrivateKey getPrivateKey(final String alias) {
 			LOGGER.debug("getPrivateKey: {}", alias);
-			if (false == alias.equals("test-server")) {
+			if (!alias.equals("test-server")) {
 				return null;
 			}
 			return this.serverPrivateKey;
@@ -317,8 +317,7 @@ public class SSLTest {
 		final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
 		final SecureRandom random = new SecureRandom();
 		keyPairGenerator.initialize(new RSAKeyGenParameterSpec(1024, RSAKeyGenParameterSpec.F4), random);
-		final KeyPair keyPair = keyPairGenerator.generateKeyPair();
-		return keyPair;
+		return keyPairGenerator.generateKeyPair();
 	}
 
 	private X509Certificate generateCACertificate(final KeyPair keyPair, final String subject, final DateTime notBefore,

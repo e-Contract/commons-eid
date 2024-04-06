@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2020 e-Contract.be BV.
+ * Copyright (C) 2020-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -61,12 +61,12 @@ public class BeIDCards {
 	private static final String DEFAULT_UI_IMPLEMENTATION = "be.fedict.commons.eid.dialogs.DefaultBeIDCardsUI";
 
 	private final Logger logger;
-	private CardAndTerminalManager cardAndTerminalManager;
-	private BeIDCardManager cardManager;
+	private final CardAndTerminalManager cardAndTerminalManager;
+	private final BeIDCardManager cardManager;
 	private boolean terminalsInitialized, cardsInitialized, uiSelectingCard;
 	private final Map<CardTerminal, BeIDCard> beIDTerminalsAndCards;
-	private Sleeper terminalManagerInitSleeper, cardTerminalSleeper;
-	private Sleeper cardManagerInitSleeper, beIDSleeper;
+	private final Sleeper terminalManagerInitSleeper, cardTerminalSleeper;
+	private final Sleeper cardManagerInitSleeper, beIDSleeper;
 	private BeIDCardsUI ui;
 	private int cardTerminalsAttached;
 
@@ -302,9 +302,9 @@ public class BeIDCards {
 			}
 
 			if (terminal != null) {
-				// if selecting by terminal and we have a card in the requested
+				// if selecting by terminal, and we have a card in the requested
 				// one,
-				// return that immediately. (this will return null if the
+				// return that immediately. this will return null if the
 				// terminal we want doesn't
 				// have a card, and continue the loop.
 				selectedCard = currentBeIDCards.get(terminal);
@@ -375,7 +375,7 @@ public class BeIDCards {
 
 	/**
 	 * Set the Locale to use for subsequent UI operations. BeIDCards and
-	 * BeIDCardManager share the same global Locale, so this will impact and and all
+	 * BeIDCardManager share the same global Locale, so this will impact all
 	 * instances of either. BeIDCard instances may have individual, per-instance
 	 * Locale settings, however.
 	 * 

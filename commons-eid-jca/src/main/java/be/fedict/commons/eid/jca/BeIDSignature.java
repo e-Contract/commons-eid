@@ -134,7 +134,7 @@ public class BeIDSignature extends SignatureSpi {
 	BeIDSignature(final String signatureAlgorithm) throws NoSuchAlgorithmException {
 		LOGGER.debug("constructor: {}", signatureAlgorithm);
 		this.signatureAlgorithm = signatureAlgorithm;
-		if (false == digestAlgos.containsKey(signatureAlgorithm)) {
+		if (!digestAlgos.containsKey(signatureAlgorithm)) {
 			LOGGER.error("no such algo: {}", signatureAlgorithm);
 			throw new NoSuchAlgorithmException(signatureAlgorithm);
 		}
@@ -165,7 +165,7 @@ public class BeIDSignature extends SignatureSpi {
 	@Override
 	protected void engineInitSign(final PrivateKey privateKey) throws InvalidKeyException {
 		LOGGER.debug("engineInitSign");
-		if (false == privateKey instanceof AbstractBeIDPrivateKey) {
+		if (!(privateKey instanceof AbstractBeIDPrivateKey)) {
 			throw new InvalidKeyException();
 		}
 		this.privateKey = (AbstractBeIDPrivateKey) privateKey;
@@ -216,8 +216,7 @@ public class BeIDSignature extends SignatureSpi {
 		if (null == this.verifySignature) {
 			throw new SignatureException("initVerify required");
 		}
-		final boolean result = this.verifySignature.verify(sigBytes);
-		return result;
+		return this.verifySignature.verify(sigBytes);
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2020-2023 e-Contract.be BV.
+ * Copyright (C) 2020-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -119,7 +119,7 @@ public enum BeIDDigest {
 	private final boolean p1363;
 	private final String algorithm;
 
-	private BeIDDigest(String algorithm, final byte[] prefix, final int algorithmReference, final boolean ec,
+	BeIDDigest(String algorithm, final byte[] prefix, final int algorithmReference, final boolean ec,
 			final boolean p1363) {
 		this.algorithm = algorithm;
 		this.prefix = prefix;
@@ -128,15 +128,15 @@ public enum BeIDDigest {
 		this.p1363 = p1363;
 	}
 
-	private BeIDDigest(String algorithm, final byte[] prefix, final int algorithmReference, final boolean ec) {
+	BeIDDigest(String algorithm, final byte[] prefix, final int algorithmReference, final boolean ec) {
 		this(algorithm, prefix, algorithmReference, ec, false);
 	}
 
-	private BeIDDigest(String algorithm, final byte[] prefix, final int algorithmReference) {
+	BeIDDigest(String algorithm, final byte[] prefix, final int algorithmReference) {
 		this(algorithm, prefix, algorithmReference, false, false);
 	}
 
-	private BeIDDigest(String algorithm, final byte[] prefix) {
+	BeIDDigest(String algorithm, final byte[] prefix) {
 		this(algorithm, prefix, 0x01); // default algorithm reference: PKCS#1
 	}
 

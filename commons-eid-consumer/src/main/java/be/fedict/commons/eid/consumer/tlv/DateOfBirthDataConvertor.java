@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2017 e-Contract.be BVBA.
+ * Copyright (C) 2017-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -20,6 +20,7 @@
 package be.fedict.commons.eid.consumer.tlv;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.GregorianCalendar;
 
 import org.slf4j.Logger;
@@ -38,15 +39,11 @@ public class DateOfBirthDataConvertor implements DataConvertor<GregorianCalendar
 	@Override
 	public GregorianCalendar convert(final byte[] value) throws DataConvertorException {
 		String dateOfBirthStr;
-		try {
-			dateOfBirthStr = new String(value, "UTF-8").trim();
-		} catch (final UnsupportedEncodingException uex) {
-			throw new DataConvertorException("UTF-8 not supported");
-		}
+		dateOfBirthStr = new String(value, StandardCharsets.UTF_8).trim();
 		LOGGER.debug("\"{}\"", dateOfBirthStr);
 		/*
-		 * First try to detect the German format as there are cases in which a
-		 * German format contains both dots and spaces.
+		 * First try to detect the German format as there are cases in which a German
+		 * format contains both dots and spaces.
 		 */
 		int spaceIdx = dateOfBirthStr.indexOf('.');
 		if (-1 == spaceIdx) {
@@ -73,8 +70,8 @@ public class DateOfBirthDataConvertor implements DataConvertor<GregorianCalendar
 			/*
 			 * "case II2b2". Only a birth year is given
 			 * 
-			 * there's no way of representing "missing" fields via
-			 * GregorianCalendar, so we set Jan 1st
+			 * there's no way of representing "missing" fields via GregorianCalendar, so we
+			 * set Jan 1st
 			 */
 			return new GregorianCalendar(Integer.parseInt(dateOfBirthStr), 0, 1);
 		}

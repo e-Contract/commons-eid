@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2023 e-Contract.be BV.
+ * Copyright (C) 2015-2024 e-Contract.be BV.
  * Copyright (C) 2018 BOSA.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -637,7 +637,7 @@ public class BeIDCard {
 	 *                            obtain the citizen's PIN if false, the current
 	 *                            BeIDCardUI will be used in the absence of a secure
 	 *                            pinpad reader. If true, an exception will be
-	 *                            thrown unless a SPR is available
+	 *                            thrown unless an SPR is available
 	 * @return a SHA-1 digest of the input data signed by the citizen's
 	 *         authentication key
 	 * @throws NoSuchAlgorithmException
@@ -659,7 +659,7 @@ public class BeIDCard {
 	 *                            obtain the citizen's PIN if false, the current
 	 *                            BeIDCardUI will be used in the absence of a secure
 	 *                            pinpad reader. If true, an exception will be
-	 *                            thrown unless a SPR is available
+	 *                            thrown unless an SPR is available
 	 * @param applicationName     the optional application name.
 	 * @return a SHA-1 digest of the input data signed by the citizen's
 	 *         authentication key
@@ -1103,9 +1103,8 @@ public class BeIDCard {
 			}
 
 			if (0x9000 != sw) {
-				final IOException ioEx = new IOException("BeIDCommandAPDU response error: " + responseApdu.getSW(),
+				throw new IOException("BeIDCommandAPDU response error: " + responseApdu.getSW(),
 						new ResponseAPDUException(responseApdu));
-				throw ioEx;
 			}
 
 			data = responseApdu.getData();
@@ -1415,9 +1414,7 @@ public class BeIDCard {
 		final ResponseAPDU responseApdu = new ResponseAPDU(result);
 		if (0x6401 == responseApdu.getSW()) {
 			this.logger.debug("canceled by user");
-			final SecurityException securityException = new SecurityException("canceled by user",
-					new ResponseAPDUException(responseApdu));
-			throw securityException;
+			throw new SecurityException("canceled by user", new ResponseAPDUException(responseApdu));
 		} else if (0x6400 == responseApdu.getSW()) {
 			this.logger.debug("PIN pad timeout");
 		}
@@ -1448,8 +1445,7 @@ public class BeIDCard {
 	private boolean isWindows() {
 		final String osName = System.getProperty("os.name");
 		// Windows 7 suffers the same PIN entry timeout issue
-		boolean win = osName.contains("Windows");
-		return win;
+		return osName.contains("Windows");
 	}
 
 	/*
@@ -1512,9 +1508,7 @@ public class BeIDCard {
 			break;
 		case 0x6401:
 			this.logger.debug("canceled by user");
-			final SecurityException securityException = new SecurityException("canceled by user",
-					new ResponseAPDUException(responseApdu));
-			throw securityException;
+			throw new SecurityException("canceled by user", new ResponseAPDUException(responseApdu));
 		case 0x6400:
 			this.logger.debug("PIN pad timeout");
 			break;
@@ -1620,9 +1614,7 @@ public class BeIDCard {
 		final ResponseAPDU responseApdu = new ResponseAPDU(result);
 		if (0x6401 == responseApdu.getSW()) {
 			this.logger.debug("canceled by user");
-			final SecurityException securityException = new SecurityException("canceled by user",
-					new ResponseAPDUException(responseApdu));
-			throw securityException;
+			throw new SecurityException("canceled by user", new ResponseAPDUException(responseApdu));
 		} else if (0x6400 == responseApdu.getSW()) {
 			this.logger.debug("PIN pad timeout");
 		}
@@ -1802,21 +1794,21 @@ public class BeIDCard {
 		private final int p1;
 		private final int p2;
 
-		private BeIDCommandAPDU(final int cla, final int ins, final int p1, final int p2) {
+		BeIDCommandAPDU(final int cla, final int ins, final int p1, final int p2) {
 			this.cla = cla;
 			this.ins = ins;
 			this.p1 = p1;
 			this.p2 = p2;
 		}
 
-		private BeIDCommandAPDU(final int cla, final int ins, final int p1) {
+		BeIDCommandAPDU(final int cla, final int ins, final int p1) {
 			this.cla = cla;
 			this.ins = ins;
 			this.p1 = p1;
 			this.p2 = -1;
 		}
 
-		private BeIDCommandAPDU(final int cla, final int ins) {
+		BeIDCommandAPDU(final int cla, final int ins) {
 			this.cla = cla;
 			this.ins = ins;
 			this.p1 = -1;

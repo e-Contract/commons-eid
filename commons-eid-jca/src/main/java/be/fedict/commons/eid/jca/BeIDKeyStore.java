@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2014-2023 e-Contract.be BV.
+ * Copyright (C) 2014-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -153,23 +153,19 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		}
 		if ("Authentication".equals(alias)) {
 			if (beIDCard.isEC()) {
-				final BeIDECPrivateKey beIDPrivateKey = new BeIDECPrivateKey(FileType.AuthentificationCertificate, beIDCard,
-						logoff, allowFailingLogoff, autoRecovery, this, applicationName);
-				return beIDPrivateKey;
+				return new BeIDECPrivateKey(FileType.AuthentificationCertificate, beIDCard, logoff, allowFailingLogoff,
+						autoRecovery, this, applicationName);
 			}
-			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(FileType.AuthentificationCertificate, beIDCard,
-					logoff, allowFailingLogoff, autoRecovery, this, applicationName);
-			return beIDPrivateKey;
+			return new BeIDPrivateKey(FileType.AuthentificationCertificate, beIDCard, logoff, allowFailingLogoff,
+					autoRecovery, this, applicationName);
 		}
 		if ("Signature".equals(alias)) {
 			if (beIDCard.isEC()) {
-				final BeIDECPrivateKey beIDPrivateKey = new BeIDECPrivateKey(FileType.NonRepudiationCertificate, beIDCard,
-						logoff, allowFailingLogoff, autoRecovery, this, applicationName);
-				return beIDPrivateKey;
+				return new BeIDECPrivateKey(FileType.NonRepudiationCertificate, beIDCard, logoff, allowFailingLogoff,
+						autoRecovery, this, applicationName);
 			}
-			final BeIDPrivateKey beIDPrivateKey = new BeIDPrivateKey(FileType.NonRepudiationCertificate, beIDCard,
-					logoff, allowFailingLogoff, autoRecovery, this, applicationName);
-			return beIDPrivateKey;
+			return new BeIDPrivateKey(FileType.NonRepudiationCertificate, beIDCard, logoff, allowFailingLogoff,
+					autoRecovery, this, applicationName);
 		}
 		return null;
 	}
@@ -394,13 +390,11 @@ public class BeIDKeyStore extends KeyStoreSpi {
 		if ("Authentication".equals(alias) || "Signature".equals(alias)) {
 			PrivateKey privateKey = (PrivateKey) engineGetKey(alias, null);
 			Certificate[] chain = engineGetCertificateChain(alias);
-			PrivateKeyEntry privateKeyEntry = new PrivateKeyEntry(privateKey, chain);
-			return privateKeyEntry;
+			return new PrivateKeyEntry(privateKey, chain);
 		}
 		if ("CA".equals(alias) || "Root".equals(alias) || "RRN".equals(alias)) {
 			Certificate certificate = engineGetCertificate(alias);
-			TrustedCertificateEntry trustedCertificateEntry = new TrustedCertificateEntry(certificate);
-			return trustedCertificateEntry;
+			return new TrustedCertificateEntry(certificate);
 		}
 		return super.engineGetEntry(alias, protParam);
 	}

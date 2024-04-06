@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2021 e-Contract.be BV.
+ * Copyright (C) 2015-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -206,8 +206,7 @@ public class BeIDCardManager {
 				Set<CardEventsListener> copyOfOtherCardEventsListeners;
 
 				synchronized (BeIDCardManager.this.otherCardListeners) {
-					copyOfOtherCardEventsListeners = new HashSet<>(
-							BeIDCardManager.this.otherCardListeners);
+					copyOfOtherCardEventsListeners = new HashSet<>(BeIDCardManager.this.otherCardListeners);
 				}
 
 				for (CardEventsListener listener : copyOfOtherCardEventsListeners) {
@@ -270,7 +269,7 @@ public class BeIDCardManager {
 
 	/**
 	 * add a CardEventsListener to be notified of non-BeID cards being inserted and
-	 * removed. Note that this is the same interface than in
+	 * removed. Note that this is the same interface as in
 	 * {@link CardAndTerminalManager#addCardListener(CardEventsListener)} with one
 	 * notable semantic difference: a BeIDCardManager will call its
 	 * CardEventsListeners only for non-eID cards, while a CardAndTerminalManager
@@ -333,10 +332,7 @@ public class BeIDCardManager {
 		if (atrBytes.length != ATR_1_8.length) {
 			return false;
 		}
-		if (Arrays.equals(atrBytes, ATR_1_8)) {
-			return true;
-		}
-		return false;
+		return Arrays.equals(atrBytes, ATR_1_8);
 	}
 
 	/*
@@ -353,10 +349,7 @@ public class BeIDCardManager {
 		for (int idx = 0; idx < atrBytes.length; idx++) {
 			atrBytes[idx] &= ATR_MASK[idx];
 		}
-		if (Arrays.equals(atrBytes, ATR_PATTERN)) {
-			return true;
-		}
-		return false;
+		return Arrays.equals(atrBytes, ATR_PATTERN);
 	}
 
 	public BeIDCardManager setLocale(Locale newLocale) {

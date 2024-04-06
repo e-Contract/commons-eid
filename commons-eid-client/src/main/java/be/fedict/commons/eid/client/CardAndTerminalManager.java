@@ -1,7 +1,7 @@
 /*
  * Commons eID Project.
  * Copyright (C) 2008-2013 FedICT.
- * Copyright (C) 2015-2021 e-Contract.be BV.
+ * Copyright (C) 2015-2024 e-Contract.be BV.
  * Copyright (C) 2017 Corilus NV.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -66,12 +66,12 @@ public class CardAndTerminalManager implements Runnable {
 	private boolean running, subSystemInitialized, autoconnect;
 	private Thread worker;
 	private Set<CardTerminal> terminalsPresent, terminalsWithCards;
-	private CardTerminals cardTerminals;
+	private final CardTerminals cardTerminals;
 	private final Set<String> terminalsToIgnoreCardEventsFor;
 	private final Set<CardTerminalEventsListener> cardTerminalEventsListeners;
 	private final Set<CardEventsListener> cardEventsListeners;
 	private int delay;
-	private Logger logger;
+	private final Logger logger;
 	private PROTOCOL protocol;
 
 	public enum PROTOCOL {
@@ -199,7 +199,7 @@ public class CardAndTerminalManager implements Runnable {
 	/**
 	 * Start this CardAndTerminalManager. Doing this after registering one or more
 	 * CardTerminalEventsListener and/or CardEventsListener instances will cause
-	 * these be be called with the initial situation: The terminals and cards
+	 * these to be called with the initial situation: The terminals and cards
 	 * already present. Calling start() before registering any listeners will cause
 	 * these to not see the initial situation.
 	 * 

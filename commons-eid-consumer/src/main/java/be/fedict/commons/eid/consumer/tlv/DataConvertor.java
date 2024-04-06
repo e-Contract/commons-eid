@@ -23,18 +23,15 @@ package be.fedict.commons.eid.consumer.tlv;
  * 
  * @author Frank Cornelis
  * 
- * @param <T>
- *            the type to which to convert to.
+ * @param <T> the type to which to convert to.
  */
 public interface DataConvertor<T> {
 	/**
 	 * Convert the given byte array to the data convertor data type.
 	 * 
-	 * @param value
-	 *            the byte array to convert.
-	 * @return an object of the data convertor data type type.
-	 * @throws DataConvertorException
-	 *             in case the conversion failed.
+	 * @param value the byte array to convert.
+	 * @return an object of the data convertor data type.
+	 * @throws DataConvertorException in case the conversion failed.
 	 */
 	T convert(byte[] value) throws DataConvertorException;
 }
