@@ -1,6 +1,6 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2013-2023 e-Contract.be BV.
+ * Copyright (C) 2013-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -58,11 +58,11 @@ public class CMSTest {
 		CMSTypedData msg = new CMSProcessableByteArray("Hello world!".getBytes());
 
 		CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
-		ContentSigner sha1Signer = new JcaContentSignerBuilder(signatureAlgo).build(privateKey);
+		ContentSigner contentSigner = new JcaContentSignerBuilder(signatureAlgo).build(privateKey);
 
 		gen.addSignerInfoGenerator(
 				new JcaSignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().setProvider("BC").build())
-						.build(sha1Signer, certificate));
+						.build(contentSigner, certificate));
 
 		CMSSignedData sigData = gen.generate(msg, false);
 	}
