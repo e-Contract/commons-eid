@@ -1,6 +1,6 @@
 /*
  * Commons eID Project.
- * Copyright (C) 2020-2021 e-Contract.be BV.
+ * Copyright (C) 2020-2024 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -24,7 +24,6 @@ import java.security.Security;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
-import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers;
 import org.bouncycastle.asn1.util.ASN1Dump;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.DigestInfo;
@@ -39,6 +38,8 @@ public class BeIDDigestTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BeIDDigestTest.class);
 
+	private static final ASN1ObjectIdentifier idSHA1 = new ASN1ObjectIdentifier("1.3.14.3.2.26");
+
 	@BeforeAll
 	public static void setup() throws Exception {
 		Security.addProvider(new BouncyCastleProvider());
@@ -50,7 +51,7 @@ public class BeIDDigestTest {
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
 		byte[] digest = messageDigest.digest(data);
 
-		ASN1ObjectIdentifier hashAlgoId = OIWObjectIdentifiers.idSHA1;
+		ASN1ObjectIdentifier hashAlgoId = idSHA1;
 		DigestInfo digestInfo = new DigestInfo(new AlgorithmIdentifier(hashAlgoId, DERNull.INSTANCE), digest);
 		LOGGER.debug("ASN.1: {}", ASN1Dump.dumpAsString(digestInfo));
 		LOGGER.debug("Hexadecimal: {}", Hex.toHexString(digestInfo.getEncoded()));
